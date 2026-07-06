@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Карточная Арена</title>
 <style>
   :root{
@@ -38,7 +41,7 @@
     box-shadow:inset 0 1px 0 rgba(255,248,210,.5),0 0 8px rgba(240,190,80,.18);
   }
   *::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#ffe49a,#bd8730);}
-  html,body{height:100%;overflow:hidden;}
+  html,body{height:100%;height:100dvh;overflow:hidden;}
   body{
     font-family:Georgia,'Times New Roman',serif;
     background:var(--bg-deep);
@@ -47,7 +50,7 @@
     touch-action:none;
     overscroll-behavior:none;
   }
-  .screen{position:fixed;inset:0;display:none;}
+  .screen{position:fixed;inset:0;min-height:100vh;min-height:100dvh;display:none;}
   .screen.active{display:block;}
 
   /* ================= ОБЩИЕ КНОПКИ ================= */
@@ -190,6 +193,58 @@
   }
   .menu-btns .btn:hover{filter:brightness(1.12);}
   .music-toggle{font-size:12px !important;padding:7px 8px !important;}
+
+  @media (max-width: 920px), (max-height: 560px){
+    body{touch-action:manipulation;}
+    #menu{
+      align-items:flex-start;justify-content:center;
+      overflow-y:auto;overflow-x:hidden;touch-action:pan-y;
+      padding:
+        max(8px, env(safe-area-inset-top))
+        max(10px, env(safe-area-inset-right))
+        max(14px, env(safe-area-inset-bottom))
+        max(10px, env(safe-area-inset-left));
+    }
+    #menu.active{display:flex;}
+    .menu-rank{
+      position:fixed;top:max(8px, env(safe-area-inset-top));right:max(8px, env(safe-area-inset-right));
+      font-size:10.5px;padding:4px 9px;border-radius:10px;max-width:42vw;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .menu-box{
+      width:min(330px, calc(100vw - 24px));
+      margin:16px auto 18px;padding:12px 18px 14px;gap:8px;
+      border-width:3px;border-radius:16px;
+    }
+    .menu-box::before,.menu-box::after{top:-28px;height:30px;}
+    .menu-sign{padding:6px 16px;border-width:2px;border-radius:10px;}
+    .menu-sign h1{font-size:21px;letter-spacing:1.5px;}
+    .menu-sign .tavern{font-size:8.5px;letter-spacing:2.5px;}
+    .menu-btns{width:min(260px, calc(100vw - 60px));gap:7px;margin-top:4px;}
+    .menu-btns .btn{font-size:15px;padding:8px 7px;border-radius:11px;border-width:2px;}
+    .music-toggle{font-size:10.5px !important;padding:6px 7px !important;}
+    .menu-stats{font-size:10.5px;padding:4px 10px;max-width:100%;text-align:center;}
+    .torch{font-size:25px;top:18%;opacity:.72;}
+    .torch.t-left{left:4%;}
+    .torch.t-right{right:4%;}
+  }
+
+  @media (max-height: 430px) and (orientation: landscape){
+    #menu{padding-top:max(4px, env(safe-area-inset-top));}
+    .menu-rank{font-size:9.5px;padding:3px 8px;max-width:34vw;}
+    .menu-box{
+      width:min(310px, calc(100vw - 24px));
+      margin:4px auto 10px;padding:8px 15px 10px;gap:6px;
+    }
+    .menu-box::before,.menu-box::after{display:none;}
+    .menu-sign h1{font-size:18px;}
+    .menu-sign .tavern{font-size:7.5px;letter-spacing:2px;}
+    .menu-btns{gap:5px;width:min(245px, calc(100vw - 56px));}
+    .menu-btns .btn{font-size:13px;padding:6px 6px;}
+    .badge{min-width:21px;height:21px;font-size:11px;top:-7px;right:-7px;}
+    .menu-stats{font-size:9.5px;padding:3px 8px;}
+    .torch{display:none;}
+  }
 
   #impactOverlay{
     position:fixed;inset:0;z-index:320;display:none;
@@ -366,6 +421,30 @@
   }
   .d-row .d-n{margin-left:auto;color:var(--gold-bright);font-weight:bold;}
   .d-empty{font-size:11px;color:#7a6a4c;padding:8px;text-align:center;line-height:1.5;}
+
+  @media (max-width: 760px), (max-height: 520px){
+    #builder{height:100dvh;overflow:hidden;}
+    .b-head{padding:6px 8px;gap:6px;flex-wrap:wrap;}
+    .b-head .btn{font-size:11px;padding:6px 10px;}
+    .b-title{font-size:13px;letter-spacing:1px;order:-1;width:100%;text-align:center;}
+    .b-filters{padding:6px 8px;gap:5px;max-height:76px;overflow:auto;touch-action:pan-y;}
+    .b-filters input,.b-filters select{height:26px;font-size:10.5px;padding:0 6px;}
+    .b-filters input{width:min(145px, 48vw);}
+    .b-owned-only{height:26px;font-size:10.5px;padding:0 7px;}
+    #filterReset{height:26px;font-size:10px;padding:0 8px;}
+    .b-body{flex-direction:column;}
+    #collectionGrid{min-height:0;gap:40px 10px;padding:10px 10px 26px;}
+    #deckPanel{
+      width:100%;height:34dvh;min-height:145px;max-height:210px;
+      border-left:none;border-top:3px solid #56421f;
+    }
+    #deckPanel h3{font-size:11px;padding:6px 9px 4px;}
+    #deckStats{display:none;}
+    #deckList{padding:0 10px 8px;display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:5px;align-content:start;}
+    .d-row{font-size:10.5px;line-height:1.1;margin-bottom:0;padding:4px 6px;gap:5px;min-width:0;}
+    .d-row .d-cost{width:19px;height:19px;font-size:10px;}
+    .d-row .d-n{font-size:10.5px;}
+  }
 
   /* ================= ПАКИ ================= */
   #packs{
@@ -1429,7 +1508,7 @@
   }
   #rotateHint .r-icon{font-size:56px;animation:rot 1.6s infinite;}
   @keyframes rot{0%,20%{transform:rotate(0);}60%,100%{transform:rotate(90deg);}}
-  @media (orientation:portrait){ #rotateHint{display:flex;} }
+  @media (orientation:portrait){ body.game-screen #rotateHint{display:flex;} }
 
   /* ================= v18: АДМИН / КОМБО / ГЕМЫ / ИСКРЫ / РАМКИ / ПАУЗА ================= */
   .admin-toggle{
@@ -4249,6 +4328,7 @@ function showScreen(id){
   const pov = document.getElementById('pauseOverlay');
   if (pov && id !== 'game') pov.classList.remove('active');
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.body.classList.toggle('game-screen', id === 'game');
   $(id).classList.add('active');
 }
 
