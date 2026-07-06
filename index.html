@@ -2088,7 +2088,11 @@
       font-size:15px;
     }
     #enemyHero{top:6px;}
-    #playerHero{bottom:136px;}
+    #playerHero{
+      left:max(70px, calc(env(safe-area-inset-left) + 70px));
+      bottom:112px;
+      transform:none;
+    }
     .power-btn{
       width:52px;
       height:52px;
@@ -2104,7 +2108,10 @@
       left:-6px;
       border-width:1.5px;
     }
-    #playerPowerBtn{bottom:144px;left:calc(50% + 52px);}
+    #playerPowerBtn{
+      left:max(150px, calc(env(safe-area-inset-left) + 150px));
+      bottom:132px;
+    }
     #enemyPowerBtn{top:22px;left:calc(50% + 52px);width:46px;height:46px;font-size:17px;}
     .weapon-plate{
       top:6px;
@@ -2114,6 +2121,11 @@
     }
     .weapon-plate .w-icon{font-size:16px;}
     .weapon-plate .w-stats{font-size:9px;gap:4px;}
+    #playerWeapon{
+      right:auto;
+      left:calc(100% + 8px);
+      top:8px;
+    }
 
     #playerHand{
       bottom:calc(-34px + var(--mobile-safe-bottom));
@@ -2206,8 +2218,16 @@
          (max-width: 980px) and (max-height: 430px) and (orientation: landscape){
     #game{--mobile-hand-scale:.64;}
     #board{top:7%;bottom:22%;}
-    #playerHero{bottom:150px;}
-    #playerPowerBtn{bottom:158px;}
+    #playerHero{
+      left:max(58px, calc(env(safe-area-inset-left) + 58px));
+      bottom:104px;
+      transform:scale(.92);
+      transform-origin:0 50%;
+    }
+    #playerPowerBtn{
+      left:max(126px, calc(env(safe-area-inset-left) + 126px));
+      bottom:122px;
+    }
     #playerHand{bottom:calc(-42px + var(--mobile-safe-bottom));height:120px;}
     #playerDeck{bottom:34px;}
     #playerMana{bottom:5px;}
@@ -2220,7 +2240,7 @@
     #bossRow .hs-hp{font-size:8.5px;}
     #bossRow .hs-power{font-size:7.5px;max-height:68px;}
     #bossRewardNote{display:none;}
-    .portrait{transform:translateX(-50%) scale(.92);transform-origin:50% 50%;}
+    #enemyHero{transform:translateX(-50%) scale(.92);transform-origin:50% 50%;}
     .minion{transform:scale(.92);}
     .minion.can-attack,.minion.aim{transform:scale(1);}
   }
