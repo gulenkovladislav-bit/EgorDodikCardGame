@@ -1030,14 +1030,92 @@
     background:linear-gradient(180deg,#e6f7f0,#cbe9dd) !important;
     box-shadow:0 5px 13px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,248,225,.35), inset 0 0 0 4px rgba(30,140,110,.25), 0 0 10px rgba(80,220,170,.22);
   }
-  html[data-back="runic"] #playerHand .card,
-  html[data-back="runic"] #dragGhost .card{
-    border-color:#c8a14a !important;
-    background:linear-gradient(180deg,#f9f0d8,#eaddb8) !important;
-    box-shadow:0 5px 13px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,248,225,.35), inset 0 0 0 4px rgba(184,134,46,.3), 0 0 10px rgba(255,215,130,.25);
-  }
+	  html[data-back="runic"] #playerHand .card,
+	  html[data-back="runic"] #dragGhost .card{
+	    border-color:#c8a14a !important;
+	    background:linear-gradient(180deg,#f9f0d8,#eaddb8) !important;
+	    box-shadow:0 5px 13px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,248,225,.35), inset 0 0 0 4px rgba(184,134,46,.3), 0 0 10px rgba(255,215,130,.25);
+	  }
+	  /* Лицевые скины: та же выбранная рубашка теперь ощущается и на столе. */
+	  .card.face-skin-default,
+	  .minion.face-skin-default{
+	    background:
+	      radial-gradient(circle at 50% 14%, rgba(255,246,210,.62), transparent 26%),
+	      repeating-linear-gradient(90deg, rgba(112,86,38,.07) 0 3px, transparent 3px 9px),
+	      linear-gradient(180deg,var(--parchment),var(--parchment-dark)) !important;
+	    border-color:#7a6335 !important;
+	  }
+	  html[data-back="royal"] #playerHand .card,
+	  html[data-back="royal"] #dragGhost .card,
+	  html[data-back="royal"] #cardPreview .card,
+	  html[data-back="royal"] #collectionGrid .card,
+	  .card.face-skin-royal,
+	  .minion.face-skin-royal{
+	    border-color:#9a6fd0 !important;
+	    background:
+	      radial-gradient(circle at 50% 12%, rgba(255,255,255,.62), transparent 24%),
+	      repeating-conic-gradient(from -16deg at 50% 36%, rgba(126,74,180,.11) 0deg 10deg, transparent 10deg 22deg),
+	      linear-gradient(180deg,#f2e7fb,#d9c2ef) !important;
+	    box-shadow:0 5px 13px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,248,225,.42), inset 0 0 0 4px rgba(122,80,170,.23), 0 0 12px rgba(138,74,216,.24);
+	  }
+	  html[data-back="frost"] #playerHand .card,
+	  html[data-back="frost"] #dragGhost .card,
+	  html[data-back="frost"] #cardPreview .card,
+	  html[data-back="frost"] #collectionGrid .card,
+	  .card.face-skin-frost,
+	  .minion.face-skin-frost{
+	    border-color:#5a9fd0 !important;
+	    background:
+	      radial-gradient(circle at 52% 12%, rgba(255,255,255,.72), transparent 24%),
+	      repeating-linear-gradient(135deg, rgba(255,255,255,.34) 0 2px, transparent 2px 10px),
+	      repeating-linear-gradient(25deg, rgba(62,142,196,.11) 0 2px, transparent 2px 13px),
+	      linear-gradient(180deg,#eff8ff,#cfe4f4) !important;
+	    box-shadow:0 5px 13px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,248,225,.4), inset 0 0 0 4px rgba(60,120,170,.22), 0 0 12px rgba(90,170,255,.24);
+	  }
+	  html[data-back="ember"] #playerHand .card,
+	  html[data-back="ember"] #dragGhost .card,
+	  html[data-back="ember"] #cardPreview .card,
+	  html[data-back="ember"] #collectionGrid .card,
+	  .card.face-skin-ember,
+	  .minion.face-skin-ember{
+	    border-color:#d07a3a !important;
+	    background:
+	      radial-gradient(circle at 48% 12%, rgba(255,244,205,.7), transparent 23%),
+	      repeating-radial-gradient(circle at 50% 112%, rgba(210,72,18,.13) 0 8px, transparent 8px 18px),
+	      linear-gradient(155deg, rgba(255,112,28,.14), transparent 36%),
+	      linear-gradient(180deg,#fbeee1,#efd4bc) !important;
+	    box-shadow:0 5px 13px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,248,225,.42), inset 0 0 0 4px rgba(180,90,30,.22), 0 0 12px rgba(255,120,40,.23);
+	  }
+	  html[data-back="arcane"] #playerHand .card,
+	  html[data-back="arcane"] #dragGhost .card,
+	  html[data-back="arcane"] #cardPreview .card,
+	  html[data-back="arcane"] #collectionGrid .card,
+	  .card.face-skin-arcane,
+	  .minion.face-skin-arcane{
+	    border-color:#3fa080 !important;
+	    background:
+	      radial-gradient(circle at 50% 12%, rgba(230,255,244,.72), transparent 25%),
+	      repeating-linear-gradient(0deg, rgba(22,142,106,.11) 0 2px, transparent 2px 11px),
+	      repeating-linear-gradient(90deg, rgba(22,142,106,.08) 0 2px, transparent 2px 13px),
+	      linear-gradient(180deg,#e7f8f1,#c9eadc) !important;
+	    box-shadow:0 5px 13px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,248,225,.42), inset 0 0 0 4px rgba(30,140,110,.21), 0 0 12px rgba(80,220,170,.22);
+	  }
+	  html[data-back="runic"] #playerHand .card,
+	  html[data-back="runic"] #dragGhost .card,
+	  html[data-back="runic"] #cardPreview .card,
+	  html[data-back="runic"] #collectionGrid .card,
+	  .card.face-skin-runic,
+	  .minion.face-skin-runic{
+	    border-color:#c8a14a !important;
+	    background:
+	      radial-gradient(circle at 50% 12%, rgba(255,246,198,.76), transparent 24%),
+	      repeating-conic-gradient(from 18deg at 50% 42%, rgba(170,117,28,.13) 0deg 18deg, transparent 18deg 45deg),
+	      repeating-linear-gradient(90deg, rgba(124,82,22,.08) 0 2px, transparent 2px 10px),
+	      linear-gradient(180deg,#fbf0d3,#e7d7ae) !important;
+	    box-shadow:0 5px 13px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,248,225,.45), inset 0 0 0 4px rgba(184,134,46,.26), 0 0 12px rgba(255,215,130,.24);
+	  }
 
-  #playerHand{
+	  #playerHand{
     position:absolute;bottom:-40px;left:50%;transform:translateX(-50%);
     display:flex;align-items:flex-end;z-index:30;height:158px;
   }
@@ -5113,6 +5191,15 @@ function renderMana(el, side){
   el.innerHTML = html;
 }
 
+const FACE_SKINS = new Set(['default','royal','frost','ember','arcane','runic']);
+function skinClass(id){
+  const skin = FACE_SKINS.has(id) ? id : 'default';
+  return 'face-skin-' + skin;
+}
+function sideSkinClass(side){
+  return skinClass(side === G.enemy ? G.enemyBack : SAVE.back);
+}
+
 function renderBoard(el, side){
   el.innerHTML = '';
   side.board.forEach(m => {
@@ -5121,6 +5208,7 @@ function renderBoard(el, side){
     d.className = 'minion' + (m.taunt ? ' taunt' : '') + (m.frozen ? ' frozen' : '')
                 + (m.shield ? ' shielded' : '') + (m.stealth ? ' stealthy' : '')
                 + (m.enraged ? ' enraged' : '');
+    d.classList.add(sideSkinClass(side));
     d.dataset.uid = m.uid;
     if (m.justSpawned){ d.classList.add('spawn'); m.justSpawned = false; }
     if (side === G.player && G.turn === 'player'){
@@ -5200,7 +5288,7 @@ function renderHand(){
   G.player.hand.forEach((cardId, idx) => {
     const def = CARD_DB[cardId];
     const el = document.createElement('div');
-    el.className = 'card';
+    el.className = 'card ' + skinClass(SAVE.back);
     el.dataset.idx = idx;
     el.dataset.card = cardId;
     const mid = (n - 1) / 2;
@@ -5273,7 +5361,7 @@ async function playMinion(handIdx, fromPt){
   removeHandCard(G.player, handIdx);
   trackImpact(G.player, source, 'plays', 1);
   render();
-  if (fromPt) await flyEl(`<div class="card" style="margin:0">${cardHTML(cardId)}</div>`, fromPt, center($('playerBoard')), 260);
+  if (fromPt) await flyEl(`<div class="card ${skinClass(SAVE.back)}" style="margin:0">${cardHTML(cardId)}</div>`, fromPt, center($('playerBoard')), 260);
   sfx.play();
   if (playerFx() === 'gold' || playerFx() === 'frostfx') burstFx(center($('playerBoard')), playerFx());
   await withImpactSourceAsync(G.player, source, async () => {
@@ -5306,7 +5394,7 @@ async function playMagnetic(handIdx, targetMinion, fromPt){
   render();
   const tgtEl = minionEl(targetMinion);
   if (fromPt && tgtEl)
-    await flyEl(`<div class="card" style="margin:0">${cardHTML(cardId)}</div>`, fromPt, center(tgtEl), 260);
+    await flyEl(`<div class="card ${skinClass(SAVE.back)}" style="margin:0">${cardHTML(cardId)}</div>`, fromPt, center(tgtEl), 260);
   withImpactSource(G.player, source, () => magnetMerge(G.player, targetMinion, def));
   log(`🧲 ${def.name} → ${CARD_DB[targetMinion.cardId].name}`);
   G.busy = false;
@@ -5352,7 +5440,7 @@ async function playWeapon(handIdx, fromPt){
   removeHandCard(G.player, handIdx);
   trackImpact(G.player, source, 'plays', 1);
   render();
-  if (fromPt) await flyEl(`<div class="card" style="margin:0">${cardHTML(cardId)}</div>`,
+  if (fromPt) await flyEl(`<div class="card ${skinClass(SAVE.back)}" style="margin:0">${cardHTML(cardId)}</div>`,
                           fromPt, center($('playerHero')), 260);
   withImpactSource(G.player, source, () => equipWeapon(G.player, def));
   log(`Ты вооружаешься: ${def.name}`);
@@ -5663,7 +5751,7 @@ document.addEventListener('pointermove', e => {
     if (ghost.style.display !== 'block'){
       const cardId = G.player.hand[drag.handIdx];
       const def = CARD_DB[cardId];
-      ghost.innerHTML = `<div class="card">${cardHTML(cardId)}</div>`;
+      ghost.innerHTML = `<div class="card ${skinClass(SAVE.back)}">${cardHTML(cardId)}</div>`;
       ghost.style.display = 'block';
       if (drag.srcEl) drag.srcEl.style.opacity = '0.25';
       if (def.type === 'minion' || !def.target){
@@ -6147,7 +6235,7 @@ async function aiTurn(){
 	      G.enemy.mana -= def.cost;
 	      removeHandCard(G.enemy, i);
 	      trackImpact(G.enemy, source, 'plays', 1);
-	      await flyEl(`<div class="card" style="margin:0">${cardHTML(def.id)}</div>`,
+	      await flyEl(`<div class="card ${skinClass(G.enemyBack)}" style="margin:0">${cardHTML(def.id)}</div>`,
 	                  center($('enemyHand')), center($('enemyHero')), 340);
 	      withImpactSource(G.enemy, source, () => equipWeapon(G.enemy, def));
       log(`Враг вооружается: ${def.name}`);
@@ -6161,12 +6249,12 @@ async function aiTurn(){
 	      trackImpact(G.enemy, source, 'plays', 1);
 	      if (mech){
         const tgtEl = minionEl(mech);
-        await flyEl(`<div class="card" style="margin:0">${cardHTML(def.id)}</div>`,
+        await flyEl(`<div class="card ${skinClass(G.enemyBack)}" style="margin:0">${cardHTML(def.id)}</div>`,
                     center($('enemyHand')), tgtEl ? center(tgtEl) : center($('enemyBoard')), 340);
 	        withImpactSource(G.enemy, source, () => magnetMerge(G.enemy, mech, def));
 	        log(`Враг: 🧲 ${def.name}`);
 	      } else {
-	        await flyEl(`<div class="card" style="margin:0">${cardHTML(def.id)}</div>`,
+	        await flyEl(`<div class="card ${skinClass(G.enemyBack)}" style="margin:0">${cardHTML(def.id)}</div>`,
 	                    center($('enemyHand')), center($('enemyBoard')), 340);
 	        sfx.play();
 	        await withImpactSourceAsync(G.enemy, source, async () => {
@@ -6392,16 +6480,18 @@ function cardKeywords(def){
 const RARITY_RU = { common:'Обычная', rare:'Редкая', epic:'Эпическая', legendary:'Легендарная' };
 const SET_RU = { base:'Классика', magic:'Магия', mech:'Механизмы', pirate:'Пираты', codex:'Вмешательство КОДЕКСА' };
 
-function showCardPreview(cardId, rect){
+function showCardPreview(cardId, rect, side){
   const def = CARD_DB[cardId];
   if (!def) return;
   const kws = cardKeywords(def);
   const pv = $('cardPreview');
-	  pv.innerHTML = `
-	    <div class="cp-card"><div class="card" style="margin:0">${cardHTML(cardId, (G && $('game').classList.contains('active')) ? G.player : null)}</div></div>
+  const previewSide = side || ((G && $('game').classList.contains('active')) ? G.player : null);
+  const previewSkin = side ? sideSkinClass(side) : skinClass(SAVE.back);
+  pv.innerHTML = `
+	    <div class="cp-card"><div class="card ${previewSkin}" style="margin:0">${cardHTML(cardId, previewSide)}</div></div>
 	    <div class="cp-side">
 	      <div class="cp-meta">${def.type === 'minion' ? '🗡 Существо' : def.type === 'weapon' ? '⚔️ Оружие' : (def.secret ? '🔮 Секрет' : '✨ Заклинание')}${def.tribe ? ' · ' + TRIBE_RU[def.tribe] : ''} · ${RARITY_RU[def.rarity]} · ${SET_RU[setOf(cardId)]}</div>
-	      ${def.text ? `<div class="cp-kw"><b>Полный текст</b>${(G && $('game').classList.contains('active')) ? dynCardText(def, G.player) : def.text}</div>` : ''}
+	      ${def.text ? `<div class="cp-kw"><b>Полный текст</b>${previewSide ? dynCardText(def, previewSide) : def.text}</div>` : ''}
 	      ${def.type === 'spell' && !def.target ? '<div class="cp-kw"><b>Без цели</b>Бросай карту прямо на стол.</div>' : ''}
       ${def.type === 'spell' && def.target ? '<div class="cp-kw"><b>Прицельное</b>Тяни карту — появится стрелка выбора цели.</div>' : ''}
       ${kws.map(k => `<div class="cp-kw"><b>${k.n}</b>${k.d}</div>`).join('')}
@@ -6449,11 +6539,13 @@ function previewSourceAt(el){
   if (!el || !el.closest) return null;
   const c = el.closest('[data-card]');
   if (c) return { type:'card', id: c.dataset.card, rect: c.getBoundingClientRect() };
-  const m = el.closest('.minion');
-  if (m && m.dataset.uid && G){
-    const muid = +m.dataset.uid;
-    const mm = G.player.board.find(x => x.uid === muid) || G.enemy.board.find(x => x.uid === muid);
-    if (mm) return { type:'card', id: mm.cardId, rect: m.getBoundingClientRect() };
+	  const m = el.closest('.minion');
+	  if (m && m.dataset.uid && G){
+	    const muid = +m.dataset.uid;
+	    const pm = G.player.board.find(x => x.uid === muid);
+	    if (pm) return { type:'card', id: pm.cardId, side: G.player, rect: m.getBoundingClientRect() };
+	    const em = G.enemy.board.find(x => x.uid === muid);
+	    if (em) return { type:'card', id: em.cardId, side: G.enemy, rect: m.getBoundingClientRect() };
   }
   const p = el.closest('#playerPowerBtn');
   if (p && G) return { type:'power', id: G.playerHeroId, side: G.player, rect: p.getBoundingClientRect() };
@@ -6462,7 +6554,7 @@ function previewSourceAt(el){
   return null;
 }
 function openPreview(src){
-  if (src.type === 'card') showCardPreview(src.id, src.rect);
+  if (src.type === 'card') showCardPreview(src.id, src.rect, src.side);
   else showPowerPreview(src.id, src.rect, src.side);
 }
 
@@ -6599,7 +6691,7 @@ function createBuilderCard(id){
 	  wrap.dataset.card = id;
 	  wrap.title = `${def.name}\n${def.text || ''}`;
   wrap.innerHTML = `
-    <div class="card" style="margin:0;width:126px;height:172px;">${cardHTML(id)}</div>
+	    <div class="card ${skinClass(SAVE.back)}" style="margin:0;width:126px;height:172px;">${cardHTML(id)}</div>
     <div class="b-owned"></div>
     <div class="b-indeck" style="display:none"></div>
     <div class="b-actions">
@@ -6933,7 +7025,7 @@ function openPack(type, pileEl){
       pc.innerHTML = `
         <div class="pcard-inner">
           <div class="pface back cardback-${SAVE.back||'default'}"></div>
-          <div class="pface front"><div class="card" style="margin:0;width:126px;height:172px;">${cardHTML(id)}</div></div>
+	          <div class="pface front"><div class="card ${skinClass(SAVE.back)}" style="margin:0;width:126px;height:172px;">${cardHTML(id)}</div></div>
         </div>`;
       pc.addEventListener('click', () => flip(pc, def));
       pcards.push({ pc, def });
