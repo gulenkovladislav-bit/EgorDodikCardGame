@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-06-1605';
+    var build = '2026-07-06-1655';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -308,6 +308,26 @@
   .impact-head{display:flex;align-items:center;justify-content:space-between;gap:10px;}
   .impact-title{font-size:18px;color:var(--gold-bright);letter-spacing:2px;}
   .impact-note{font-size:10.5px;color:#a08c60;line-height:1.35;}
+  .impact-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .impact-pill{
+    font-family:inherit;font-size:10.5px;font-weight:bold;letter-spacing:.6px;
+    color:#d8ccae;background:linear-gradient(180deg,#3a2a14,#24180a);
+    border:1.5px solid #6b5124;border-radius:9px;padding:5px 9px;cursor:pointer;
+  }
+  .impact-pill.on{
+    color:#241a08;background:linear-gradient(180deg,#f0d080,#a87b28);
+    border-color:#d8b25a;text-shadow:0 1px 0 rgba(255,255,255,.28);
+  }
+  .impact-pill:disabled{opacity:.35;cursor:default;filter:grayscale(.7);}
+  .impact-summary{
+    display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:6px;
+    font-size:10px;color:#cdbb93;
+  }
+  .impact-summary .is-card{
+    background:rgba(0,0,0,.28);border:1px solid #56421f;border-radius:9px;
+    padding:6px 8px;min-width:0;
+  }
+  .impact-summary b{display:block;color:var(--gold-bright);font-size:13px;}
   #impactList{overflow:auto;display:flex;flex-direction:column;gap:6px;padding-right:4px;}
   .impact-row{
     display:grid;grid-template-columns:42px 1fr 72px 230px;gap:10px;align-items:center;
@@ -315,11 +335,43 @@
     background:linear-gradient(90deg,#3a2a14,#24180a);
     border:1.5px solid #6b5124;border-radius:9px;color:var(--parchment);
   }
+  .impact-row .d-cost{
+    width:24px;height:24px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--mana-glow), var(--mana));
+    border:1.5px solid #14314a;font-size:12px;font-weight:bold;color:#fff;
+    display:flex;align-items:center;justify-content:center;text-shadow:0 1px 2px #000;
+  }
   .impact-card{min-width:0;font-size:12px;font-weight:bold;line-height:1.2;}
   .impact-card small{display:block;color:#a08c60;font-size:9.5px;font-weight:normal;margin-top:2px;}
   .impact-score{font-size:14px;color:var(--gold-bright);font-weight:bold;text-align:right;}
+  .impact-score small{display:block;font-size:9px;color:#a08c60;font-weight:normal;}
   .impact-parts{font-size:9.5px;color:#c4b28a;line-height:1.25;}
   .impact-empty{padding:22px;text-align:center;color:#a08c60;font-size:12px;line-height:1.5;}
+
+  @media (max-width: 820px), (max-height: 520px){
+    #impactOverlay{padding:8px;}
+    .impact-box{width:calc(100vw - 12px);max-height:calc(100dvh - 12px);padding:10px;gap:7px;border-width:2px;}
+    .impact-title{font-size:13px;letter-spacing:1px;}
+    .impact-note{font-size:8.5px;line-height:1.2;}
+    .impact-head .btn{font-size:9px !important;padding:5px 8px !important;}
+    .impact-toolbar{gap:5px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
+    .impact-toolbar::-webkit-scrollbar{display:none;}
+    .impact-pill{font-size:8.5px;padding:4px 7px;white-space:nowrap;border-radius:7px;}
+    .impact-summary{grid-template-columns:repeat(4, minmax(0, 1fr));gap:4px;}
+    .impact-summary .is-card{font-size:7.8px;padding:4px 5px;border-radius:7px;}
+    .impact-summary b{font-size:9.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    #impactList{gap:4px;}
+    .impact-row{
+      grid-template-columns:24px minmax(0, 1fr) 54px;
+      min-height:34px;gap:5px;padding:4px 6px;border-radius:7px;
+    }
+    .impact-row .d-cost{width:19px;height:19px;font-size:9px;border-width:1px;}
+    .impact-card{font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .impact-card small{font-size:7.6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .impact-score{font-size:10px;}
+    .impact-score small{font-size:7px;}
+    .impact-parts{grid-column:2 / 4;font-size:7.6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  }
 
   /* ================= НАСТРОЙКИ ================= */
   #settingsOverlay{
@@ -409,6 +461,9 @@
   #deckStats .ds-lbl{min-width:64px;color:#a08c60;}
   #deckStats .ds-chips{display:flex;gap:5px;flex-wrap:wrap;flex:1;}
   #deckStats .ds-chip{background:rgba(0,0,0,.35);border-radius:6px;padding:1px 6px;white-space:nowrap;}
+  #deckStats .ds-chip.good{color:#9fe38a;}
+  #deckStats .ds-chip.warn{color:#ffd27a;}
+  #deckStats .ds-chip.bad{color:#ff8b75;}
   #deckStats .ds-curve{display:flex;align-items:flex-end;gap:3px;height:44px;flex:1;}
   #deckStats .ds-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
   #deckStats .ds-bar i{width:100%;background:linear-gradient(180deg,#f5c96a,#b8862e);border-radius:3px 3px 0 0;min-height:2px;transition:height .2s;}
@@ -490,6 +545,138 @@
     .d-row{font-size:10.5px;line-height:1.1;margin-bottom:0;padding:4px 6px;gap:5px;min-width:0;}
     .d-row .d-cost{width:19px;height:19px;font-size:10px;}
     .d-row .d-n{font-size:10.5px;}
+  }
+
+  @media (pointer: coarse) and (orientation: landscape),
+         (max-width: 980px) and (max-height: 560px) and (orientation: landscape){
+    #builder{
+      height:100dvh;
+      height:100svh;
+      overflow:hidden;
+    }
+    .b-head{
+      min-height:38px;padding:4px 8px;gap:6px;flex-wrap:nowrap;
+      display:grid;grid-template-columns:auto minmax(0, 1fr) auto auto auto auto;align-items:center;
+    }
+    .b-head .btn{
+      font-size:10px;line-height:1;padding:6px 9px;border-radius:10px;border-width:2px;
+      white-space:nowrap;
+    }
+    .b-title{
+      order:0;width:auto;text-align:center;font-size:12px;letter-spacing:1px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    #dustLbl,#deckCount{font-size:12px;white-space:nowrap;}
+    .admin-toggle{
+      height:28px;font-size:10px;padding:0 8px;border-radius:9px;white-space:nowrap;
+    }
+    .admin-toggle .fake-check{width:16px;height:16px;border-radius:5px;}
+    .b-filters{
+      height:38px;min-height:38px;max-height:38px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+      padding:5px 8px;gap:6px;touch-action:pan-x;
+      scrollbar-width:none;
+    }
+    .b-filters::-webkit-scrollbar{display:none;}
+    .b-filters input,.b-filters select{
+      height:26px;font-size:10px;padding:0 7px;flex:0 0 auto;border-radius:7px;
+    }
+    .b-filters input{width:150px;}
+    .b-filters select{width:116px;}
+    .b-owned-only{
+      height:26px;min-width:88px;justify-content:center;flex:0 0 auto;
+      font-size:10px;padding:0 7px;border-radius:7px;
+    }
+    .b-owned-only input{width:14px;height:14px;}
+    #filterReset{height:26px;font-size:9px;padding:0 8px;flex:0 0 auto;}
+    .b-body{
+      flex:1;min-height:0;display:grid;grid-template-rows:minmax(0, 1fr) 31svh;
+    }
+    #collectionGrid{
+      min-height:0;overflow-y:auto;display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(82px, 1fr));
+      gap:30px 8px;align-content:start;padding:8px 8px 34px;
+    }
+    .b-card{width:88px;height:121px;justify-self:center;}
+    .b-card>.card{
+      transform:scale(.7);transform-origin:0 0;
+    }
+    .b-card:active{transform:scale(1.02);}
+    .b-card .b-actions{
+      bottom:-24px;gap:3px;
+    }
+    .b-card .ba{
+      font-size:7.5px;line-height:1;padding:2px 4px;border-width:1px;border-radius:7px;
+    }
+    .b-owned{
+      bottom:-17px;font-size:8px;padding:0 5px;border-radius:6px;
+    }
+    .b-indeck{
+      top:-6px;right:-6px;width:20px;height:20px;font-size:10px;border-width:1.5px;
+    }
+    #deckPanel{
+      width:100%;height:auto;min-height:0;max-height:none;display:grid;
+      grid-template-rows:auto auto minmax(0, 1fr);border-left:none;border-top:2px solid #56421f;
+    }
+    #deckPanel h3{
+      font-size:10px;line-height:1;padding:5px 8px 3px;letter-spacing:1.5px;
+    }
+    #deckStats{
+      display:block;margin:0 8px 5px;padding:4px 7px;border-radius:8px;
+      font-size:8.5px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;
+      scrollbar-width:none;
+    }
+    #deckStats::-webkit-scrollbar{display:none;}
+    #deckStats .ds-title{display:none;}
+    #deckStats .ds-row{display:inline-flex;margin:0 8px 0 0;vertical-align:middle;gap:4px;}
+    #deckStats .ds-lbl{min-width:auto;font-size:8px;}
+    #deckStats .ds-chips{display:inline-flex;flex-wrap:nowrap;gap:3px;}
+    #deckStats .ds-chip{font-size:8px;padding:1px 4px;border-radius:5px;}
+    #deckStats .ds-curve{display:none;}
+    #deckList{
+      min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:4px;padding:0 8px 7px;align-content:start;
+    }
+    .d-row{
+      min-height:26px;margin-bottom:0;padding:3px 6px;gap:5px;border-radius:8px;
+      font-size:9.5px;line-height:1.05;min-width:0;
+    }
+    .d-row .d-cost{width:17px;height:17px;font-size:9px;border-width:1px;}
+    .d-row span:not(.d-cost):not(.d-n){
+      min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
+    .d-row .d-n{font-size:9px;margin-left:auto;}
+    .d-empty{
+      grid-column:1 / -1;font-size:10px;padding:4px 8px;line-height:1.25;
+    }
+  }
+
+  @media (pointer: coarse) and (orientation: landscape) and (max-height: 430px),
+         (max-width: 980px) and (max-height: 430px) and (orientation: landscape){
+    .b-head{min-height:34px;padding:3px 7px;}
+    .b-head .btn{font-size:9px;padding:5px 8px;}
+    .b-title{font-size:11px;}
+    #dustLbl,#deckCount{font-size:11px;}
+    .admin-toggle{height:25px;font-size:9px;padding:0 6px;}
+    .b-filters{height:32px;min-height:32px;max-height:32px;padding:3px 7px;}
+    .b-filters input,.b-filters select,.b-owned-only,#filterReset{height:24px;font-size:9px;}
+    .b-filters input{width:135px;}
+    .b-filters select{width:106px;}
+    .b-body{grid-template-rows:minmax(0, 1fr) 29svh;}
+    #collectionGrid{
+      grid-template-columns:repeat(auto-fill, minmax(74px, 1fr));
+      gap:26px 7px;padding:7px 8px 30px;
+    }
+    .b-card{width:78px;height:107px;}
+    .b-card>.card{transform:scale(.62);}
+    .b-card .b-actions{bottom:-22px;}
+    .b-card .ba{font-size:7px;padding:2px 3px;}
+    .b-owned{bottom:-15px;font-size:7.5px;}
+    #deckList{grid-template-columns:repeat(3, minmax(0, 1fr));gap:3px;}
+    #deckStats{margin:0 7px 4px;padding:3px 6px;font-size:8px;}
+    #deckStats .ds-chip{font-size:7.6px;padding:1px 3px;}
+    .d-row{min-height:23px;font-size:8.5px;padding:2px 5px;}
+    .d-row .d-cost{width:15px;height:15px;font-size:8px;}
+    .d-row .d-n{font-size:8.5px;}
   }
 
   /* ================= ПАКИ ================= */
@@ -2047,23 +2234,30 @@
     }
 
     #game{
-      --mobile-hand-scale:.70;
+      --mobile-hand-scale:.58;
       --mobile-safe-bottom:max(4px, env(safe-area-inset-bottom));
     }
+    #game::before{
+      content:"";position:absolute;left:0;bottom:0;z-index:14;pointer-events:none;
+      width:178px;height:138px;
+      background:
+        radial-gradient(ellipse at 24% 58%, rgba(18,10,3,.86), rgba(18,10,3,.55) 48%, transparent 74%),
+        linear-gradient(90deg, rgba(9,5,2,.72), transparent);
+    }
     #board{
-      left:4.5%;
-      right:4.5%;
-      top:8%;
-      bottom:23%;
+      left:6.5%;
+      right:6%;
+      top:10%;
+      bottom:30%;
     }
     .row{
-      left:7%;
-      right:7%;
-      height:34%;
-      gap:6px;
+      left:12%;
+      right:12%;
+      height:29%;
+      gap:5px;
     }
-    #enemyBoard{top:13%;}
-    #playerBoard{bottom:17%;}
+    #enemyBoard{top:16%;}
+    #playerBoard{bottom:22%;}
     .minion{
       width:76px;
       height:96px;
@@ -2121,9 +2315,11 @@
     }
     #enemyHero{top:6px;}
     #playerHero{
-      left:max(70px, calc(env(safe-area-inset-left) + 70px));
-      bottom:112px;
-      transform:none;
+      left:max(12px, calc(env(safe-area-inset-left) + 12px));
+      bottom:64px;
+      transform:scale(.86);
+      transform-origin:0 100%;
+      z-index:34;
     }
     .power-btn{
       width:52px;
@@ -2141,8 +2337,9 @@
       border-width:1.5px;
     }
     #playerPowerBtn{
-      left:max(150px, calc(env(safe-area-inset-left) + 150px));
-      bottom:132px;
+      left:max(82px, calc(env(safe-area-inset-left) + 82px));
+      bottom:82px;
+      z-index:35;
     }
     #enemyPowerBtn{top:22px;left:calc(50% + 52px);width:46px;height:46px;font-size:17px;}
     .weapon-plate{
@@ -2160,8 +2357,8 @@
     }
 
     #playerHand{
-      bottom:calc(-34px + var(--mobile-safe-bottom));
-      height:132px;
+      bottom:calc(14px + var(--mobile-safe-bottom));
+      height:128px;
       transform:translateX(-50%) scale(var(--mobile-hand-scale));
       transform-origin:50% 100%;
       z-index:31;
@@ -2177,7 +2374,7 @@
 
     #playerDeck{
       right:max(16px, env(safe-area-inset-right));
-      bottom:42px;
+      bottom:34px;
       width:44px;
       height:61px;
     }
@@ -2207,7 +2404,7 @@
     }
     #playerMana{
       right:max(12px, env(safe-area-inset-right));
-      bottom:8px;
+      bottom:6px;
     }
     #enemyMana{
       right:max(12px, env(safe-area-inset-right));
@@ -2235,9 +2432,9 @@
     }
     #log{
       left:max(8px, env(safe-area-inset-left));
-      bottom:18px;
-      max-width:36vw;
-      font-size:8.8px;
+      bottom:7px;
+      max-width:34vw;
+      font-size:8px;
     }
     .deco{font-size:22px;}
     #decoCandle{left:2%;top:28%;}
@@ -2248,29 +2445,31 @@
 
   @media (pointer: coarse) and (orientation: landscape) and (max-height: 430px),
          (max-width: 980px) and (max-height: 430px) and (orientation: landscape){
-    #game{--mobile-hand-scale:.64;}
-    #board{top:7%;bottom:22%;}
-    .row{height:31%;}
-    #enemyBoard{top:15%;}
-    #playerBoard{bottom:19%;}
+    #game{--mobile-hand-scale:.54;}
+    #game::before{width:158px;height:118px;}
+    #board{left:6%;right:6%;top:9%;bottom:31%;}
+    .row{left:13%;right:13%;height:27%;}
+    #enemyBoard{top:17%;}
+    #playerBoard{bottom:24%;}
     .minion{width:68px;height:86px;}
     .minion .m-icon{font-size:27px;}
     .minion .m-name{font-size:8.5px;}
     .minion .stat{width:25px;height:25px;font-size:14px;}
     #playerHero{
-      left:max(58px, calc(env(safe-area-inset-left) + 58px));
-      bottom:104px;
-      transform:scale(.92);
-      transform-origin:0 50%;
+      left:max(9px, calc(env(safe-area-inset-left) + 9px));
+      bottom:54px;
+      transform:scale(.78);
+      transform-origin:0 100%;
     }
     #playerPowerBtn{
-      left:max(126px, calc(env(safe-area-inset-left) + 126px));
-      bottom:122px;
+      left:max(72px, calc(env(safe-area-inset-left) + 72px));
+      bottom:68px;
     }
-    #playerHand{bottom:calc(-42px + var(--mobile-safe-bottom));height:120px;}
-    #playerDeck{bottom:34px;}
+    #playerHand{bottom:calc(22px + var(--mobile-safe-bottom));height:120px;}
+    #playerDeck{bottom:30px;width:39px;height:55px;}
     #playerMana{bottom:5px;}
     #endTurnBtn{width:64px;font-size:10px;padding:9px 7px;}
+    #log{bottom:6px;max-width:32vw;font-size:7.5px;}
     #bossSelect{gap:5px;padding-top:max(5px, env(safe-area-inset-top));}
     #bossRow{grid-template-columns:repeat(6, minmax(116px, 1fr));gap:6px;}
     #bossRow .boss-card{height:204px;min-width:116px;padding:15px 6px 6px;}
@@ -2329,6 +2528,13 @@
       </div>
       <button class="btn stone" id="impactClose" style="font-size:12px;padding:7px 14px;">ЗАКРЫТЬ</button>
     </div>
+    <div class="impact-toolbar">
+      <button class="impact-pill on" id="impactModePlayed">СЫГРАННЫЕ</button>
+      <button class="impact-pill" id="impactModeAll">АДМИН: ВСЕ КАРТЫ</button>
+      <button class="impact-pill" id="impactSortPower">ПО СИЛЕ</button>
+      <button class="impact-pill" id="impactSortKpd">ПО КПД</button>
+    </div>
+    <div class="impact-summary" id="impactSummary"></div>
     <div id="impactList"></div>
   </div>
 </div>
@@ -4855,6 +5061,40 @@ function center(el){
   const r = el.getBoundingClientRect();
   return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
 }
+function safeCenter(el, fallback){
+  if (el && el.getBoundingClientRect) return center(el);
+  if (fallback && fallback.getBoundingClientRect) return center(fallback);
+  return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+}
+function targetElFor(target){
+  if (!target) return null;
+  return target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion);
+}
+function boardElForSide(side){
+  return side === G.player ? $('playerBoard') : $('enemyBoard');
+}
+function targetPoint(target){
+  const el = targetElFor(target);
+  const fallback = target && target.kind === 'minion' ? boardElForSide(target.side) : heroEl(target && target.side);
+  return safeCenter(el, fallback || $('board'));
+}
+function mobileBattleLayout(){
+  return window.matchMedia && (
+    matchMedia('(pointer: coarse) and (orientation: landscape)').matches ||
+    matchMedia('(max-width: 980px) and (max-height: 560px) and (orientation: landscape)').matches
+  );
+}
+function combatPoint(target, attSide){
+  if (!target || target.kind !== 'hero' || !mobileBattleLayout()) return targetPoint(target);
+  const b = $('board').getBoundingClientRect();
+  if (target.side === G.player){
+    return { x: b.left + b.width * 0.5, y: b.bottom - Math.max(26, b.height * 0.09) };
+  }
+  if (target.side === G.enemy){
+    return { x: b.left + b.width * 0.5, y: b.top + Math.max(26, b.height * 0.09) };
+  }
+  return targetPoint(target);
+}
 function showScreen(id){
   const aid = document.getElementById('aiDecksOverlay');
   if (aid) aid.classList.remove('active');
@@ -5818,7 +6058,7 @@ async function playMagnetic(handIdx, targetMinion, fromPt){
   render();
   const tgtEl = minionEl(targetMinion);
   if (fromPt && tgtEl)
-    await flyEl(`<div class="card ${skinClass(SAVE.back)}" style="margin:0">${cardHTML(cardId)}</div>`, fromPt, center(tgtEl), 260);
+    await flyEl(`<div class="card ${skinClass(SAVE.back)}" style="margin:0">${cardHTML(cardId)}</div>`, fromPt, safeCenter(tgtEl, $('playerBoard')), 260);
   withImpactSource(G.player, source, () => magnetMerge(G.player, targetMinion, def));
   log(`🧲 ${def.name} → ${CARD_DB[targetMinion.cardId].name}`);
   G.busy = false;
@@ -5878,7 +6118,7 @@ async function heroSwing(side, target){
   side.heroAttacked = true;
   const tgtEl = target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion);
   await flyEl(`<div style="font-size:34px;filter:drop-shadow(0 2px 4px #000)">${CARD_DB[w.cardId].icon}</div>`,
-              center(heroEl(side)), center(tgtEl), 260);
+              safeCenter(heroEl(side), $('board')), combatPoint(target, side), 260);
   if (target.kind === 'hero'){
     withImpactSource(side, w.source || w.cardId, () => G.dealDamage(target, w.atk));
     if (w.lifesteal) withImpactSource(side, w.source || w.cardId, () => G.heal({ kind:'hero', side }, w.atk));
@@ -5948,7 +6188,7 @@ async function castSpell(handIdx, target){
   const tgtEl = def.secret ? $('playerHero')
     : target ? (target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion))
     : $('enemyBoard');
-  const tgtPt = tgtEl ? center(tgtEl) : center($('board'));
+  const tgtPt = target ? targetPoint(target) : safeCenter(tgtEl, $('board'));
   sfx.spell();
   await flyEl(`<div style="font-size:40px;filter:drop-shadow(0 0 8px #ff7722)">${def.icon}</div>`,
               center($('playerHero')), tgtPt, 320);
@@ -5981,7 +6221,7 @@ async function attackWith(minion, target){
   useAttack(minion);
   const attEl = minionEl(minion);
   const tgtEl = target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion);
-  await lungeAnim(attEl, center(tgtEl));
+  await lungeAnim(attEl, combatPoint(target, G.player));
   resolveCombat(G.player, minion, target);
   await sleep(200);
   await resolveDeaths();
@@ -6002,7 +6242,7 @@ async function usePlayerPower(target){
     ? (target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion))
     : $('playerHero');
   await flyEl(`<div style="font-size:32px;filter:drop-shadow(0 0 8px #66ccff)">${pw.icon}</div>`,
-              center($('playerPowerBtn')), center(tgtEl), 260);
+              safeCenter($('playerPowerBtn'), heroEl(G.player)), target ? targetPoint(target) : safeCenter(tgtEl, heroEl(G.player)), 260);
 	  log(`${pw.name}!`);
 		  withImpactSource(G.player, G.player.powerSource, () => {
 		    pw.use(G, G.player, target);
@@ -6565,7 +6805,7 @@ async function aiCastSpell(i, def, target){
     : $('playerBoard');
   sfx.spell();
   await flyEl(`<div style="font-size:40px;filter:drop-shadow(0 0 8px #ff7722)">${def.icon}</div>`,
-              center($('enemyHero')), tgtEl ? center(tgtEl) : center($('board')), 340);
+              safeCenter($('enemyHero'), $('board')), target ? targetPoint(target) : safeCenter(tgtEl, $('board')), 340);
 	  const sc = checkSecrets(G.player, 'spellCast', {});
 	  let resolved = false;
 	  if (sc.cancel){
@@ -6674,7 +6914,7 @@ async function aiTurn(){
 	      if (mech){
         const tgtEl = minionEl(mech);
         await flyEl(`<div class="card ${skinClass(G.enemyBack)}" style="margin:0">${cardHTML(def.id)}</div>`,
-                    center($('enemyHand')), tgtEl ? center(tgtEl) : center($('enemyBoard')), 340);
+                    safeCenter($('enemyHand'), $('enemyHero')), safeCenter(tgtEl, $('enemyBoard')), 340);
 	        withImpactSource(G.enemy, source, () => magnetMerge(G.enemy, mech, def));
 	        log(`Враг: 🧲 ${def.name}`);
 	      } else {
@@ -6734,7 +6974,7 @@ async function aiTurn(){
         ? (target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion))
         : $('enemyHero');
       await flyEl(`<div style="font-size:30px;filter:drop-shadow(0 0 8px #aa66ff)">${epw.icon}</div>`,
-                  center($('enemyPowerBtn')), center(tgtEl), 300);
+                  safeCenter($('enemyPowerBtn'), $('enemyHero')), target ? targetPoint(target) : safeCenter(tgtEl, $('enemyHero')), 300);
       log(`Враг: ${epw.name}!`);
 	      withImpactSource(G.enemy, G.enemy.powerSource, () => {
 	        epw.use(G, G.enemy, target);
@@ -6758,7 +6998,7 @@ async function aiTurn(){
       const target = aiPickAttackTarget(m, G.aiLethalPlan || aiBoardLethal());
       const attEl = minionEl(m);
       const tgtEl = target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion);
-      await lungeAnim(attEl, center(tgtEl));
+      await lungeAnim(attEl, combatPoint(target, G.enemy));
       resolveCombat(G.enemy, m, target);
       await sleep(250);
       await resolveDeaths();
@@ -7216,42 +7456,97 @@ function renderCollectionGrid(){
   $('collectionGrid').appendChild(frag);
 }
 
+function cardImpactInfo(id){
+  ensureImpactSave();
+  const st = ensureImpactBucket(SAVE.cardImpact, id) || impactBlank();
+  const score = impactScore(st);
+  const plays = st.plays || 0;
+  const vpp = plays ? score / plays : 0;
+  const wr = st.games ? Math.round(100 * (st.wins || 0) / st.games) : null;
+  return { st, score, plays, vpp, wr, power:cardPowerScore(id) };
+}
+function deckAnalysis(deck){
+  const entries = Object.keys(deck || {}).filter(id => CARD_DB[id] && deck[id] > 0);
+  const cards = [];
+  entries.forEach(id => { for (let i = 0; i < deck[id]; i++) cards.push(CARD_DB[id]); });
+  const total = cards.length;
+  const curve = [0,0,0,0,0,0,0,0];
+  const type = { minion:0, spell:0, weapon:0, secret:0 };
+  const rarity = { common:0, rare:0, epic:0, legendary:0 };
+  const tribes = {};
+  let atk = 0, hp = 0, minions = 0, draw = 0, removal = 0, taunts = 0, healArmor = 0;
+  cards.forEach(c => {
+    curve[Math.min(7, c.cost)]++;
+    if (c.type === 'minion'){
+      type.minion++; minions++; atk += c.atk || 0; hp += c.hp || 0;
+      if (c.taunt) taunts++;
+    } else if (c.type === 'weapon') type.weapon++;
+    else type.spell++;
+    if (c.secret) type.secret++;
+    if (c.rarity) rarity[c.rarity]++;
+    if (c.tribe) tribes[c.tribe] = (tribes[c.tribe] || 0) + 1;
+    const txt = (c.text || '').toLowerCase();
+    if (txt.includes('возьмите') || txt.includes('карту')) draw++;
+    if (c.burn || txt.includes('урон') || txt.includes('уничтож')) removal++;
+    if (txt.includes('здоров') || txt.includes('брон')) healArmor++;
+  });
+  const avgCost = total ? cards.reduce((s, c) => s + c.cost, 0) / total : 0;
+  const cheap = cards.filter(c => c.cost <= 2).length;
+  const mid = cards.filter(c => c.cost >= 3 && c.cost <= 5).length;
+  const late = cards.filter(c => c.cost >= 6).length;
+  const impactRows = entries.map(id => ({ id, n:deck[id], info:cardImpactInfo(id) }))
+    .sort((a, b) => b.info.power - a.info.power || CARD_DB[a.id].cost - CARD_DB[b.id].cost);
+  return { entries, cards, total, curve, type, rarity, tribes, minions, atk, hp, avgCost, cheap, mid, late, draw, removal, taunts, healArmor, impactRows };
+}
+function curveHtml(curve){
+  const maxc = Math.max(1, ...curve);
+  return curve.map((n, i) =>
+    `<div class="ds-bar"><i style="height:${Math.round(n / maxc * 100)}%"></i><b>${n}</b><span>${i === 7 ? '7+' : i}</span></div>`).join('');
+}
+function qualityClass(v, good, warn){
+  return v >= good ? 'good' : v >= warn ? 'warn' : 'bad';
+}
 function renderDeckStats(){
   const box = $('deckStats');
   if (!box) return;
-  const ids = Object.keys(draft).filter(id => draft[id] > 0);
-  const cards = [];
-  ids.forEach(id => { for (let i = 0; i < draft[id]; i++) cards.push(CARD_DB[id]); });
-  const total = cards.length;
-  if (!total){ box.innerHTML = '<div class="ds-title">СТАТИСТИКА</div><div style="color:#8a7248">Колода пуста</div>'; return; }
-  const minions = cards.filter(c => c.type === 'minion').length;
-  const spells = cards.filter(c => c.type === 'spell').length;
-  const weapons = cards.filter(c => c.type === 'weapon').length;
-  const secrets = cards.filter(c => c.secret).length;
-  /* племена */
-  const tribes = {};
-  cards.forEach(c => { if (c.tribe) tribes[c.tribe] = (tribes[c.tribe] || 0) + 1; });
-  const tribeChips = Object.keys(tribes)
-    .sort((a, b) => tribes[b] - tribes[a])
-    .map(t => `<span class="ds-chip">${TRIBE_ICON[t]} ${tribes[t]}</span>`).join('');
-  /* кривая маны 0..7+ */
-  const curve = [0,0,0,0,0,0,0,0];
-  cards.forEach(c => { curve[Math.min(7, c.cost)]++; });
-  const maxc = Math.max(1, ...curve);
-  const curveHtml = curve.map((n, i) =>
-    `<div class="ds-bar"><i style="height:${Math.round(n / maxc * 100)}%"></i><b>${n}</b><span>${i === 7 ? '7+' : i}</span></div>`).join('');
-  const avg = (cards.reduce((s, c) => s + c.cost, 0) / total).toFixed(1);
+  const a = deckAnalysis(draft);
+  if (!a.total){
+    box.innerHTML = '<div class="ds-title">СТАТИСТИКА КОЛОДЫ</div><div class="ds-row"><span class="ds-lbl">Статус</span><div class="ds-chips"><span class="ds-chip bad">Колода пуста</span><span class="ds-chip">нужно 35 карт</span></div></div>';
+    return;
+  }
+  const tribeChips = Object.keys(a.tribes)
+    .sort((x, y) => a.tribes[y] - a.tribes[x])
+    .slice(0, 5)
+    .map(t => `<span class="ds-chip">${TRIBE_ICON[t]} ${a.tribes[t]}</span>`).join('');
+  const avg = a.avgCost.toFixed(1);
+  const avgStats = a.minions ? `${(a.atk / a.minions).toFixed(1)}/${(a.hp / a.minions).toFixed(1)}` : '—';
+  const topImpact = a.impactRows.filter(r => r.info.plays > 0).slice(0, 3)
+    .map(r => `<span class="ds-chip good">${CARD_DB[r.id].icon} ${Math.round(r.info.vpp)}/роз.</span>`).join('');
+  const earlyCls = qualityClass(a.cheap, 12, 8);
+  const toolsCls = qualityClass(a.draw + a.removal + a.taunts + a.healArmor, 12, 7);
   box.innerHTML = `
     <div class="ds-title">СТАТИСТИКА КОЛОДЫ</div>
     <div class="ds-row"><span class="ds-lbl">Типы</span><div class="ds-chips">
-      <span class="ds-chip">🗡 Существа ${minions}</span>
-      <span class="ds-chip">✨ Заклинания ${spells}</span>
-      ${weapons ? `<span class="ds-chip">⚔ Оружие ${weapons}</span>` : ''}
-      ${secrets ? `<span class="ds-chip">🔮 Секреты ${secrets}</span>` : ''}
+      <span class="ds-chip">🗡 ${a.type.minion}</span>
+      <span class="ds-chip">✨ ${a.type.spell}</span>
+      ${a.type.weapon ? `<span class="ds-chip">⚔ ${a.type.weapon}</span>` : ''}
+      ${a.type.secret ? `<span class="ds-chip">🔮 ${a.type.secret}</span>` : ''}
     </div></div>
     ${tribeChips ? `<div class="ds-row"><span class="ds-lbl">Племена</span><div class="ds-chips">${tribeChips}</div></div>` : ''}
-    <div class="ds-row"><span class="ds-lbl">Ср. мана</span><div class="ds-chips"><span class="ds-chip">${avg}</span></div></div>
-    <div class="ds-row" style="margin-top:2px;"><div class="ds-curve">${curveHtml}</div></div>`;
+    <div class="ds-row"><span class="ds-lbl">Баланс</span><div class="ds-chips">
+      <span class="ds-chip ${earlyCls}">≤2: ${a.cheap}</span>
+      <span class="ds-chip">3-5: ${a.mid}</span>
+      <span class="ds-chip ${a.late > 7 ? 'warn' : ''}">6+: ${a.late}</span>
+      <span class="ds-chip">ср. ${avg}</span>
+    </div></div>
+    <div class="ds-row"><span class="ds-lbl">Инструм.</span><div class="ds-chips">
+      <span class="ds-chip ${toolsCls}">добор ${a.draw}</span>
+      <span class="ds-chip">контроль ${a.removal}</span>
+      <span class="ds-chip">стены ${a.taunts}</span>
+      <span class="ds-chip">сред. ${avgStats}</span>
+    </div></div>
+    ${topImpact ? `<div class="ds-row"><span class="ds-lbl">КПД</span><div class="ds-chips">${topImpact}</div></div>` : ''}
+    <div class="ds-row" style="margin-top:2px;"><div class="ds-curve">${curveHtml(a.curve)}</div></div>`;
 }
 function renderBuilder(){
   $('dustLbl').textContent = '✨ ' + SAVE.dust;
@@ -7720,13 +8015,53 @@ function renderMenu(){
   applyCosmetics();
 }
 
+let impactMode = 'played';
+let impactSort = 'score';
+function impactParts(st){
+  return IMPACT_FIELDS
+    .filter(k => st[k] > 0 && k !== 'plays')
+    .sort((a, b) => (st[b] * (IMPACT_WEIGHTS[b] || 0)) - (st[a] * (IMPACT_WEIGHTS[a] || 0)))
+    .slice(0, 5)
+    .map(k => `${IMPACT_LABELS[k]} ${Math.round(st[k] * 10) / 10}`)
+    .join(' · ');
+}
+function renderImpactSummary(rows, allRows){
+  const box = $('impactSummary');
+  if (!box) return;
+  if (!rows.length){
+    box.innerHTML = '';
+    return;
+  }
+  const played = rows.filter(r => r.info.plays > 0);
+  const top = rows[0];
+  const avgPower = rows.reduce((s, r) => s + r.info.power, 0) / rows.length;
+  const avgKpd = played.length ? played.reduce((s, r) => s + r.info.vpp, 0) / played.length : 0;
+  const risky = allRows.filter(r => r.info.power >= 18 || r.info.vpp >= 12).length;
+  box.innerHTML = `
+    <div class="is-card"><b>${rows.length}</b>${impactMode === 'all' ? 'карт в базе' : 'карт со статой'}</div>
+    <div class="is-card"><b>${played.length}</b>игрались хотя бы раз</div>
+    <div class="is-card"><b>${Math.round(avgPower)}</b>средняя сила</div>
+    <div class="is-card"><b>${top ? CARD_DB[top.id].icon + ' ' + CARD_DB[top.id].name : '—'}</b>${avgKpd ? avgKpd.toFixed(1) + ' КПД/роз.' : (risky + ' под наблюдением')}</div>`;
+}
 function renderImpactStats(){
   ensureImpactSave();
   const list = $('impactList');
-  const rows = Object.keys(SAVE.cardImpact || {})
-    .filter(id => CARD_DB[id] && impactScore(SAVE.cardImpact[id]) > 0)
-    .map(id => ({ id, st:SAVE.cardImpact[id], score:impactScore(SAVE.cardImpact[id]) }))
-    .sort((a, b) => b.score - a.score || CARD_DB[a.id].cost - CARD_DB[b.id].cost);
+  if (!SAVE.admin && impactMode === 'all') impactMode = 'played';
+  $('impactModeAll').disabled = !SAVE.admin;
+  $('impactModePlayed').classList.toggle('on', impactMode === 'played');
+  $('impactModeAll').classList.toggle('on', impactMode === 'all');
+  $('impactSortPower').classList.toggle('on', impactSort === 'power');
+  $('impactSortKpd').classList.toggle('on', impactSort === 'kpd');
+  const allRows = Object.keys(CARD_DB)
+    .filter(id => !CARD_DB[id].token)
+    .map(id => ({ id, info:cardImpactInfo(id) }));
+  const rows = (impactMode === 'all' ? allRows : allRows.filter(r => r.info.score > 0 || r.info.plays > 0));
+  rows.sort((a, b) => {
+    if (impactSort === 'power') return b.info.power - a.info.power || CARD_DB[a.id].cost - CARD_DB[b.id].cost;
+    if (impactSort === 'kpd') return b.info.vpp - a.info.vpp || b.info.score - a.info.score;
+    return b.info.score - a.info.score || b.info.power - a.info.power;
+  });
+  renderImpactSummary(rows, allRows);
   if (!rows.length){
     list.innerHTML = '<div class="impact-empty">Статистики пока нет.<br>Сыграй матч, и карты начнут копить вклад.</div>';
     return;
@@ -7734,30 +8069,37 @@ function renderImpactStats(){
   list.innerHTML = '';
   rows.forEach(r => {
     const def = CARD_DB[r.id];
-    const parts = IMPACT_FIELDS
-      .filter(k => r.st[k] > 0 && k !== 'plays')
-      .sort((a, b) => (r.st[b] * (IMPACT_WEIGHTS[b] || 0)) - (r.st[a] * (IMPACT_WEIGHTS[a] || 0)))
-      .slice(0, 5)
-      .map(k => `${IMPACT_LABELS[k]} ${Math.round(r.st[k] * 10) / 10}`)
-      .join(' · ');
+    const parts = impactParts(r.info.st);
     const row = document.createElement('div');
     row.className = 'impact-row';
-    const vpp = r.st.plays ? (r.score / r.st.plays) : 0;
-    const wr = r.st.games ? Math.round(100 * (r.st.wins || 0) / r.st.games) : null;
+    const vpp = r.info.vpp;
+    const wr = r.info.wr;
+    const scoreText = r.info.score > 0 ? Math.round(r.info.score) : Math.round(r.info.power);
     row.innerHTML = `
       <div class="d-cost">${def.cost}</div>
-      <div class="impact-card">${def.icon} ${def.name}<small>${SET_RU[setOf(r.id)] || 'Классика'} · ${RARITY_RU[def.rarity]} · ⚔ сила ${Math.round(cardPowerScore(r.id))}</small></div>
-      <div class="impact-score">${Math.round(r.score)}<small style="display:block;font-size:9px;color:#a08c60;font-weight:normal">${vpp ? vpp.toFixed(1) + '/розыгрыш' : ''}${wr !== null ? ' · WR ' + wr + '%' : ''}</small></div>
-      <div class="impact-parts">${parts || 'розыгрыши ' + Math.round(r.st.plays)}</div>`;
+      <div class="impact-card">${def.icon} ${def.name}<small>${SET_RU[setOf(r.id)] || 'Классика'} · ${RARITY_RU[def.rarity]} · ${def.type === 'minion' ? '🗡' : def.type === 'weapon' ? '⚔' : def.secret ? '🔮' : '✨'} · сила ${Math.round(r.info.power)}</small></div>
+      <div class="impact-score">${scoreText}<small>${vpp ? vpp.toFixed(1) + '/роз.' : 'прогноз'}${wr !== null ? ' · WR ' + wr + '%' : ''}</small></div>
+      <div class="impact-parts">${parts || (r.info.plays ? 'розыгрыши ' + Math.round(r.info.plays) : 'ещё нет матчевой статистики')}</div>`;
     list.appendChild(row);
   });
 }
 
 $('btnImpact').addEventListener('click', () => {
   sfx.click();
+  impactMode = SAVE.admin ? 'all' : 'played';
+  impactSort = SAVE.admin ? 'power' : 'score';
   renderImpactStats();
   $('impactOverlay').classList.add('active');
 });
+$('impactModePlayed').addEventListener('click', () => { impactMode = 'played'; sfx.click(); renderImpactStats(); });
+$('impactModeAll').addEventListener('click', () => {
+  if (!SAVE.admin) return;
+  impactMode = 'all';
+  sfx.click();
+  renderImpactStats();
+});
+$('impactSortPower').addEventListener('click', () => { impactSort = 'power'; sfx.click(); renderImpactStats(); });
+$('impactSortKpd').addEventListener('click', () => { impactSort = 'kpd'; sfx.click(); renderImpactStats(); });
 $('impactClose').addEventListener('click', () => {
   sfx.click();
   $('impactOverlay').classList.remove('active');
