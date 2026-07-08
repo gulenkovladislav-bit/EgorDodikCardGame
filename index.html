@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-08-0920';
+    var build = '2026-07-08-1135';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -254,14 +254,17 @@
     .torch{font-size:25px;top:18%;opacity:.72;}
     .torch.t-left{left:4%;}
     .torch.t-right{right:4%;}
+    #menu .ember{display:none;}
+    #menu::after{height:10%;}
   }
 
   @media (max-height: 430px) and (orientation: landscape){
-    #menu{padding-top:max(4px, env(safe-area-inset-top));}
+    #menu{align-items:center;padding-top:max(4px, env(safe-area-inset-top));}
+    #menu::after{height:7%;opacity:.7;}
     .menu-rank{font-size:9.5px;padding:3px 8px;max-width:34vw;}
     .menu-box{
       width:min(310px, calc(100vw - 24px));
-      margin:4px auto 10px;padding:8px 15px 10px;gap:6px;
+      margin:0 auto 8px;padding:8px 15px 10px;gap:6px;
     }
     .menu-box::before,.menu-box::after{display:none;}
     .menu-sign h1{font-size:18px;}
@@ -275,7 +278,7 @@
 
   @media (pointer: coarse) and (orientation: landscape){
     #menu{
-      align-items:flex-start;justify-content:center;
+      align-items:center;justify-content:center;
       overflow-y:auto;touch-action:pan-y;
       padding:
         max(4px, env(safe-area-inset-top))
@@ -283,13 +286,14 @@
         max(10px, env(safe-area-inset-bottom))
         max(8px, env(safe-area-inset-left));
     }
+    #menu::after{height:7%;opacity:.7;}
     .menu-rank{
       top:max(5px, env(safe-area-inset-top));right:max(6px, env(safe-area-inset-right));
       font-size:9.5px;padding:3px 8px;max-width:34vw;
     }
     .menu-box{
       width:min(300px, calc(100vw - 28px));
-      margin:4px auto 12px;padding:7px 13px 9px;gap:5px;
+      margin:0 auto 8px;padding:7px 13px 9px;gap:5px;
       border-width:2px;border-radius:14px;
     }
     .menu-box::before,.menu-box::after{display:none;}
@@ -394,6 +398,7 @@
   #settingsOverlay.active{display:flex;}
   .set-box{
     display:flex;flex-direction:column;gap:14px;min-width:320px;
+    width:min(760px, calc(100vw - 24px));max-height:min(760px, calc(100dvh - 24px));overflow:auto;
     padding:26px 30px 24px;
     background:
       radial-gradient(ellipse at 50% 0%, rgba(255,210,120,.1), transparent 55%),
@@ -414,6 +419,75 @@
   }
   .set-seg button:last-child{border-right:none;}
   .set-seg button.on{background:linear-gradient(180deg,#eccb78,#9c7526);color:#241a08;text-shadow:0 1px 0 rgba(255,255,255,.3);}
+  .admin-panel{
+    display:none;flex-direction:column;gap:10px;margin-top:2px;padding:12px;
+    background:rgba(12,8,4,.45);border:2px solid #6b5124;border-radius:12px;
+    box-shadow:inset 0 0 18px rgba(0,0,0,.35);
+  }
+  .admin-panel.active{display:flex;}
+  .admin-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+  .admin-field{display:flex;flex-direction:column;gap:4px;min-width:0;color:#d8c8a2;font-size:10px;letter-spacing:.5px;}
+  .admin-field input,.admin-field select,.admin-field textarea{
+    min-width:0;width:100%;box-sizing:border-box;
+    font-family:inherit;font-size:11px;font-weight:bold;color:#f2e5bf;
+    background:#1b1208;border:1.5px solid #6b5124;border-radius:8px;padding:7px 8px;outline:none;
+  }
+  .admin-field input[type="checkbox"]{width:auto;align-self:flex-start;transform:scale(1.15);}
+  .admin-field input[type="range"]{padding:0;accent-color:#d5aa45;}
+  .admin-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .admin-login{display:flex;align-items:center;gap:6px;min-width:0;}
+  .admin-login input{
+    width:92px;box-sizing:border-box;
+    font-family:inherit;font-size:11px;font-weight:bold;color:#f2e5bf;
+    background:#1b1208;border:1.5px solid #6b5124;border-radius:8px;padding:7px 8px;outline:none;
+  }
+  .admin-title{font-size:13px;color:var(--gold-bright);letter-spacing:1.5px;text-shadow:0 2px 3px #000;}
+  .admin-note{font-size:10px;color:#a08c60;line-height:1.35;}
+  .admin-help{display:block;color:#8f805d;font-size:8.6px;line-height:1.18;letter-spacing:0;margin-top:-1px;}
+  .admin-list{display:flex;flex-direction:column;gap:5px;max-height:150px;overflow:auto;padding-right:3px;}
+  .train-status{
+    min-height:46px;padding:8px 10px;border:1.5px solid #6b5124;border-radius:9px;
+    background:linear-gradient(180deg,#211609,#130c05);color:#d8c8a2;font-size:10px;line-height:1.35;
+  }
+  .train-status b{color:var(--gold-bright);}
+  .train-bar{height:7px;border-radius:999px;overflow:hidden;background:#130c05;border:1px solid #5a421c;flex:1 1 160px;}
+  .train-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#6fbf5a,#f0d080);transition:width .18s ease;}
+  .train-report{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+  .train-card{
+    min-width:0;padding:7px 8px;border:1.5px solid #6b5124;border-radius:9px;
+    background:linear-gradient(180deg,#2a1b0b,#160e06);font-size:9.5px;color:#cdbb93;line-height:1.25;
+  }
+  .train-card b{display:block;color:var(--gold-bright);font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .admin-deck-row{
+    display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;
+    padding:7px 9px;border:1.5px solid #6b5124;border-radius:9px;
+    background:linear-gradient(90deg,#34230e,#201407);font-size:11px;color:#e8d9b4;
+  }
+  .admin-deck-row small{display:block;color:#a08c60;font-size:9px;margin-top:2px;}
+  .admin-danger{color:#ff9b8a!important;border-color:#7a3a2a!important;}
+  .admin-export{height:92px;resize:vertical;white-space:pre;font-family:ui-monospace, SFMono-Regular, Menlo, monospace!important;font-size:9.5px!important;}
+  @media (max-width: 820px), (max-height: 520px){
+    .set-box{width:calc(100vw - 14px);max-height:calc(100dvh - 14px);min-width:0;padding:12px;gap:8px;border-width:2px;border-radius:14px;}
+    .set-title{font-size:15px;letter-spacing:1px;}
+    .set-row{gap:8px;}
+    .set-row>span{font-size:11px;letter-spacing:.5px;}
+    .set-row .btn,.set-box>.btn{font-size:9px!important;padding:6px 9px!important;border-width:2px!important;}
+    .set-seg button{font-size:9px;padding:5px 7px;}
+    .admin-panel{padding:8px;gap:7px;border-radius:9px;}
+    .admin-login input{width:72px;font-size:9px;padding:5px 6px;border-radius:7px;}
+    .admin-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}
+    .admin-field{font-size:8.5px;}
+    .admin-field input,.admin-field select,.admin-field textarea{font-size:9px;padding:5px 6px;border-radius:7px;}
+    .admin-title{font-size:11px;}
+    .admin-note{font-size:8.5px;}
+    .admin-help{font-size:7.4px;}
+    .train-status{font-size:8.4px;padding:6px 7px;min-height:36px;}
+    .train-report{grid-template-columns:1fr;gap:4px;}
+    .train-card{font-size:8px;padding:5px 6px;}
+    .train-card b{font-size:9px;}
+    .admin-deck-row{grid-template-columns:minmax(0,1fr) auto;gap:5px;font-size:9px;padding:5px 6px;}
+    .admin-deck-row small{font-size:7.5px;}
+  }
 
   /* ================= БИЛДЕР КОЛОД ================= */
   #builder{
@@ -2243,7 +2317,7 @@
     box-shadow:0 0 0 2px #221807, 0 14px 34px rgba(0,0,0,.7), inset 0 0 24px rgba(0,0,0,.5);
     padding:12px 12px 14px;
   }
-  @media (max-width:900px){ .menu-lb{display:none;} }
+  @media (max-width:900px), (max-height:560px), (pointer:coarse){ .menu-lb{display:none;} }
   .menu-lb h3{font-size:15px;color:var(--gold-bright);text-align:center;letter-spacing:2px;margin-bottom:3px;}
   .menu-lb .mlb-sub{font-size:11px;color:#a08c60;text-align:center;margin-bottom:9px;}
   .mlb-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;font-size:12px;margin-bottom:3px;
@@ -2726,7 +2800,6 @@
       <button class="btn stone" id="btnBuilder">📚 КОЛОДА</button>
       <button class="btn stone" id="btnShop">🛒 МАГАЗИН</button>
       <button class="btn stone" id="btnPacks">🎁 ПАКИ<span class="badge" id="packBadge">0</span></button>
-      <button class="btn stone music-toggle" id="btnImpact">📊 ВКЛАД КАРТ</button>
       <button class="btn stone music-toggle" id="btnSettings">⚙️ НАСТРОЙКИ</button>
     </div>
     <div class="menu-stats" id="menuStats">Побед: 0</div>
@@ -2779,6 +2852,101 @@
       <button class="btn stone music-toggle" id="btnSfx">🔊 ЗВУКИ: ВКЛ</button>
     </div>
     <div class="set-row">
+      <span>Вклад карт</span>
+      <button class="btn stone music-toggle" id="setImpactBtn">📊 ОТКРЫТЬ</button>
+    </div>
+    <div class="set-row">
+      <span>Админ режим</span>
+      <div class="admin-login">
+        <input id="adminPassInput" type="password" inputmode="numeric" placeholder="322" autocomplete="off">
+        <button class="btn stone music-toggle" id="adminUnlockBtn">🔒 ВКЛЮЧИТЬ</button>
+      </div>
+    </div>
+    <div class="admin-panel" id="adminPanel">
+      <div class="admin-line">
+        <div>
+          <div class="admin-title">🤖 Лаборатория ИИ</div>
+          <div class="admin-note">Настройка колод, поведения, мутаций от «Вклада карт» и боссов. Экспорт можно прислать мне обратно, чтобы я зашил готовые пресеты в код.</div>
+        </div>
+        <button class="btn stone music-toggle" id="setAiDecksBtn">📈 МЕТА</button>
+      </div>
+      <div class="admin-grid">
+        <label class="admin-field">Система активна<input type="checkbox" id="aiLabEnabled"></label>
+        <label class="admin-field">Выбор колод<select id="aiLabMode"><option value="weighted">По шансам</option><option value="single">Одна лучшая</option><option value="vanilla">Старая мета</option></select></label>
+        <label class="admin-field">Стиль<select id="aiLabStyle"><option value="tempo">Темп</option><option value="aggro">Агрессивно</option><option value="control">Аккуратно</option><option value="spell">От заклинаний</option></select></label>
+        <label class="admin-field">Мутация от Вклада, %<input type="range" id="aiLabInfluence" min="0" max="100"></label>
+        <label class="admin-field">Размены, %<input type="range" id="aiLabTrade" min="0" max="100"></label>
+        <label class="admin-field">Упор в лицо, %<input type="range" id="aiLabFace" min="0" max="100"></label>
+        <label class="admin-field">Любовь к спеллам, %<input type="range" id="aiLabSpell" min="0" max="100"></label>
+        <label class="admin-field">Сколько заменять<input type="number" id="aiLabMutateCount" min="0" max="8"></label>
+        <label class="admin-field">Ключевая карта<select id="aiLabKeyCard"></select></label>
+      </div>
+      <div class="admin-note" id="aiLabLiveNote"></div>
+      <div class="admin-title">Кастомные колоды ботов</div>
+      <div class="admin-grid">
+        <label class="admin-field">Название<input id="aiDeckName" maxlength="28" placeholder="Напр. Осторожный контроль"></label>
+        <label class="admin-field">Где использовать<select id="aiDeckScope"><option value="all">Везде</option><option value="rating">Рейтинг</option><option value="tournament">Турнир</option><option value="boss">Боссы</option></select></label>
+        <label class="admin-field">Источник<select id="aiDeckSource"><option value="current">Текущая твоя колода</option><option value="elite">Элита по Вкладу</option><option value="aggro">Шаблон: агро</option><option value="control">Шаблон: контроль</option><option value="spell">Шаблон: магия</option><option value="midrange">Шаблон: темп</option><option value="mechs">Шаблон: механизмы</option><option value="pirates">Шаблон: пираты</option></select></label>
+        <label class="admin-field">Вес выбора, %<input type="number" id="aiDeckWeight" min="1" max="100" value="25"></label>
+        <label class="admin-field">Мутация этой колоды, %<input type="number" id="aiDeckMutate" min="0" max="100" value="24"></label>
+        <label class="admin-field">Нет лимитов<input type="checkbox" id="aiDeckNoLimits"></label>
+        <label class="admin-field">Стиль колоды<select id="aiDeckStyle"><option value="">Общий</option><option value="tempo">Темп</option><option value="aggro">Агрессивно</option><option value="control">Аккуратно</option><option value="spell">От спеллов</option></select></label>
+        <label class="admin-field">Размены, %<input type="number" id="aiDeckTrade" min="0" max="100" value="55"></label>
+        <label class="admin-field">Лицо, %<input type="number" id="aiDeckFace" min="0" max="100" value="35"></label>
+        <label class="admin-field">Спеллы, %<input type="number" id="aiDeckSpell" min="0" max="100" value="50"></label>
+        <label class="admin-field">Ключ колоды<select id="aiDeckKeyCard"></select></label>
+      </div>
+      <div class="admin-line">
+        <button class="btn" id="aiDeckAddBtn">СОХРАНИТЬ КОЛОДУ ИИ</button>
+        <button class="btn stone admin-danger" id="aiDeckClearBtn">ОЧИСТИТЬ ПУЛ</button>
+      </div>
+      <div class="admin-list" id="aiDeckCustomList"></div>
+      <div class="admin-title">Боссы</div>
+      <div class="admin-grid">
+        <label class="admin-field">Босс<select id="bossTuneId"></select></label>
+        <label class="admin-field">HP<input type="number" id="bossTuneHp" min="1" max="999"></label>
+        <label class="admin-field">Броня<input type="number" id="bossTuneArmor" min="0" max="999"></label>
+        <label class="admin-field">Стиль<select id="bossTuneStyle"><option value="">Общий</option><option value="tempo">Темп</option><option value="aggro">Агрессивно</option><option value="control">Аккуратно</option><option value="spell">От спеллов</option></select></label>
+        <label class="admin-field">Ключевая карта<select id="bossTuneKeyCard"></select></label>
+        <label class="admin-field">Источник колоды<select id="bossTuneSource"><option value="keep">Не менять</option><option value="current">Текущая твоя колода</option><option value="elite">Элита по Вкладу</option><option value="aggro">Агро</option><option value="control">Контроль</option><option value="spell">Магия</option><option value="midrange">Темп</option><option value="mechs">Механизмы</option><option value="pirates">Пираты</option></select></label>
+        <label class="admin-field">Мутация, %<input type="number" id="bossTuneInfluence" min="0" max="100" value="24"></label>
+        <label class="admin-field">Размены, %<input type="number" id="bossTuneTrade" min="0" max="100" value="55"></label>
+        <label class="admin-field">Лицо, %<input type="number" id="bossTuneFace" min="0" max="100" value="35"></label>
+        <label class="admin-field">Спеллы, %<input type="number" id="bossTuneSpell" min="0" max="100" value="50"></label>
+      </div>
+      <div class="admin-line">
+        <button class="btn" id="bossTuneSaveBtn">СОХРАНИТЬ БОССА</button>
+        <button class="btn stone admin-danger" id="bossTuneDeleteBtn">СБРОСИТЬ БОССА</button>
+      </div>
+      <div class="admin-list" id="bossTuneList"></div>
+      <div class="admin-title">Обучение ботов</div>
+      <div class="admin-note">Быстрый режим без анимаций: колоды ИИ играют друг с другом по модели темпа/контроля/спеллов, результаты пишутся в мету и «Вклад карт».</div>
+      <div class="admin-grid">
+        <label class="admin-field">Матчей<input type="number" id="trainMatches" min="1" max="5000" value="100"></label>
+        <label class="admin-field">Контекст<select id="trainContext"><option value="rating">Рейтинг</option><option value="tournament">Турнир</option><option value="boss">Боссы</option><option value="all">Все пулы</option></select></label>
+        <label class="admin-field">Пул<select id="trainPool"><option value="mixed">Смешанный</option><option value="custom">Только кастомные</option><option value="meta">Только мета</option><option value="template">Только шаблоны</option></select></label>
+        <label class="admin-field">Мутация после, %<input type="number" id="trainMutateAfter" min="0" max="100" value="24"></label>
+        <label class="admin-field">Пакет<input type="number" id="trainBatch" min="5" max="200" value="25"></label>
+        <label class="admin-field">Случайность, %<input type="number" id="trainNoise" min="0" max="100" value="45"></label>
+        <label class="admin-field">Записывать Вклад<input type="checkbox" id="trainImpactChk" checked></label>
+        <label class="admin-field">Пересборка слабых<input type="checkbox" id="trainRebuildChk" checked></label>
+      </div>
+      <div class="admin-line">
+        <button class="btn" id="trainStartBtn">ЗАПУСТИТЬ ОБУЧЕНИЕ</button>
+        <button class="btn stone admin-danger" id="trainStopBtn">СТОП</button>
+        <button class="btn stone" id="trainResetBtn">СБРОСИТЬ СТАТУ ОБУЧЕНИЯ</button>
+        <div class="train-bar"><i id="trainBar"></i></div>
+      </div>
+      <div class="train-status" id="trainStatus">Обучение не запускалось.</div>
+      <div class="train-report" id="trainReport"></div>
+      <div class="admin-title">Выгрузка</div>
+      <div class="admin-line">
+        <button class="btn" id="aiExportBtn">СОБРАТЬ JSON</button>
+        <button class="btn stone" id="aiCopyExportBtn">СКОПИРОВАТЬ</button>
+      </div>
+      <label class="admin-field"><textarea class="admin-export" id="aiExportOut" readonly></textarea></label>
+    </div>
+    <div class="set-row">
       <span>Прогресс</span>
       <button class="btn stone" id="setReset" style="color:#ff9b8a;border-color:#7a3a2a;">🗑 СБРОСИТЬ ВСЁ</button>
     </div>
@@ -2793,7 +2961,7 @@
 	    <div class="b-title">📚 СБОРКА КОЛОДЫ</div>
 	    <div id="dustLbl">✨ 0</div>
 	    <div id="deckCount">0/35</div>
-	    <label class="admin-toggle" title="Собирать колоды без ограничений коллекции"><input type="checkbox" id="adminChk"><span>АДМИН</span></label>
+	    <label class="admin-toggle" title="Админ режим теперь в настройках" style="display:none"><input type="checkbox" id="adminChk"><span>АДМИН</span></label>
 	    <button class="btn stone" id="btnAiDecks" style="display:none">🤖 КОЛОДЫ ИИ</button>
 	    <button class="btn" id="builderSave">СОХРАНИТЬ</button>
 	  </div>
@@ -3014,6 +3182,7 @@
 
 <script>
 'use strict';
+const CARD_ARENA_BUILD = '2026-07-08-1135';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -4702,7 +4871,7 @@ function defaultSave(){
   grantStarterCollection(collection);
   Object.assign(deck, starterDeck());
   return { collection, deck, packs: { classic: 3, magic: 1, mech: 1, pirate: 1, codex: 3 }, dust: 0,
-           gold: 200, rating: 0, tourn: null, track: 'tavern', bossProgress: 0, aiMeta: null,
+           gold: 200, rating: 0, tourn: null, track: 'tavern', bossProgress: 0, aiMeta: null, aiLab: null,
            wins: 0, music: true, hero: 'priest', codexDlcGrant: true,
            heroesOwned: ['priest','mage','warrior'],
            tracksOwned: ['tavern','march'],
@@ -4992,6 +5161,283 @@ function buildEliteDeck(){
   }
   return cards;
 }
+function defaultAiLab(){
+  return {
+    enabled: true,
+    mode: 'weighted',
+    influenceChance: 24,
+    eliteChance: 8,
+    mutateCount: 2,
+    style: 'tempo',
+    tradeBias: 55,
+    faceBias: 35,
+    spellBias: 50,
+    keyCard: '',
+    decks: [],
+    boss: {},
+    training: { runs:0, matches:0, aWins:0, bWins:0, last:'' }
+  };
+}
+function ensureAiLab(){
+  const d = defaultAiLab();
+  if (!SAVE.aiLab || typeof SAVE.aiLab !== 'object') SAVE.aiLab = d;
+  else {
+    Object.keys(d).forEach(k => {
+      if (!(k in SAVE.aiLab)) SAVE.aiLab[k] = Array.isArray(d[k]) ? [] : (typeof d[k] === 'object' && d[k] ? Object.assign({}, d[k]) : d[k]);
+    });
+  }
+  if (!Array.isArray(SAVE.aiLab.decks)) SAVE.aiLab.decks = [];
+  if (!SAVE.aiLab.boss || typeof SAVE.aiLab.boss !== 'object') SAVE.aiLab.boss = {};
+  if (!SAVE.aiLab.training || typeof SAVE.aiLab.training !== 'object') SAVE.aiLab.training = Object.assign({}, d.training);
+  ['influenceChance','eliteChance','mutateCount','tradeBias','faceBias','spellBias'].forEach(k => {
+    SAVE.aiLab[k] = Number.isFinite(+SAVE.aiLab[k]) ? +SAVE.aiLab[k] : d[k];
+  });
+  return SAVE.aiLab;
+}
+ensureAiLab();
+function deckObjectFromArray(arr, unlimited){
+  const out = {};
+  (arr || []).forEach(id => {
+    if (!CARD_DB[id] || CARD_DB[id].token) return;
+    const cap = unlimited ? 999 : copyLimitFor(id);
+    if ((out[id] || 0) < cap) out[id] = (out[id] || 0) + 1;
+  });
+  return out;
+}
+function sanitizeAiDeck(deck, unlimited){
+  const out = {};
+  Object.keys(deck || {}).forEach(id => {
+    if (!CARD_DB[id] || CARD_DB[id].token) return;
+    const n = Math.max(0, Math.floor(deck[id] || 0));
+    const cap = unlimited ? 999 : copyLimitFor(id);
+    if (n) out[id] = Math.min(n, cap);
+  });
+  return out;
+}
+function aiDeckFromSource(source, unlimited){
+  if (source === 'current') return sanitizeAiDeck(SAVE.deck, unlimited);
+  if (source === 'elite') return buildEliteDeck();
+  if (DECKS_AI[source]) return buildDeckFromWeights(DECKS_AI[source]);
+  return buildDeckFromWeights(DECKS_AI.midrange);
+}
+function weightedPick(items, weightFn){
+  const total = items.reduce((s, it) => s + Math.max(0, +weightFn(it) || 0), 0);
+  if (total <= 0) return items[0] || null;
+  let r = Math.random() * total;
+  for (const it of items){
+    r -= Math.max(0, +weightFn(it) || 0);
+    if (r <= 0) return it;
+  }
+  return items[items.length - 1] || null;
+}
+function aiDeckMatchesScope(d, context){
+  const scope = d.scope || 'all';
+  return scope === 'all' || scope === context || (context === 'tournament' && scope === 'rating');
+}
+function clampPct(v, fallback){
+  const n = Number.isFinite(+v) ? +v : fallback;
+  return Math.max(0, Math.min(100, n));
+}
+function aiDeckTuning(deck){
+  if (!deck) return {};
+  const out = {};
+  if (deck.style) out.style = deck.style;
+  if (deck.keyCard) out.keyCard = deck.keyCard;
+  if (Number.isFinite(+deck.tradeBias)) out.tradeBias = clampPct(deck.tradeBias, 55);
+  if (Number.isFinite(+deck.faceBias)) out.faceBias = clampPct(deck.faceBias, 35);
+  if (Number.isFinite(+deck.spellBias)) out.spellBias = clampPct(deck.spellBias, 50);
+  return out;
+}
+function applyAiDeckTuning(deck, context){
+  if (!G || !deck) return;
+  G.aiTuning = Object.assign({}, G.aiTuning || aiLabTuning(context), aiDeckTuning(deck));
+}
+function mutateDeckByInfluence(deck, chance, count, unlimited){
+  const out = sanitizeAiDeck(deck, unlimited);
+  chance = Math.max(0, Math.min(100, +chance || 0));
+  count = Math.max(0, Math.min(8, Math.floor(+count || 0)));
+  if (!count || Math.random() * 100 >= chance) return out;
+  const strong = Object.keys(CARD_DB)
+    .filter(id => !CARD_DB[id].token && (out[id] || 0) < (unlimited ? 999 : copyLimitFor(id)))
+    .sort((a, b) => cardPowerScore(b) - cardPowerScore(a));
+  const weak = Object.keys(out).sort((a, b) => cardPowerScore(a) - cardPowerScore(b));
+  let swaps = 0;
+  for (const w of weak){
+    const s = strong.find(id => id !== w && (out[id] || 0) < (unlimited ? 999 : copyLimitFor(id)));
+    if (!s || swaps >= count) break;
+    out[w]--;
+    if (out[w] <= 0) delete out[w];
+    out[s] = (out[s] || 0) + 1;
+    swaps++;
+  }
+  return out;
+}
+function aiLabPickCustomDeck(context){
+  const lab = ensureAiLab();
+  if (!lab.enabled || lab.mode === 'vanilla') return null;
+  const pool = lab.decks.filter(d => d && d.cards && aiDeckMatchesScope(d, context));
+  if (!pool.length) return null;
+  if (lab.mode === 'single') return [...pool].sort((a, b) => (+b.weight || 0) - (+a.weight || 0))[0];
+  return weightedPick(pool, d => d.weight || 1);
+}
+function aiLabTuning(context, bossId){
+  const lab = ensureAiLab();
+  if (!lab.enabled) return { context };
+  const b = bossId && lab.boss[bossId] ? lab.boss[bossId] : {};
+  return {
+    context,
+    style: b.style || lab.style || '',
+    tradeBias: clampPct(b.tradeBias ?? lab.tradeBias, 50),
+    faceBias: clampPct(b.faceBias ?? lab.faceBias, 35),
+    spellBias: clampPct(b.spellBias ?? lab.spellBias, 50),
+    keyCard: b.keyCard || lab.keyCard || '',
+    influenceChance: clampPct(b.influenceChance ?? lab.influenceChance, 0)
+  };
+}
+function pickBossAiDeck(bossId, weights){
+  const lab = ensureAiLab();
+  if (!lab.enabled) return deckObjectFromArray(enemyDeckArray(weights), true);
+  const bo = lab.boss[bossId] || {};
+  if (bo.cards && Object.keys(bo.cards).length){
+    return mutateDeckByInfluence(bo.cards, bo.influenceChance ?? lab.influenceChance, lab.mutateCount, true);
+  }
+  const custom = aiLabPickCustomDeck('boss');
+  if (custom){
+    return mutateDeckByInfluence(custom.cards, custom.mutateChance ?? lab.influenceChance, lab.mutateCount, true);
+  }
+  return deckObjectFromArray(enemyDeckArray(weights), true);
+}
+function trainingDeckPool(context, poolMode){
+  ensureAiMeta();
+  const lab = ensureAiLab();
+  poolMode = poolMode || 'mixed';
+  const pool = [];
+  if (poolMode === 'mixed' || poolMode === 'custom'){
+    lab.decks.forEach(d => {
+      if (d && d.cards && (context === 'all' || aiDeckMatchesScope(d, context))){
+        pool.push({ kind:'custom', ref:d, id:d.id, name:d.name || 'Колода ИИ', cards:d.cards, tuning:aiDeckTuning(d), weight:+d.weight || 1 });
+      }
+    });
+  }
+  if (poolMode === 'mixed' || poolMode === 'meta'){
+    Object.keys(SAVE.aiMeta.byHero || {}).forEach(hid => {
+      (SAVE.aiMeta.byHero[hid].decks || []).forEach((d, idx) => {
+        pool.push({ kind:'meta', hero:hid, idx, ref:d, id:hid + ':' + idx, name:(HEROES[hid]?.name || hid) + ' · ' + d.tpl, cards:d.cards, tuning:{ style:HEROES[hid]?.aiStyle || 'tempo' }, weight:20 });
+      });
+    });
+  }
+  if (poolMode === 'mixed' || poolMode === 'template'){
+    AI_TEMPLATE_KEYS.forEach(tpl => {
+      pool.push({ kind:'template', id:'tpl:' + tpl, name:'Шаблон ' + tpl, cards:buildDeckFromWeights(DECKS_AI[tpl]), tuning:{ style: tpl === 'aggro' || tpl === 'pirates' ? 'aggro' : tpl === 'control' ? 'control' : tpl === 'spell' ? 'spell' : 'tempo' }, weight:10 });
+    });
+  }
+  return pool.filter(d => deckTotal(d.cards) > 0);
+}
+function trainingDeckScore(entry){
+  const a = deckAnalysis(entry.cards);
+  const tune = Object.assign({ style:'tempo', tradeBias:55, faceBias:35, spellBias:50 }, entry.tuning || {});
+  const impactAvg = a.impactRows.length ? a.impactRows.reduce((s, r) => s + r.info.power * r.n, 0) / Math.max(1, a.total) : 0;
+  let s = impactAvg * 0.9 + a.removal * 1.7 + a.draw * 1.2 + a.taunts * 1.2 + a.healArmor * 1.1;
+  s += Math.max(0, 14 - Math.abs(12 - a.cheap)) * 0.7;
+  s -= Math.max(0, a.late - 8) * 1.1;
+  if (tune.style === 'aggro') s += a.cheap * 0.9 + clampPct(tune.faceBias, 35) * 0.08 - a.late * 0.7;
+  if (tune.style === 'control') s += a.taunts * 1.6 + a.healArmor * 1.4 + clampPct(tune.tradeBias, 55) * 0.08;
+  if (tune.style === 'spell') s += a.type.spell * 0.75 + clampPct(tune.spellBias, 50) * 0.09;
+  if (tune.keyCard && entry.cards[tune.keyCard]) s += 4 + (entry.cards[tune.keyCard] || 0);
+  return { score:s, analysis:a, tune };
+}
+function styleMatchupBonus(a, b){
+  const as = a.tune.style || 'tempo', bs = b.tune.style || 'tempo';
+  let bonus = 0;
+  if (as === 'aggro') bonus += 8 - b.analysis.taunts * 1.1 - b.analysis.healArmor * 0.9;
+  if (as === 'control') bonus += b.analysis.cheap * 0.35 + a.analysis.taunts * 0.7 - b.analysis.draw * 0.25;
+  if (as === 'spell') bonus += a.analysis.type.spell * 0.25 + a.analysis.draw * 0.6 - b.analysis.cheap * 0.2;
+  if (as === 'tempo') bonus += Math.min(8, a.analysis.mid * 0.35 + a.analysis.removal * 0.25);
+  if (as === 'aggro' && bs === 'control') bonus -= 3;
+  if (as === 'control' && bs === 'aggro') bonus += 3;
+  if (as === 'spell' && bs === 'aggro') bonus -= 2.5;
+  if (as === 'aggro' && bs === 'spell') bonus += 2.5;
+  return bonus;
+}
+function trainingPickCardIds(deck, n){
+  const ids = Object.keys(deck || {}).filter(id => CARD_DB[id]);
+  const weighted = [];
+  ids.forEach(id => {
+    const c = CARD_DB[id], copies = deck[id] || 1;
+    const w = Math.max(1, copies * (8 - Math.min(7, c.cost)) + Math.round(cardPowerScore(id) / 5));
+    for (let i = 0; i < w; i++) weighted.push(id);
+  });
+  const out = [];
+  for (let i = 0; i < n && weighted.length; i++) out.push(weighted[Math.floor(Math.random() * weighted.length)]);
+  return out;
+}
+function trainingImpactForDeck(entry, won, strength){
+  ensureImpactSave();
+  const ids = trainingPickCardIds(entry.cards, won ? 12 : 9);
+  ids.forEach(id => {
+    const c = CARD_DB[id], b = ensureImpactBucket(SAVE.cardImpact, id);
+    if (!b) return;
+    const mult = won ? 1.15 : 0.85;
+    b.plays += 1;
+    b.damage += Math.max(0, (c.burn || c.atk || 0) * mult * (c.type === 'spell' ? 1.15 : .75));
+    b.taken += c.type === 'minion' ? Math.max(1, (c.hp || 1) * .55) : 0;
+    b.armor += (String(c.text || '').includes('брон') ? 2 : 0) * mult;
+    b.heal += (String(c.text || '').includes('здоров') ? 2 : 0) * mult;
+    b.draw += (String(c.text || '').includes('карт') || String(c.text || '').includes('возьмите')) ? .7 : 0;
+    b.summon += c.type === 'minion' ? .35 : 0;
+    b.kill += won && (c.burn || c.atk >= 3) ? .25 : 0;
+    b.games = (b.games || 0) + 1;
+    if (won) b.wins = (b.wins || 0) + 1;
+  });
+}
+function recordTrainingDeck(entry, won){
+  if (!entry || !entry.ref) return;
+  entry.ref.trainingGames = (entry.ref.trainingGames || 0) + 1;
+  if (won) entry.ref.trainingWins = (entry.ref.trainingWins || 0) + 1;
+  if (entry.kind === 'custom'){
+    entry.ref.games = (entry.ref.games || 0) + 1;
+    if (won) entry.ref.wins = (entry.ref.wins || 0) + 1;
+  } else if (entry.kind === 'meta'){
+    entry.ref.games = (entry.ref.games || 0) + 1;
+    if (won){ entry.ref.wins = (entry.ref.wins || 0) + 1; entry.ref.streak = (entry.ref.streak || 0) + 1; }
+    else entry.ref.streak = 0;
+  }
+}
+function mutateWeakTrainingDecks(chance){
+  const lab = ensureAiLab();
+  if (Math.random() * 100 >= clampPct(chance, lab.influenceChance)) return 0;
+  let changed = 0;
+  lab.decks.forEach(d => {
+    const games = d.trainingGames || d.games || 0;
+    if (games < 6) return;
+    const wr = (d.trainingWins || d.wins || 0) / Math.max(1, games);
+    if (wr < 0.45){
+      d.cards = mutateDeckByInfluence(d.cards, 100, Math.max(1, lab.mutateCount || 2), !!d.noLimits);
+      d.trainingGames = Math.ceil(games / 2);
+      d.trainingWins = Math.ceil((d.trainingWins || d.wins || 0) / 2);
+      changed++;
+    }
+  });
+  return changed;
+}
+function simulateTrainingMatch(pool, options){
+  const a = weightedPick(pool, d => d.weight || 1);
+  let b = weightedPick(pool.filter(x => x !== a), d => d.weight || 1);
+  if (!a || !b) return null;
+  const sa = trainingDeckScore(a), sb = trainingDeckScore(b);
+  const noise = clampPct(options.noise, 45) / 100;
+  const spread = 4 + noise * 24;
+  const av = sa.score + styleMatchupBonus(sa, sb) + (Math.random() * spread - spread / 2);
+  const bv = sb.score + styleMatchupBonus(sb, sa) + (Math.random() * spread - spread / 2);
+  const aWon = av >= bv;
+  recordTrainingDeck(a, aWon);
+  recordTrainingDeck(b, !aWon);
+  if (options.impact){
+    trainingImpactForDeck(a, aWon, av);
+    trainingImpactForDeck(b, !aWon, bv);
+  }
+  return { winner:aWon ? a : b, loser:aWon ? b : a, aWon, av, bv };
+}
 function ensureAiMeta(){
   if (!SAVE.aiMeta || typeof SAVE.aiMeta !== 'object') SAVE.aiMeta = { games: 0, byHero: {} };
   if (!SAVE.aiMeta.byHero) SAVE.aiMeta.byHero = {};
@@ -5005,9 +5451,21 @@ function ensureAiMeta(){
     }
   });
 }
-function pickAiDeck(hid){
+function pickAiDeck(hid, context){
+  context = context || 'rating';
+  const lab = ensureAiLab();
+  const custom = lab.enabled ? aiLabPickCustomDeck(context) : null;
+  if (custom){
+    G.aiDeckRef = { custom:true, id:custom.id || custom.name };
+    applyAiDeckTuning(custom, context);
+    return mutateDeckByInfluence(custom.cards, custom.mutateChance ?? lab.influenceChance, lab.mutateCount, !!custom.noLimits);
+  }
   ensureAiMeta();
   /* Легенда и Король играют элитой из Вклада Карт */
+  if (lab.enabled && Math.random() * 100 < (+lab.eliteChance || 0)){
+    G.aiDeckRef = null;
+    return mutateDeckByInfluence(buildEliteDeck(), lab.influenceChance, lab.mutateCount, false);
+  }
   if (aiTier() >= 4){
     G.aiDeckRef = null;
     return buildEliteDeck();
@@ -5016,13 +5474,23 @@ function pickAiDeck(hid){
   const idx = bh.next % bh.decks.length;
   bh.next = (bh.next + 1) % bh.decks.length;
   G.aiDeckRef = { hid, idx };
-  return bh.decks[idx].cards;
+  return mutateDeckByInfluence(bh.decks[idx].cards, lab.enabled ? lab.influenceChance : 0, lab.mutateCount, false);
 }
 function aiRecordResult(winner){
   if (!G || G.bossId) return;
   ensureAiMeta();
   SAVE.aiMeta.games = (SAVE.aiMeta.games || 0) + 1;
   if (G.aiDeckRef){
+    if (G.aiDeckRef.custom){
+      const lab = ensureAiLab();
+      const cd = lab.decks.find(x => String(x.id) === String(G.aiDeckRef.id));
+      if (cd){
+        cd.games = (cd.games || 0) + 1;
+        if (winner === 'enemy') cd.wins = (cd.wins || 0) + 1;
+      }
+      storeSave();
+      return;
+    }
     const d = SAVE.aiMeta.byHero[G.aiDeckRef.hid] &&
               SAVE.aiMeta.byHero[G.aiDeckRef.hid].decks[G.aiDeckRef.idx];
     if (d){
@@ -6963,7 +7431,10 @@ async function runTurnEnd(side){
 }
 
 /* ---------- мозги ИИ v2: оценка угроз, эффективность заклинаний, архетипы ---------- */
-function aiStyle(){ return HEROES[G.enemyHeroId].aiStyle || 'tempo'; }
+function aiStyle(){ return (G && G.aiTuning && G.aiTuning.style) || HEROES[G.enemyHeroId].aiStyle || 'tempo'; }
+function aiTuneNum(key, fallback){
+  return G && G.aiTuning && Number.isFinite(+G.aiTuning[key]) ? +G.aiTuning[key] : fallback;
+}
 function aiVisible(){ return G.player.board.filter(m => !m.stealth); }
 
 /* численная угроза существа на столе */
@@ -7009,6 +7480,8 @@ function aiFaceOrHold(game, burn){
   const foe = game.player;
   if (foe.hp + foe.armor <= burn) return { kind:'hero', side: foe };
   const st = aiStyle();
+  const faceBias = aiTuneNum('faceBias', 35);
+  if (faceBias >= 70 && foe.hp <= 22) return { kind:'hero', side: foe };
   if (st === 'aggro') return { kind:'hero', side: foe };
   if (st === 'tempo') return foe.hp <= 15 ? { kind:'hero', side: foe } : null;
   return null; /* контроль бережёт удаление */
@@ -7055,6 +7528,7 @@ function aiBoardLethal(){
 /* оценка розыгрыша карты в текущей ситуации */
 function scorePlay(d){
   const style = aiStyle();
+  const tune = G.aiTuning || {};
   const danger = playerThreatTotal();
   const pressured = G.enemy.hp + G.enemy.armor <= 14 || danger >= 12;
   if (G.aiLethalPlan){
@@ -7092,6 +7566,10 @@ function scorePlay(d){
   if (d.id === 'brew' && G.enemy.hp <= 22) s += 6;
   if (d.id === 'armorUp' && pressured) s += 6;
   if (d.secret) s += 1;
+  if (d.type === 'spell') s += (aiTuneNum('spellBias', 50) - 50) / 8;
+  if (d.id && tune.keyCard && d.id === tune.keyCard) s += 18;
+  if (aiTuneNum('faceBias', 35) >= 65 && (d.burn || d.charge || d.type === 'weapon')) s += 3;
+  if (aiTuneNum('tradeBias', 55) >= 75 && (d.taunt || d.burn || d.freeze || d.id === 'frostNova')) s += 2;
   return s;
 }
 /* выбор карты для розыгрыша */
@@ -7120,6 +7598,8 @@ function aiPickPlay(){
 /* выбор цели атаки: по угрозе, без размена жирных в токены */
 function aiPickAttackTarget(m, lethal){
   const face = { kind:'hero', side: G.player };
+  const tradeBias = aiTuneNum('tradeBias', 55);
+  const faceBias = aiTuneNum('faceBias', 35);
   if (m.siege) return face;
   const taunts = G.player.board.filter(t => t.taunt && !t.stealth);
   if (taunts.length){
@@ -7137,7 +7617,7 @@ function aiPickAttackTarget(m, lethal){
   const safe = byThreat(worthy.filter(t => t.atk < m.hp || m.shield))[0];
   const any = byThreat(worthy)[0];
   if (style === 'aggro'){
-    if (safe && threatScore(safe) >= 8) return { kind:'minion', side: G.player, minion: safe };
+    if (safe && threatScore(safe) >= Math.max(5, 10 - Math.round(tradeBias / 18))) return { kind:'minion', side: G.player, minion: safe };
     return face;
   }
   if (style === 'control'){
@@ -7148,7 +7628,8 @@ function aiPickAttackTarget(m, lethal){
     if (danger) return { kind:'minion', side: G.player, minion: danger };
     return face;
   }
-  if (aiTier() <= 1 && !lethal && Math.random() < (aiTier() === 0 ? 0.22 : 0.1))
+  if (faceBias >= 70 && !safe && Math.random() < (faceBias - 55) / 80) return face;
+  if (aiTier() <= 1 && !lethal && Math.random() < (aiTier() === 0 ? 0.22 : 0.1) + Math.max(0, 50 - tradeBias) / 220)
     return face;
   /* tempo */
   if (safe) return { kind:'minion', side: G.player, minion: safe };
@@ -7385,7 +7866,7 @@ async function aiTurn(){
       const ehp = G.enemy.hp + G.enemy.armor;
       const safeKill = byV(vis.filter(t => t.hp <= w.atk && !t.shield && t.atk < ehp - 6))[0];
       if (taunts.length) target = { kind:'minion', side: G.player, minion: (safeKill && safeKill.taunt ? safeKill : taunts[0]) };
-      else if (aiStyle() === 'aggro' || aiBoardLethal()) target = { kind:'hero', side: G.player };
+      else if (aiStyle() === 'aggro' || aiTuneNum('faceBias', 35) >= 75 || aiBoardLethal()) target = { kind:'hero', side: G.player };
       else target = safeKill ? { kind:'minion', side: G.player, minion: safeKill } : { kind:'hero', side: G.player };
     }
     await heroSwing(G.enemy, target);
@@ -7678,7 +8159,7 @@ const builderFilter = { search:'', set:'all', type:'all', rarity:'all', tribe:'a
 function openBuilder(){
   draft = SAVE.admin ? Object.assign({}, SAVE.deck) : normalizeDeck(SAVE.deck, SAVE.collection);
   if ($('adminChk')) $('adminChk').checked = !!SAVE.admin;
-  if ($('btnAiDecks')) $('btnAiDecks').style.display = SAVE.admin ? '' : 'none';
+  if ($('btnAiDecks')) $('btnAiDecks').style.display = 'none';
   showScreen('builder');
   initBuilderFilters();
   renderBuilder();
@@ -7950,7 +8431,7 @@ $('adminChk').addEventListener('change', () => {
   SAVE.admin = $('adminChk').checked;
   storeSave();
   sfx.click();
-  $('btnAiDecks').style.display = SAVE.admin ? '' : 'none';
+  $('btnAiDecks').style.display = 'none';
   renderBuilder();
   if ($('shop').classList.contains('active')) renderShop();
 });
@@ -8144,12 +8625,14 @@ function openBossSelect(){
   const progress = SAVE.bossProgress || 0;
   BOSS_ORDER.forEach((id, i) => {
     const b = HEROES[id];
+    const bossCfg = (SAVE.aiLab && SAVE.aiLab.boss && SAVE.aiLab.boss[id]) || {};
+    const shownHp = bossCfg.hp || b.bossHp;
     const locked = i > progress;
     const beaten = i < progress;
     const card = document.createElement('div');
     card.className = 'hs-card boss-card' + (locked ? ' locked' : '') + (beaten ? ' beaten' : '');
     card.title = locked ? `Глава ${b.tier}: ещё закрыто — победи предыдущего босса`
-      : `${b.name} · ❤️ ${b.bossHp}\n${b.power.icon} ${b.power.cost} «${b.power.name}»: ${b.power.desc}\n💥 ${b.special.name}: ${b.special.desc}`;
+      : `${b.name} · ❤️ ${shownHp}${bossCfg.armor ? ' · 🛡 ' + bossCfg.armor : ''}\n${b.power.icon} ${b.power.cost} «${b.power.name}»: ${b.power.desc}\n💥 ${b.special.name}: ${b.special.desc}`;
     card.innerHTML = `
       <div class="boss-node">
         <div class="hs-portrait">${locked ? '❓' : b.icon}</div>
@@ -8157,7 +8640,7 @@ function openBossSelect(){
       </div>
       <div class="boss-tier">Глава ${b.tier}</div>
       <div class="hs-name">${locked ? '???' : b.name}</div>
-      <div class="hs-hp">❤️ ${b.bossHp}</div>
+      <div class="hs-hp">❤️ ${shownHp}${bossCfg.armor ? ' · 🛡 ' + bossCfg.armor : ''}</div>
       <div class="hs-power">${locked ? 'Победи предыдущего босса' :
         `${b.power.icon} <b>${b.power.cost}</b> «${b.power.name}»<br>${b.power.desc}<br>💥 <b>${b.special.name}</b>: ${b.special.desc}`}</div>`;
     if (!locked){
@@ -8456,13 +8939,14 @@ function renderImpactStats(){
   });
 }
 
-$('btnImpact').addEventListener('click', () => {
+function openImpactStats(){
   sfx.click();
   impactMode = SAVE.admin ? 'all' : 'played';
   impactSort = SAVE.admin ? 'power' : 'score';
   renderImpactStats();
   $('impactOverlay').classList.add('active');
-});
+}
+if ($('btnImpact')) $('btnImpact').addEventListener('click', openImpactStats);
 $('impactModePlayed').addEventListener('click', () => { impactMode = 'played'; sfx.click(); renderImpactStats(); });
 $('impactModeAll').addEventListener('click', () => {
   if (!SAVE.admin) return;
@@ -8490,6 +8974,353 @@ $('btnTrack').addEventListener('click', () => { sfx.click(); MUSIC.nextTrack(); 
 /* ===== НАСТРОЙКИ ===== */
 let TABLE_PREF = 'random';
 try{ TABLE_PREF = localStorage.getItem('tablePref') || 'random'; }catch(e){}
+function safeTxt(v){
+  return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function cardSelectOptions(selected, allowEmpty){
+  const opts = [];
+  if (allowEmpty) opts.push(`<option value="">Нет</option>`);
+  Object.keys(CARD_DB)
+    .filter(id => !CARD_DB[id].token)
+    .sort((a, b) => CARD_DB[a].cost - CARD_DB[b].cost || CARD_DB[a].name.localeCompare(CARD_DB[b].name))
+    .forEach(id => opts.push(`<option value="${id}"${id === selected ? ' selected' : ''}>${CARD_DB[id].cost} · ${CARD_DB[id].icon} ${safeTxt(CARD_DB[id].name)}</option>`));
+  return opts.join('');
+}
+function syncAdminButton(){
+  if (!$('adminUnlockBtn')) return;
+  $('adminUnlockBtn').textContent = SAVE.admin ? '✅ АДМИН: ВКЛ' : '🔒 ВКЛЮЧИТЬ';
+  if ($('adminPassInput')) {
+    $('adminPassInput').style.display = SAVE.admin ? 'none' : '';
+    if (SAVE.admin) $('adminPassInput').value = '';
+  }
+  $('adminPanel').classList.toggle('active', !!SAVE.admin);
+}
+const ADMIN_HINTS = {
+  aiLabEnabled:'Главный рубильник лаборатории: если выключить, боты играют старой метой без кастомных вмешательств.',
+  aiLabMode:'weighted выбирает колоды по весу; single берёт самую тяжёлую; vanilla игнорирует кастомные колоды.',
+  aiLabStyle:'Базовый характер ИИ, если конкретная колода или босс не задали свой стиль.',
+  aiLabInfluence:'Шанс заменить слабые карты на сильные по статистике «Вклад карт». Чем выше, тем быстрее мета самоподстраивается.',
+  aiLabTrade:'0 — чаще бить героя, 100 — чаще искать выгодные размены и чистить стол.',
+  aiLabFace:'0 — осторожно, 100 — максимально давить в лицо и добивать.',
+  aiLabSpell:'0 — беречь/не любить спеллы, 100 — активнее играть заклинания и ценить спелл-синергию.',
+  aiLabMutateCount:'Сколько карт заменять за одну мутацию колоды.',
+  aiLabKeyCard:'Карта, которую ИИ считает планом игры и старается разыгрывать выше обычного.',
+  aiDeckName:'Название профиля, чтобы в экспорте и списке было понятно, что тестировалось.',
+  aiDeckScope:'Где эта колода участвует: рейтинг, турнир, боссы или вообще все режимы.',
+  aiDeckSource:'Из чего собрать начальный список карт: твоя колода, шаблон или элита по статистике.',
+  aiDeckWeight:'Шанс выбора этой колоды относительно других. 77 весит примерно втрое больше, чем 25.',
+  aiDeckMutate:'Индивидуальный шанс мутации именно этой колоды после обучения/игр.',
+  aiDeckNoLimits:'Игнорировать лимит копий. Обычно нужно только для боссов и экспериментальных стресс-тестов.',
+  aiDeckStyle:'Личный стиль этой колоды, перекрывает общий стиль лаборатории.',
+  aiDeckTrade:'Личные размены этой колоды: низко — давит, высоко — контролирует стол.',
+  aiDeckFace:'Личная агрессия в лицо для этой колоды.',
+  aiDeckSpell:'Насколько эта колода предпочитает заклинания.',
+  aiDeckKeyCard:'Главная карта плана этой колоды.',
+  bossTuneId:'Какого босса редактируем.',
+  bossTuneHp:'Стартовое здоровье босса.',
+  bossTuneArmor:'Стартовая броня босса.',
+  bossTuneStyle:'Личный стиль босса, перекрывает общий стиль.',
+  bossTuneKeyCard:'Карта, которую босс будет считать приоритетной.',
+  bossTuneSource:'Можно заменить колоду босса шаблоном или текущей твоей колодой. Лимиты копий для боссов сняты.',
+  bossTuneInfluence:'Шанс мутации боссовой колоды по «Вкладу карт».',
+  bossTuneTrade:'Насколько босс любит размениваться.',
+  bossTuneFace:'Насколько босс давит героя.',
+  bossTuneSpell:'Насколько босс любит играть заклинания.',
+  trainMatches:'Сколько ускоренных матчей бот против бота прогнать за запуск.',
+  trainContext:'Какие пулы колод брать для спарринга.',
+  trainPool:'Какие источники участвуют: кастомные колоды, мета ИИ, шаблоны или всё вместе.',
+  trainMutateAfter:'Шанс после обучения заменить слабые карты в просевших кастомных колодах.',
+  trainBatch:'Сколько матчей считать за один тик. Больше быстрее, но тяжелее для браузера.',
+  trainNoise:'Случайность результата. 0 — почти сухая математика, 100 — много апсетов и хаоса.',
+  trainImpactChk:'Если включено, обучение добавляет синтетическую статистику в «Вклад карт».',
+  trainRebuildChk:'Если включено, слабые мета-колоды и кастомные колоды периодически улучшаются.'
+};
+function installAdminHints(){
+  Object.keys(ADMIN_HINTS).forEach(id => {
+    const el = $(id);
+    if (!el) return;
+    const label = el.closest('.admin-field');
+    el.title = ADMIN_HINTS[id];
+    if (label){
+      label.title = ADMIN_HINTS[id];
+      if (!label.querySelector('.admin-help')){
+        const h = document.createElement('span');
+        h.className = 'admin-help';
+        h.textContent = ADMIN_HINTS[id];
+        label.appendChild(h);
+      }
+    }
+  });
+}
+let TRAIN_JOB = null;
+function renderTrainStatus(extra){
+  const lab = ensureAiLab();
+  const t = lab.training || {};
+  const status = $('trainStatus');
+  if (!status) return;
+  const wr = t.matches ? Math.round(100 * (t.aWins || 0) / t.matches) : 0;
+  status.innerHTML = `${extra ? safeTxt(extra) + '<br>' : ''}<b>Матчей:</b> ${t.matches || 0} · <b>запусков:</b> ${t.runs || 0} · <b>условный WR A:</b> ${wr}%${t.last ? '<br>' + safeTxt(t.last) : ''}`;
+  const bar = $('trainBar');
+  if (bar){
+    const pct = TRAIN_JOB ? Math.round(100 * TRAIN_JOB.done / Math.max(1, TRAIN_JOB.total)) : ((t.matches || 0) ? 100 : 0);
+    bar.style.width = pct + '%';
+  }
+}
+function buildTrainingReport(){
+  ensureAiMeta(); ensureImpactSave();
+  const deckRows = [];
+  ensureAiLab().decks.forEach(d => {
+    const games = d.trainingGames || d.games || 0;
+    if (games) deckRows.push({ name:d.name || 'Колода ИИ', kind:'custom', games, wins:d.trainingWins || d.wins || 0 });
+  });
+  Object.keys(SAVE.aiMeta.byHero || {}).forEach(hid => {
+    (SAVE.aiMeta.byHero[hid].decks || []).forEach(d => {
+      const games = d.games || 0;
+      if (games) deckRows.push({ name:(HEROES[hid]?.name || hid) + ' · ' + d.tpl, kind:'meta', games, wins:d.wins || 0 });
+    });
+  });
+  deckRows.forEach(r => r.wr = r.games ? Math.round(100 * r.wins / r.games) : 0);
+  const bestDecks = [...deckRows].sort((a, b) => b.wr - a.wr || b.games - a.games).slice(0, 4);
+  const weakDecks = [...deckRows].filter(r => r.games >= 4).sort((a, b) => a.wr - b.wr || b.games - a.games).slice(0, 4);
+  const topCards = Object.keys(SAVE.cardImpact || {})
+    .filter(id => CARD_DB[id])
+    .map(id => ({ id, name:CARD_DB[id].name, icon:CARD_DB[id].icon, plays:SAVE.cardImpact[id].plays || 0, score:impactScore(SAVE.cardImpact[id]) }))
+    .filter(r => r.plays > 0)
+    .sort((a, b) => b.score - a.score || b.plays - a.plays)
+    .slice(0, 5);
+  return { bestDecks, weakDecks, topCards };
+}
+function renderTrainingReport(){
+  const box = $('trainReport');
+  if (!box) return;
+  const r = buildTrainingReport();
+  const deckLine = row => `${safeTxt(row.name)} · ${row.wr}% / ${row.games}`;
+  const cardLine = row => `${row.icon} ${safeTxt(row.name)} · ${Math.round(row.score)} / ${row.plays}`;
+  box.innerHTML = `
+    <div class="train-card"><b>Лучшие колоды</b>${r.bestDecks.length ? r.bestDecks.map(deckLine).join('<br>') : 'Пока нет данных'}</div>
+    <div class="train-card"><b>Слабые колоды</b>${r.weakDecks.length ? r.weakDecks.map(deckLine).join('<br>') : 'Пока нет данных'}</div>
+    <div class="train-card"><b>Карты тащат</b>${r.topCards.length ? r.topCards.map(cardLine).join('<br>') : 'Пока нет данных'}</div>`;
+}
+function finishTrainingJob(msg){
+  TRAIN_JOB = null;
+  storeSave();
+  renderAiLabLists();
+  renderTrainStatus(msg || 'Обучение завершено.');
+  renderTrainingReport();
+  updateAiExport();
+}
+function runTrainingChunk(){
+  if (!TRAIN_JOB) return;
+  const job = TRAIN_JOB;
+  const lab = ensureAiLab();
+  const pool = trainingDeckPool(job.context, job.poolMode);
+  if (pool.length < 2){
+    finishTrainingJob('Нужно минимум 2 колоды/шаблона для обучения.');
+    return;
+  }
+  const batch = Math.min(job.batch, job.total - job.done);
+  let last = null;
+  for (let i = 0; i < batch; i++){
+    last = simulateTrainingMatch(pool, { impact:job.impact, noise:job.noise });
+    if (!last) break;
+    job.done++;
+    lab.training.matches = (lab.training.matches || 0) + 1;
+    if (last.aWon) lab.training.aWins = (lab.training.aWins || 0) + 1;
+    else lab.training.bWins = (lab.training.bWins || 0) + 1;
+  }
+  if (last) lab.training.last = `${last.winner.name} победила ${last.loser.name}`;
+  if (job.rebuild && job.done && job.done % Math.max(25, job.batch) === 0){
+    rebuildAiDecks();
+    const changed = mutateWeakTrainingDecks(job.mutateAfter);
+    if (changed) lab.training.last += ` · мутировано колод: ${changed}`;
+  }
+  renderTrainStatus(`Идёт обучение: ${job.done}/${job.total}`);
+  renderTrainingReport();
+  if (job.done >= job.total) finishTrainingJob('Обучение завершено.');
+  else setTimeout(runTrainingChunk, 16);
+}
+function startTraining(){
+  const lab = ensureAiLab();
+  const total = Math.max(1, Math.min(5000, Math.floor(+$('trainMatches').value || 100)));
+  TRAIN_JOB = {
+    total,
+    done: 0,
+    context: $('trainContext').value || 'rating',
+    poolMode: $('trainPool').value || 'mixed',
+    batch: Math.max(5, Math.min(200, Math.floor(+$('trainBatch').value || 25))),
+    noise: clampPct($('trainNoise').value, 45),
+    impact: $('trainImpactChk').checked,
+    rebuild: $('trainRebuildChk').checked,
+    mutateAfter: clampPct($('trainMutateAfter').value, lab.influenceChance)
+  };
+  lab.training.runs = (lab.training.runs || 0) + 1;
+  renderTrainStatus('Обучение запущено.');
+  runTrainingChunk();
+}
+function stopTraining(){
+  if (!TRAIN_JOB) return;
+  const done = TRAIN_JOB.done;
+  TRAIN_JOB = null;
+  storeSave();
+  renderTrainStatus(`Остановлено после ${done} матчей.`);
+}
+function renderAiLabControls(){
+  ensureAiLab();
+  const lab = SAVE.aiLab;
+  if (!$('adminPanel')) return;
+  $('aiLabEnabled').checked = !!lab.enabled;
+  $('aiLabMode').value = lab.mode || 'weighted';
+  $('aiLabStyle').value = lab.style || 'tempo';
+  $('aiLabInfluence').value = lab.influenceChance;
+  $('aiLabTrade').value = lab.tradeBias;
+  $('aiLabFace').value = lab.faceBias;
+  $('aiLabSpell').value = lab.spellBias;
+  $('aiLabMutateCount').value = lab.mutateCount;
+  $('aiLabKeyCard').innerHTML = cardSelectOptions(lab.keyCard || '', true);
+  $('aiDeckKeyCard').innerHTML = cardSelectOptions('', true);
+  $('aiDeckMutate').value = lab.influenceChance;
+  $('aiDeckTrade').value = lab.tradeBias;
+  $('aiDeckFace').value = lab.faceBias;
+  $('aiDeckSpell').value = lab.spellBias;
+  $('bossTuneKeyCard').innerHTML = cardSelectOptions('', true);
+  $('bossTuneId').innerHTML = BOSS_ORDER.map(id => `<option value="${id}">${HEROES[id].icon} ${safeTxt(HEROES[id].name)}</option>`).join('');
+  installAdminHints();
+  renderAiLabLists();
+  loadBossTune();
+  syncAdminButton();
+  renderTrainStatus();
+  renderTrainingReport();
+}
+function saveAiLabFromControls(){
+  const lab = ensureAiLab();
+  lab.enabled = $('aiLabEnabled').checked;
+  lab.mode = $('aiLabMode').value;
+  lab.style = $('aiLabStyle').value;
+  lab.influenceChance = +$('aiLabInfluence').value || 0;
+  lab.tradeBias = +$('aiLabTrade').value || 0;
+  lab.faceBias = +$('aiLabFace').value || 0;
+  lab.spellBias = +$('aiLabSpell').value || 0;
+  lab.mutateCount = +$('aiLabMutateCount').value || 0;
+  lab.keyCard = $('aiLabKeyCard').value || '';
+  storeSave();
+  renderAiLabLists();
+}
+function renderAiLabLists(){
+  const lab = ensureAiLab();
+  const note = $('aiLabLiveNote');
+  if (note) note.textContent = `Сейчас: ${lab.mode === 'weighted' ? 'выбор по шансам' : lab.mode === 'single' ? 'одна лучшая колода' : 'старая мета'} · мутация ${lab.influenceChance}% · размены ${lab.tradeBias}% · лицо ${lab.faceBias}% · спеллы ${lab.spellBias}%`;
+  const list = $('aiDeckCustomList');
+  if (list){
+    if (!lab.decks.length) list.innerHTML = '<div class="admin-note">Пул пуст: ИИ использует старую мету и элиту по «Вкладу карт».</div>';
+    else {
+      list.innerHTML = '';
+      lab.decks.forEach(d => {
+        const row = document.createElement('div');
+        row.className = 'admin-deck-row';
+        const total = deckTotal(d.cards || {});
+        const styleTxt = d.style ? ` · ${d.style}` : '';
+        const keyTxt = d.keyCard && CARD_DB[d.keyCard] ? ` · ключ ${CARD_DB[d.keyCard].icon}` : '';
+        row.innerHTML = `<div><b>${safeTxt(d.name || 'Колода ИИ')}</b><small>${d.scope || 'all'} · ${total} карт · вес ${d.weight || 1}% · мутация ${d.mutateChance ?? lab.influenceChance}%${styleTxt}${keyTxt}${d.noLimits ? ' · без лимитов' : ''}</small></div><span>${d.source || 'custom'}</span><button class="btn stone admin-danger" data-del="${d.id}" style="font-size:9px;padding:4px 8px;">×</button>`;
+        row.querySelector('[data-del]').addEventListener('click', ev => {
+          lab.decks = lab.decks.filter(x => String(x.id) !== String(ev.currentTarget.dataset.del));
+          storeSave();
+          renderAiLabLists();
+        });
+        list.appendChild(row);
+      });
+    }
+  }
+  const bossList = $('bossTuneList');
+  if (bossList){
+    const ids = Object.keys(lab.boss).filter(id => HEROES[id]);
+    if (!ids.length) bossList.innerHTML = '<div class="admin-note">Индивидуальные настройки боссов пока не заданы.</div>';
+    else {
+      bossList.innerHTML = ids.map(id => {
+        const b = lab.boss[id] || {};
+        return `<div class="admin-deck-row"><div><b>${HEROES[id].icon} ${safeTxt(HEROES[id].name)}</b><small>HP ${b.hp || HEROES[id].bossHp} · броня ${b.armor || 0} · ${b.style || lab.style || 'общий стиль'} · размен ${b.tradeBias ?? lab.tradeBias}% · лицо ${b.faceBias ?? lab.faceBias}%${b.cards ? ' · своя колода' : ''}</small></div><span>${b.keyCard && CARD_DB[b.keyCard] ? CARD_DB[b.keyCard].icon : '—'}</span></div>`;
+      }).join('');
+    }
+  }
+}
+function loadBossTune(){
+  const id = $('bossTuneId').value || BOSS_ORDER[0];
+  const lab = ensureAiLab();
+  const b = lab.boss[id] || {};
+  $('bossTuneHp').value = b.hp || HEROES[id].bossHp || HERO_HP;
+  $('bossTuneArmor').value = b.armor || 0;
+  $('bossTuneStyle').value = b.style || '';
+  $('bossTuneKeyCard').innerHTML = cardSelectOptions(b.keyCard || '', true);
+  $('bossTuneInfluence').value = b.influenceChance ?? lab.influenceChance;
+  $('bossTuneTrade').value = b.tradeBias ?? lab.tradeBias;
+  $('bossTuneFace').value = b.faceBias ?? lab.faceBias;
+  $('bossTuneSpell').value = b.spellBias ?? lab.spellBias;
+  $('bossTuneSource').value = 'keep';
+}
+function addAiCustomDeck(){
+  const lab = ensureAiLab();
+  const source = $('aiDeckSource').value;
+  const noLimits = $('aiDeckNoLimits').checked || $('aiDeckScope').value === 'boss';
+  const cards = aiDeckFromSource(source, noLimits);
+  if (!deckTotal(cards)){ alert('Не удалось собрать колоду из выбранного источника.'); return; }
+  lab.decks.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    name: ($('aiDeckName').value || `ИИ ${source}`).trim().slice(0, 28),
+    scope: $('aiDeckScope').value,
+    source,
+    weight: Math.max(1, Math.min(100, +$('aiDeckWeight').value || 1)),
+    mutateChance: Math.max(0, Math.min(100, +$('aiDeckMutate').value || lab.influenceChance)),
+    noLimits,
+    style: $('aiDeckStyle').value || '',
+    tradeBias: clampPct($('aiDeckTrade').value, lab.tradeBias),
+    faceBias: clampPct($('aiDeckFace').value, lab.faceBias),
+    spellBias: clampPct($('aiDeckSpell').value, lab.spellBias),
+    keyCard: $('aiDeckKeyCard').value || '',
+    cards
+  });
+  storeSave();
+  renderAiLabLists();
+  $('aiDeckName').value = '';
+}
+function saveBossTune(){
+  const lab = ensureAiLab();
+  const id = $('bossTuneId').value || BOSS_ORDER[0];
+  const cur = lab.boss[id] || {};
+  const source = $('bossTuneSource').value;
+  const next = {
+    hp: Math.max(1, Math.floor(+$('bossTuneHp').value || HEROES[id].bossHp || HERO_HP)),
+    armor: Math.max(0, Math.floor(+$('bossTuneArmor').value || 0)),
+    style: $('bossTuneStyle').value || '',
+    keyCard: $('bossTuneKeyCard').value || '',
+    influenceChance: clampPct($('bossTuneInfluence').value, lab.influenceChance),
+    tradeBias: clampPct($('bossTuneTrade').value, lab.tradeBias),
+    faceBias: clampPct($('bossTuneFace').value, lab.faceBias),
+    spellBias: clampPct($('bossTuneSpell').value, lab.spellBias)
+  };
+  if (source === 'keep') next.cards = cur.cards;
+  else next.cards = aiDeckFromSource(source, true);
+  lab.boss[id] = next;
+  storeSave();
+  renderAiLabLists();
+  sfx.rare();
+}
+function aiExportPayload(){
+  ensureAiLab(); ensureAiMeta(); ensureImpactSave();
+  return {
+    version: 'card-arena-ai-lab-1',
+    build: CARD_ARENA_BUILD,
+    exportedAt: new Date().toISOString(),
+    aiLab: SAVE.aiLab,
+    aiMeta: SAVE.aiMeta,
+    cardImpact: SAVE.cardImpact || {},
+    trainingReport: buildTrainingReport(),
+    playerDeck: SAVE.deck,
+    collectionSize: Object.values(SAVE.collection || {}).reduce((s, n) => s + (+n || 0), 0),
+    note: 'Экспорт настроек ИИ, кастомных колод, боссов и функции Вклад карт.'
+  };
+}
+function updateAiExport(){
+  $('aiExportOut').value = JSON.stringify(aiExportPayload(), null, 2);
+}
 function applyTableTheme(){
   const t = TABLE_PREF === 'random' ? (Math.random() < 0.5 ? 'frost' : 'tavern') : TABLE_PREF;
   document.body.classList.toggle('table-frost', t === 'frost');
@@ -8501,9 +9332,73 @@ if (TABLE_PREF !== 'random') document.body.classList.toggle('table-frost', TABLE
 $('btnSettings').addEventListener('click', () => {
   sfx.click(); refreshSetTable();
   $('btnSfx').textContent = '🔊 ЗВУКИ: ' + (SFX_ON ? 'ВКЛ' : 'ВЫКЛ');
+  renderAiLabControls();
   $('settingsOverlay').classList.add('active');
 });
 $('setClose').addEventListener('click', () => { sfx.click(); $('settingsOverlay').classList.remove('active'); });
+$('setImpactBtn').addEventListener('click', () => {
+  $('settingsOverlay').classList.remove('active');
+  openImpactStats();
+});
+$('adminUnlockBtn').addEventListener('click', () => {
+  if (SAVE.admin){
+    SAVE.admin = false;
+    storeSave();
+    syncAdminButton();
+    if ($('adminChk')) $('adminChk').checked = false;
+    if ($('shop').classList.contains('active')) renderShop();
+    return;
+  }
+  const pass = (($('adminPassInput') && $('adminPassInput').value) || '').trim();
+  if (pass !== '322'){
+    alert('Неверный пароль. Введи 322.');
+    return;
+  }
+  SAVE.admin = true;
+  ensureAiLab();
+  storeSave();
+  syncAdminButton();
+  renderAiLabControls();
+  if ($('adminChk')) $('adminChk').checked = true;
+  sfx.rare();
+});
+['aiLabEnabled','aiLabMode','aiLabStyle','aiLabInfluence','aiLabTrade','aiLabFace','aiLabSpell','aiLabMutateCount','aiLabKeyCard'].forEach(id => {
+  $(id).addEventListener($(id).type === 'checkbox' ? 'change' : 'input', saveAiLabFromControls);
+});
+$('aiDeckAddBtn').addEventListener('click', () => { sfx.click(); addAiCustomDeck(); });
+$('aiDeckClearBtn').addEventListener('click', () => {
+  if (!confirm('Удалить все кастомные колоды ИИ?')) return;
+  ensureAiLab().decks = [];
+  storeSave();
+  renderAiLabLists();
+});
+$('bossTuneId').addEventListener('change', loadBossTune);
+$('bossTuneSaveBtn').addEventListener('click', saveBossTune);
+$('bossTuneDeleteBtn').addEventListener('click', () => {
+  const id = $('bossTuneId').value || BOSS_ORDER[0];
+  delete ensureAiLab().boss[id];
+  storeSave();
+  loadBossTune();
+  renderAiLabLists();
+});
+$('trainStartBtn').addEventListener('click', () => { sfx.click(); startTraining(); });
+$('trainStopBtn').addEventListener('click', () => { sfx.click(); stopTraining(); });
+$('trainResetBtn').addEventListener('click', () => {
+  const lab = ensureAiLab();
+  lab.training = { runs:0, matches:0, aWins:0, bWins:0, last:'' };
+  storeSave();
+  renderTrainStatus('Статистика обучения сброшена.');
+  renderTrainingReport();
+  updateAiExport();
+});
+$('setAiDecksBtn').addEventListener('click', () => { sfx.click(); openAiDecks(); });
+$('aiExportBtn').addEventListener('click', () => { updateAiExport(); sfx.click(); });
+$('aiCopyExportBtn').addEventListener('click', async () => {
+  updateAiExport();
+  try { await navigator.clipboard.writeText($('aiExportOut').value); }
+  catch(e){ $('aiExportOut').focus(); $('aiExportOut').select(); document.execCommand('copy'); }
+  sfx.rare();
+});
 $('setReset').addEventListener('click', () => {
   if (!confirm('Сбросить ВЕСЬ прогресс? Коллекция, золото, рейтинг, покупки и колоды будут удалены безвозвратно.')) return;
   if (!confirm('Точно? Это действие необратимо.')) return;
@@ -8632,13 +9527,18 @@ function startGame(heroId, opts){
     storeSave();
   }
   const boss = opts.bossId ? HEROES[opts.bossId] : null;
-  G = newGame(deckToArray(deck), boss ? enemyDeckArray(boss.deckW) : null);
+  const aiContext = boss ? 'boss' : (opts.tourn ? 'tournament' : 'rating');
+  const bossDeck = boss ? pickBossAiDeck(opts.bossId, boss.deckW) : null;
+  G = newGame(deckToArray(deck), boss ? deckToArray(bossDeck) : null);
+  G.aiTuning = aiLabTuning(aiContext, opts.bossId);
   /* архетипная колода врага подставляется после выбора героя ниже */
   G.playerHeroId = heroId && HEROES[heroId] && !HEROES[heroId].boss ? heroId
                  : (HEROES[SAVE.hero] && !HEROES[SAVE.hero].boss ? SAVE.hero : 'mage');
   if (boss){
+    const bossCfg = (SAVE.aiLab && SAVE.aiLab.boss && SAVE.aiLab.boss[opts.bossId]) || {};
     G.enemyHeroId = opts.bossId;
-    G.enemy.hp = boss.bossHp || HERO_HP;
+    G.enemy.hp = Math.max(1, Math.floor(+bossCfg.hp || boss.bossHp || HERO_HP));
+    G.enemy.armor = Math.max(0, Math.floor(+bossCfg.armor || 0));
     G.bossId = opts.bossId;
     G.bossIndex = opts.bossIndex;
   } else if (opts.opp){
@@ -8649,7 +9549,7 @@ function startGame(heroId, opts){
     G.enemyHeroId = pool[Math.floor(Math.random() * pool.length)];
   }
   if (!boss){
-    G.enemy.deck = deckToArray(pickAiDeck(G.enemyHeroId));
+    G.enemy.deck = deckToArray(pickAiDeck(G.enemyHeroId, aiContext));
   }
   const ENEMY_BACKS = ['default','royal','frost','ember','arcane','runic'];
   const bossBack = { dragonboss:'ember', mechboss:'runic', lichboss:'frost',
