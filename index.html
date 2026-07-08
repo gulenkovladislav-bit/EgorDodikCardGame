@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-08-1135';
+    var build = '2026-07-08-1150';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -420,11 +420,23 @@
   .set-seg button:last-child{border-right:none;}
   .set-seg button.on{background:linear-gradient(180deg,#eccb78,#9c7526);color:#241a08;text-shadow:0 1px 0 rgba(255,255,255,.3);}
   .admin-panel{
-    display:none;flex-direction:column;gap:10px;margin-top:2px;padding:12px;
-    background:rgba(12,8,4,.45);border:2px solid #6b5124;border-radius:12px;
-    box-shadow:inset 0 0 18px rgba(0,0,0,.35);
+    display:none;position:fixed;z-index:380;
+    left:50%;top:max(12px, env(safe-area-inset-top));bottom:max(12px, env(safe-area-inset-bottom));
+    transform:translateX(-50%);
+    width:min(1280px, calc(100vw - 24px));max-height:calc(100dvh - 24px);
+    flex-direction:column;gap:13px;padding:18px 20px;overflow:auto;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,210,120,.08), transparent 55%),
+      linear-gradient(180deg,rgba(47,32,14,.98),rgba(18,11,4,.98));
+    border:3px solid #6b5124;border-radius:16px;
+    box-shadow:0 0 0 2px #221807, 0 22px 64px rgba(0,0,0,.86), inset 0 0 28px rgba(0,0,0,.45);
   }
   .admin-panel.active{display:flex;}
+  .admin-panel::before{
+    content:"";position:fixed;inset:-24px;z-index:-1;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 40%, rgba(80,55,20,.26), transparent 60%), rgba(7,4,2,.78);
+  }
+  .admin-window-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:-18px;z-index:2;padding:4px 0 10px;background:linear-gradient(180deg,rgba(47,32,14,.98),rgba(47,32,14,.88));}
   .admin-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
   .admin-field{display:flex;flex-direction:column;gap:4px;min-width:0;color:#d8c8a2;font-size:10px;letter-spacing:.5px;}
   .admin-field input,.admin-field select,.admin-field textarea{
@@ -466,6 +478,7 @@
   .admin-deck-row small{display:block;color:#a08c60;font-size:9px;margin-top:2px;}
   .admin-danger{color:#ff9b8a!important;border-color:#7a3a2a!important;}
   .admin-export{height:92px;resize:vertical;white-space:pre;font-family:ui-monospace, SFMono-Regular, Menlo, monospace!important;font-size:9.5px!important;}
+  #adminLabOpenBtn{display:none;}
   @media (max-width: 820px), (max-height: 520px){
     .set-box{width:calc(100vw - 14px);max-height:calc(100dvh - 14px);min-width:0;padding:12px;gap:8px;border-width:2px;border-radius:14px;}
     .set-title{font-size:15px;letter-spacing:1px;}
@@ -473,7 +486,13 @@
     .set-row>span{font-size:11px;letter-spacing:.5px;}
     .set-row .btn,.set-box>.btn{font-size:9px!important;padding:6px 9px!important;border-width:2px!important;}
     .set-seg button{font-size:9px;padding:5px 7px;}
-    .admin-panel{padding:8px;gap:7px;border-radius:9px;}
+    .admin-login{justify-content:flex-end;flex-wrap:wrap;gap:5px;}
+    #adminLabOpenBtn{min-width:112px;justify-content:center;}
+    .admin-panel{
+      width:calc(100vw - 10px);top:max(5px, env(safe-area-inset-top));bottom:max(5px, env(safe-area-inset-bottom));
+      max-height:calc(100dvh - 10px);padding:9px;gap:8px;border-radius:10px;border-width:2px;
+    }
+    .admin-window-head{top:-9px;padding-bottom:7px;}
     .admin-login input{width:72px;font-size:9px;padding:5px 6px;border-radius:7px;}
     .admin-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}
     .admin-field{font-size:8.5px;}
@@ -2860,15 +2879,19 @@
       <div class="admin-login">
         <input id="adminPassInput" type="password" inputmode="numeric" placeholder="322" autocomplete="off">
         <button class="btn stone music-toggle" id="adminUnlockBtn">🔒 ВКЛЮЧИТЬ</button>
+        <button class="btn stone music-toggle" id="adminLabOpenBtn">🤖 ЛАБОРАТОРИЯ</button>
       </div>
     </div>
     <div class="admin-panel" id="adminPanel">
-      <div class="admin-line">
+      <div class="admin-window-head">
         <div>
           <div class="admin-title">🤖 Лаборатория ИИ</div>
           <div class="admin-note">Настройка колод, поведения, мутаций от «Вклада карт» и боссов. Экспорт можно прислать мне обратно, чтобы я зашил готовые пресеты в код.</div>
         </div>
-        <button class="btn stone music-toggle" id="setAiDecksBtn">📈 МЕТА</button>
+        <div class="admin-line" style="justify-content:flex-end;">
+          <button class="btn stone music-toggle" id="setAiDecksBtn">📈 МЕТА</button>
+          <button class="btn stone music-toggle" id="adminLabCloseBtn">ЗАКРЫТЬ</button>
+        </div>
       </div>
       <div class="admin-grid">
         <label class="admin-field">Система активна<input type="checkbox" id="aiLabEnabled"></label>
@@ -3182,7 +3205,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-08-1135';
+const CARD_ARENA_BUILD = '2026-07-08-1150';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -8993,7 +9016,8 @@ function syncAdminButton(){
     $('adminPassInput').style.display = SAVE.admin ? 'none' : '';
     if (SAVE.admin) $('adminPassInput').value = '';
   }
-  $('adminPanel').classList.toggle('active', !!SAVE.admin);
+  if ($('adminLabOpenBtn')) $('adminLabOpenBtn').style.display = SAVE.admin ? 'inline-flex' : 'none';
+  if (!SAVE.admin && $('adminPanel')) $('adminPanel').classList.remove('active');
 }
 const ADMIN_HINTS = {
   aiLabEnabled:'Главный рубильник лаборатории: если выключить, боты играют старой метой без кастомных вмешательств.',
@@ -9191,6 +9215,17 @@ function renderAiLabControls(){
   renderTrainStatus();
   renderTrainingReport();
 }
+function openAiLabWindow(){
+  const panel = $('adminPanel');
+  if (!SAVE.admin || !panel) return;
+  if (panel.parentElement !== document.body) document.body.appendChild(panel);
+  renderAiLabControls();
+  if ($('settingsOverlay')) $('settingsOverlay').classList.remove('active');
+  panel.classList.add('active');
+}
+function closeAiLabWindow(){
+  if ($('adminPanel')) $('adminPanel').classList.remove('active');
+}
 function saveAiLabFromControls(){
   const lab = ensureAiLab();
   lab.enabled = $('aiLabEnabled').checked;
@@ -9344,6 +9379,7 @@ $('adminUnlockBtn').addEventListener('click', () => {
   if (SAVE.admin){
     SAVE.admin = false;
     storeSave();
+    closeAiLabWindow();
     syncAdminButton();
     if ($('adminChk')) $('adminChk').checked = false;
     if ($('shop').classList.contains('active')) renderShop();
@@ -9361,7 +9397,10 @@ $('adminUnlockBtn').addEventListener('click', () => {
   renderAiLabControls();
   if ($('adminChk')) $('adminChk').checked = true;
   sfx.rare();
+  openAiLabWindow();
 });
+$('adminLabOpenBtn').addEventListener('click', () => { sfx.click(); openAiLabWindow(); });
+$('adminLabCloseBtn').addEventListener('click', () => { sfx.click(); closeAiLabWindow(); });
 ['aiLabEnabled','aiLabMode','aiLabStyle','aiLabInfluence','aiLabTrade','aiLabFace','aiLabSpell','aiLabMutateCount','aiLabKeyCard'].forEach(id => {
   $(id).addEventListener($(id).type === 'checkbox' ? 'change' : 'input', saveAiLabFromControls);
 });
