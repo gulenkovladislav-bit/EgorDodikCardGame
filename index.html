@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-06-1655';
+    var build = '2026-07-08-0920';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -119,13 +119,25 @@
   #menu{
     z-index:300;
     background:
-      radial-gradient(ellipse at 50% 115%, #5c3d1c 0%, transparent 55%),
-      radial-gradient(ellipse at 8% 20%, rgba(255,150,40,.18), transparent 30%),
-      radial-gradient(ellipse at 92% 20%, rgba(255,150,40,.18), transparent 30%),
-      radial-gradient(ellipse at 50% -20%, rgba(0,0,0,.6), transparent 50%),
-      repeating-linear-gradient(88deg, #1d1409 0 80px, #241a0d 80px 160px),
+      radial-gradient(ellipse at 50% 128%, rgba(255,150,45,.35) 0%, rgba(180,90,20,.12) 22%, transparent 46%),
+      radial-gradient(ellipse at 8% 16%, rgba(255,160,50,.22), transparent 26%),
+      radial-gradient(ellipse at 92% 16%, rgba(255,160,50,.22), transparent 26%),
+      radial-gradient(ellipse at 50% 40%, rgba(255,190,90,.06), transparent 60%),
+      radial-gradient(ellipse at 50% -12%, rgba(0,0,0,.65), transparent 48%),
+      linear-gradient(0deg, #100a05 0 14%, transparent 34%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.28) 0 2px, transparent 2px 5px, rgba(255,220,150,.03) 5px 7px, transparent 7px 116px),
+      repeating-linear-gradient(90deg, #241a0d 0 116px, #1b1309 116px 120px),
       #120c06;
+    box-shadow:inset 0 0 200px rgba(0,0,0,.7);
     display:none;align-items:center;justify-content:center;
+  }
+  /* пол таверны */
+  #menu::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:15%;z-index:0;pointer-events:none;
+    background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,.4) 0 3px, transparent 3px 46px),
+      linear-gradient(180deg, #3a2712, #1a1108);
+    box-shadow:inset 0 8px 20px rgba(0,0,0,.6);
   }
   .torch{
     position:absolute;top:14%;font-size:34px;z-index:1;
@@ -953,7 +965,7 @@
   /* выезжающая панель героев */
   .hs-drawer{width:min(720px,94vw);display:flex;gap:16px;justify-content:center;flex-wrap:wrap;
     max-height:0;overflow:hidden;transition:max-height .3s ease, opacity .25s;opacity:0;}
-  .hs-drawer.show{max-height:420px;opacity:1;margin-top:2px;}
+  .hs-drawer.show{max-height:420px;opacity:1;margin-top:2px;overflow:visible;}
   #hsFind{font-size:18px;padding:13px 40px;letter-spacing:1px;}
   #hsFind:disabled{opacity:.4;filter:grayscale(.6);cursor:not-allowed;}
   .hs-card{
@@ -1048,23 +1060,55 @@
   /* ================= БОССЫ ================= */
   #bossSelect{
     z-index:290;background:
-      radial-gradient(ellipse at 50% 40%, rgba(140,40,20,.3), transparent 60%),
-      #150a07;
-    display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+      radial-gradient(ellipse at 50% -10%, rgba(200,160,60,.16), transparent 45%),
+      radial-gradient(ellipse at 15% 30%, rgba(120,150,90,.10), transparent 40%),
+      radial-gradient(ellipse at 85% 65%, rgba(90,120,150,.10), transparent 40%),
+      radial-gradient(ellipse at 50% 115%, rgba(150,60,25,.25), transparent 55%),
+      repeating-linear-gradient(58deg, rgba(90,66,30,.05) 0 2px, transparent 2px 24px),
+      linear-gradient(175deg, #3a2c16, #241a0d 60%, #181007);
+    display:none;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;
+    overflow-y:auto;padding:18px 0 30px;
   }
+  #bossSelect .hs-title{margin-top:6px;}
   #bossSelect.active{display:flex;}
   #bossBack{position:absolute;top:12px;left:12px;font-size:13px;padding:8px 16px;}
   #bossRow{
-    width:min(1120px,96vw);
-    display:flex;
-    align-items:stretch;
-    justify-content:center;
-    flex-wrap:wrap;
-    gap:14px;
-    overflow:auto;
-    padding:6px 8px 10px;
+    width:min(880px,96vw);
+    display:flex;flex-direction:row;flex-wrap:wrap;
+    align-items:center;justify-content:center;
+    gap:18px 10px;
+    position:relative;
+    padding:40px 12px 40px;
   }
-  #bossRow .boss-card{width:190px;min-height:260px;}
+  /* пунктирный маршрут карты */
+  #bossRow::before{
+    content:"";position:absolute;left:5%;right:5%;top:50%;height:0;
+    border-top:4px dashed rgba(224,190,96,.55);transform:translateY(-50%);z-index:0;
+  }
+  #bossRow .boss-card{
+    width:104px;min-height:0;height:auto;padding:0;
+    position:relative;z-index:1;text-align:center;
+    background:none;border:none;box-shadow:none;border-radius:0;
+  }
+  #bossRow .boss-card:hover{box-shadow:none;}
+  #bossRow .boss-card:nth-child(even){transform:translateY(-30px);}
+  #bossRow .boss-card:nth-child(odd){transform:translateY(30px);}
+  #bossRow .boss-card .boss-node{
+    position:relative;width:72px;height:72px;margin:0 auto;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 35% 28%,#6a4f28,#241a0c);
+    border:3px solid #caa04a;
+    box-shadow:0 0 0 3px #221807,0 4px 12px rgba(0,0,0,.6),inset 0 0 12px rgba(0,0,0,.5);
+  }
+  #bossRow .boss-card.beaten .boss-node{border-color:var(--green-ok);box-shadow:0 0 0 3px #221807,0 0 14px 3px rgba(111,191,90,.5);}
+  #bossRow .boss-card.locked .boss-node{border-color:#5a5044;filter:grayscale(.6) brightness(.7);}
+  #bossRow .boss-card .boss-node .hs-portrait{width:56px;height:56px;font-size:32px;margin:0;border:none;box-shadow:none;background:none;}
+  #bossRow .boss-card .boss-flag{position:absolute;bottom:-6px;right:-6px;font-size:15px;filter:drop-shadow(0 1px 2px #000);}
+  #bossRow .boss-card .boss-tier{position:static;font-size:10px;color:var(--gold-bright);letter-spacing:.5px;margin-top:6px;}
+  #bossRow .boss-card .hs-name{font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#f0e2c0;text-shadow:0 1px 3px #000;}
+  #bossRow .boss-card .hs-hp{font-size:9.5px;margin-top:0;color:#ef8a76;text-shadow:0 1px 2px #000;}
+  #bossRow .boss-card .hs-power{display:none;}
+  #bossRow .boss-card:not(.locked){cursor:pointer;}
   .hs-card .hs-hp{font-size:12px;color:#ef8a76;margin-top:5px;}
 
   /* ================= ТУРНИР ================= */
@@ -1168,55 +1212,106 @@
   /* ===== РУБАШКИ КАРТ (единый набор для колод/руки/паков) ===== */
   .cardback-default{
     background:
-      radial-gradient(circle at 50% 45%, #4b3417 0 20%, transparent 21%),
+      radial-gradient(circle at 50% 46%, #f0d488 0 3%, #9c6e1c 4% 7%, transparent 8%),
+      radial-gradient(circle at 50% 46%, transparent 0 11%, rgba(201,162,75,.55) 12% 13.5%, transparent 15%),
+      radial-gradient(circle at 50% 46%, transparent 0 18%, rgba(201,162,75,.32) 19% 20.5%, transparent 22%),
       repeating-linear-gradient(45deg,#2c1e0e 0 6px,#38270f 6px 12px);
-    border-color:#6b5124;
+    border-color:#c9a24b;
+    box-shadow:inset 0 0 0 2px rgba(201,162,75,.6), inset 0 0 0 4px rgba(40,26,10,.6), inset 0 0 16px rgba(0,0,0,.55);
   }
   .cardback-royal{
     background:
-      radial-gradient(circle at 50% 42%, #d8a8ff 0 9%, #7a34c0 10% 17%, transparent 18%),
-      repeating-conic-gradient(from 0deg at 50% 42%, rgba(255,255,255,.08) 0deg 10deg, transparent 10deg 20deg),
+      radial-gradient(circle at 50% 46%, #f3e0ff 0 3%, #9a4fd8 4% 7%, transparent 8%),
+      radial-gradient(circle at 50% 46%, transparent 0 11%, rgba(216,168,255,.6) 12% 13.5%, transparent 15%),
+      radial-gradient(circle at 50% 46%, transparent 0 18%, rgba(216,168,255,.35) 19% 20.5%, transparent 22%),
+      repeating-conic-gradient(from 0deg at 50% 46%, rgba(255,255,255,.07) 0deg 12deg, transparent 12deg 24deg),
       linear-gradient(160deg,#4a1d82,#280f4a);
     border-color:#b98aff;
+    box-shadow:inset 0 0 0 2px rgba(216,168,255,.55), inset 0 0 0 4px rgba(30,12,55,.6), inset 0 0 16px rgba(0,0,0,.5);
   }
   .cardback-frost{
     background:
-      radial-gradient(circle at 50% 42%, #eaf6ff 0 8%, #5aaeff 9% 16%, transparent 17%),
-      repeating-linear-gradient(45deg, rgba(255,255,255,.1) 0 3px, transparent 3px 8px),
+      radial-gradient(circle at 50% 46%, #f2fbff 0 3%, #4a9fe0 4% 7%, transparent 8%),
+      radial-gradient(circle at 50% 46%, transparent 0 11%, rgba(159,212,255,.6) 12% 13.5%, transparent 15%),
+      radial-gradient(circle at 50% 46%, transparent 0 18%, rgba(159,212,255,.35) 19% 20.5%, transparent 22%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,.09) 0 3px, transparent 3px 9px),
       linear-gradient(160deg,#2a6ea0,#123048);
     border-color:#9fd4ff;
+    box-shadow:inset 0 0 0 2px rgba(159,212,255,.55), inset 0 0 0 4px rgba(12,32,52,.6), inset 0 0 16px rgba(0,0,0,.5);
   }
   .cardback-ember{
     background:
-      radial-gradient(circle at 50% 42%, #ffd98a 0 8%, #d8600f 9% 16%, transparent 17%),
-      repeating-radial-gradient(circle at 50% 120%, rgba(255,120,30,.25) 0 12px, transparent 12px 24px),
+      radial-gradient(circle at 50% 46%, #ffe6a6 0 3%, #d8600f 4% 7%, transparent 8%),
+      radial-gradient(circle at 50% 46%, transparent 0 11%, rgba(255,155,76,.6) 12% 13.5%, transparent 15%),
+      radial-gradient(circle at 50% 46%, transparent 0 18%, rgba(255,155,76,.35) 19% 20.5%, transparent 22%),
+      repeating-radial-gradient(circle at 50% 118%, rgba(255,120,30,.22) 0 12px, transparent 12px 24px),
       linear-gradient(160deg,#5a1e0a,#2a0f06);
     border-color:#ff9b4c;
+    box-shadow:inset 0 0 0 2px rgba(255,155,76,.5), inset 0 0 0 4px rgba(40,15,6,.6), inset 0 0 16px rgba(0,0,0,.5);
   }
   .cardback-arcane{
     background:
-      radial-gradient(circle at 50% 42%, #baffe8 0 8%, #1fa07a 9% 16%, transparent 17%),
-      repeating-linear-gradient(0deg, rgba(120,255,210,.08) 0 4px, transparent 4px 12px),
-      repeating-linear-gradient(90deg, rgba(120,255,210,.08) 0 4px, transparent 4px 12px),
+      radial-gradient(circle at 50% 46%, #d6fff0 0 3%, #1fa07a 4% 7%, transparent 8%),
+      radial-gradient(circle at 50% 46%, transparent 0 11%, rgba(79,224,176,.6) 12% 13.5%, transparent 15%),
+      radial-gradient(circle at 50% 46%, transparent 0 18%, rgba(79,224,176,.32) 19% 20.5%, transparent 22%),
+      repeating-linear-gradient(0deg, rgba(120,255,210,.07) 0 4px, transparent 4px 12px),
+      repeating-linear-gradient(90deg, rgba(120,255,210,.07) 0 4px, transparent 4px 12px),
       linear-gradient(160deg,#0e4a3a,#06231c);
     border-color:#4fe0b0;
+    box-shadow:inset 0 0 0 2px rgba(79,224,176,.5), inset 0 0 0 4px rgba(6,35,28,.6), inset 0 0 16px rgba(0,0,0,.5);
   }
   .cardback-runic{
     background:
-      radial-gradient(circle at 50% 42%, #fff0c0 0 7%, #b8862e 8% 15%, transparent 16%),
-      repeating-conic-gradient(from 22deg at 50% 42%, rgba(255,220,140,.12) 0deg 30deg, transparent 30deg 60deg),
+      radial-gradient(circle at 50% 46%, #fff4cf 0 3%, #b8862e 4% 7%, transparent 8%),
+      radial-gradient(circle at 50% 46%, transparent 0 11%, rgba(216,180,90,.6) 12% 13.5%, transparent 15%),
+      radial-gradient(circle at 50% 46%, transparent 0 18%, rgba(216,180,90,.35) 19% 20.5%, transparent 22%),
+      repeating-conic-gradient(from 22deg at 50% 46%, rgba(255,220,140,.11) 0deg 30deg, transparent 30deg 60deg),
       linear-gradient(160deg,#3a2c10,#1a1408);
     border-color:#d8b45a;
+    box-shadow:inset 0 0 0 2px rgba(216,180,90,.55), inset 0 0 0 4px rgba(26,20,8,.6), inset 0 0 16px rgba(0,0,0,.5);
   }
   .card-back.back-royal, .card-back.cardback-royal{background:
-      radial-gradient(circle at 50% 42%, #d8a8ff 0 12%, #7a34c0 13% 24%, transparent 25%),
-      linear-gradient(160deg,#4a1d82,#280f4a) !important;border-color:#b98aff !important;}
+      radial-gradient(circle at 50% 46%, #f3e0ff 0 8%, #7a34c0 9% 15%, transparent 16%),
+      linear-gradient(160deg,#4a1d82,#280f4a) !important;border-color:#b98aff !important;box-shadow:inset 0 0 0 1.5px rgba(216,168,255,.5) !important;}
   .card-back.back-frost, .card-back.cardback-frost{background:
-      radial-gradient(circle at 50% 42%, #eaf6ff 0 11%, #5aaeff 12% 22%, transparent 23%),
-      linear-gradient(160deg,#2a6ea0,#123048) !important;border-color:#9fd4ff !important;}
-  .card-back.cardback-ember{background:radial-gradient(circle at 50% 42%, #ffd98a 0 11%, #d8600f 12% 22%, transparent 23%),linear-gradient(160deg,#5a1e0a,#2a0f06) !important;border-color:#ff9b4c !important;}
-  .card-back.cardback-arcane{background:radial-gradient(circle at 50% 42%, #baffe8 0 11%, #1fa07a 12% 22%, transparent 23%),linear-gradient(160deg,#0e4a3a,#06231c) !important;border-color:#4fe0b0 !important;}
-  .card-back.cardback-runic{background:radial-gradient(circle at 50% 42%, #fff0c0 0 10%, #b8862e 11% 21%, transparent 22%),linear-gradient(160deg,#3a2c10,#1a1408) !important;border-color:#d8b45a !important;}
+      radial-gradient(circle at 50% 46%, #f2fbff 0 8%, #5aaeff 9% 15%, transparent 16%),
+      linear-gradient(160deg,#2a6ea0,#123048) !important;border-color:#9fd4ff !important;box-shadow:inset 0 0 0 1.5px rgba(159,212,255,.5) !important;}
+  .card-back.cardback-ember{background:radial-gradient(circle at 50% 46%, #ffe6a6 0 8%, #d8600f 9% 15%, transparent 16%),linear-gradient(160deg,#5a1e0a,#2a0f06) !important;border-color:#ff9b4c !important;box-shadow:inset 0 0 0 1.5px rgba(255,155,76,.5) !important;}
+  .card-back.cardback-arcane{background:radial-gradient(circle at 50% 46%, #d6fff0 0 8%, #1fa07a 9% 15%, transparent 16%),linear-gradient(160deg,#0e4a3a,#06231c) !important;border-color:#4fe0b0 !important;box-shadow:inset 0 0 0 1.5px rgba(79,224,176,.5) !important;}
+  .card-back.cardback-runic{background:radial-gradient(circle at 50% 46%, #fff4cf 0 8%, #b8862e 9% 15%, transparent 16%),linear-gradient(160deg,#3a2c10,#1a1408) !important;border-color:#d8b45a !important;box-shadow:inset 0 0 0 1.5px rgba(216,180,90,.5) !important;}
+  .card-back.cardback-default{background:radial-gradient(circle at 50% 46%, #f0d488 0 8%, #9c6e1c 9% 15%, transparent 16%),repeating-linear-gradient(45deg,#2c1e0e 0 5px,#38270f 5px 10px) !important;border-color:#c9a24b !important;box-shadow:inset 0 0 0 1.5px rgba(201,162,75,.5) !important;}
+  /* ===== ТЕМА КАРТ ПО ВЫБРАННОЙ РУБАШКЕ (вариант B; кружок иконки и ромбик редкости не трогаем) ===== */
+  .card.skin-royal{border-color:#c79bff !important;
+    background:radial-gradient(ellipse at 50% 14%,#7a4ac0 0 28%,transparent 60%),linear-gradient(150deg,#7a4ac0 0%,#3a1d70 55%,#1e0f3c 100%) !important;
+    box-shadow:0 5px 13px rgba(0,0,0,.55), inset 0 0 0 2px #9a5cff, inset 0 0 0 4px #3a1d70, 0 0 14px rgba(176,107,255,.5) !important;}
+  .card.skin-royal .c-name{background:linear-gradient(180deg,#4a2585,#26123f) !important;border-top-color:#c79bff !important;}
+  .card.skin-royal .c-text{background:linear-gradient(180deg,#e8dcff,#cbb6ef) !important;color:#2e1550 !important;}
+  .card.skin-frost{border-color:#7cc4ff !important;
+    background:radial-gradient(ellipse at 50% 14%,#1c3a5a 0 28%,transparent 60%),linear-gradient(150deg,#1c3a5a 0%,#0e2036 55%,#060f1c 100%) !important;
+    box-shadow:0 5px 13px rgba(0,0,0,.55), inset 0 0 0 2px #3a86c8, inset 0 0 0 4px #0e2036, 0 0 14px rgba(120,196,255,.55) !important;}
+  .card.skin-frost .c-name{background:linear-gradient(180deg,#173a5c,#0a1c30) !important;border-top-color:#7cc4ff !important;}
+  .card.skin-frost .c-text{background:linear-gradient(180deg,#d4e6f4,#aecadf) !important;color:#0e2440 !important;}
+  .card.skin-ember{border-color:#ffcf6a !important;
+    background:radial-gradient(ellipse at 50% 14%,#b0401a 0 28%,transparent 60%),linear-gradient(150deg,#b0401a 0%,#5a1c08 55%,#2a0c03 100%) !important;
+    box-shadow:0 5px 13px rgba(0,0,0,.55), inset 0 0 0 2px #ff6a2a, inset 0 0 0 4px #5a1c08, 0 0 14px rgba(255,90,20,.6) !important;}
+  .card.skin-ember .c-name{background:linear-gradient(180deg,#a03412,#4a1606) !important;border-top-color:#ffcf6a !important;}
+  .card.skin-ember .c-text{background:linear-gradient(180deg,#ffe6c8,#f0c49a) !important;color:#4a1c08 !important;}
+  .card.skin-arcane{border-color:#8fe07a !important;
+    background:radial-gradient(ellipse at 50% 14%,#1c7a44 0 28%,transparent 60%),linear-gradient(150deg,#1c7a44 0%,#0c3a20 55%,#051c0f 100%) !important;
+    box-shadow:0 5px 13px rgba(0,0,0,.55), inset 0 0 0 2px #3fbf6a, inset 0 0 0 4px #0c3a20, 0 0 14px rgba(120,224,120,.5) !important;}
+  .card.skin-arcane .c-name{background:linear-gradient(180deg,#166a3a,#0a3018) !important;border-top-color:#8fe07a !important;}
+  .card.skin-arcane .c-text{background:linear-gradient(180deg,#e0f4d8,#c0e2b0) !important;color:#0c3a1c !important;}
+  .card.skin-runic{border-color:#ffe07a !important;
+    background:radial-gradient(ellipse at 50% 14%,#c89a2a 0 28%,transparent 60%),linear-gradient(150deg,#c89a2a 0%,#7a5a16 55%,#3a2a0a 100%) !important;
+    box-shadow:0 5px 13px rgba(0,0,0,.55), inset 0 0 0 2px #e6c56a, inset 0 0 0 4px #7a5a16, 0 0 16px rgba(255,210,90,.65) !important;}
+  .card.skin-runic .c-name{background:linear-gradient(180deg,#8a6a1e,#4a3810) !important;border-top-color:#ffe9a6 !important;}
+  .card.skin-runic .c-text{background:linear-gradient(180deg,#fbefc8,#e8d69a) !important;color:#4a3810 !important;}
+  /* существа на столе — тематическое свечение */
+  .minion.skin-royal{filter:drop-shadow(0 0 5px rgba(176,107,255,.6));}
+  .minion.skin-frost{filter:drop-shadow(0 0 5px rgba(120,196,255,.6));}
+  .minion.skin-ember{filter:drop-shadow(0 0 5px rgba(255,90,20,.6));}
+  .minion.skin-arcane{filter:drop-shadow(0 0 5px rgba(120,224,120,.6));}
+  .minion.skin-runic{filter:drop-shadow(0 0 5px rgba(255,210,90,.6));}
   /* рамка героя — через outline, чтобы не затирать box-shadow зелёного «можно атаковать» */
   /* ===== ТОНИРОВКА КАРТ ПОД ВЫБРАННУЮ РУБАШКУ (мягко, текст читаем) ===== */
   html[data-back="royal"] #playerHand .card,
@@ -1392,6 +1487,9 @@
     font-size:44px;line-height:1;position:relative;z-index:1;
     filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));
   }
+  /* мелкие карты коллекции: без обрезанного текста (полный — по наведению) */
+  .b-card .c-text, .b-card .c-tribe{display:none;}
+  .b-card .c-name{max-height:none;}
   .card .c-name{
     flex:0 0 auto;min-height:27px;max-height:34px;
     display:flex;align-items:center;justify-content:center;
@@ -1458,25 +1556,33 @@
 
   /* существа */
   .minion{
-    width:92px;height:116px;flex:0 0 auto;position:relative;
-    background:linear-gradient(180deg,var(--parchment),var(--parchment-dark));
-    border:2px solid #7a6335;
-    border-radius:48px 48px 36px 36px / 58px 58px 36px 36px;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    width:100px;height:130px;flex:0 0 auto;position:relative;
+    padding:7px;
+    background:linear-gradient(150deg,#9c7e48,#573f1e 55%,#2a1c0e);
+    border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;
     color:var(--ink);cursor:pointer;
-    box-shadow:0 5px 11px rgba(0,0,0,.5);
+    box-shadow:0 5px 12px rgba(0,0,0,.55), inset 0 0 0 2px #c9a24b, inset 0 0 0 4px #573f1e;
     transition:box-shadow .15s, opacity .3s, transform .3s;
   }
-  .minion .m-icon{font-size:38px;line-height:1;}
-  .minion .m-name{font-size:11.5px;text-align:center;padding:0 4px;margin-top:3px;font-weight:bold;}
-  .minion .stat{width:33px;height:33px;font-size:18px;bottom:-9px;}
+  /* цвета редкости для овала */
+  .minion:has(.rgem.common){--rc:#d0d0d0;--rc2:#4a453c;}
+  .minion:has(.rgem.rare){--rc:#4da6ff;--rc2:#345a7a;}
+  .minion:has(.rgem.epic){--rc:#b06bff;--rc2:#553a7a;}
+  .minion:has(.rgem.legendary){--rc:#ffb020;--rc2:#7a5814;
+    box-shadow:0 5px 12px rgba(0,0,0,.55), inset 0 0 0 2px #e0be60, inset 0 0 0 4px #573f1e, 0 0 15px 3px rgba(255,176,32,.55);}
+  .minion .m-icon{
+    width:100%;height:100%;border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;
+    display:flex;align-items:center;justify-content:center;font-size:46px;line-height:1;
+    border:3px solid var(--rc,#d0d0d0);
+    background:radial-gradient(ellipse at 50% 26%, var(--rc2,#3a3630), #1c1008 82%);
+    box-shadow:inset 0 0 13px rgba(0,0,0,.6);
+  }
+  .minion .m-name{display:none;}
+  .minion .stat{width:33px;height:33px;font-size:18px;bottom:14px;}
   .minion .stat.atk{left:-8px;}
   .minion .stat.hp{right:-8px;}
-  .minion .rgem{width:16px;height:16px;bottom:-8px;z-index:4;}
   .minion.taunt{
-    border:3px solid #6e6a60;
-    box-shadow:0 0 0 3px #3d3a34, 0 4px 8px rgba(0,0,0,.6);
-    border-radius:34px 34px 26px 26px / 40px 40px 26px 26px;
+    box-shadow:0 0 0 3px #6e6a60, 0 0 0 5px #3d3a34, 0 5px 10px rgba(0,0,0,.6);
   }
   .minion.taunt::before{content:"🛡";position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-size:13px;z-index:3;}
   .minion.can-attack{box-shadow:0 0 11px 3px var(--green-ok),0 4px 8px rgba(0,0,0,.5);}
@@ -1720,6 +1826,37 @@
     20%{opacity:1;}
     100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.1);}
   }
+  /* ==== импакт-эффекты заклинаний ==== */
+  .sfx-ring{
+    position:fixed;z-index:112;pointer-events:none;width:20px;height:20px;border-radius:50%;
+    transform:translate(-50%,-50%);border:3px solid var(--c,#ffd98a);
+    box-shadow:0 0 16px 3px var(--c,#ffd98a), inset 0 0 12px var(--c,#ffd98a);
+    animation:sfxRing .5s ease-out forwards;
+  }
+  @keyframes sfxRing{0%{opacity:.9;width:14px;height:14px;}100%{opacity:0;width:120px;height:120px;border-width:1px;}}
+  .sfx-flash{
+    position:fixed;z-index:111;pointer-events:none;width:90px;height:90px;border-radius:50%;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(circle, var(--c,#fff) 0%, transparent 68%);
+    animation:sfxFlash .42s ease-out forwards;mix-blend-mode:screen;
+  }
+  @keyframes sfxFlash{0%{opacity:0;transform:translate(-50%,-50%) scale(.3);}30%{opacity:.95;}100%{opacity:0;transform:translate(-50%,-50%) scale(1.4);}}
+  .sfx-shock{
+    position:fixed;z-index:110;pointer-events:none;width:20px;height:20px;border-radius:50%;
+    transform:translate(-50%,-50%);border:4px solid var(--c,#ffe08a);
+    box-shadow:0 0 26px 8px var(--c,#ffe08a);
+    animation:sfxShock .7s cubic-bezier(.2,.7,.3,1) forwards;
+  }
+  @keyframes sfxShock{0%{opacity:1;width:20px;height:20px;}100%{opacity:0;width:340px;height:340px;border-width:1px;}}
+  .sfx-beam{
+    position:fixed;z-index:113;pointer-events:none;height:4px;transform-origin:0 50%;border-radius:3px;
+    background:linear-gradient(90deg,transparent,var(--c,#fff) 30%,#fff 50%,var(--c,#fff) 70%,transparent);
+    box-shadow:0 0 12px 2px var(--c,#fff);animation:sfxBeam .34s ease-out forwards;
+  }
+  @keyframes sfxBeam{0%{opacity:0;}20%{opacity:1;}100%{opacity:0;}}
+  @media (prefers-reduced-motion:reduce){
+    .sfx-ring,.sfx-flash,.sfx-shock,.sfx-beam{animation-duration:.01s;}
+  }
   .splash{
     position:fixed;z-index:115;pointer-events:none;
     width:56px;height:56px;transform:translate(-50%,-50%);
@@ -1800,21 +1937,21 @@
     max-width:min(460px, calc(100vw - 16px));max-height:calc(100vh - 16px);
     box-sizing:border-box;overflow:hidden;
   }
-  #cardPreview .cp-card{width:176px;height:240px;flex:0 0 auto;}
+  #cardPreview .cp-card{width:212px;height:292px;flex:0 0 auto;}
   #cardPreview .cp-card .card{
-    margin:0 !important;width:176px;height:240px;transform:none;
-    padding:18px 10px 38px;border-radius:18px;
+    margin:0 !important;width:212px;height:292px;transform:none;
+    padding:20px 12px 46px;border-radius:18px;
   }
-  #cardPreview .cp-card .card .c-cost{width:48px;height:48px;font-size:25px;top:-12px;left:-12px;}
-  #cardPreview .cp-card .card .c-icon{height:62px;flex-basis:62px;font-size:54px;}
-  #cardPreview .cp-card .card .c-name{font-size:16px;line-height:1.05;min-height:37px;max-height:46px;width:calc(100% - 14px);}
-  #cardPreview .cp-card .card .c-text{font-size:12.2px;line-height:1.12;-webkit-line-clamp:5;width:calc(100% - 12px);}
-  #cardPreview .cp-card .card:has(.c-tribe) .c-text{-webkit-line-clamp:4;}
-  #cardPreview .cp-card .card .c-tribe{bottom:22px;font-size:10px;}
-  #cardPreview .cp-card .card .stat{width:44px;height:44px;font-size:23px;bottom:-12px;}
-  #cardPreview .cp-card .card .stat.atk{left:-10px;}
-  #cardPreview .cp-card .card .stat.hp,#cardPreview .cp-card .card .stat.dur{right:-10px;}
-  #cardPreview .cp-card .card .rgem{width:25px;height:25px;bottom:-12px;}
+  #cardPreview .cp-card .card .c-cost{width:52px;height:52px;font-size:27px;top:-13px;left:-13px;}
+  #cardPreview .cp-card .card .c-icon{width:92px;height:92px;flex-basis:auto;font-size:58px;}
+  #cardPreview .cp-card .card .c-name{font-size:17px;line-height:1.05;min-height:40px;max-height:50px;width:calc(100% - 14px);}
+  #cardPreview .cp-card .card .c-text{font-size:12.6px;line-height:1.18;-webkit-line-clamp:7;width:calc(100% - 12px);padding-bottom:6px;}
+  #cardPreview .cp-card .card:has(.c-tribe) .c-text{-webkit-line-clamp:5;padding-bottom:20px;}
+  #cardPreview .cp-card .card .c-tribe{bottom:24px;font-size:11px;padding:2px 12px;}
+  #cardPreview .cp-card .card .stat{width:46px;height:46px;font-size:24px;bottom:-13px;}
+  #cardPreview .cp-card .card .stat.atk{left:-11px;}
+  #cardPreview .cp-card .card .stat.hp,#cardPreview .cp-card .card .stat.dur{right:-11px;}
+  #cardPreview .cp-card .card .rgem{width:26px;height:26px;bottom:-13px;}
   .cp-side{display:flex;flex-direction:column;gap:6px;min-width:190px;max-width:250px;max-height:calc(100vh - 48px);overflow:auto;flex:1;}
   .cp-meta{font-size:10px;color:#a08c60;letter-spacing:.5px;}
   .cp-kw{
@@ -1855,7 +1992,9 @@
   @keyframes comboShimmer{0%,100%{filter:brightness(1);}50%{filter:brightness(1.14);}}
 
   /* гем редкости: внизу везде, с эмблемой типа существа внутри */
-  .minion .rgem{bottom:-9px;width:19px;height:19px;}
+  .minion .rgem{bottom:-8px;width:23px;height:23px;}
+  .minion .rgem .tico{font-size:13px;}
+  .minion.frozen{border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;}
   .rgem .tico{
     position:absolute;inset:0;
     display:flex;align-items:center;justify-content:center;
@@ -1961,6 +2100,76 @@
       radial-gradient(circle at calc(100% - 9px) calc(100% - 9px), #fff6d8 0 3px, #b8821e 4px, transparent 5px),
       repeating-linear-gradient(45deg, rgba(255,215,130,.12) 0 7px, transparent 7px 14px);
   }
+
+  /* ===================================================================
+     ФИНАЛ 9-4 — единая деревянная рамка карт (рука/превью/коллекция).
+     По редкости меняются: обводка+фон иконки, гем и свечение (только легендарка).
+     =================================================================== */
+  .card:has(.rgem.common){--rc:#d0d0d0;}
+  .card:has(.rgem.rare){--rc:#4da6ff;}
+  .card:has(.rgem.epic){--rc:#b06bff;}
+  .card:has(.rgem.legendary){--rc:#ffb020;}
+
+  /* единое тело — тёплое дерево 9-4, без цветного свечения */
+  .card:has(.rgem.common),
+  .card:has(.rgem.rare),
+  .card:has(.rgem.epic),
+  .card:has(.rgem.legendary){
+    border:2px solid #c9a24b;
+    background:
+      radial-gradient(ellipse at 50% 16%, #9c7e48 0 30%, transparent 62%),
+      linear-gradient(150deg,#9c7e48 0%,#573f1e 55%,#2a1c0e 100%);
+    filter:none;
+    box-shadow:0 5px 13px rgba(0,0,0,.6), inset 0 0 0 2px #a88a4c, inset 0 0 0 4px #573f1e, inset 0 0 20px rgba(0,0,0,.5);
+    animation:none;
+  }
+  /* свечение — только у легендарной */
+  .card:has(.rgem.legendary){
+    border-color:#eab441;
+    box-shadow:0 5px 13px rgba(0,0,0,.6), inset 0 0 0 2px #d8b25a, inset 0 0 0 4px #573f1e, 0 0 14px 2px rgba(255,176,32,.6);
+    animation:legendAura 2.2s ease-in-out infinite;
+  }
+  /* нейтрализуем per-rarity ::after рамки (у легендарки золотые уголки остаются) */
+  .card:has(.rgem.common)::after,
+  .card:has(.rgem.rare)::after,
+  .card:has(.rgem.epic)::after{
+    background:none;box-shadow:inset 0 0 0 1.5px rgba(255,235,180,.18);opacity:1;animation:none;
+  }
+
+  /* мана — круглый синий самоцвет без белого канта */
+  .card .c-cost{
+    border:none !important;
+    background:radial-gradient(circle at 38% 30%,#a6dcff 0%,#3f95d6 42%,#1f66a8 70%,#123f6c 100%) !important;
+    box-shadow:inset 0 -3px 5px rgba(0,0,0,.45), inset 0 3px 5px rgba(220,240,255,.55), 0 2px 5px rgba(0,0,0,.6) !important;
+  }
+
+  /* иконка → арт-бокс: обводка и фон по редкости */
+  .card .c-icon{
+    width:64px;height:64px;flex:0 0 auto;margin:3px auto 2px;
+    border-radius:50%;border:3px solid var(--rc,#d0d0d0);
+    background:radial-gradient(ellipse at 50% 28%, var(--rc,#8a6a3a), #1c1008 82%);
+    box-shadow:0 0 0 2px #2a1608, inset 0 0 14px rgba(0,0,0,.6);
+    font-size:36px;
+  }
+  .card:has(.rgem.legendary) .c-icon{
+    box-shadow:0 0 0 2px #2a1608, 0 0 10px 1px rgba(255,176,32,.7), inset 0 0 14px rgba(0,0,0,.55);
+  }
+
+  /* имя — золотая плашка, светлый текст */
+  .card .c-name{
+    color:#f4e6c0 !important;text-shadow:0 1px 2px #000;
+    background:linear-gradient(180deg,#a88a4c,#573f1e) !important;
+    border-top:2px solid #e0be60;border-radius:6px;
+  }
+  /* текст — светлый пергаментный свиток */
+  .card .c-text{
+    color:#3a2c14 !important;
+    background:linear-gradient(180deg,#ece0c2,#d4c496);
+    border:1px solid #7a5a2a;border-radius:8px;
+    padding:4px 6px;margin-top:3px;
+    -webkit-mask-image:none;mask-image:none;
+  }
+  /* тёмный триб-чип поверх свитка читается — оставляем как есть */
 
   /* ===== пауза ===== */
   #pauseOverlay{
@@ -2163,26 +2372,30 @@
       border-radius:12px;
     }
     #bossRow{
-      width:calc(100vw - 24px);
+      width:min(460px, calc(100vw - 20px));
       max-width:none;
-      display:grid;
-      grid-template-columns:repeat(6, minmax(128px, 1fr));
-      gap:8px;
-      justify-content:start;
-      align-items:stretch;
-      overflow-x:auto;
-      overflow-y:hidden;
-      padding:4px 4px 8px;
-      scroll-snap-type:x proximity;
+      display:flex;
+      flex-direction:row;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:center;
+      gap:14px 8px;
+      position:relative;
+      overflow-y:auto;overflow-x:hidden;
+      padding:34px 6px 34px;
     }
+    #bossRow::before{left:5%;right:5%;top:50%;bottom:auto;}
     #bossRow .boss-card{
-      width:auto;
-      min-width:128px;
+      width:96px;
+      min-width:0;
       min-height:0;
-      height:238px;
-      padding:17px 7px 7px;
-      scroll-snap-align:center;
+      height:auto;
+      padding:6px 5px 7px;
     }
+    #bossRow .boss-card:nth-child(even){transform:translateY(-24px);}
+    #bossRow .boss-card:nth-child(odd){transform:translateY(24px);}
+    #bossRow .boss-card .boss-node{width:58px;height:58px;}
+    #bossRow .boss-card .boss-node .hs-portrait{width:44px;height:44px;font-size:26px;}
     #bossRow .boss-tier{
       top:4px;
       font-size:9px;
@@ -2259,18 +2472,18 @@
     #enemyBoard{top:16%;}
     #playerBoard{bottom:22%;}
     .minion{
-      width:76px;
-      height:96px;
-      border-width:1.5px;
-      border-radius:40px 40px 28px 28px / 50px 50px 28px 28px;
+      width:82px;
+      height:106px;
+      padding:6px;
+      border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;
     }
-    .minion .m-icon{font-size:30px;}
-    .minion .m-name{font-size:9.5px;line-height:1.05;padding:0 3px;}
-    .minion .stat{width:28px;height:28px;font-size:15px;bottom:-8px;}
+    .minion .m-icon{font-size:36px;}
+    .minion .m-name{display:none;}
+    .minion .stat{width:28px;height:28px;font-size:15px;bottom:12px;}
     .minion .stat.atk{left:-6px;}
     .minion .stat.hp{right:-6px;}
-    .minion .rgem{width:15px;height:15px;bottom:-7px;}
-    .minion .rgem .tico{font-size:8px;}
+    .minion .rgem{width:20px;height:20px;bottom:-7px;}
+    .minion .rgem .tico{font-size:11px;}
     .m-badges{top:-8px;right:-6px;font-size:8.5px;}
     .dr-badge{bottom:-9px;font-size:9.5px;}
     .fz-badge{font-size:14px;top:-8px;}
@@ -2363,7 +2576,7 @@
       transform-origin:50% 100%;
       z-index:31;
     }
-    #playerHand .card{margin:0 -10px;}
+    #playerHand .card{margin:0 -4px;}
     #playerHand .card:hover{
       transform:translateY(-22px) scale(1.04) rotate(0deg) !important;
     }
@@ -2447,14 +2660,16 @@
          (max-width: 980px) and (max-height: 430px) and (orientation: landscape){
     #game{--mobile-hand-scale:.54;}
     #game::before{width:158px;height:118px;}
-    #board{left:6%;right:6%;top:9%;bottom:31%;}
+    #board{left:6%;right:6%;top:11%;bottom:33%;}
     .row{left:13%;right:13%;height:27%;}
-    #enemyBoard{top:17%;}
-    #playerBoard{bottom:24%;}
-    .minion{width:68px;height:86px;}
-    .minion .m-icon{font-size:27px;}
-    .minion .m-name{font-size:8.5px;}
-    .minion .stat{width:25px;height:25px;font-size:14px;}
+    #enemyBoard{top:15%;}
+    #playerBoard{bottom:22%;}
+    .minion{width:74px;height:96px;padding:5px;border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;}
+    .minion .m-icon{font-size:32px;}
+    .minion .m-name{display:none;}
+    .minion .stat{width:25px;height:25px;font-size:14px;bottom:11px;}
+    .minion .rgem{width:18px;height:18px;bottom:-6px;}
+    .minion .rgem .tico{font-size:10px;}
     #playerHero{
       left:max(9px, calc(env(safe-area-inset-left) + 9px));
       bottom:54px;
@@ -2471,8 +2686,8 @@
     #endTurnBtn{width:64px;font-size:10px;padding:9px 7px;}
     #log{bottom:6px;max-width:32vw;font-size:7.5px;}
     #bossSelect{gap:5px;padding-top:max(5px, env(safe-area-inset-top));}
-    #bossRow{grid-template-columns:repeat(6, minmax(116px, 1fr));gap:6px;}
-    #bossRow .boss-card{height:204px;min-width:116px;padding:15px 6px 6px;}
+    #bossRow{gap:12px;}
+    #bossRow .boss-card{min-width:0;padding:12px 8px 8px;}
     #bossRow .hs-portrait{width:40px;height:40px;font-size:24px;}
     #bossRow .hs-name{font-size:10px;min-height:21px;}
     #bossRow .hs-hp{font-size:8.5px;}
@@ -3894,14 +4109,6 @@ const CARD_DB = {
 	      if (owner.board.length < MAX_BOARD) game.spawnMinion(owner, 'ambushGuard');
 	    }
 	  },
-	  runeNet: {
-	    id:'runeNet', name:'Рунная сеть', icon:'🥅',
-	    type:'spell', cost:3, rarity:'rare', secret:true, secretOn:'spellCast',
-	    text:'Секрет: следующее заклинание врага развеивается.', starter:0,
-	    secretFx(game, owner){
-	      return { cancel: true };
-	    }
-	  },
 	  secretEater: {
 	    id:'secretEater', name:'Пожиратель тайн', icon:'👁️',
 	    type:'minion', cost:3, atk:2, hp:2, rarity:'rare',
@@ -4133,7 +4340,7 @@ const CARD_SET = {
   soulButcher:'codex', doomlash:'codex', hellPortal:'codex',
   runeApprentice:'codex', chaosArcher:'codex', scrollScribe:'codex', manaGolem:'codex',
   wildGlyph:'codex', spellCandle:'codex', echoMimic:'codex',
-  lastStand:'codex', ironVeil:'codex', denTrap:'codex', runeNet:'codex',
+  lastStand:'codex', ironVeil:'codex', denTrap:'codex',
   secretEater:'codex', secretReclaimer:'codex', runeKeeper:'codex',
   rebirthRite:'codex', lifeHowl:'codex', graveBinder:'codex', cryptNurse:'codex',
   boneMarshal:'codex', necroticGiant:'codex', duskWraith:'codex',
@@ -4501,7 +4708,7 @@ function defaultSave(){
            tracksOwned: ['tavern','march'],
            framesOwned: ['default'], frame: 'default',
            backsOwned: ['default'], back: 'default',
-           fxOwned: ['default'], fx: 'default' };
+           fxOwned: ['default'], fx: 'default', fxActive: [] };
 }
 function loadSave(){
   try {
@@ -4516,6 +4723,7 @@ function loadSave(){
       merged.framesOwned = Array.from(new Set([...(d.framesOwned||[]), ...(s.framesOwned||[])]));
       merged.backsOwned = Array.from(new Set([...(d.backsOwned||[]), ...(s.backsOwned||[])]));
       merged.fxOwned = Array.from(new Set([...(d.fxOwned||[]), ...(s.fxOwned||[])]));
+      if (!merged.fxActive) merged.fxActive = (merged.fx && merged.fx !== 'default') ? [merged.fx] : [];
       if (!merged.frame) merged.frame = 'default';
       if (!merged.back) merged.back = 'default';
       if (!merged.fx) merged.fx = 'default';
@@ -4713,7 +4921,7 @@ const DECKS_AI = {
   spell: { bolt:4, fireball:3, iceArrow:2, manaWave:2, frostNova:1, meteor:1, tsunami:1,
            zervan:1, shroom:2, scout:2, pyromancer:2, familiar:2, phoenix:1,
            mirror:1, counterspell:1, explosive:1, snowman:1, soldier:2,
-           runeApprentice:2, scrollScribe:2, manaGolem:2, wildGlyph:1, spellCandle:1, runeNet:1, chronomagus:1 },
+           runeApprentice:2, scrollScribe:2, manaGolem:2, wildGlyph:1, spellCandle:1, chronomagus:1 },
   midrange: { wolf:3, raptor:3, zombie:2, bouncer:2, bear:2, ghost:2, packAlpha:2, ogreb:2,
               fireball:2, bolt:2, brew:2, warcaller:2, scout:2, harpy:1, ent:1, mammoth:1, souljar:2 },
   mechs: { gearling:3, magnetron:3, sawbot:2, tankbot:2, bombot:2, shieldbot:2, sparkbot:2,
@@ -5602,6 +5810,7 @@ function checkSecrets(owner, ev, data){
 		      banner(`🔮 ${def.name}!`);
 		      log(`🔮 ${title(owner)} — секрет: ${def.name}`);
 		      sfx.rare();
+		      try{ const _sh = heroEl(owner); if (_sh) spellImpact(center(_sh), 'arcane', { legendary: def.rarity === 'legendary' }); }catch(e){}
 		      const r = withImpactSource(owner, secretSource || def.id, () => def.secretFx(G, owner, data || {}) || {});
 	      runSecretTriggered(owner, def.id);
 	      if (r.cancel) out.cancel = true;
@@ -5789,11 +5998,124 @@ function burstFx(pt, kind){
     setTimeout(() => s.remove(), 720);
   }
 }
-function playerFx(){ return (SAVE.fx && SAVE.fx !== 'default') ? SAVE.fx : null; }
+const FX_DEF = {
+  gold:{event:'spawn',kind:'gold'}, flame:{event:'attack',kind:'flame'}, frostfx:{event:'spawn',kind:'frostfx'},
+  goldAtk:{event:'attack',kind:'gold'}, frostAtk:{event:'attack',kind:'frostfx'}, emberSpawn:{event:'spawn',kind:'flame'}
+};
+function fxActiveList(){ return (SAVE.fxActive && SAVE.fxActive.length) ? SAVE.fxActive : (SAVE.fx && SAVE.fx !== 'default' ? [SAVE.fx] : []); }
+function hasFx(id){ return fxActiveList().indexOf(id) >= 0; }
+function playerFx(){ const l = fxActiveList(); return l.length ? l[0] : null; }
+
+/* ==================== VFX ЗАКЛИНАНИЙ ПО СМЫСЛУ ==================== */
+const SPELL_SCHOOLS = {
+  fire:     { c:'#ff7a2e', chars:['🔥','✦','💥'], proj:'🔥', sound:'fire' },
+  frost:    { c:'#8fd0ff', chars:['❄️','✳️','•'], proj:'❄️', sound:'frost' },
+  lightning:{ c:'#ffe66a', chars:['⚡','✦'],      proj:'⚡', sound:'zap' },
+  holy:     { c:'#ffe9a6', chars:['✨','🌟','➕'], proj:'✨', sound:'heal' },
+  nature:   { c:'#8fe07a', chars:['🍃','☘️','•'], proj:'🌿', sound:'nature' },
+  poison:   { c:'#a6e05a', chars:['☠️','🫧','•'], proj:'🧪', sound:'nature' },
+  arcane:   { c:'#c79bff', chars:['✦','✧','🔮'], proj:'✨', sound:'arcane' },
+  shadow:   { c:'#b06bff', chars:['💀','🌑','•'], proj:'🌑', sound:'shadow' },
+  armor:    { c:'#d7e2ec', chars:['🛡️','✦'],      proj:'🛡️', sound:'armor' },
+  arcaneBuff:{c:'#ffd98a', chars:['⬆️','✨','✦'], proj:'✨', sound:'arcane' }
+};
+function spellSchool(def){
+  if (def.school) return def.school;
+  const id = (def.id || '').toLowerCase();
+  const ic = def.icon || '';
+  const tx = (def.text || '').toLowerCase();
+  if (def.freeze || /freeze|ice|frost|мороз|лед|лёд/.test(id) || /❄|🧊|🥶/.test(ic) || /заморо/.test(tx)) return 'frost';
+  if (/bolt|light|thunder|storm|молни|гром|разряд/.test(id) || /⚡/.test(ic)) return 'lightning';
+  if (/poison|venom|toxic|plague|яд|отрав|чума/.test(id) || /☠|🧪|🐍/.test(ic) || /\bяд|отрав/.test(tx)) return 'poison';
+  if (/fire|flame|burn|pyro|meteor|blast|огн|пламя|метеор|взрыв|пожар/.test(id) || /🔥|☄|💥|🌋/.test(ic)) return 'fire';
+  if (/shadow|death|doom|void|drain|siphon|тьма|тень|смерт|гибел|бездн|некро/.test(id) || /💀|🌑|🦇|🩸/.test(ic)) return 'shadow';
+  if (/heal|holy|bless|prayer|light|исцел|лечен|молит|свет|благо/.test(id) || /💚|❤|💗|🙏|✚|➕/.test(ic) || /восстанав|исцел|лечит|лечен/.test(tx)) return 'holy';
+  if (/armor|shield|guard|barrier|броня|щит|барьер/.test(id) || /🛡/.test(ic) || /\bброн|\bщит/.test(tx)) return 'armor';
+  if (/nature|root,vine,growth,приро,лоза,корн/.test(id) || /🍃|☘|🌿|🌱/.test(ic)) return 'nature';
+  if (def.buff || /buff|bless|rally,empower,усил,ярость,мощь|благослов/.test(id) || /\+\s?\d|получа.т\s?\+/.test(tx)) return 'arcaneBuff';
+  if (def.burn) return 'fire';
+  return 'arcane';
+}
+function sfxSchool(name){
+  try{
+    if (name === 'fire'){ sfx.spell && sfx.spell(); }
+    else if (name === 'frost'){ sfx.freezeSnd && sfx.freezeSnd(); }
+    else if (name === 'zap'){ tone(1400,0.09,'square',0.12,300); noiseBurst(0.06,0.2,3200); }
+    else if (name === 'heal'){ sfx.heal && sfx.heal(); }
+    else if (name === 'armor'){ sfx.armor && sfx.armor(); }
+    else if (name === 'nature'){ tone(360,0.18,'sine',0.1,520); noiseBurst(0.1,0.12,900); }
+    else if (name === 'shadow'){ tone(150,0.3,'sawtooth',0.14,70); noiseBurst(0.14,0.14,300); }
+    else { sfx.spell && sfx.spell(); }
+  }catch(e){}
+}
+/* импакт-вспышка + частицы в точке */
+function spellImpact(pt, school, opts){
+  const conf = SPELL_SCHOOLS[school] || SPELL_SCHOOLS.arcane;
+  const o = opts || {};
+  const big = !!o.legendary;
+  // вспышка
+  const flash = document.createElement('div');
+  flash.className = 'sfx-flash'; flash.style.setProperty('--c', conf.c);
+  flash.style.left = pt.x+'px'; flash.style.top = pt.y+'px';
+  if (big) flash.style.transform = 'translate(-50%,-50%) scale(1.4)';
+  document.body.appendChild(flash); setTimeout(()=>flash.remove(), 460);
+  // кольцо
+  const ring = document.createElement('div');
+  ring.className = 'sfx-ring'; ring.style.setProperty('--c', conf.c);
+  ring.style.left = pt.x+'px'; ring.style.top = pt.y+'px';
+  document.body.appendChild(ring); setTimeout(()=>ring.remove(), 540);
+  // легендарная ударная волна + золотое кольцо
+  if (big){
+    const shock = document.createElement('div');
+    shock.className = 'sfx-shock'; shock.style.setProperty('--c', '#ffe08a');
+    shock.style.left = pt.x+'px'; shock.style.top = pt.y+'px';
+    document.body.appendChild(shock); setTimeout(()=>shock.remove(), 720);
+  }
+  // частицы
+  const n = (big ? 14 : 9);
+  for (let i=0;i<n;i++){
+    const s = document.createElement('div');
+    s.className = 'fx-particle';
+    s.textContent = conf.chars[Math.floor(Math.random()*conf.chars.length)];
+    const ang = (Math.PI*2*i)/n + Math.random()*0.5;
+    // holy/heal — частицы вверх; остальное — во все стороны
+    const up = (school === 'holy' || school === 'nature' || school === 'arcaneBuff');
+    const dist = (big?42:28) + Math.random()*36;
+    s.style.left = pt.x+'px'; s.style.top = pt.y+'px'; s.style.color = conf.c;
+    s.style.fontSize = (13 + Math.random()*7 + (big?4:0)) + 'px';
+    s.style.setProperty('--dx', (Math.cos(ang)*dist) + 'px');
+    s.style.setProperty('--dy', ((up ? -Math.abs(Math.sin(ang)) : Math.sin(ang))*dist - (up?26:0)) + 'px');
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(), 740);
+  }
+  sfxSchool(conf.sound);
+}
+/* полный каст: тематический снаряд от кастера + импакт в цели */
+async function castVfx(def, from, to, opts){
+  const school = spellSchool(def);
+  const conf = SPELL_SCHOOLS[school] || SPELL_SCHOOLS.arcane;
+  const o = opts || {};
+  const big = !!o.legendary;
+  if (school === 'lightning'){
+    // луч-разряд вместо полёта
+    const dx = to.x-from.x, dy = to.y-from.y;
+    const len = Math.hypot(dx,dy), ang = Math.atan2(dy,dx)*180/Math.PI;
+    const beam = document.createElement('div');
+    beam.className = 'sfx-beam'; beam.style.setProperty('--c', conf.c);
+    beam.style.left = from.x+'px'; beam.style.top = from.y+'px';
+    beam.style.width = len+'px'; beam.style.transform = `rotate(${ang}deg)`;
+    document.body.appendChild(beam); setTimeout(()=>beam.remove(), 340);
+    await sleep(140);
+  } else {
+    const glow = big ? '0 0 16px #ffe08a,0 0 26px '+conf.c : '0 0 12px '+conf.c;
+    await flyEl(`<div style="font-size:${big?46:38}px;filter:drop-shadow(${glow})">${conf.proj}</div>`, from, to, big?340:300);
+  }
+  spellImpact(to, school, { legendary: big });
+}
 
 async function lungeAnim(attEl, targetPt){
   if (!attEl) return;
-  if (playerFx() === 'flame' && attEl.closest('#playerBoard')) burstFx(targetPt, 'flame');
+  if (attEl.closest('#playerBoard')) fxActiveList().forEach(id => { const d = FX_DEF[id]; if (d && d.event === 'attack') burstFx(targetPt, d.kind); });
   const from = center(attEl);
   const dx = targetPt.x - from.x, dy = targetPt.y - from.y;
   attEl.style.zIndex = 60;
@@ -5831,7 +6153,7 @@ function render(){
   $('playerDeck').className = 'deck-stack' + (SAVE.back && SAVE.back!=='default' ? ' cardback-'+SAVE.back : '');
   $('playerSecrets').innerHTML = (G.player.secrets || []).map(id => {
     const d = CARD_DB[id];
-    return `<div class="sec-tok mine" title="${d.name}: ${d.text}">${d.icon}</div>`;
+    return `<div class="sec-tok mine" data-card="${id}" title="${d.name}: ${d.text}">${d.icon}</div>`;
   }).join('');
   $('enemySecrets').innerHTML = (G.enemy.secrets || []).map(() =>
     `<div class="sec-tok" title="Скрытый секрет">🔮</div>`).join('');
@@ -5857,8 +6179,8 @@ function renderMana(el, side){
 
 const FACE_SKINS = new Set(['default','royal','frost','ember','arcane','runic']);
 function skinClass(id){
-  const skin = FACE_SKINS.has(id) ? id : 'default';
-  return 'face-skin-' + skin;
+  const s = FACE_SKINS.has(id) ? id : 'default';
+  return 'skin-' + s;
 }
 function sideSkinClass(side){
   return skinClass(side === G.enemy ? G.enemyBack : SAVE.back);
@@ -6027,7 +6349,7 @@ async function playMinion(handIdx, fromPt){
   render();
   if (fromPt) await flyEl(`<div class="card ${skinClass(SAVE.back)}" style="margin:0">${cardHTML(cardId)}</div>`, fromPt, center($('playerBoard')), 260);
   sfx.play();
-  if (playerFx() === 'gold' || playerFx() === 'frostfx') burstFx(center($('playerBoard')), playerFx());
+  { const _bc = center($('playerBoard')); fxActiveList().forEach(id => { const d = FX_DEF[id]; if (d && d.event === 'spawn') burstFx(_bc, d.kind); }); }
   await withImpactSourceAsync(G.player, source, async () => {
     const m = G.spawnMinion(G.player, cardId);
     log(`Ты призываешь: ${def.name}`);
@@ -6111,14 +6433,56 @@ async function playWeapon(handIdx, fromPt){
   G.busy = false;
   render();
 }
+/* снаряд по типу оружия */
+function weaponProjectile(wdef){
+  const id = (wdef && wdef.id || '').toLowerCase();
+  const ic = wdef && wdef.icon || '⚔️';
+  if (/musket|gun|pistol|rifle|руж|пуш|мушк|пул/.test(id)) return { emoji:'●', glow:'#ffe08a' };
+  if (/bow|arrow|лук|стрел/.test(id)) return { emoji:'➳', glow:'#cfe89a' };
+  if (/anchor|якор/.test(id)) return { emoji:'⚓', glow:'#bcd0dc' };
+  return { emoji:ic, glow:'#ffd98a' };
+}
+/* выпад портрета героя (ближний бой) */
+async function heroLunge(el, from, to){
+  if (!el) return;
+  const dx = to.x - from.x, dy = to.y - from.y;
+  el.style.zIndex = 60;
+  el.style.transition = 'transform .16s cubic-bezier(.4,0,1,1)';
+  el.style.transform = `translate(${dx * 0.34}px, ${dy * 0.34}px) scale(1.07)`;
+  await sleep(160);
+  el.style.transition = 'transform .2s ease-out';
+  el.style.transform = '';
+  await sleep(70);
+}
+/* отдача портрета назад (дальний бой) */
+async function heroRecoil(el, from, to){
+  if (!el) return;
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const len = Math.hypot(dx, dy) || 1;
+  el.style.transition = 'transform .13s ease-out';
+  el.style.transform = `translate(${-dx / len * 9}px, ${-dy / len * 9}px) scale(.96)`;
+  await sleep(130);
+  el.style.transition = 'transform .12s ease-in';
+  el.style.transform = '';
+  await sleep(55);
+}
 /* удар героя оружием: дальнобойное — без сдачи */
 async function heroSwing(side, target){
   const w = side.weapon;
   if (!w) return;
   side.heroAttacked = true;
   const tgtEl = target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion);
-  await flyEl(`<div style="font-size:34px;filter:drop-shadow(0 2px 4px #000)">${CARD_DB[w.cardId].icon}</div>`,
-              safeCenter(heroEl(side), $('board')), combatPoint(target, side), 260);
+  const wdef = CARD_DB[w.cardId];
+  const swFrom = safeCenter(heroEl(side), $('board'));
+  const swTo = combatPoint(target, side);
+  if (w.ranged){
+    await heroRecoil(heroEl(side), swFrom, swTo);
+    const pj = weaponProjectile(wdef);
+    await flyEl(`<div style="font-size:26px;filter:drop-shadow(0 0 6px ${pj.glow}) drop-shadow(0 2px 3px #000)">${pj.emoji}</div>`, swFrom, swTo, 220);
+  } else {
+    await heroLunge(heroEl(side), swFrom, swTo);
+  }
+  if (tgtEl) shake(tgtEl);
   if (target.kind === 'hero'){
     withImpactSource(side, w.source || w.cardId, () => G.dealDamage(target, w.atk));
     if (w.lifesteal) withImpactSource(side, w.source || w.cardId, () => G.heal({ kind:'hero', side }, w.atk));
@@ -6189,9 +6553,7 @@ async function castSpell(handIdx, target){
     : target ? (target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion))
     : $('enemyBoard');
   const tgtPt = target ? targetPoint(target) : safeCenter(tgtEl, $('board'));
-  sfx.spell();
-  await flyEl(`<div style="font-size:40px;filter:drop-shadow(0 0 8px #ff7722)">${def.icon}</div>`,
-              center($('playerHero')), tgtPt, 320);
+  await castVfx(def, center($('playerHero')), tgtPt, { legendary: def.rarity === 'legendary' });
 	  const sc = checkSecrets(G.enemy, 'spellCast', {});
 	  let resolved = false;
 	  if (sc.cancel){
@@ -6803,9 +7165,7 @@ async function aiCastSpell(i, def, target){
   const tgtEl = def.secret ? $('enemyHero')
     : target ? (target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion))
     : $('playerBoard');
-  sfx.spell();
-  await flyEl(`<div style="font-size:40px;filter:drop-shadow(0 0 8px #ff7722)">${def.icon}</div>`,
-              safeCenter($('enemyHero'), $('board')), target ? targetPoint(target) : safeCenter(tgtEl, $('board')), 340);
+  await castVfx(def, safeCenter($('enemyHero'), $('board')), target ? targetPoint(target) : safeCenter(tgtEl, $('board')), { legendary: def.rarity === 'legendary' });
 	  const sc = checkSecrets(G.player, 'spellCast', {});
 	  let resolved = false;
 	  if (sc.cancel){
@@ -7188,7 +7548,9 @@ function placePreview(pv, rect){
   if ($('game').classList.contains('active')){
     x = 12; /* в бою — у левого края, не закрываем стол */
   } else {
-    x = rect.left + rect.width / 2 - pw / 2;
+    /* вне боя — показываем слева от карты, если влезает, иначе справа */
+    x = rect.left - pw - 14;
+    if (x < 8) x = Math.min(rect.right + 14, vw - pw - 8);
     x = Math.max(8, Math.min(x, vw - pw - 8));
   }
   let y = (rect.top + rect.height / 2 > vh / 2) ? rect.top - ph - 12 : rect.bottom + 12;
@@ -7201,6 +7563,8 @@ function hidePreview(){ $('cardPreview').style.display = 'none'; }
 
 function previewSourceAt(el){
   if (!el || !el.closest) return null;
+  const hiddenPackCard = el.closest('#packCards .pcard:not(.flipped)');
+  if (hiddenPackCard) return null;
   const c = el.closest('[data-card]');
   if (c) return { type:'card', id: c.dataset.card, rect: c.getBoundingClientRect() };
   const m = el.closest('.minion');
@@ -7427,6 +7791,8 @@ function builderCardPasses(id){
 function updateBuilderCard(id, el){
   const def = CARD_DB[id];
   const owned = SAVE.admin ? 999 : (SAVE.collection[id] || 0);
+  const inner = el.querySelector('.card');
+  if (inner){ inner.classList.remove('skin-default','skin-royal','skin-frost','skin-ember','skin-arcane','skin-runic'); inner.classList.add(skinClass(SAVE.back)); }
   const inDeck = draft[id] || 0;
   el.classList.toggle('none', owned === 0);
   el.style.display = builderCardPasses(id) ? '' : 'none';
@@ -7741,6 +8107,7 @@ function openPack(type, pileEl){
       const def = CARD_DB[id];
       const pc = document.createElement('div');
       pc.className = 'pcard' + (RARITY_GLOW[def.rarity] ? ' ' + RARITY_GLOW[def.rarity] : '');
+      pc.dataset.card = id;
       pc.innerHTML = `
         <div class="pcard-inner">
           <div class="pface back cardback-${SAVE.back||'default'}"></div>
@@ -7781,11 +8148,16 @@ function openBossSelect(){
     const beaten = i < progress;
     const card = document.createElement('div');
     card.className = 'hs-card boss-card' + (locked ? ' locked' : '') + (beaten ? ' beaten' : '');
+    card.title = locked ? `Глава ${b.tier}: ещё закрыто — победи предыдущего босса`
+      : `${b.name} · ❤️ ${b.bossHp}\n${b.power.icon} ${b.power.cost} «${b.power.name}»: ${b.power.desc}\n💥 ${b.special.name}: ${b.special.desc}`;
     card.innerHTML = `
-      <div class="boss-tier">Глава ${b.tier}${beaten ? ' ✅' : locked ? ' 🔒' : ''}</div>
-      <div class="hs-portrait">${locked ? '❓' : b.icon}</div>
+      <div class="boss-node">
+        <div class="hs-portrait">${locked ? '❓' : b.icon}</div>
+        <div class="boss-flag">${beaten ? '✅' : locked ? '🔒' : '⚔'}</div>
+      </div>
+      <div class="boss-tier">Глава ${b.tier}</div>
       <div class="hs-name">${locked ? '???' : b.name}</div>
-      <div class="hs-hp">❤️ ${b.bossHp} здоровья</div>
+      <div class="hs-hp">❤️ ${b.bossHp}</div>
       <div class="hs-power">${locked ? 'Победи предыдущего босса' :
         `${b.power.icon} <b>${b.power.cost}</b> «${b.power.name}»<br>${b.power.desc}<br>💥 <b>${b.special.name}</b>: ${b.special.desc}`}</div>`;
     if (!locked){
@@ -8467,7 +8839,10 @@ const SHOP = {
   fx: [
     { id:'gold', icon:'✨', name:'Золотой розыгрыш', desc:'Золотые искры при выходе существа.', price:200 },
     { id:'flame', icon:'🔥', name:'Пламенный удар', desc:'Огненный всполох при атаке.', price:250 },
-    { id:'frostfx', icon:'❄️', name:'Морозный след', desc:'Снежинки за движением карт.', price:250 }
+    { id:'frostfx', icon:'❄️', name:'Морозный выход', desc:'Снежинки при выходе существа.', price:250 },
+    { id:'goldAtk', icon:'🌟', name:'Золотой удар', desc:'Золотые искры при атаке.', price:250 },
+    { id:'frostAtk', icon:'☃️', name:'Морозный удар', desc:'Ледяной всплеск при атаке.', price:280 },
+    { id:'emberSpawn', icon:'🌋', name:'Пламенный выход', desc:'Огненный всполох при выходе существа.', price:280 }
   ]
 };
 const SHOP_PACKS = [
@@ -8521,10 +8896,11 @@ function renderShop(){
   } else if (shopTab === 'fx'){
     SHOP.fx.forEach(it => {
       const owned = SAVE.fxOwned.includes(it.id);
-      const active = SAVE.fx === it.id;
+      const active = fxActiveList().includes(it.id);
       grid.appendChild(shopCard(it, { owned, active, priceOk:affordGold(it.price),
-        applyKey:'fx', applyOwned:'fxOwned',
-        buy:()=>{ SAVE.fxOwned.push(it.id); } }));
+        multiKey:true,
+        onToggle:()=>{ if(!SAVE.fxActive)SAVE.fxActive=[]; const a=SAVE.fxActive; const i=a.indexOf(it.id); if(i>=0)a.splice(i,1); else a.push(it.id); },
+        buy:()=>{ SAVE.fxOwned.push(it.id); if(!SAVE.fxActive)SAVE.fxActive=[]; if(SAVE.fxActive.indexOf(it.id)<0)SAVE.fxActive.push(it.id); } }));
     });
   }
 }
@@ -8537,6 +8913,9 @@ function shopCard(it, o){
   } else if (o.applyKey){
     action = o.active ? '<div class="si-active">✓ Выбрано</div>'
                       : '<button class="btn stone" data-act="use">Выбрать</button>';
+  } else if (o.multiKey){
+    action = o.active ? '<button class="btn" data-act="toggle">✓ Включено</button>'
+                      : '<button class="btn stone" data-act="toggle">Включить</button>';
   } else {
     action = '<div class="si-owned">✓ Куплено</div>';
   }
@@ -8563,6 +8942,14 @@ function shopCard(it, o){
     applyCosmetics();
     renderShop();
     if (o.applyKey === 'track'){ MUSIC.restart(); }
+  });
+  const tgBtn = el.querySelector('[data-act="toggle"]');
+  if (tgBtn) tgBtn.addEventListener('click', () => {
+    o.onToggle();
+    sfx.click();
+    storeSave();
+    applyCosmetics();
+    renderShop();
   });
   return el;
 }
@@ -8596,7 +8983,7 @@ function renderMenuLeaders(){
 /* ================== ПРИМЕНЕНИЕ КУПЛЕННЫХ СТИЛЕЙ ================== */
 function applyCosmetics(){
   const backCls = { default:'', royal:'card-back-royal', frost:'card-back-frost' }[SAVE.back] || '';
-  document.documentElement.dataset.back = SAVE.back || 'default';
+  document.documentElement.dataset.back = 'default';
   document.documentElement.dataset.fx = SAVE.fx || 'default';
 }
 
