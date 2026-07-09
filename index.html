@@ -419,6 +419,59 @@
   }
   .set-seg button:last-child{border-right:none;}
   .set-seg button.on{background:linear-gradient(180deg,#eccb78,#9c7526);color:#241a08;text-shadow:0 1px 0 rgba(255,255,255,.3);}
+
+  /* ===== вкладки лаборатории ===== */
+
+  /* ===== вкладка статистики лаборатории ===== */
+  .stat-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:8px;}
+  .stat-card{background:linear-gradient(180deg,#2e2210,#1c1408);border:1.5px solid #5a4423;border-radius:10px;padding:8px 10px;}
+  .stat-card .sc-head{display:flex;align-items:center;gap:7px;margin-bottom:4px;}
+  .stat-card .sc-icon{font-size:20px;}
+  .stat-card .sc-name{flex:1;font-size:12px;color:var(--gold-bright);font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .stat-card .sc-elo{font-size:12px;font-weight:bold;color:#8fd4ff;background:rgba(0,0,0,.35);border-radius:6px;padding:1px 7px;}
+  .stat-card .sc-row{display:flex;gap:5px;flex-wrap:wrap;font-size:10px;color:#a08c60;}
+  .stat-card .sc-chip{background:rgba(0,0,0,.3);border-radius:5px;padding:1px 6px;}
+  .stat-card .sc-chip b{color:#d8c8a4;}
+  .stat-card .sc-chip.good b{color:var(--green-ok);}
+  .stat-card .sc-chip.bad b{color:#ff8a70;}
+  .h2h-wrap{overflow-x:auto;max-width:100%;}
+  table.h2h{border-collapse:collapse;font-size:11px;}
+  table.h2h th, table.h2h td{border:1px solid #4a3818;padding:4px 6px;text-align:center;min-width:40px;}
+  table.h2h th{background:#2e2210;color:var(--gold-bright);font-size:14px;}
+  table.h2h th .h2h-nm{display:block;font-size:8px;color:#a08c60;max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:normal;}
+  table.h2h td{color:#d8c8a4;font-weight:bold;}
+  table.h2h td.self{background:#1a1206;color:#4a3818;}
+  table.h2h td small{display:block;font-size:8px;color:#8a7248;font-weight:normal;}
+
+  .lab-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px;}
+  .lab-tab{padding:7px 15px;border-radius:9px;font-size:12px;letter-spacing:1px;cursor:pointer;
+    background:linear-gradient(180deg,#2e2210,#1c1408);border:1.5px solid #5a4423;color:#c9b681;user-select:none;}
+  .lab-tab:hover{filter:brightness(1.15);}
+  .lab-tab.on{background:linear-gradient(180deg,#6b5124,#4a3818);border-color:var(--gold);color:var(--gold-bright);}
+  .lab-page{display:none;flex-direction:column;gap:8px;}
+  .lab-page.on{display:flex;}
+  /* ===== редактор колоды ===== */
+  .ed-select{min-width:200px;background:#1c1408;border:1.5px solid #5a4423;border-radius:8px;color:#e8dcc0;padding:6px 8px;font-family:inherit;font-size:12px;}
+  .ed-name{flex:1;min-width:140px;background:#1c1408;border:1.5px solid #5a4423;border-radius:8px;color:#e8dcc0;padding:6px 10px;font-family:inherit;font-size:12px;}
+  .ed-count{font-size:14px;font-weight:bold;color:var(--gold-bright);background:rgba(0,0,0,.35);border-radius:8px;padding:5px 12px;}
+  .ed-count.bad{color:#ff7755;}
+  .ed-wrap{display:flex;gap:10px;min-height:0;}
+  .ed-col{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;}
+  .ed-col input[type="search"]{background:#1c1408;border:1.5px solid #5a4423;border-radius:8px;color:#e8dcc0;padding:6px 10px;font-family:inherit;font-size:12px;}
+  .ed-head{font-size:11px;color:var(--gold-bright);letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;}
+  .ed-head span{color:#8fa8c4;font-size:10px;letter-spacing:0;}
+  .ed-pool,.ed-deck{height:260px;overflow-y:auto;background:rgba(0,0,0,.28);border:1px solid #56421f;border-radius:9px;padding:5px;}
+  .ed-row{display:flex;align-items:center;gap:7px;padding:4px 7px;border-radius:7px;cursor:pointer;font-size:12px;color:#d8c8a4;user-select:none;}
+  .ed-row:hover{background:rgba(255,210,120,.09);}
+  .ed-row .ed-cost{min-width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #6ea8dc, #2a5a8c);
+    display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold;color:#fff;}
+  .ed-row .ed-nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .ed-row .ed-n{font-weight:bold;color:#f5c96a;min-width:26px;text-align:right;}
+  .ed-row .ed-act{font-size:14px;font-weight:bold;width:20px;text-align:center;color:var(--green-ok);}
+  .ed-deck .ed-row .ed-act{color:#ff8a70;}
+  .ed-row.maxed{opacity:.4;cursor:default;}
+  .ed-row.maxed:hover{background:none;}
+
   .admin-panel{
     display:none;position:fixed;z-index:380;
     left:50%;top:max(12px, env(safe-area-inset-top));bottom:max(12px, env(safe-area-inset-bottom));
@@ -1165,6 +1218,60 @@
   #bossSelect .hs-title{margin-top:6px;}
   #bossSelect.active{display:flex;}
   #bossBack{position:absolute;top:12px;left:12px;font-size:13px;padding:8px 16px;}
+
+  /* ===== детали босса ===== */
+
+  /* ===== спецприём босса: полноэкранная вспышка ===== */
+  #bossSpecialFx{position:fixed;inset:0;z-index:160;pointer-events:none;
+    display:flex;align-items:center;justify-content:center;
+    animation:bfxIn .28s ease-out;}
+  #bossSpecialFx.out{opacity:0;transition:opacity .4s;}
+  #bossSpecialFx .bfx-flash{position:absolute;inset:0;
+    background:radial-gradient(ellipse at 50% 45%, color-mix(in srgb, var(--bfx) 38%, transparent), transparent 65%);
+    animation:bfxFlash 1.4s ease-out;}
+  #bossSpecialFx .bfx-body{position:relative;text-align:center;
+    animation:bfxBody .5s cubic-bezier(.2,1.6,.4,1);}
+  #bossSpecialFx .bfx-icon{font-size:84px;line-height:1;
+    filter:drop-shadow(0 0 24px var(--bfx)) drop-shadow(0 6px 12px rgba(0,0,0,.8));
+    animation:bfxIconPulse 1.3s ease-in-out;}
+  #bossSpecialFx .bfx-name{font-size:30px;font-weight:bold;color:#fff;letter-spacing:3px;margin-top:6px;
+    text-shadow:0 0 18px var(--bfx), 0 0 6px var(--bfx), 0 3px 8px #000;}
+  #bossSpecialFx .bfx-quote{font-size:16px;font-style:italic;color:#f2e6c8;margin-top:8px;
+    text-shadow:0 2px 6px #000, 0 0 12px rgba(0,0,0,.8);}
+  @keyframes bfxIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes bfxFlash{0%{opacity:0;}15%{opacity:1;}100%{opacity:.25;}}
+  @keyframes bfxBody{0%{transform:scale(.4);opacity:0;}100%{transform:scale(1);opacity:1;}}
+  @keyframes bfxIconPulse{0%,100%{transform:scale(1);}45%{transform:scale(1.18);}}
+  body.bfx-shake #board{animation:bfxShake .6s ease-in-out;}
+  @keyframes bfxShake{0%,100%{transform:translate(0,0);}15%{transform:translate(-7px,3px);}30%{transform:translate(6px,-4px);}45%{transform:translate(-5px,-3px);}60%{transform:translate(4px,3px);}75%{transform:translate(-3px,1px);}}
+
+  .boss-detail{
+    width:min(560px,94vw);margin-top:6px;
+    background:linear-gradient(180deg,#3a2c17,#241a0d);
+    border:2.5px solid #6b5124;border-radius:16px;padding:14px 18px;
+    box-shadow:0 0 0 2px #221807, 0 12px 30px rgba(0,0,0,.7);
+    display:flex;flex-direction:column;gap:9px;
+  }
+  .bd-head{display:flex;align-items:center;gap:14px;}
+  .bd-portrait{width:62px;height:62px;border-radius:50%;font-size:36px;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 35% 28%, #6b5330, #221708);
+    border:3px solid var(--gold);box-shadow:0 0 0 2px #1a1206;}
+  .bd-name{font-size:19px;color:var(--gold-bright);letter-spacing:1px;}
+  .bd-stats{font-size:13px;color:#d8c8a4;margin-top:2px;}
+  .bd-block{font-size:12px;color:#cdbb93;line-height:1.4;background:rgba(0,0,0,.25);
+    border:1px solid #56421f;border-radius:9px;padding:7px 11px;}
+  .bd-block b{color:var(--gold-bright);}
+  .bd-quest .q-ok{color:var(--green-ok);font-weight:bold;}
+  .bd-quest .q-no{color:#ff8a70;font-weight:bold;}
+  .bd-reward{border-color:#6b5c24;}
+  .bd-heroic{display:flex;align-items:center;gap:8px;font-size:12px;color:#ffb066;cursor:pointer;user-select:none;}
+  .bd-heroic input{accent-color:#ff7a30;width:16px;height:16px;cursor:pointer;}
+  #bdGo{font-size:16px;padding:12px 20px;letter-spacing:1px;}
+  #bdGo:disabled{opacity:.4;filter:grayscale(.6);cursor:not-allowed;}
+  .bd-lock{font-size:11px;color:#ff8a70;text-align:center;min-height:14px;}
+  #bossRow .boss-card.picked .boss-node{box-shadow:0 0 0 3px #221807, 0 0 18px 5px rgba(240,200,110,.6);border-color:var(--gold-bright);}
+
   #bossRow{
     width:min(880px,96vw);
     display:flex;flex-direction:row;flex-wrap:wrap;
@@ -2893,6 +3000,16 @@
           <button class="btn stone music-toggle" id="adminLabCloseBtn">ЗАКРЫТЬ</button>
         </div>
       </div>
+      <div class="lab-tabs" id="labTabs">
+        <div class="lab-tab on" data-page="behavior">🎛 Поведение</div>
+        <div class="lab-tab" data-page="decks">🃏 Колоды</div>
+        <div class="lab-tab" data-page="boss">👹 Боссы</div>
+        <div class="lab-tab" data-page="train">🎓 Обучение</div>
+        <div class="lab-tab" data-page="stats">📊 Статистика</div>
+        <div class="lab-tab" data-page="export">📦 Экспорт</div>
+      </div>
+      <div class="lab-page on" data-page="behavior">
+      <div class="admin-note">Глобальное поведение ботов: как часто мутируют колоды от «Вклада карт» и куда смещены приоритеты в бою.</div>
       <div class="admin-grid">
         <label class="admin-field">Система активна<input type="checkbox" id="aiLabEnabled"></label>
         <label class="admin-field">Выбор колод<select id="aiLabMode"><option value="weighted">По шансам</option><option value="single">Одна лучшая</option><option value="vanilla">Старая мета</option></select></label>
@@ -2905,7 +3022,11 @@
         <label class="admin-field">Ключевая карта<select id="aiLabKeyCard"></select></label>
       </div>
       <div class="admin-note" id="aiLabLiveNote"></div>
+      </div>
+
+      <div class="lab-page" data-page="decks">
       <div class="admin-title">Кастомные колоды ботов</div>
+      <div class="admin-note">Быстрое создание из источника. Для точечной сборки по картам — редактор ниже.</div>
       <div class="admin-grid">
         <label class="admin-field">Название<input id="aiDeckName" maxlength="28" placeholder="Напр. Осторожный контроль"></label>
         <label class="admin-field">Где использовать<select id="aiDeckScope"><option value="all">Везде</option><option value="rating">Рейтинг</option><option value="tournament">Турнир</option><option value="boss">Боссы</option></select></label>
@@ -2924,6 +3045,34 @@
         <button class="btn stone admin-danger" id="aiDeckClearBtn">ОЧИСТИТЬ ПУЛ</button>
       </div>
       <div class="admin-list" id="aiDeckCustomList"></div>
+
+      <div class="admin-title">✏️ Редактор колоды по картам</div>
+      <div class="admin-note">Загрузи пресет-шаблон, кастомную колоду или начни с нуля — и собери 35 карт вручную. «КАК ПРЕСЕТ» перезапишет стартовый шаблон: боты будут генерировать его именно из твоей сборки.</div>
+      <div class="admin-line">
+        <select id="edPick" class="ed-select"></select>
+        <button class="btn stone" id="edLoadBtn">ЗАГРУЗИТЬ</button>
+        <input id="edName" class="ed-name" maxlength="28" placeholder="Название колоды">
+        <div class="ed-count" id="edCount">0/35</div>
+      </div>
+      <div class="ed-wrap">
+        <div class="ed-col">
+          <input id="edSearch" type="search" placeholder="Поиск карты...">
+          <div class="ed-pool" id="edPool"></div>
+        </div>
+        <div class="ed-col">
+          <div class="ed-head">В КОЛОДЕ <span id="edCurve"></span></div>
+          <div class="ed-deck" id="edDeck"></div>
+        </div>
+      </div>
+      <div class="admin-line">
+        <button class="btn" id="edSaveCustomBtn">💾 СОХРАНИТЬ КАК КАСТОМНУЮ</button>
+        <button class="btn stone" id="edSavePresetBtn" disabled>📌 СОХРАНИТЬ КАК ПРЕСЕТ</button>
+        <button class="btn stone admin-danger" id="edClearBtn">ОЧИСТИТЬ</button>
+      </div>
+      <div class="admin-note" id="edNote"></div>
+      </div>
+
+      <div class="lab-page" data-page="boss">
       <div class="admin-title">Боссы</div>
       <div class="admin-grid">
         <label class="admin-field">Босс<select id="bossTuneId"></select></label>
@@ -2942,9 +3091,13 @@
         <button class="btn stone admin-danger" id="bossTuneDeleteBtn">СБРОСИТЬ БОССА</button>
       </div>
       <div class="admin-list" id="bossTuneList"></div>
+      </div>
+
+      <div class="lab-page" data-page="train">
       <div class="admin-title">Обучение ботов</div>
       <div class="admin-note">Быстрый режим без анимаций: колоды ИИ играют друг с другом по модели темпа/контроля/спеллов, результаты пишутся в мету и «Вклад карт».</div>
       <div class="admin-grid">
+        <label class="admin-field">Модель боя<select id="trainModel"><option value="sim" selected>Честная симуляция</option><option value="fast">Быстрая оценка</option></select></label>
         <label class="admin-field">Матчей<input type="number" id="trainMatches" min="1" max="5000" value="100"></label>
         <label class="admin-field">Контекст<select id="trainContext"><option value="rating">Рейтинг</option><option value="tournament">Турнир</option><option value="boss">Боссы</option><option value="all">Все пулы</option></select></label>
         <label class="admin-field">Пул<select id="trainPool"><option value="mixed">Смешанный</option><option value="custom">Только кастомные</option><option value="meta">Только мета</option><option value="template">Только шаблоны</option></select></label>
@@ -2962,12 +3115,25 @@
       </div>
       <div class="train-status" id="trainStatus">Обучение не запускалось.</div>
       <div class="train-report" id="trainReport"></div>
+      </div>
+
+      <div class="lab-page" data-page="stats">
+      <div class="admin-title">📊 Статистика типов ИИ</div>
+      <div class="admin-note">Elo считается по тренировочным матчам (устойчивее winrate при неравных парах). Матрица «кто кого»: читай по строке — процент это победы КОЛОДЫ-СТРОКИ против КОЛОДЫ-СТОЛБЦА. Ячейки с ⚠ (меньше 5 игр) приглушены: 0% или 100% при 1–2 играх — просто случайность, а не сила колоды. Прогони 500–1000 матчей обучения, и матрица наполнится смыслом. Точка «·» — пара ещё не встречалась.</div>
+      <div class="stat-cards" id="labStatCards"></div>
+      <div class="admin-title">⚔️ Матрица «кто кого»</div>
+      <div class="h2h-wrap"><table class="h2h" id="labH2H"></table></div>
+      </div>
+
+      <div class="lab-page" data-page="export">
       <div class="admin-title">Выгрузка</div>
+      <div class="admin-note">JSON со всеми настройками лаборатории, пресетами и мета-статистикой — пришли его мне, и я зашью в код как стартовые значения.</div>
       <div class="admin-line">
         <button class="btn" id="aiExportBtn">СОБРАТЬ JSON</button>
         <button class="btn stone" id="aiCopyExportBtn">СКОПИРОВАТЬ</button>
       </div>
       <label class="admin-field"><textarea class="admin-export" id="aiExportOut" readonly></textarea></label>
+      </div>
     </div>
     <div class="set-row">
       <span>Прогресс</span>
@@ -3053,7 +3219,21 @@
   <button class="btn stone" id="bossBack">← НАЗАД</button>
   <div class="hs-title">👹 ВЫБЕРИ БОССА</div>
   <div class="hs-row" id="bossRow"></div>
-  <div class="menu-stats" id="bossRewardNote">Награда за босса: +100 🪙 · +40 рейтинга · +1 пак</div>
+  <div class="boss-detail" id="bossDetail" style="display:none">
+    <div class="bd-head">
+      <div class="bd-portrait" id="bdIcon">❓</div>
+      <div class="bd-info">
+        <div class="bd-name" id="bdName">???</div>
+        <div class="bd-stats" id="bdStats"></div>
+      </div>
+    </div>
+    <div class="bd-block" id="bdSkills"></div>
+    <div class="bd-block bd-quest" id="bdQuest"></div>
+    <div class="bd-block bd-reward" id="bdReward"></div>
+    <label class="bd-heroic" id="bdHeroicRow"><input type="checkbox" id="bdHeroic"><span>⚡ УСИЛИТЬ БОССА: +40% HP, спецприём чаще — награда ×1.5</span></label>
+    <button class="btn" id="bdGo">⚔️ ОТПРАВИТЬСЯ В ПУТЕШЕСТВИЕ</button>
+    <div class="bd-lock" id="bdLockNote"></div>
+  </div>
 </div>
 
 <!-- ТУРНИР -->
@@ -4507,6 +4687,11 @@ const CARD_DB = {
     id:'rustyBlade', name:'Ржавый клинок', icon:'🗡',
     type:'weapon', cost:1, atk:1, dur:2, rarity:'common', token:true,
     text:'Оружие героя 1/2.'
+  },
+  steelBlade: {
+    id:'steelBlade', name:'Стальной клинок', icon:'🔪',
+    type:'weapon', cost:1, atk:2, dur:3, rarity:'rare', token:true,
+    text:'Оружие героя 2/3.'
   }
 };
 
@@ -5155,10 +5340,17 @@ function buildDeckFromWeights(weights){
   }
   return cards;
 }
+/* карты пресета: ручной оверрайд из лаборатории или генерация по весам */
+function tplCards(tpl){
+  const lab = ensureAiLab();
+  if (lab.tplOverride && lab.tplOverride[tpl] && deckTotal(lab.tplOverride[tpl]) > 0)
+    return Object.assign({}, lab.tplOverride[tpl]);
+  return buildDeckFromWeights(DECKS_AI[tpl]);
+}
 function genAiDeck(tplKey){
   const tpl = tplKey || AI_TEMPLATE_KEYS[Math.floor(Math.random() * AI_TEMPLATE_KEYS.length)];
   return { name: tpl + ' #' + (Math.floor(Math.random() * 90) + 10),
-           tpl, cards: buildDeckFromWeights(DECKS_AI[tpl]),
+           tpl, cards: tplCards(tpl),
            games: 0, wins: 0, streak: 0 };
 }
 /* элитная колода: лучшие карты по Вкладу с нормальной кривой */
@@ -5197,6 +5389,9 @@ function defaultAiLab(){
     spellBias: 50,
     keyCard: '',
     decks: [],
+    tplOverride: {},
+    elo: {},
+    h2h: {},
     boss: {},
     training: { runs:0, matches:0, aWins:0, bWins:0, last:'' }
   };
@@ -5210,6 +5405,9 @@ function ensureAiLab(){
     });
   }
   if (!Array.isArray(SAVE.aiLab.decks)) SAVE.aiLab.decks = [];
+  if (!SAVE.aiLab.tplOverride || typeof SAVE.aiLab.tplOverride !== 'object') SAVE.aiLab.tplOverride = {};
+  if (!SAVE.aiLab.elo || typeof SAVE.aiLab.elo !== 'object') SAVE.aiLab.elo = {};
+  if (!SAVE.aiLab.h2h || typeof SAVE.aiLab.h2h !== 'object') SAVE.aiLab.h2h = {};
   if (!SAVE.aiLab.boss || typeof SAVE.aiLab.boss !== 'object') SAVE.aiLab.boss = {};
   if (!SAVE.aiLab.training || typeof SAVE.aiLab.training !== 'object') SAVE.aiLab.training = Object.assign({}, d.training);
   ['influenceChance','eliteChance','mutateCount','tradeBias','faceBias','spellBias'].forEach(k => {
@@ -5240,8 +5438,8 @@ function sanitizeAiDeck(deck, unlimited){
 function aiDeckFromSource(source, unlimited){
   if (source === 'current') return sanitizeAiDeck(SAVE.deck, unlimited);
   if (source === 'elite') return buildEliteDeck();
-  if (DECKS_AI[source]) return buildDeckFromWeights(DECKS_AI[source]);
-  return buildDeckFromWeights(DECKS_AI.midrange);
+  if (DECKS_AI[source]) return tplCards(source);
+  return tplCards('midrange');
 }
 function weightedPick(items, weightFn){
   const total = items.reduce((s, it) => s + Math.max(0, +weightFn(it) || 0), 0);
@@ -5345,13 +5543,13 @@ function trainingDeckPool(context, poolMode){
   if (poolMode === 'mixed' || poolMode === 'meta'){
     Object.keys(SAVE.aiMeta.byHero || {}).forEach(hid => {
       (SAVE.aiMeta.byHero[hid].decks || []).forEach((d, idx) => {
-        pool.push({ kind:'meta', hero:hid, idx, ref:d, id:hid + ':' + idx, name:(HEROES[hid]?.name || hid) + ' · ' + d.tpl, cards:d.cards, tuning:{ style:HEROES[hid]?.aiStyle || 'tempo' }, weight:20 });
+        pool.push({ kind:'meta', hero:hid, idx, ref:d, id:hid + ':' + idx, name:(HEROES[hid]?.name || hid) + ' · ' + d.tpl, cards:d.cards, tuning:{ style:HEROES[hid]?.aiStyle || 'tempo', hero:hid }, weight:20 });
       });
     });
   }
   if (poolMode === 'mixed' || poolMode === 'template'){
     AI_TEMPLATE_KEYS.forEach(tpl => {
-      pool.push({ kind:'template', id:'tpl:' + tpl, name:'Шаблон ' + tpl, cards:buildDeckFromWeights(DECKS_AI[tpl]), tuning:{ style: tpl === 'aggro' || tpl === 'pirates' ? 'aggro' : tpl === 'control' ? 'control' : tpl === 'spell' ? 'spell' : 'tempo' }, weight:10 });
+      pool.push({ kind:'template', id:'tpl:' + tpl, name:'Шаблон ' + tpl, cards:tplCards(tpl), tuning:{ style: tpl === 'aggro' || tpl === 'pirates' ? 'aggro' : tpl === 'control' ? 'control' : tpl === 'spell' ? 'spell' : 'tempo' }, weight:10 });
     });
   }
   return pool.filter(d => deckTotal(d.cards) > 0);
@@ -5400,8 +5598,8 @@ function trainingImpactForDeck(entry, won, strength){
   ids.forEach(id => {
     const c = CARD_DB[id], b = ensureImpactBucket(SAVE.cardImpact, id);
     if (!b) return;
-    const mult = won ? 1.15 : 0.85;
-    b.plays += 1;
+    const mult = (won ? 1.15 : 0.85) * 0.4; /* синтетика легче реальных боёв */
+    b.plays += 0.5;
     b.damage += Math.max(0, (c.burn || c.atk || 0) * mult * (c.type === 'spell' ? 1.15 : .75));
     b.taken += c.type === 'minion' ? Math.max(1, (c.hp || 1) * .55) : 0;
     b.armor += (String(c.text || '').includes('брон') ? 2 : 0) * mult;
@@ -5413,10 +5611,42 @@ function trainingImpactForDeck(entry, won, strength){
     if (won) b.wins = (b.wins || 0) + 1;
   });
 }
-function recordTrainingDeck(entry, won){
+/* Elo колод: устойчивее winrate при неравных парах */
+function deckElo(id){ return ensureAiLab().elo[id] ?? 1000; }
+function updateDeckElo(idA, idB, aWon){
+  const lab = ensureAiLab();
+  const ra = deckElo(idA), rb = deckElo(idB);
+  const ea = 1 / (1 + Math.pow(10, (rb - ra) / 400));
+  const K = 24;
+  lab.elo[idA] = Math.round(ra + K * ((aWon ? 1 : 0) - ea));
+  lab.elo[idB] = Math.round(rb + K * ((aWon ? 0 : 1) - (1 - ea)));
+}
+/* парная статистика: кто кого бьёт */
+function updateDeckH2H(idA, idB, aWon){
+  const lab = ensureAiLab();
+  const key = idA <= idB ? idA + '|' + idB : idB + '|' + idA;
+  const flip = idA > idB;
+  const rec = lab.h2h[key] || (lab.h2h[key] = { a:0, b:0 });
+  const first = aWon !== flip; /* победил ли «первый» по ключу */
+  if (first) rec.a++; else rec.b++;
+}
+function h2hFor(idA, idB){
+  const lab = ensureAiLab();
+  const key = idA <= idB ? idA + '|' + idB : idB + '|' + idA;
+  const rec = lab.h2h[key];
+  if (!rec) return null;
+  const wins = idA <= idB ? rec.a : rec.b;
+  return { wins, games: rec.a + rec.b };
+}
+function recordTrainingDeck(entry, won, ctx){
   if (!entry || !entry.ref) return;
   entry.ref.trainingGames = (entry.ref.trainingGames || 0) + 1;
   if (won) entry.ref.trainingWins = (entry.ref.trainingWins || 0) + 1;
+  if (ctx){
+    const bc = entry.ref.byCtx || (entry.ref.byCtx = {});
+    const c = bc[ctx] || (bc[ctx] = { g:0, w:0 });
+    c.g++; if (won) c.w++;
+  }
   if (entry.kind === 'custom'){
     entry.ref.games = (entry.ref.games || 0) + 1;
     if (won) entry.ref.wins = (entry.ref.wins || 0) + 1;
@@ -5443,18 +5673,461 @@ function mutateWeakTrainingDecks(chance){
   });
   return changed;
 }
+
+/* ================== ЧЕСТНАЯ СИМУЛЯЦИЯ: пошаговый бой без DOM ================== */
+function simDeckArray(cards){
+  const arr = [];
+  Object.keys(cards || {}).forEach(id => {
+    if (!CARD_DB[id]) return;
+    for (let i = 0; i < cards[id]; i++) arr.push(id);
+  });
+  for (let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+const SIM_HERO_BY_STYLE = { aggro:'rogue', control:'warrior', spell:'mage', tempo:'necro' };
+function simSide(cards, tune){
+  const t = tune || {};
+  const heroId = t.hero || SIM_HERO_BY_STYLE[t.style] ||
+    ['mage','warrior','priest','rogue','necro','warlock','druid','weaponsmith'][Math.floor(Math.random() * 8)];
+  return { hp:30, armor:0, deck:simDeckArray(cards), hand:[], board:[],
+           weapon:null, secrets:[], fatigue:0, tune: t, heroId,
+           plays:{}, dmg:{}, totalDmg:0, spellPower:0 };
+}
+/* сила героя в симуляции: реальный эффект за 2 маны */
+function simHeroPower(cur, foe){
+  const up = cur.powerUpgraded ? 2 : 1; /* КОДЕКС: сила заметно жирнее */
+  switch (cur.heroId){
+    case 'mage': {
+      const kill = foe.board.filter(m => !m.stealth && m.hp === 1 && m.atk >= 1)[0];
+      if (kill){ if (simHitMinion(kill, 1)){ simDeath(foe, cur, kill); foe.board.splice(foe.board.indexOf(kill), 1); } }
+      else simHurt(foe, up);
+      cur.totalDmg += up;
+      break;
+    }
+    case 'warrior': cur.armor += 2 * up; break;
+    case 'priest': cur.hp = Math.min(30, cur.hp + 2 * up); break;
+    case 'rogue': simHurt(foe, 2 + up - 1); cur.totalDmg += 2 + up - 1; break;
+    case 'necro':
+      if (cur.board.length < 7)
+        cur.board.push({ id:'skeleton', atk:1, hp:1, maxHp:1, hits:1, ready:false,
+          taunt:false, reborn:false, shield:false, stealth:false, frozen:false, spellDamage:0 });
+      break;
+    case 'warlock':
+      if (cur.hp > 8){ simHurt(cur, 2); simDraw(cur, 1); }
+      break;
+    case 'druid': {
+      if (cur.board.length < 7){
+        const totems = ['totemHeal','totemTaunt','totemAtk','totemSpell'].filter(t2 => CARD_DB[t2]);
+        const pick = totems[Math.floor(Math.random() * totems.length)];
+        if (pick) cur.board.push(simMakeMinion(CARD_DB[pick], pick));
+      }
+      break;
+    }
+    case 'weaponsmith':
+      if (!cur.weapon || cur.weapon.dur <= 0) cur.weapon = { atk:1, dur:2, id:'rustyBlade' };
+      break;
+  }
+}
+function simDraw(s, n){
+  for (let i = 0; i < (n || 1); i++){
+    if (s.hand.length >= 10){ s.deck.pop(); continue; }
+    if (s.deck.length) s.hand.push(s.deck.pop());
+    else { s.fatigue++; s.hp -= s.fatigue; }
+  }
+}
+function simHurt(s, n){
+  if (n <= 0) return 0;
+  const a = Math.min(s.armor, n);
+  s.armor -= a;
+  s.hp -= (n - a);
+  return n;
+}
+function simCardDmg(s, id, n){
+  if (n <= 0) return;
+  s.dmg[id] = (s.dmg[id] || 0) + n;
+  s.totalDmg += n;
+}
+/* урон существу с учётом щита; true если умерло */
+function simHitMinion(m, n, poison){
+  if (n <= 0 && !poison) return false;
+  if (m.shield){ m.shield = false; return false; }
+  m.hp -= n;
+  if (poison) m.hp = 0;
+  if (m.hp <= 0 && m.reborn){ m.reborn = false; m.hp = 1; m.shield = false; return false; }
+  return m.hp <= 0;
+}
+function simMakeMinion(def, id){
+  return { id, atk:def.atk || 0, hp:def.hp || 1, maxHp:def.hp || 1,
+    taunt:!!def.taunt, windfury:!!def.windfury, lifesteal:!!def.lifesteal,
+    poison:!!def.poison, siege:!!def.siege, shield:!!def.shield,
+    stealth:!!def.stealth, freezeTouch:!!def.freezeTouch,
+    reborn:!!def.reborn || /Возрождение/.test(def.text || ''),
+    enraged:false, frozen:false, tribe:def.tribe || null,
+    spellDamage:def.spellDamage || 0,
+    spellBuffer: typeof def.onSpellCast === 'function',
+    hasRattle: typeof def.deathrattle === 'function' || /Хрип/i.test(def.text || ''),
+    healerEnd:/В конце вашего хода/.test(def.text || '') && /здоров|восстан|\+\d+ HP/i.test(def.text || ''),
+    ready:!!def.charge, hits:def.windfury ? 2 : 1 };
+}
+/* точные sim-эффекты сложных легендарок (не парсятся из текста) */
+const SIM_CARD_FX = {
+  codexIntervention(cur){ cur.powerUpgraded = true; },
+  chronomagus(cur, foe){
+    const n = Math.min(5, cur.spellsCast || 0);
+    for (let i = 0; i < n; i++){
+      const tgt = foe.board.filter(m => !m.stealth)[0];
+      if (tgt && Math.random() < 0.5){
+        if (simHitMinion(tgt, 2)){ simDeath(foe, cur, tgt); foe.board.splice(foe.board.indexOf(tgt), 1); }
+      } else simHurt(foe, 2);
+      simCardDmg(cur, 'chronomagus', 2);
+    }
+  },
+  abyssMaw(cur, foe, self){
+    const strong = foe.board.filter(m => !m.stealth).sort((a, b) => (b.atk + b.hp) - (a.atk + a.hp))[0];
+    if (strong){
+      foe.board.splice(foe.board.indexOf(strong), 1); /* поглощение — без хрипа */
+      if (self){ self.atk += Math.min(3, strong.atk); self.hp += Math.min(5, strong.hp); self.maxHp = self.hp; }
+    }
+  },
+  cryptSovereign(cur, foe){
+    const dead = (cur.deadRattlers || []).slice(-3);
+    dead.forEach(id => {
+      if (cur.board.length < 7 && CARD_DB[id]) cur.board.push(simMakeMinion(CARD_DB[id], id));
+    });
+  },
+  huntmastersHorn(cur){
+    cur.weapon = { atk:1, dur:2, id:'huntmastersHorn', horn:true };
+    if (cur.board.length < 7)
+      cur.board.push({ id:'codexHound', atk:1, hp:1, maxHp:1, hits:1, ready:true,
+        taunt:false, reborn:false, shield:false, stealth:false, frozen:false, spellDamage:0 });
+  }
+};
+function simSpellPower(s){
+  return s.board.reduce((a, m) => a + (m.spellDamage || 0), 0);
+}
+const SIM_NUM_RU = { 'двух':2, 'две':2, 'два':2, 'трёх':3, 'три':3 };
+/* интерпретация текста клича/хрипа */
+function simTextEffect(cur, foe, id, text, phase){
+  if (!text) return;
+  const t = text;
+  /* призыв: «призывает двух Скелетов 1/1» / «призывает Волка 2/2» */
+  const sum = t.match(/призывает\s+(двух|две|два|трёх|три)?\s*[^.]*?(\d+)\/(\d+)/i);
+  if (sum){
+    const n = SIM_NUM_RU[(sum[1] || '').toLowerCase()] || 1;
+    for (let i = 0; i < n && cur.board.length < 7; i++)
+      cur.board.push({ id, atk:+sum[2], hp:+sum[3], maxHp:+sum[3], hits:1, ready:false,
+        taunt:/Провокац/i.test(t), reborn:false, shield:false, stealth:false, frozen:false, spellDamage:0 });
+  } else if (/призывает/i.test(t) && cur.board.length < 7){
+    cur.board.push({ id, atk:1, hp:1, maxHp:1, hits:1, ready:false, taunt:false,
+      reborn:false, shield:false, stealth:false, frozen:false, spellDamage:0 });
+  }
+  /* урон: «N урона» */
+  const dm = t.match(/(\d+)\s*урон/i);
+  if (dm){
+    const n = +dm[1];
+    if (/всем существам/i.test(t)){
+      foe.board.slice().forEach(m => { if (simHitMinion(m, n)) foe.board.splice(foe.board.indexOf(m), 1); });
+      simCardDmg(cur, id, n * 2);
+    } else if (/своему герою|вашему герою/i.test(t) && phase === 'battlecry'){
+      simHurt(cur, n);
+    } else {
+      const tgt = foe.board.filter(m => !m.stealth).sort((a, b) => b.atk - a.atk)[0];
+      if (tgt && Math.random() < 0.6){
+        if (simHitMinion(tgt, n)) foe.board.splice(foe.board.indexOf(tgt), 1);
+      } else simHurt(foe, n);
+      simCardDmg(cur, id, n);
+    }
+  }
+  /* заморозка */
+  if (/заморажива|заморозить/i.test(t)){
+    if (/всех|всем/i.test(t)) foe.board.forEach(m => { m.frozen = true; });
+    else {
+      const f = foe.board.filter(m => !m.stealth).sort((a, b) => b.atk - a.atk)[0];
+      if (f) f.frozen = true;
+    }
+  }
+  /* добор */
+  if (/возьмите|берёт карту|возьми карту/i.test(t)) simDraw(cur, 1);
+  /* броня и лечение */
+  const ar = t.match(/\+?(\d+)\s*брон/i);
+  if (ar) cur.armor += +ar[1];
+  const hl = t.match(/восстан\w*\s*(\d+)/i);
+  if (hl) cur.hp = Math.min(30, cur.hp + (+hl[1]));
+  /* бафф своим: «+X/+Y» */
+  const bf = t.match(/\+(\d+)\/\+(\d+)/);
+  if (bf && phase === 'battlecry' && cur.board.length){
+    const m = cur.board[Math.floor(Math.random() * cur.board.length)];
+    m.atk += +bf[1]; m.hp += +bf[2]; m.maxHp += +bf[2];
+  }
+}
+/* сработка секретов защитника; возвращает true если событие отменено */
+function simTriggerSecrets(owner, ev, data){
+  for (let i = 0; i < owner.secrets.length; i++){
+    const sec = owner.secrets[i];
+    if (sec.on !== ev) continue;
+    owner.secrets.splice(i, 1);
+    if (ev === 'attack' && data.attacker){
+      if (simHitMinion(data.attacker, 3)) data.attackerDied = true;
+      simCardDmg(owner, sec.id, 3);
+    } else if (ev === 'spellCast'){
+      return true; /* контрспелл: заклинание развеяно */
+    } else if (ev === 'minionPlayed' && data.minion){
+      if (simHitMinion(data.minion, 2)) data.minionDied = true;
+      simCardDmg(owner, sec.id, 2);
+    }
+    return false;
+  }
+  return false;
+}
+/* смерть существа: хрип */
+function simDeath(owner, foe, m){
+  const def = CARD_DB[m.id];
+  if (m.hasRattle && def && !def.token){
+    (owner.deadRattlers || (owner.deadRattlers = [])).push(m.id);
+  }
+  if (def && def.text && /Хрип/i.test(def.text)){
+    const dr = def.text.match(/Хрип\s*:?\s*([^]*)/i);
+    if (dr) simTextEffect(owner, foe, m.id, dr[1], 'deathrattle');
+  }
+}
+/* один полный бой: возвращает телеметрию */
+function simulateDuel(cardsA, cardsB, tuneA, tuneB){
+  const A = simSide(cardsA, tuneA), B = simSide(cardsB, tuneB);
+  const mull = s => {
+    simDraw(s, 4);
+    if (s.hand.length >= 4){
+      let wi = 0;
+      for (let i = 1; i < s.hand.length; i++)
+        if ((CARD_DB[s.hand[i]]?.cost || 0) > (CARD_DB[s.hand[wi]]?.cost || 0)) wi = i;
+      if ((CARD_DB[s.hand[wi]]?.cost || 0) >= 5)
+        s.deck.unshift(s.hand.splice(wi, 1)[0]);
+    }
+    while (s.hand.length > 3) s.deck.unshift(s.hand.pop());
+  };
+  mull(A); mull(B); simDraw(B, 1);
+  let turn = 0, cur = A, foe = B;
+  while (turn < 60){
+    turn++;
+    const myTurn = Math.ceil(turn / 2);
+    let mana = Math.min(10, myTurn);
+    simDraw(cur, 1);
+    if (cur.hp <= 0) break;
+    cur.board.forEach(m => {
+      if (m.frozen){ m.frozen = false; m.ready = false; m.hits = 0; }
+      else { m.ready = true; m.hits = m.windfury ? 2 : 1; }
+    });
+    /* фаза розыгрышей */
+    const aggro = (cur.tune.style === 'aggro');
+    let guard = 0;
+    while (guard++ < 20){
+      const playable = cur.hand
+        .map((id, i) => ({ id, i, d: CARD_DB[id] }))
+        .filter(x => x.d && x.d.cost <= mana &&
+          !(x.d.type === 'minion' && cur.board.length >= 7) &&
+          !(x.d.secret && cur.secrets.length >= 3));
+      if (!playable.length) break;
+      playable.sort((x, y) => aggro ? x.d.cost - y.d.cost : y.d.cost - x.d.cost);
+      const p = playable[0], d = p.d;
+      mana -= d.cost;
+      cur.hand.splice(p.i, 1);
+      cur.plays[p.id] = (cur.plays[p.id] || 0) + 1;
+      const txt = String(d.text || '');
+      if (d.secret){
+        cur.secrets.push({ id:p.id, on:d.secretOn || 'attack' });
+      } else if (d.type === 'minion'){
+        /* магнетизм: слияние с дружественным механизмом */
+        const host = d.magnetic ? cur.board.find(m2 => m2.tribe === 'mech') : null;
+        if (host && Math.random() < 0.6){
+          host.atk += d.atk || 0;
+          host.hp += d.hp || 0; host.maxHp += d.hp || 0;
+          if (d.taunt) host.taunt = true;
+          if (d.poison) host.poison = true;
+          if (d.lifesteal) host.lifesteal = true;
+          if (d.windfury){ host.windfury = true; }
+          if (d.shield) host.shield = true;
+          cur.plays[p.id] = cur.plays[p.id]; /* розыгрыш уже учтён */
+        } else {
+          const m = simMakeMinion(d, p.id);
+          const data = { minion:m };
+          simTriggerSecrets(foe, 'minionPlayed', data);
+          if (!data.minionDied){
+            cur.board.push(m);
+            if (SIM_CARD_FX[p.id]) SIM_CARD_FX[p.id](cur, foe, m);
+            else if (/Клич/i.test(txt)){
+              const bc = txt.match(/Клич\s*:?\s*([^]*)/i);
+              if (bc) simTextEffect(cur, foe, p.id, bc[1], 'battlecry');
+            }
+          }
+        }
+      } else if (d.type === 'weapon'){
+        if (SIM_CARD_FX[p.id]) SIM_CARD_FX[p.id](cur, foe);
+        else cur.weapon = { atk:d.atk || 1, dur:d.dur || 1, id:p.id };
+      } else {
+        /* заклинание: сначала вражий контрспелл */
+        if (simTriggerSecrets(foe, 'spellCast', {})) { if (foe.hp <= 0) break; continue; }
+        cur.spellsCast = (cur.spellsCast || 0) + 1;
+        cur.board.forEach(m2 => { if (m2.spellBuffer) m2.atk += 1; });
+        const sp = simSpellPower(cur);
+        if (d.burn && txt.includes('всем существам')){
+          const n = d.burn + sp;
+          foe.board.slice().forEach(m => { if (simHitMinion(m, n)) { simDeath(foe, cur, m); foe.board.splice(foe.board.indexOf(m), 1); } });
+          simCardDmg(cur, p.id, n * 2);
+        } else if (d.burn){
+          const n = d.burn + sp;
+          const kill = foe.board.filter(m => !m.stealth && m.hp <= n && m.atk >= 2)
+            .sort((a2, b2) => (b2.atk + b2.hp) - (a2.atk + a2.hp))[0];
+          if (kill && Math.random() * 100 < (+cur.tune.tradeBias || 55)){
+            if (simHitMinion(kill, n)){ simDeath(foe, cur, kill); foe.board.splice(foe.board.indexOf(kill), 1); }
+            simCardDmg(cur, p.id, n);
+          } else {
+            simHurt(foe, n);
+            simCardDmg(cur, p.id, n);
+          }
+        } else {
+          simTextEffect(cur, foe, p.id, txt, 'spell');
+        }
+      }
+      if (foe.hp <= 0) break;
+    }
+    if (foe.hp <= 0) break;
+    /* сила героя при свободной мане (как реальный бот) */
+    if (mana >= 2 && myTurn >= 2){
+      mana -= 2;
+      simHeroPower(cur, foe);
+      if (foe.hp <= 0) break;
+    }
+    /* леталь-чек: если суммарный урон в лицо добивает и нет таунтов — всё в лицо */
+    const foeTaunts = foe.board.some(t => t.taunt && !t.stealth);
+    const readyAtk = cur.board.reduce((s2, m2) => s2 + ((m2.ready && !m2.frozen) ? m2.atk * (m2.windfury ? 2 : 1) : 0), 0)
+      + ((cur.weapon && cur.weapon.dur > 0) ? cur.weapon.atk : 0);
+    const lethalNow = !foeTaunts && readyAtk >= foe.hp + foe.armor;
+    /* атака героя оружием */
+    if (cur.weapon && cur.weapon.dur > 0){
+      if (cur.weapon.horn && cur.board.length < 7)
+        cur.board.push({ id:'codexHound', atk:1, hp:1, maxHp:1, hits:1, ready:true,
+          taunt:false, reborn:false, shield:false, stealth:false, frozen:false, spellDamage:0 });
+      const taunts = foe.board.filter(t => t.taunt && !t.stealth);
+      if (taunts.length){
+        const t = taunts.sort((a2, b2) => a2.hp - b2.hp)[0];
+        simHurt(cur, t.atk); /* ответка герою */
+        if (simHitMinion(t, cur.weapon.atk)){ simDeath(foe, cur, t); foe.board.splice(foe.board.indexOf(t), 1); }
+        simCardDmg(cur, cur.weapon.id, cur.weapon.atk);
+      } else {
+        simHurt(foe, cur.weapon.atk);
+        simCardDmg(cur, cur.weapon.id, cur.weapon.atk);
+      }
+      cur.weapon.dur--;
+      if (foe.hp <= 0) break;
+    }
+    /* фаза атак существ */
+    for (const m of [...cur.board]){
+      if (!m.ready || m.atk <= 0 || m.frozen) continue;
+      while (m.hits > 0 && m.hp > 0 && foe.hp > 0){
+        m.hits--;
+        const taunts = foe.board.filter(t => t.taunt && !t.stealth);
+        let target = null;
+        if (lethalNow || m.siege) target = 'face';
+        else if (taunts.length) target = taunts.sort((a2, b2) => a2.hp - b2.hp)[0];
+        else if (Math.random() * 100 < (+cur.tune.faceBias || 35)) target = 'face';
+        else {
+          target = foe.board.filter(t => !t.stealth && (t.hp <= m.atk || m.poison || t.shield === false) && t.atk >= 2)
+            .sort((a2, b2) => (b2.atk + b2.hp) - (a2.atk + a2.hp))[0] || 'face';
+        }
+        if (target === 'face'){
+          const data = { attacker:m };
+          simTriggerSecrets(foe, 'attack', data);
+          if (data.attackerDied){ simDeath(cur, foe, m); cur.board.splice(cur.board.indexOf(m), 1); break; }
+          simHurt(foe, m.atk);
+          simCardDmg(cur, m.id, m.atk);
+          if (m.lifesteal) cur.hp = Math.min(30, cur.hp + m.atk);
+          m.stealth = false;
+        } else {
+          const dealt = Math.min(target.hp, m.atk);
+          const killedT = simHitMinion(target, m.atk, m.poison);
+          const killedMe = simHitMinion(m, target.atk, target.poison);
+          if (m.freezeTouch) target.frozen = true;
+          if (target.freezeTouch) m.frozen = true;
+          simCardDmg(cur, m.id, dealt);
+          simCardDmg(foe, target.id, Math.min(m.maxHp, target.atk));
+          if (m.lifesteal) cur.hp = Math.min(30, cur.hp + dealt);
+          m.stealth = false;
+          /* берсерк: +2 атаки при первом ранении */
+          if (!killedT && !target.enraged && CARD_DB[target.id] && /Берсерк/i.test(CARD_DB[target.id].text || '')){
+            target.enraged = true; target.atk += 2;
+          }
+          if (killedT){ simDeath(foe, cur, target); foe.board.splice(foe.board.indexOf(target), 1); }
+          if (killedMe){ simDeath(cur, foe, m); cur.board.splice(cur.board.indexOf(m), 1); break; }
+        }
+      }
+      if (foe.hp <= 0) break;
+    }
+    if (foe.hp <= 0 || cur.hp <= 0) break;
+    /* конец хода: тотемы-лекари */
+    cur.board.forEach(m => {
+      if (m.healerEnd){
+        const hurt = cur.board.filter(x => x.hp > 0 && x.hp < x.maxHp);
+        if (hurt.length){
+          const t = hurt[Math.floor(Math.random() * hurt.length)];
+          t.hp = Math.min(t.maxHp, t.hp + 2);
+        }
+      }
+    });
+    [cur, foe] = [foe, cur];
+  }
+  const aWon = B.hp <= 0 || (A.hp > 0 && A.hp >= B.hp);
+  const rounds = Math.ceil(turn / 2);
+  const winner = aWon ? A : B;
+  return { aWon, rounds,
+    margin: Math.max(0, winner.hp + winner.armor),
+    dmgA: A.totalDmg, dmgB: B.totalDmg,
+    playsA: A.plays, playsB: B.plays, cardDmgA: A.dmg, cardDmgB: B.dmg };
+}
+/* Вклад из реальных розыгрышей симуляции (с дисконтом синтетики) */
+function simImpactForDeck(entry, plays, cardDmg, won){
+  ensureImpactSave();
+  Object.keys(plays).forEach(id => {
+    const b = ensureImpactBucket(SAVE.cardImpact, id);
+    if (!b) return;
+    b.plays += plays[id] * 0.5;
+    b.damage += (cardDmg[id] || 0) * 0.4;
+    b.games = (b.games || 0) + 1;
+    if (won) b.wins = (b.wins || 0) + 1;
+  });
+}
+
 function simulateTrainingMatch(pool, options){
   const a = weightedPick(pool, d => d.weight || 1);
   let b = weightedPick(pool.filter(x => x !== a), d => d.weight || 1);
   if (!a || !b) return null;
+  /* ЧЕСТНАЯ МОДЕЛЬ: реальный пошаговый бой */
+  if (options.model === 'sim'){
+    const duel = simulateDuel(a.cards, b.cards, a.tuning, b.tuning);
+    const aWon = duel.aWon;
+    recordTrainingDeck(a, aWon, options.ctx);
+    recordTrainingDeck(b, !aWon, options.ctx);
+    updateDeckElo(a.id, b.id, aWon);
+    updateDeckH2H(a.id, b.id, aWon);
+    if (options.impact){
+      simImpactForDeck(a, duel.playsA, duel.cardDmgA, aWon);
+      simImpactForDeck(b, duel.playsB, duel.cardDmgB, !aWon);
+    }
+    return { winner:aWon ? a : b, loser:aWon ? b : a, aWon,
+             rounds:duel.rounds, margin:duel.margin, dmgA:duel.dmgA, dmgB:duel.dmgB, sim:true };
+  }
+  /* БЫСТРАЯ МОДЕЛЬ: сравнение оценок состава */
   const sa = trainingDeckScore(a), sb = trainingDeckScore(b);
   const noise = clampPct(options.noise, 45) / 100;
   const spread = 4 + noise * 24;
   const av = sa.score + styleMatchupBonus(sa, sb) + (Math.random() * spread - spread / 2);
   const bv = sb.score + styleMatchupBonus(sb, sa) + (Math.random() * spread - spread / 2);
   const aWon = av >= bv;
-  recordTrainingDeck(a, aWon);
-  recordTrainingDeck(b, !aWon);
+  recordTrainingDeck(a, aWon, options.ctx);
+  recordTrainingDeck(b, !aWon, options.ctx);
+  updateDeckElo(a.id, b.id, aWon);
+  updateDeckH2H(a.id, b.id, aWon);
   if (options.impact){
     trainingImpactForDeck(a, aWon, av);
     trainingImpactForDeck(b, !aWon, bv);
@@ -5509,7 +6182,12 @@ function aiRecordResult(winner){
       const cd = lab.decks.find(x => String(x.id) === String(G.aiDeckRef.id));
       if (cd){
         cd.games = (cd.games || 0) + 1;
-        if (winner === 'enemy') cd.wins = (cd.wins || 0) + 1;
+        cd.realGames = (cd.realGames || 0) + 1;
+        if (winner === 'enemy'){ cd.wins = (cd.wins || 0) + 1; cd.realWins = (cd.realWins || 0) + 1; }
+        const ctx = G.tournMatch ? 'tournament' : (G.bossId ? 'boss' : 'rating');
+        const bc = cd.byCtx || (cd.byCtx = {});
+        const c = bc[ctx] || (bc[ctx] = { g:0, w:0 });
+        c.g++; if (winner === 'enemy') c.w++;
       }
       storeSave();
       return;
@@ -6224,6 +6902,38 @@ const UPGRADED_HERO_POWERS = {
       for (let i = 0; i < 2; i++)
         if (side.board.length < MAX_BOARD) game.spawnMinion(side, 'skeleton');
       sfx.play();
+    }
+  },
+  warlock: {
+    icon:'🩸', name:'Тёмный пакт', cost:2, desc:'2 урона своему герою — возьмите 2 карты',
+    targeted:false,
+    use(game, side){
+      game.dealDamage({ kind:'hero', side }, 2);
+      game.draw(side, 2);
+      sfx.draw();
+    }
+  },
+  druid: {
+    icon:'🌳', name:'Великий тотем', cost:2, desc:'призвать два разных случайных тотема',
+    targeted:false,
+    use(game, side){
+      const all = ['totemHeal','totemTaunt','totemAtk','totemSpell'];
+      const have = side.board.map(m => m.cardId);
+      let pool = all.filter(t => !have.includes(t));
+      if (!pool.length) pool = all.slice();
+      for (let i = 0; i < 2; i++){
+        if (side.board.length >= MAX_BOARD || !pool.length) break;
+        const pick = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+        game.spawnMinion(side, pick);
+      }
+      sfx.play();
+    }
+  },
+  weaponsmith: {
+    icon:'🛠️', name:'Великая ковка', cost:2, desc:'взять Стальной клинок 2/3',
+    targeted:false,
+    use(game, side){
+      equipWeapon(side, CARD_DB.steelBlade || CARD_DB.rustyBlade);
     }
   }
 };
@@ -7706,15 +8416,30 @@ async function aiTurn(){
   /* счётчик ходов босса + спецприём */
   G.enemyTurnN = (G.enemyTurnN || 0) + 1;
   const bossDef = G.bossId ? HEROES[G.bossId] : null;
-  if (bossDef && bossDef.special && G.enemyTurnN % bossDef.special.every === 0){
-    banner(`💥 ${bossDef.special.name}!`);
+  const specEvery = bossDef && bossDef.special ? Math.max(2, bossDef.special.every - (G.heroic ? 1 : 0)) : 0;
+  if (bossDef && bossDef.special && G.enemyTurnN % specEvery === 0){
+    const bq = bossQuote(G.bossId, 'special');
+    bossSpecialFxShow(G.bossId, bossDef.special.name, bq);
     sfx.gong();
-    log(`💥 Спецприём: ${bossDef.special.name}`);
-    await sleep(600);
+    if (bq) log(`🗣 ${bossDef.name}: ${bq}`);
+    log(`💥 Спецприём «${bossDef.special.name}»: ${bossDef.special.desc.replace(/каждый \d-й ход:\s*/, '')}`);
+    await sleep(1100);
+    const hpBefore = G.player.hp + G.player.armor;
+    const boardBefore = G.player.board.length;
+    const enemyBoardBefore = G.enemy.board.length;
     bossDef.special.fx(G);
     render();
     await sleep(300);
     await resolveDeaths();
+    /* итог: что реально произошло */
+    const hpLost = hpBefore - (G.player.hp + G.player.armor);
+    const lostMinions = boardBefore - G.player.board.length;
+    const spawned = G.enemy.board.length - enemyBoardBefore;
+    const facts = [];
+    if (hpLost > 0) facts.push(`ты потерял ${hpLost} HP`);
+    if (lostMinions > 0) facts.push(`погибло твоих существ: ${lostMinions}`);
+    if (spawned > 0) facts.push(`босс призвал существ: ${spawned}`);
+    if (facts.length) log(`⚔ Итог приёма: ${facts.join(', ')}`);
     if (G.over){ $('enemyThinking').style.display = 'none'; return; }
   }
   G.enemy.probeMinions = 0;
@@ -8641,40 +9366,170 @@ $('packTake').addEventListener('click', () => {
 });
 
 /* ================== БОССЫ ================== */
+
+/* ================== ЛОР И РЕПЛИКИ БОССОВ ================== */
+const BOSS_LORE = {
+  dragonboss: {
+    lore:'Древний змей, спаливший Первую Таверну. Его пламя не гаснет уже триста лет.',
+    color:'#ff6a2a',
+    start:['«Пепел... снова запах пепла. Подойди ближе, смертный.»','«Моё пламя помнит каждого, кто сгорел.»'],
+    special:['«ГОРИ! ГОРИ ДОТЛА!»','«Небо станет огнём!»','«Я — пожар, что не тушат!»'],
+    death:['«Пламя... гаснет... невозможно...»']
+  },
+  mechboss: {
+    lore:'Собрал себя сам из обломков разрушенной мастерской. Считает плоть конструкторской ошибкой.',
+    color:'#8fd4ff',
+    start:['«АНАЛИЗ: противник — неоптимален.»','«Плоть — это баг. Я — патч.»'],
+    special:['«ПРОТОКОЛ РЕМОНТА АКТИВИРОВАН.»','«Сталь не знает боли!»','«Апгрейд завершён. Ты — устарел.»'],
+    death:['«Ошибка... критическая... ошибка...»']
+  },
+  lichboss: {
+    lore:'Король, отказавшийся умирать. Его подданные тоже — у них не было выбора.',
+    color:'#b8ff8a',
+    start:['«Смерть — это только начало службы.»','«Мои легионы не устают. Никогда.»'],
+    special:['«ВОССТАНЬТЕ, МОИ СЛУГИ!»','«Могилы пусты — все здесь!»','«Смерть — мой урожай!»'],
+    death:['«Наконец-то... покой...»']
+  },
+  hivequeen: {
+    lore:'Мать тысячи выводков. Каждый паук в королевстве — её дитя, и все они голодны.',
+    color:'#d88aff',
+    start:['«Мои детки чуют свежую кровь...»','«Паутина уже сплетена. Ты просто ещё не заметил.»'],
+    special:['«РОЙ, ПРОСНИСЬ!»','«Детки, обед подан!»','«Тысяча жвал — один голод!»'],
+    death:['«Дети мои... отомстите...»']
+  },
+  infernolord: {
+    lore:'Владыка нижних печей. Там, где он ступает, камень плавится и течёт как вода.',
+    color:'#ff4a4a',
+    start:['«Я принёс тебе кусочек преисподней.»','«Здесь станет... жарко.»'],
+    special:['«ИЗВЕРЖЕНИЕ НАЧАЛОСЬ!»','«Магма зовёт тебя!»','«Пекло не знает пощады!»'],
+    death:['«Холод... какой мерзкий холод...»']
+  },
+  abyssking: {
+    lore:'Никто не знает, чем он был раньше. Бездна смотрела в него слишком долго — и он стал Бездной.',
+    color:'#8a6aff',
+    start:['«Ты уже внутри меня. Просто ещё дышишь.»','«Бездна голодна. Бездна — это я.»'],
+    special:['«БЕЗДНА ПРИЗЫВАЕТ!»','«Пустота... поглощает...»','«Из тьмы — во тьму!»'],
+    death:['«Свет?.. Я забыл... каков он...»']
+  }
+};
+function bossQuote(bossId, kind){
+  const b = BOSS_LORE[bossId];
+  if (!b || !b[kind] || !b[kind].length) return null;
+  return b[kind][Math.floor(Math.random() * b[kind].length)];
+}
+/* полноэкранная анимация спецприёма босса */
+function bossSpecialFxShow(bossId, specName, quote){
+  const b = BOSS_LORE[bossId] || {};
+  const el = document.createElement('div');
+  el.id = 'bossSpecialFx';
+  el.style.setProperty('--bfx', b.color || '#ffb066');
+  el.innerHTML = `
+    <div class="bfx-flash"></div>
+    <div class="bfx-body">
+      <div class="bfx-icon">${HEROES[bossId].icon}</div>
+      <div class="bfx-name">💥 ${specName}</div>
+      ${quote ? `<div class="bfx-quote">${quote}</div>` : ''}
+    </div>`;
+  document.body.appendChild(el);
+  document.body.classList.add('bfx-shake');
+  setTimeout(() => document.body.classList.remove('bfx-shake'), 620);
+  setTimeout(() => el.classList.add('out'), 1350);
+  setTimeout(() => el.remove(), 1750);
+}
+
+/* ===== квесты на открытие боссов (помимо убийства предыдущего) ===== */
+const BOSS_QUESTS = {
+  dragonboss:  null,
+  mechboss:    { desc:'Одержи 3 победы в любых боях', check:()=>SAVE.wins >= 3, prog:()=>`${Math.min(3, SAVE.wins)}/3 побед` },
+  lichboss:    { desc:'Достигни рейтинга 250', check:()=>SAVE.rating >= 250, prog:()=>`${Math.min(250, SAVE.rating)}/250 рейтинга` },
+  hivequeen:   { desc:'Одержи 12 побед в любых боях', check:()=>SAVE.wins >= 12, prog:()=>`${Math.min(12, SAVE.wins)}/12 побед` },
+  infernolord: { desc:'Достигни рейтинга 600 (Платина)', check:()=>SAVE.rating >= 600, prog:()=>`${Math.min(600, SAVE.rating)}/600 рейтинга` },
+  abyssking:   { desc:'Победи любого босса в режиме ⚡Усиления', check:()=>(SAVE.heroicWins || 0) >= 1, prog:()=>`${Math.min(1, SAVE.heroicWins || 0)}/1 героическая победа` }
+};
+let bossPicked = null;
+function bossRewardCalc(tier, heroic){
+  const g = Math.round((60 + tier * 30) * (heroic ? 1.6 : 1));
+  const r = Math.round((20 + tier * 8) * (heroic ? 1.5 : 1));
+  return { g, r, packs: heroic ? 2 : 1 };
+}
 function openBossSelect(){
   showScreen('bossSelect');
+  if (bossPicked === null) bossPicked = Math.min(SAVE.bossProgress || 0, BOSS_ORDER.length - 1);
+  renderBossMap();
+  renderBossDetail();
+}
+function renderBossMap(){
   const row = $('bossRow');
   row.innerHTML = '';
   const progress = SAVE.bossProgress || 0;
   BOSS_ORDER.forEach((id, i) => {
     const b = HEROES[id];
-    const bossCfg = (SAVE.aiLab && SAVE.aiLab.boss && SAVE.aiLab.boss[id]) || {};
-    const shownHp = bossCfg.hp || b.bossHp;
     const locked = i > progress;
     const beaten = i < progress;
     const card = document.createElement('div');
-    card.className = 'hs-card boss-card' + (locked ? ' locked' : '') + (beaten ? ' beaten' : '');
-    card.title = locked ? `Глава ${b.tier}: ещё закрыто — победи предыдущего босса`
-      : `${b.name} · ❤️ ${shownHp}${bossCfg.armor ? ' · 🛡 ' + bossCfg.armor : ''}\n${b.power.icon} ${b.power.cost} «${b.power.name}»: ${b.power.desc}\n💥 ${b.special.name}: ${b.special.desc}`;
+    card.className = 'hs-card boss-card' + (locked ? ' locked' : '') + (beaten ? ' beaten' : '')
+      + (bossPicked === i ? ' picked' : '');
     card.innerHTML = `
       <div class="boss-node">
         <div class="hs-portrait">${locked ? '❓' : b.icon}</div>
         <div class="boss-flag">${beaten ? '✅' : locked ? '🔒' : '⚔'}</div>
       </div>
       <div class="boss-tier">Глава ${b.tier}</div>
-      <div class="hs-name">${locked ? '???' : b.name}</div>
-      <div class="hs-hp">❤️ ${shownHp}${bossCfg.armor ? ' · 🛡 ' + bossCfg.armor : ''}</div>
-      <div class="hs-power">${locked ? 'Победи предыдущего босса' :
-        `${b.power.icon} <b>${b.power.cost}</b> «${b.power.name}»<br>${b.power.desc}<br>💥 <b>${b.special.name}</b>: ${b.special.desc}`}</div>`;
-    if (!locked){
-      card.addEventListener('click', () => {
-        sfx.click();
-        startGame(SAVE.hero, { bossId: id, bossIndex: i });
-      });
-    }
+      <div class="hs-name">${locked ? '???' : b.name}</div>`;
+    card.addEventListener('click', () => {
+      sfx.click();
+      bossPicked = i;
+      renderBossMap();
+      renderBossDetail();
+    });
     row.appendChild(card);
   });
 }
+function renderBossDetail(){
+  const box = $('bossDetail');
+  if (bossPicked === null){ box.style.display = 'none'; return; }
+  box.style.display = 'flex';
+  const i = bossPicked;
+  const id = BOSS_ORDER[i];
+  const b = HEROES[id];
+  const bossCfg = (SAVE.aiLab && SAVE.aiLab.boss && SAVE.aiLab.boss[id]) || {};
+  const baseHp = bossCfg.hp || b.bossHp;
+  const progress = SAVE.bossProgress || 0;
+  const prevOk = i <= progress;
+  const q = BOSS_QUESTS[id];
+  const questOk = !q || q.check();
+  const heroic = $('bdHeroic').checked;
+  const hp = heroic ? Math.round(baseHp * 1.4) : baseHp;
+  const every = Math.max(2, (b.special.every || 3) - (heroic ? 1 : 0));
+  $('bdIcon').textContent = b.icon;
+  $('bdName').textContent = `Глава ${b.tier} · ${b.name}`;
+  $('bdStats').innerHTML = `❤️ ${hp}${bossCfg.armor ? ' · 🛡 ' + bossCfg.armor : ''}${heroic ? ' <span style="color:#ffb066">⚡усилен</span>' : ''}`;
+  const loreTxt = BOSS_LORE[id] ? `<div style="font-style:italic;color:#a08c60;margin-bottom:5px;">${BOSS_LORE[id].lore}</div>` : '';
+  $('bdSkills').innerHTML = loreTxt +
+    `<b>${b.power.icon} «${b.power.name}»</b> (${b.power.cost} маны): ${b.power.desc}<br>` +
+    `<b>💥 ${b.special.name}</b> — каждый ${every}-й ход: ${b.special.desc.replace(/каждый \d-й ход:\s*/,'')}`;
+  /* задание */
+  let qhtml = `<b>📜 Задание на открытие:</b><br>`;
+  qhtml += i === 0 ? '<span class="q-ok">✓ Доступен с самого начала</span>'
+    : `${i <= progress ? '<span class="q-ok">✓</span>' : '<span class="q-no">✗</span>'} Победить предыдущего босса (${HEROES[BOSS_ORDER[i-1]].name})`;
+  if (q) qhtml += `<br>${questOk ? '<span class="q-ok">✓</span>' : '<span class="q-no">✗</span>'} ${q.desc} <span style="color:#8fa8c4">(${q.prog()})</span>`;
+  $('bdQuest').innerHTML = qhtml;
+  /* награда */
+  const rw = bossRewardCalc(b.tier, heroic);
+  const rwBase = bossRewardCalc(b.tier, false);
+  $('bdReward').innerHTML = `<b>🎁 Награда:</b> +${rw.g} 🪙 · +${rw.r} рейтинга · +${rw.packs} пак${rw.packs > 1 ? 'а' : ''}` +
+    (heroic ? ` <span style="color:#8a7248">(обычная: ${rwBase.g}🪙/${rwBase.r})</span>` : '');
+  const can = prevOk && questOk;
+  $('bdGo').disabled = !can;
+  $('bdLockNote').textContent = can ? '' :
+    (!prevOk ? '🔒 Сначала победи предыдущего босса' : '🔒 Выполни задание, чтобы бросить вызов');
+}
+$('bdHeroic').addEventListener('change', () => { sfx.click(); renderBossDetail(); });
+$('bdGo').addEventListener('click', () => {
+  if ($('bdGo').disabled || bossPicked === null) return;
+  sfx.click();
+  startGame(SAVE.hero, { bossId: BOSS_ORDER[bossPicked], bossIndex: bossPicked, heroic: $('bdHeroic').checked });
+});
 $('btnBoss').addEventListener('click', openBossSelect);
 $('bossBack').addEventListener('click', () => { showScreen('menu'); renderMenu(); });
 
@@ -9050,7 +9905,8 @@ const ADMIN_HINTS = {
   bossTuneTrade:'Насколько босс любит размениваться.',
   bossTuneFace:'Насколько босс давит героя.',
   bossTuneSpell:'Насколько босс любит играть заклинания.',
-  trainMatches:'Сколько ускоренных матчей бот против бота прогнать за запуск.',
+  trainModel:'Честная симуляция — реальный пошаговый бой: мана, добор из 35 карт, стол, таунты, размены, усталость. Даёт телеметрию (ходы, запас HP). Быстрая оценка — сравнение силы состава без раундов, в ~20 раз быстрее.',
+  trainMatches:'Сколько матчей бот против бота прогнать за запуск.',
   trainContext:'Какие пулы колод брать для спарринга.',
   trainPool:'Какие источники участвуют: кастомные колоды, мета ИИ, шаблоны или всё вместе.',
   trainMutateAfter:'Шанс после обучения заменить слабые карты в просевших кастомных колодах.',
@@ -9120,17 +9976,37 @@ function renderTrainingReport(){
   const r = buildTrainingReport();
   const deckLine = row => `${safeTxt(row.name)} · ${row.wr}% / ${row.games}`;
   const cardLine = row => `${row.icon} ${safeTxt(row.name)} · ${Math.round(row.score)} / ${row.plays}`;
+  const si = ensureAiLab().training.simInfo;
+  const simCard = si ? `<div class="train-card"><b>⏱ Телеметрия боёв (${si.n})</b>
+    Средний бой: ${si.avgTurns} ходов (${si.minT}–${si.maxT})<br>
+    Средний запас HP победителя: ${si.avgMargin}<br>
+    Разгромных побед (запас &gt;15): ${si.blowPct}%</div>` : '';
   box.innerHTML = `
+    ${simCard}
     <div class="train-card"><b>Лучшие колоды</b>${r.bestDecks.length ? r.bestDecks.map(deckLine).join('<br>') : 'Пока нет данных'}</div>
     <div class="train-card"><b>Слабые колоды</b>${r.weakDecks.length ? r.weakDecks.map(deckLine).join('<br>') : 'Пока нет данных'}</div>
     <div class="train-card"><b>Карты тащат</b>${r.topCards.length ? r.topCards.map(cardLine).join('<br>') : 'Пока нет данных'}</div>`;
 }
 function finishTrainingJob(msg){
+  const lab = ensureAiLab();
+  if (TRAIN_JOB && TRAIN_JOB.tel && TRAIN_JOB.tel.turns.length){
+    const t = TRAIN_JOB.tel;
+    const avg = arr => arr.reduce((s, x) => s + x, 0) / arr.length;
+    const blow = t.margins.filter(m => m > 15).length;
+    lab.training.simInfo = {
+      n: t.turns.length,
+      avgTurns: Math.round(avg(t.turns) * 10) / 10,
+      avgMargin: Math.round(avg(t.margins) * 10) / 10,
+      minT: Math.min(...t.turns), maxT: Math.max(...t.turns),
+      blowPct: Math.round(100 * blow / t.margins.length)
+    };
+  }
   TRAIN_JOB = null;
   storeSave();
   renderAiLabLists();
   renderTrainStatus(msg || 'Обучение завершено.');
   renderTrainingReport();
+  renderLabStats();
   updateAiExport();
 }
 function runTrainingChunk(){
@@ -9145,14 +10021,19 @@ function runTrainingChunk(){
   const batch = Math.min(job.batch, job.total - job.done);
   let last = null;
   for (let i = 0; i < batch; i++){
-    last = simulateTrainingMatch(pool, { impact:job.impact, noise:job.noise });
+    last = simulateTrainingMatch(pool, { impact:job.impact, noise:job.noise, ctx:job.context, model:job.model });
     if (!last) break;
     job.done++;
     lab.training.matches = (lab.training.matches || 0) + 1;
     if (last.aWon) lab.training.aWins = (lab.training.aWins || 0) + 1;
     else lab.training.bWins = (lab.training.bWins || 0) + 1;
+    if (last.sim){
+      job.tel.turns.push(last.rounds);
+      job.tel.margins.push(last.margin);
+    }
   }
-  if (last) lab.training.last = `${last.winner.name} победила ${last.loser.name}`;
+  if (last) lab.training.last = `${last.winner.name} победила ${last.loser.name}`
+    + (last.sim ? ` · ${last.rounds} ходов, запас ${last.margin} HP` : '');
   if (job.rebuild && job.done && job.done % Math.max(25, job.batch) === 0){
     rebuildAiDecks();
     const changed = mutateWeakTrainingDecks(job.mutateAfter);
@@ -9175,7 +10056,9 @@ function startTraining(){
     noise: clampPct($('trainNoise').value, 45),
     impact: $('trainImpactChk').checked,
     rebuild: $('trainRebuildChk').checked,
-    mutateAfter: clampPct($('trainMutateAfter').value, lab.influenceChance)
+    mutateAfter: clampPct($('trainMutateAfter').value, lab.influenceChance),
+    model: ($('trainModel') && $('trainModel').value) || 'sim',
+    tel: { turns: [], margins: [] }
   };
   lab.training.runs = (lab.training.runs || 0) + 1;
   renderTrainStatus('Обучение запущено.');
@@ -9580,6 +10463,12 @@ function startGame(heroId, opts){
     G.enemy.armor = Math.max(0, Math.floor(+bossCfg.armor || 0));
     G.bossId = opts.bossId;
     G.bossIndex = opts.bossIndex;
+    const startQ = bossQuote(opts.bossId, 'start');
+    if (startQ) setTimeout(() => { log(`🗣 ${boss.name}: ${startQ}`); banner(`${boss.icon} ${startQ}`); }, 700);
+    if (opts.heroic){
+      G.heroic = true;
+      G.enemy.hp = Math.round(G.enemy.hp * 1.4);
+    }
   } else if (opts.opp){
     G.opp = opts.opp;
     G.enemyHeroId = opts.opp.heroId;
@@ -9639,13 +10528,25 @@ function endGame(winner){
     SAVE.wins++;
     if (wasBoss){
       const tier = HEROES[G.bossId].tier || 1;
-      const bgold = 60 + tier * 30, brat = 20 + tier * 8;
+      const heroicWin = !!G.heroic;
+      const bgold = Math.round((60 + tier * 30) * (heroicWin ? 1.6 : 1));
+      const brat = Math.round((20 + tier * 8) * (heroicWin ? 1.5 : 1));
       SAVE.gold += bgold;
       SAVE.rating += brat;
       const types = Object.keys(PACKS_DB);
-      const rt = types[Math.floor(Math.random() * types.length)];
-      SAVE.packs[rt] = (SAVE.packs[rt] || 0) + 1;
-      rewards.push(`+${bgold} 🪙`, `+1 пак ${PACKS_DB[rt].icon}`);
+      const nPacks = heroicWin ? 2 : 1;
+      for (let pi = 0; pi < nPacks; pi++){
+        const rt = types[Math.floor(Math.random() * types.length)];
+        SAVE.packs[rt] = (SAVE.packs[rt] || 0) + 1;
+        rewards.push(`+1 пак ${PACKS_DB[rt].icon}`);
+      }
+      rewards.unshift(`+${bgold} 🪙${heroicWin ? ' ⚡' : ''}`);
+      if (heroicWin){
+        SAVE.heroicWins = (SAVE.heroicWins || 0) + 1;
+        rewards.push('⚡ ГЕРОИЧЕСКАЯ ПОБЕДА!');
+      }
+      const dq = bossQuote(G.bossId, 'death');
+      if (dq) rewards.push(`🗣 «${dq.replace(/[«»]/g, '')}»`);
       /* открываем следующего босса в приключении */
       if (typeof G.bossIndex === 'number' && G.bossIndex === (SAVE.bossProgress || 0)){
         SAVE.bossProgress = G.bossIndex + 1;
@@ -10008,6 +10909,263 @@ function openAiDecks(){
 $('btnAiDecks').addEventListener('click', () => { sfx.click(); openAiDecks(); });
 $('aidClose').addEventListener('click', () => $('aiDecksOverlay').classList.remove('active'));
 $('aidRebuild').addEventListener('click', () => { rebuildAiDecks(); storeSave(); openAiDecks(); });
+
+
+/* ================== ЛАБОРАТОРИЯ: ВКЛАДКИ ================== */
+if ($('labTabs')){
+  $('labTabs').addEventListener('click', e => {
+    const t = e.target.closest('.lab-tab');
+    if (!t) return;
+    sfx.click();
+    document.querySelectorAll('#labTabs .lab-tab').forEach(x => x.classList.toggle('on', x === t));
+    document.querySelectorAll('#adminPanel .lab-page').forEach(p => p.classList.toggle('on', p.dataset.page === t.dataset.page));
+    if (t.dataset.page === 'decks') edRefreshPick();
+    if (t.dataset.page === 'train'){ renderTrainStatus(); renderTrainingReport(); }
+    if (t.dataset.page === 'stats') renderLabStats();
+    if (t.dataset.page === 'export') updateAiExport();
+  });
+}
+
+/* ================== РЕДАКТОР КОЛОД ИИ ПО КАРТАМ ================== */
+const ED = { cards: {}, tpl: null, editId: null };
+const TPL_RU = { aggro:'Агро', control:'Контроль', spell:'Магия', midrange:'Темп', mechs:'Механизмы', pirates:'Пираты' };
+function edRefreshPick(){
+  const sel = $('edPick');
+  if (!sel) return;
+  const lab = ensureAiLab();
+  const cur = sel.value;
+  let html = '<option value="">— пустая колода —</option>';
+  html += '<optgroup label="Пресеты-шаблоны">';
+  AI_TEMPLATE_KEYS.forEach(t => {
+    const ov = lab.tplOverride[t] && deckTotal(lab.tplOverride[t]) > 0;
+    html += `<option value="tpl:${t}">Шаблон: ${TPL_RU[t] || t}${ov ? ' ✏️' : ''}</option>`;
+  });
+  html += '</optgroup>';
+  if (lab.decks.length){
+    html += '<optgroup label="Кастомные колоды">';
+    lab.decks.forEach(d => { html += `<option value="cd:${d.id}">${safeTxt(d.name || 'Колода ИИ')}</option>`; });
+    html += '</optgroup>';
+  }
+  html += '<optgroup label="Прочее"><option value="my">Твоя текущая колода</option><option value="elite">Элита по Вкладу</option></optgroup>';
+  sel.innerHTML = html;
+  if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+  edRender();
+}
+function edLoad(){
+  const v = $('edPick').value;
+  const lab = ensureAiLab();
+  ED.tpl = null; ED.editId = null; ED.cards = {};
+  if (v.startsWith('tpl:')){
+    ED.tpl = v.slice(4);
+    ED.cards = Object.assign({}, tplCards(ED.tpl));
+    $('edName').value = 'Пресет: ' + (TPL_RU[ED.tpl] || ED.tpl);
+  } else if (v.startsWith('cd:')){
+    const d = lab.decks.find(x => String(x.id) === v.slice(3));
+    if (d){ ED.editId = d.id; ED.cards = Object.assign({}, d.cards); $('edName').value = d.name || ''; }
+  } else if (v === 'my'){
+    ED.cards = sanitizeAiDeck(SAVE.deck, false);
+    $('edName').value = 'Копия моей колоды';
+  } else if (v === 'elite'){
+    ED.cards = buildEliteDeck();
+    $('edName').value = 'Элита по Вкладу';
+  } else {
+    $('edName').value = '';
+  }
+  edRender();
+}
+function edRender(){
+  const pool = $('edPool'), deckBox = $('edDeck');
+  if (!pool || !deckBox) return;
+  const q = ($('edSearch').value || '').toLowerCase();
+  const total = deckTotal(ED.cards);
+  const cnt = $('edCount');
+  cnt.textContent = total + '/' + DECK_SIZE;
+  cnt.classList.toggle('bad', total !== DECK_SIZE);
+  /* кривая */
+  const curve = [0,0,0,0,0,0,0,0];
+  Object.keys(ED.cards).forEach(id => { curve[Math.min(7, CARD_DB[id].cost)] += ED.cards[id]; });
+  $('edCurve').textContent = 'кривая: ' + curve.join(' ');
+  /* пул */
+  const ids = Object.keys(CARD_DB)
+    .filter(id => !CARD_DB[id].token && (!q || CARD_DB[id].name.toLowerCase().includes(q)))
+    .sort((a, b) => CARD_DB[a].cost - CARD_DB[b].cost || CARD_DB[a].name.localeCompare(CARD_DB[b].name, 'ru'));
+  pool.innerHTML = ids.map(id => {
+    const def = CARD_DB[id];
+    const n = ED.cards[id] || 0;
+    const cap = copyLimitFor(id);
+    const maxed = n >= cap || total >= DECK_SIZE;
+    return `<div class="ed-row${maxed ? ' maxed' : ''}" data-add="${id}">
+      <span class="ed-cost">${def.cost}</span><span>${def.icon}</span>
+      <span class="ed-nm">${def.name}</span>
+      <span class="ed-n">${n ? '×' + n : ''}</span>
+      <span class="ed-act">＋</span></div>`;
+  }).join('');
+  /* колода */
+  const inDeck = Object.keys(ED.cards).filter(id => ED.cards[id] > 0)
+    .sort((a, b) => CARD_DB[a].cost - CARD_DB[b].cost || CARD_DB[a].name.localeCompare(CARD_DB[b].name, 'ru'));
+  deckBox.innerHTML = inDeck.length ? inDeck.map(id => {
+    const def = CARD_DB[id];
+    return `<div class="ed-row" data-del="${id}">
+      <span class="ed-cost">${def.cost}</span><span>${def.icon}</span>
+      <span class="ed-nm">${def.name}</span>
+      <span class="ed-n">×${ED.cards[id]}</span>
+      <span class="ed-act">−</span></div>`;
+  }).join('') : '<div style="color:#8a7248;font-size:11px;padding:8px;">Пусто — добавляй карты слева</div>';
+  $('edSavePresetBtn').disabled = !ED.tpl;
+  $('edSavePresetBtn').textContent = ED.tpl ? `📌 КАК ПРЕСЕТ «${(TPL_RU[ED.tpl] || ED.tpl).toUpperCase()}»` : '📌 СОХРАНИТЬ КАК ПРЕСЕТ';
+}
+if ($('edPool')){
+  $('edPool').addEventListener('click', e => {
+    const row = e.target.closest('[data-add]');
+    if (!row || row.classList.contains('maxed')) return;
+    const id = row.dataset.add;
+    if (deckTotal(ED.cards) >= DECK_SIZE) return;
+    if ((ED.cards[id] || 0) >= copyLimitFor(id)) return;
+    ED.cards[id] = (ED.cards[id] || 0) + 1;
+    sfx.click();
+    edRender();
+  });
+  $('edDeck').addEventListener('click', e => {
+    const row = e.target.closest('[data-del]');
+    if (!row) return;
+    const id = row.dataset.del;
+    ED.cards[id]--;
+    if (ED.cards[id] <= 0) delete ED.cards[id];
+    sfx.click();
+    edRender();
+  });
+  $('edSearch').addEventListener('input', edRender);
+  $('edLoadBtn').addEventListener('click', () => { sfx.click(); edLoad(); });
+  $('edClearBtn').addEventListener('click', () => { sfx.click(); ED.cards = {}; edRender(); });
+  $('edSaveCustomBtn').addEventListener('click', () => {
+    const total = deckTotal(ED.cards);
+    if (total !== DECK_SIZE){ $('edNote').textContent = `Нужно ровно ${DECK_SIZE} карт (сейчас ${total}).`; return; }
+    const lab = ensureAiLab();
+    const name = ($('edName').value || 'Ручная сборка').trim().slice(0, 28);
+    if (ED.editId){
+      const d = lab.decks.find(x => String(x.id) === String(ED.editId));
+      if (d){ d.cards = Object.assign({}, ED.cards); d.name = name; }
+      $('edNote').textContent = `Колода «${name}» обновлена.`;
+    } else {
+      lab.decks.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        name, scope:'all', source:'editor', weight:25,
+        mutateChance: lab.influenceChance, noLimits:false, style:'',
+        tradeBias: lab.tradeBias, faceBias: lab.faceBias, spellBias: lab.spellBias,
+        keyCard:'', cards: Object.assign({}, ED.cards), games:0, wins:0
+      });
+      $('edNote').textContent = `Колода «${name}» добавлена в пул ботов.`;
+    }
+    sfx.rare();
+    storeSave();
+    renderAiLabLists();
+    edRefreshPick();
+  });
+  $('edSavePresetBtn').addEventListener('click', () => {
+    if (!ED.tpl) return;
+    const total = deckTotal(ED.cards);
+    if (total === 0){
+      delete ensureAiLab().tplOverride[ED.tpl];
+      storeSave(); updateAiExport(); edRefreshPick();
+      $('edNote').textContent = `Пресет «${TPL_RU[ED.tpl] || ED.tpl}» сброшен к автогенерации по весам.`;
+      return;
+    }
+    if (total !== DECK_SIZE){ $('edNote').textContent = `Нужно ровно ${DECK_SIZE} карт (сейчас ${total}). Пустая сборка = сброс пресета.`; return; }
+    const lab = ensureAiLab();
+    lab.tplOverride[ED.tpl] = Object.assign({}, ED.cards);
+    sfx.rare();
+    storeSave();
+    updateAiExport();
+    edRefreshPick();
+    $('edNote').textContent = `Пресет «${TPL_RU[ED.tpl] || ED.tpl}» перезаписан: боты теперь генерируют его из этой сборки. Чтобы вернуть автогенерацию — очисти сборку и нажми эту кнопку ещё раз.`;
+  });
+}
+
+
+
+/* ================== СТАТИСТИКА ТИПОВ ИИ: Elo + H2H ================== */
+const TPL_ICON = { aggro:'⚔️', control:'🛡️', spell:'✨', midrange:'🌀', mechs:'⚙️', pirates:'🏴‍☠️' };
+const CTX_ICON = { rating:'📈', tournament:'🏆', boss:'👹', all:'🌐' };
+function labStatEntries(){
+  const lab = ensureAiLab();
+  const out = [];
+  AI_TEMPLATE_KEYS.forEach(t => {
+    /* находим статистику шаблона: она пишется в объект пула тренировки — храним на самом override?
+       тренировочные шаблоны эфемерны, поэтому агрегируем из elo/h2h по id 'tpl:X' */
+    out.push({ id:'tpl:' + t, icon:TPL_ICON[t] || '🃏',
+      name:'Шаблон: ' + (TPL_RU[t] || t) + (lab.tplOverride[t] && deckTotal(lab.tplOverride[t]) ? ' ✏️' : ''),
+      ref:null, byCtx:null, realGames:0, realWins:0, tg:0, tw:0 });
+  });
+  lab.decks.forEach(d => {
+    const style = d.style || '';
+    const icon = d.keyCard && CARD_DB[d.keyCard] ? CARD_DB[d.keyCard].icon
+      : ({ aggro:'⚔️', control:'🛡️', spell:'✨', tempo:'🌀' }[style] || '🃏');
+    out.push({ id:String(d.id), icon, name:d.name || 'Колода ИИ',
+      ref:d, byCtx:d.byCtx || null,
+      realGames:d.realGames || 0, realWins:d.realWins || 0,
+      tg:d.trainingGames || 0, tw:d.trainingWins || 0 });
+  });
+  return out;
+}
+function labH2HGames(id){
+  const lab = ensureAiLab();
+  let g = 0;
+  Object.keys(lab.h2h).forEach(k => {
+    const [a, b] = k.split('|');
+    if (a === id || b === id) g += lab.h2h[k].a + lab.h2h[k].b;
+  });
+  return g;
+}
+function renderLabStats(){
+  if (!$('labStatCards')) return;
+  const lab = ensureAiLab();
+  const entries = labStatEntries()
+    .map(e => Object.assign(e, { elo: deckElo(e.id), h2hGames: labH2HGames(e.id) }))
+    .filter(e => e.h2hGames > 0 || e.tg > 0 || e.realGames > 0 || e.ref);
+  entries.sort((a, b) => b.elo - a.elo);
+  /* карточки */
+  $('labStatCards').innerHTML = entries.length ? entries.map(e => {
+    const twr = e.tg ? Math.round(100 * e.tw / e.tg) : null;
+    const rwr = e.realGames ? Math.round(100 * e.realWins / e.realGames) : null;
+    const ctxChips = e.byCtx ? Object.keys(e.byCtx).map(c => {
+      const s = e.byCtx[c];
+      const wr = s.g ? Math.round(100 * s.w / s.g) : 0;
+      return `<span class="sc-chip ${wr >= 55 ? 'good' : wr <= 45 ? 'bad' : ''}">${CTX_ICON[c] || c} <b>${wr}%</b>/${s.g}</span>`;
+    }).join('') : '';
+    return `<div class="stat-card">
+      <div class="sc-head"><span class="sc-icon">${e.icon}</span><span class="sc-name">${safeTxt(e.name)}</span><span class="sc-elo">⚡${e.elo}</span></div>
+      <div class="sc-row">
+        ${twr !== null ? `<span class="sc-chip ${twr >= 55 ? 'good' : twr <= 45 ? 'bad' : ''}">🎓 трен. <b>${twr}%</b>/${e.tg}</span>` : ''}
+        ${rwr !== null ? `<span class="sc-chip ${rwr >= 55 ? 'good' : rwr <= 45 ? 'bad' : ''}">🎮 живые <b>${rwr}%</b>/${e.realGames}</span>` : ''}
+        ${ctxChips}
+        ${twr === null && rwr === null && !ctxChips ? '<span class="sc-chip">нет данных — запусти обучение</span>' : ''}
+      </div>
+    </div>`;
+  }).join('') : '<div class="admin-note">Пока нет ни одной колоды со статистикой. Запусти обучение во вкладке 🎓.</div>';
+  /* матрица H2H: топ-8 по числу парных игр */
+  const top = [...entries].sort((a, b) => b.h2hGames - a.h2hGames).slice(0, 8)
+    .filter(e => e.h2hGames > 0);
+  const tbl = $('labH2H');
+  if (!top.length){ tbl.innerHTML = '<tr><td style="padding:10px;color:#8a7248;">Матрица появится после обучения.</td></tr>'; return; }
+  let html = '<tr><th></th>' + top.map(e =>
+    `<th title="${safeTxt(e.name)}">${e.icon}<span class="h2h-nm">${safeTxt(e.name)}</span></th>`).join('') + '</tr>';
+  top.forEach(row => {
+    html += `<tr><th title="${safeTxt(row.name)}">${row.icon}<span class="h2h-nm">${safeTxt(row.name)}</span></th>`;
+    top.forEach(col => {
+      if (row.id === col.id){ html += '<td class="self">—</td>'; return; }
+      const rec = h2hFor(row.id, col.id);
+      if (!rec || !rec.games){ html += '<td><small>·</small></td>'; return; }
+      const wr = Math.round(100 * rec.wins / rec.games);
+      const hue = Math.round(wr * 1.2); /* 0=красный 120=зелёный */
+      const thin = rec.games < 5; /* мало данных — не делаем выводов */
+      html += thin
+        ? `<td style="background:hsla(${hue},25%,15%,.5);color:#8a7248" title="Мало игр — цифра ненадёжна">${wr}%<small>${rec.games} игр ⚠</small></td>`
+        : `<td style="background:hsla(${hue},55%,22%,.85);color:hsl(${hue},70%,72%)">${wr}%<small>${rec.games} игр</small></td>`;
+    });
+    html += '</tr>';
+  });
+  tbl.innerHTML = html;
+}
 
 </script>
 </body>
