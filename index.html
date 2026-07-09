@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-09-2338';
+    var build = '2026-07-09-2358';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -2455,6 +2455,13 @@
   .mp-protocol{display:flex;gap:7px;flex-wrap:wrap;font-size:11px;color:#a08c60;}
   .mp-protocol b{color:var(--gold-bright);margin-right:2px;}
   .mp-protocol span{background:rgba(0,0,0,.32);border:1px solid rgba(107,81,36,.7);border-radius:999px;padding:3px 8px;}
+  .mp-net-actions{margin-top:12px;}
+  .mp-netlog{
+    margin-top:9px;min-height:54px;max-height:120px;overflow:auto;
+    padding:8px 10px;border:1px solid rgba(107,81,36,.7);border-radius:9px;
+    background:rgba(0,0,0,.32);color:#cdbb93;font-size:10.5px;line-height:1.35;
+    white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
   @media (max-width: 820px), (max-height: 520px){
     #multiplayer{align-items:flex-start;padding:7px;}
     .mp-shell{width:100%;max-height:calc(100dvh - 14px);padding:9px;border-width:2px;border-radius:12px;}
@@ -2465,7 +2472,7 @@
     .mp-wide{grid-column:auto;}
     .mp-card{padding:9px;border-radius:10px;border-width:1.5px;}
     .mp-card h3{font-size:12px;margin-bottom:5px;}
-    .mp-card p,.mp-card label,.mp-status,.mp-protocol{font-size:9px;}
+    .mp-card p,.mp-card label,.mp-status,.mp-protocol,.mp-netlog{font-size:9px;}
     .mp-card select,.mp-card textarea{font-size:10px;padding:6px 7px;border-radius:7px;border-width:1.5px;}
     .mp-card textarea{min-height:70px;}
     .mp-actions .btn,.mp-card>.btn,.mp-head .btn{font-size:9px!important;padding:6px 8px!important;border-width:2px!important;}
@@ -3399,8 +3406,14 @@
           <span>host-authoritative матч</span>
           <span>проверка версии и базы карт</span>
           <span>снимок колоды/героя</span>
+          <span>WebRTC DataChannel</span>
           <span>место под action log и checksum</span>
         </div>
+        <div class="mp-actions mp-net-actions">
+          <button class="btn stone" id="mpSendPing" disabled>ОТПРАВИТЬ ТЕСТ</button>
+          <button class="btn stone" id="mpDropLink">СБРОСИТЬ КАНАЛ</button>
+        </div>
+        <div class="mp-netlog" id="mpNetLog">Канал ещё не создан.</div>
       </section>
     </div>
   </div>
@@ -3505,7 +3518,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-09-2338';
+const CARD_ARENA_BUILD = '2026-07-09-2358';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -9864,6 +9877,9 @@ const MP_STATE = {
   status: 'idle',
   local: null,
   remote: null,
+  pc: null,
+  dc: null,
+  netLog: [],
   actionLog: []
 };
 function mpRoomId(){
@@ -9919,6 +9935,128 @@ function mpSetStatus(text, kind){
   el.className = 'mp-status' + (kind ? ' ' + kind : '');
   el.textContent = text;
 }
+function mpSetPingEnabled(on){
+  const btn = $('mpSendPing');
+  if (btn) btn.disabled = !on;
+}
+function mpLog(line){
+  const stamp = new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  MP_STATE.netLog.push(`[${stamp}] ${line}`);
+  if (MP_STATE.netLog.length > 18) MP_STATE.netLog.shift();
+  const box = $('mpNetLog');
+  if (box) {
+    box.textContent = MP_STATE.netLog.join('\n') || 'Канал ещё не создан.';
+    box.scrollTop = box.scrollHeight;
+  }
+}
+function mpRtcSupported(){
+  return typeof RTCPeerConnection !== 'undefined';
+}
+function mpRtcConfig(){
+  return {
+    iceServers: [
+      { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }
+    ]
+  };
+}
+function mpClosePeer(silent){
+  try { if (MP_STATE.dc) MP_STATE.dc.close(); } catch(e){}
+  try { if (MP_STATE.pc) MP_STATE.pc.close(); } catch(e){}
+  MP_STATE.pc = null;
+  MP_STATE.dc = null;
+  mpSetPingEnabled(false);
+  if (!silent){
+    MP_STATE.status = 'idle';
+    mpSetStatus('Канал сброшен. Можно создать новый invite.', 'warn');
+    mpLog('Канал сброшен.');
+  }
+}
+function mpWaitIceComplete(pc, limitMs){
+  limitMs = limitMs || 8000;
+  if (!pc || pc.iceGatheringState === 'complete') return Promise.resolve();
+  return new Promise(resolve => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      pc.removeEventListener('icegatheringstatechange', onState);
+      resolve();
+    };
+    const onState = () => {
+      if (pc.iceGatheringState === 'complete') finish();
+    };
+    pc.addEventListener('icegatheringstatechange', onState);
+    setTimeout(finish, limitMs);
+  });
+}
+function mpBindPeer(pc){
+  pc.onconnectionstatechange = () => {
+    const st = pc.connectionState || 'unknown';
+    mpLog('PeerConnection: ' + st);
+    if (st === 'connected'){
+      MP_STATE.status = 'connected';
+      mpSetStatus('WebRTC соединение установлено. Тестовый канал готовится/работает.', 'ok');
+    } else if (st === 'failed' || st === 'disconnected'){
+      mpSetStatus('WebRTC соединение просело: ' + st + '. Можно попробовать заново обменяться кодами.', 'bad');
+    }
+  };
+  pc.oniceconnectionstatechange = () => {
+    if (pc.iceConnectionState) mpLog('ICE: ' + pc.iceConnectionState);
+  };
+}
+function mpBindDataChannel(dc){
+  MP_STATE.dc = dc;
+  dc.onopen = () => {
+    MP_STATE.status = 'connected';
+    mpSetPingEnabled(true);
+    mpSetStatus('DataChannel открыт. Тестовые сообщения уже можно отправлять.', 'ok');
+    mpLog('DataChannel открыт.');
+    mpSendNet({ type:'hello', roomId:MP_STATE.roomId, role:MP_STATE.role, build:CARD_ARENA_BUILD });
+  };
+  dc.onclose = () => {
+    mpSetPingEnabled(false);
+    mpLog('DataChannel закрыт.');
+  };
+  dc.onerror = () => {
+    mpSetStatus('Ошибка DataChannel. Попробуй новый invite.', 'bad');
+    mpLog('DataChannel error.');
+  };
+  dc.onmessage = ev => mpHandleNetMessage(ev.data);
+}
+function mpCreatePeer(){
+  if (!mpRtcSupported()) throw new Error('Этот браузер не поддерживает RTCPeerConnection.');
+  mpClosePeer(true);
+  const pc = new RTCPeerConnection(mpRtcConfig());
+  MP_STATE.pc = pc;
+  mpBindPeer(pc);
+  return pc;
+}
+function mpSendNet(msg){
+  const dc = MP_STATE.dc;
+  if (!dc || dc.readyState !== 'open'){
+    mpSetStatus('Канал ещё не открыт.', 'warn');
+    return false;
+  }
+  dc.send(JSON.stringify(Object.assign({ sentAt:Date.now() }, msg)));
+  mpLog('→ ' + (msg.type || 'message'));
+  return true;
+}
+function mpHandleNetMessage(raw){
+  let msg = null;
+  try { msg = JSON.parse(raw); } catch(e){ mpLog('← raw: ' + String(raw).slice(0, 80)); return; }
+  mpLog('← ' + (msg.type || 'message'));
+  if (msg.type === 'hello'){
+    mpSetStatus(`Связь живая: ${msg.role || 'peer'} на версии ${msg.build || '?'}.`, 'ok');
+    return;
+  }
+  if (msg.type === 'ping'){
+    mpSendNet({ type:'pong', pingAt:msg.sentAt || msg.pingAt || Date.now() });
+    return;
+  }
+  if (msg.type === 'pong'){
+    mpSetStatus('Тестовое сообщение дошло и вернулось. Канал живой.', 'ok');
+  }
+}
 function mpPayloadBase(kind){
   return {
     kind,
@@ -9932,7 +10070,8 @@ function mpPayloadBase(kind){
       hostAuthoritative: true,
       actionLog: true,
       checksum: true,
-      deterministicReplay: true
+      deterministicReplay: true,
+      webRtcDataChannel: true
     }
   };
 }
@@ -9950,22 +10089,42 @@ function mpDescribePeer(p){
   const h = HEROES[p.player.heroId] || HEROES.mage;
   return `${h.icon} ${h.name} · ${p.player.deckCount || deckTotal(p.player.deck)} карт · рейтинг ${p.player.rating || 0}`;
 }
-function mpCreateInvite(){
-  MP_STATE.transport = $('mpTransport').value || 'webrtc';
-  MP_STATE.role = 'host';
-  MP_STATE.roomId = mpRoomId();
-  MP_STATE.local = mpLocalSnapshot();
-  MP_STATE.remote = null;
-  MP_STATE.actionLog = [];
-  const payload = Object.assign(mpPayloadBase('cardArena.mp.offer'), {
-    role: 'host',
-    player: MP_STATE.local,
-    nextStep: 'guestCreatesAnswer'
-  });
-  $('mpCodeOut').value = mpEncode(payload);
-  mpSetStatus(`Invite создан. Отправь код другу. Комната ${MP_STATE.roomId}; ты host-арбитр.`, 'ok');
+async function mpCreateInvite(){
+  try{
+    MP_STATE.transport = $('mpTransport').value || 'webrtc';
+    MP_STATE.role = 'host';
+    MP_STATE.roomId = mpRoomId();
+    MP_STATE.local = mpLocalSnapshot();
+    MP_STATE.remote = null;
+    MP_STATE.actionLog = [];
+    MP_STATE.netLog = [];
+    if ($('mpNetLog')) $('mpNetLog').textContent = '';
+    let payload = Object.assign(mpPayloadBase('cardArena.mp.offer'), {
+      role: 'host',
+      player: MP_STATE.local,
+      nextStep: 'guestCreatesAnswer'
+    });
+    if (MP_STATE.transport === 'webrtc'){
+      const pc = mpCreatePeer();
+      const dc = pc.createDataChannel('card-arena-v1', { ordered:true });
+      mpBindDataChannel(dc);
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      mpSetStatus('Собираю WebRTC-кандидаты для invite...', 'warn');
+      mpLog('Создаю offer и собираю ICE.');
+      await mpWaitIceComplete(pc, 9000);
+      payload.sdp = pc.localDescription ? { type:pc.localDescription.type, sdp:pc.localDescription.sdp } : offer;
+      payload.iceGatheringState = pc.iceGatheringState;
+    }
+    $('mpCodeOut').value = mpEncode(payload);
+    mpSetStatus(`Invite создан. Отправь код другу. Комната ${MP_STATE.roomId}; ты host-арбитр.`, 'ok');
+    mpLog('Invite готов для отправки.');
+  }catch(e){
+    mpSetStatus('Не удалось создать invite: ' + (e.message || e), 'bad');
+    mpLog('Ошибка invite: ' + (e.message || e));
+  }
 }
-function mpAcceptInvite(){
+async function mpAcceptInvite(){
   try{
     const offer = mpDecode($('mpCodeIn').value);
     mpValidatePeer(offer, 'cardArena.mp.offer');
@@ -9974,19 +10133,40 @@ function mpAcceptInvite(){
     MP_STATE.transport = offer.transport || $('mpTransport').value || 'webrtc';
     MP_STATE.remote = offer;
     MP_STATE.local = mpLocalSnapshot();
-    const answer = Object.assign(mpPayloadBase('cardArena.mp.answer'), {
+    MP_STATE.actionLog = [];
+    MP_STATE.netLog = [];
+    if ($('mpNetLog')) $('mpNetLog').textContent = '';
+    let answer = Object.assign(mpPayloadBase('cardArena.mp.answer'), {
       roomId: offer.roomId,
       role: 'guest',
       player: MP_STATE.local,
       acceptedOfferAt: offer.createdAt
     });
+    if (MP_STATE.transport === 'webrtc'){
+      if (!offer.sdp) throw new Error('В invite нет WebRTC offer. Создай invite заново с транспортом WebRTC.');
+      const pc = mpCreatePeer();
+      pc.ondatachannel = ev => {
+        mpLog('Получен DataChannel от host.');
+        mpBindDataChannel(ev.channel);
+      };
+      await pc.setRemoteDescription(new RTCSessionDescription(offer.sdp));
+      const answerDesc = await pc.createAnswer();
+      await pc.setLocalDescription(answerDesc);
+      mpSetStatus('Собираю WebRTC-кандидаты для answer...', 'warn');
+      mpLog('Принял offer, создаю answer и собираю ICE.');
+      await mpWaitIceComplete(pc, 9000);
+      answer.sdp = pc.localDescription ? { type:pc.localDescription.type, sdp:pc.localDescription.sdp } : answerDesc;
+      answer.iceGatheringState = pc.iceGatheringState;
+    }
     $('mpCodeOut').value = mpEncode(answer);
     mpSetStatus(`Invite принят: ${mpDescribePeer(offer)}. Отправь answer-код host-игроку.`, 'ok');
+    mpLog('Answer готов для отправки host.');
   }catch(e){
     mpSetStatus('Не удалось принять invite: ' + (e.message || e), 'bad');
+    mpLog('Ошибка invite: ' + (e.message || e));
   }
 }
-function mpAcceptAnswer(){
+async function mpAcceptAnswer(){
   try{
     const answer = mpDecode($('mpCodeIn').value);
     mpValidatePeer(answer, 'cardArena.mp.answer');
@@ -9996,9 +10176,18 @@ function mpAcceptAnswer(){
       throw new Error('Answer от другой комнаты.');
     MP_STATE.remote = answer;
     MP_STATE.status = 'paired';
-    mpSetStatus(`Связка готова: ${mpDescribePeer(answer)}. Следующий шаг разработки — WebRTC DataChannel и host-authoritative бой.`, 'ok');
+    if (MP_STATE.transport === 'webrtc'){
+      if (!answer.sdp) throw new Error('В answer нет WebRTC SDP.');
+      if (!MP_STATE.pc) throw new Error('Локальный WebRTC peer не найден. Создай invite заново.');
+      await MP_STATE.pc.setRemoteDescription(new RTCSessionDescription(answer.sdp));
+      mpSetStatus(`Answer принят: ${mpDescribePeer(answer)}. Жду открытия DataChannel...`, 'ok');
+      mpLog('Remote answer установлен. Ждём connected/open.');
+    } else {
+      mpSetStatus(`Связка готова: ${mpDescribePeer(answer)}. Следующий шаг — подключить выбранный транспорт.`, 'ok');
+    }
   }catch(e){
     mpSetStatus('Не удалось принять answer: ' + (e.message || e), 'bad');
+    mpLog('Ошибка answer: ' + (e.message || e));
   }
 }
 async function mpCopyCode(){
@@ -10014,12 +10203,19 @@ async function mpCopyCode(){
     mpSetStatus('Код выделен и скопирован запасным способом.', 'ok');
   }
 }
+function mpSendPing(){
+  if (mpSendNet({ type:'ping', pingAt:Date.now(), roomId:MP_STATE.roomId })){
+    mpSetStatus('Тестовое сообщение отправлено. Жду pong от друга...', 'warn');
+  }
+}
 function openMultiplayer(){
   showScreen('multiplayer');
   MP_STATE.local = mpLocalSnapshot();
   mpSetStatus(`Готово. Твоя версия ${CARD_ARENA_BUILD}, база карт ${MP_STATE.local.cardDbHash}.`, 'ok');
   $('mpCodeIn').value = '';
   $('mpCodeOut').value = '';
+  if (!MP_STATE.netLog.length && $('mpNetLog')) $('mpNetLog').textContent = 'Канал ещё не создан.';
+  mpSetPingEnabled(!!(MP_STATE.dc && MP_STATE.dc.readyState === 'open'));
 }
 
 /* ================== ЭКРАНЫ / СТАРТ ================== */
@@ -10797,6 +10993,8 @@ $('mpCreateInvite').addEventListener('click', () => { sfx.click(); mpCreateInvit
 $('mpAcceptInvite').addEventListener('click', () => { sfx.click(); mpAcceptInvite(); });
 $('mpAcceptAnswer').addEventListener('click', () => { sfx.click(); mpAcceptAnswer(); });
 $('mpCopyCode').addEventListener('click', () => { sfx.click(); mpCopyCode(); });
+$('mpSendPing').addEventListener('click', () => { sfx.click(); mpSendPing(); });
+$('mpDropLink').addEventListener('click', () => { sfx.click(); mpClosePeer(); });
 $('mpClearCode').addEventListener('click', () => {
   sfx.click();
   $('mpCodeIn').value = '';
