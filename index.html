@@ -278,13 +278,15 @@
 	  #btnBuilder::before{background:linear-gradient(180deg,#c9f0a8,#5e8a30);}
 	  #btnShop::before{background:linear-gradient(180deg,#e7ddc8,#82755d);}
 	  #btnPacks::before{background:linear-gradient(180deg,#d6b0ff,#7644a6);}
+	  #btnPacks{padding-right:48px;}
 	  #btnSettings::before{background:linear-gradient(180deg,#dedbd1,#696760);}
   .badge{
-    position:absolute;top:-9px;right:-9px;min-width:26px;height:26px;border-radius:50%;
+    position:absolute;top:50%;right:10px;transform:translateY(-50%);
+    min-width:26px;height:26px;border-radius:50%;z-index:4;pointer-events:none;
     background:radial-gradient(circle at 35% 30%, #ff8866, #b3341f);
     border:2px solid #5c150d;color:#fff;font-size:13px;
     display:flex;align-items:center;justify-content:center;text-shadow:0 1px 2px #000;
-    padding:0 4px;
+    padding:0 4px;box-shadow:0 2px 0 #4c120a, 0 4px 10px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.32);
   }
 	  .menu-stats{
 	    font-size:12px;color:#2f2413;letter-spacing:.5px;
@@ -329,6 +331,7 @@
 	    .menu-btns{width:min(270px, calc(100vw - 60px));gap:7px;margin-top:4px;}
 	    .menu-btns .btn{font-size:15px;padding:8px 8px 8px 36px;border-radius:11px;border-width:2px;}
 	    .menu-btns .btn::before{left:11px;width:15px;height:15px;border-radius:3px;}
+	    #btnPacks{padding-right:40px;}
 	    #btnPlay{padding-left:8px;}
 	    .music-toggle{font-size:10.5px !important;padding:6px 7px !important;}
 	    .menu-btns .music-toggle{font-size:15px !important;padding:8px 8px 8px 36px !important;}
@@ -356,7 +359,8 @@
 	    .menu-btns .btn{font-size:13px;padding:6px 7px 6px 32px;}
 	    .menu-btns .btn::before{left:10px;width:13px;height:13px;}
 	    #btnPlay{padding-left:7px;}
-	    .badge{min-width:21px;height:21px;font-size:11px;top:-7px;right:-7px;}
+	    #btnPacks{padding-right:38px;}
+	    .badge{min-width:21px;height:21px;font-size:11px;top:50%;right:7px;}
 	    .menu-stats{font-size:9.5px;padding:3px 8px;}
     .torch{display:none;}
   }
@@ -392,7 +396,8 @@
 	    .music-toggle{font-size:9.5px !important;padding:5px 6px !important;}
 	    .menu-btns .music-toggle{font-size:12.5px !important;padding:5px 6px 5px 31px !important;}
     .menu-stats{font-size:9px;padding:3px 7px;max-width:100%;}
-    .badge{min-width:20px;height:20px;font-size:10px;top:-7px;right:-7px;}
+    #btnPacks{padding-right:36px;}
+    .badge{min-width:20px;height:20px;font-size:10px;top:50%;right:6px;}
     .torch{display:none;}
   }
 
