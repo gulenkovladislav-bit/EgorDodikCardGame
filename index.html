@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-10-mp-hand-browse';
+    var build = '2026-07-10-mp-wizard';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -2605,6 +2605,40 @@
   .mp-head .btn{flex:0 0 auto;font-size:12px;padding:7px 14px;}
   .mp-title{font-size:24px;color:var(--gold-bright);letter-spacing:3px;text-shadow:0 2px 6px #000;}
   .mp-sub{font-size:12px;color:#a08c60;line-height:1.35;margin-top:3px;}
+  .mp-view{display:none;}
+  .mp-view.active{display:block;}
+  .mp-shell[data-view="choice"] #mpStatus{display:none;}
+  .mp-view.compact{max-width:790px;margin:0 auto;}
+  .mp-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px;}
+  .mp-choice-card{
+    appearance:none;border:2px solid #6b5124;border-radius:14px;padding:24px 22px;text-align:left;cursor:pointer;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,220,135,.13), transparent 58%),
+      linear-gradient(180deg,rgba(66,46,18,.96),rgba(20,13,6,.96));
+    box-shadow:0 14px 32px rgba(0,0,0,.45), inset 0 0 22px rgba(0,0,0,.34);
+    transition:transform .14s ease, border-color .14s ease, box-shadow .14s ease, filter .14s ease;
+    min-height:190px;color:#ead8aa;font-family:inherit;
+  }
+  .mp-choice-card:hover{
+    transform:translateY(-2px);border-color:#d3aa42;filter:brightness(1.06);
+    box-shadow:0 18px 38px rgba(0,0,0,.5), 0 0 22px rgba(218,176,74,.24), inset 0 0 22px rgba(0,0,0,.34);
+  }
+  .mp-choice-card b{
+    width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:14px;
+    background:radial-gradient(circle at 35% 30%,#78b9f0,#255984);color:#fff;font-size:20px;text-shadow:0 2px 3px #000;
+    box-shadow:0 0 0 3px #102b42, 0 8px 18px rgba(0,0,0,.36);
+  }
+  .mp-choice-card strong{display:block;color:var(--gold-bright);font-size:20px;letter-spacing:1.6px;text-shadow:0 2px 4px #000;margin-bottom:8px;}
+  .mp-choice-card span{display:block;color:#a99773;font-size:13px;line-height:1.4;}
+  .mp-card.single{max-width:790px;margin:0 auto;}
+  .mp-card-titleline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
+  .mp-card-titleline h3{margin:0;}
+  .mp-small-back{font-size:10px!important;padding:6px 10px!important;}
+  .mp-next-hint{
+    margin-top:10px;padding:9px 10px;border:1px solid rgba(90,130,180,.55);border-radius:9px;
+    background:rgba(18,40,60,.25);color:#bcd6f2;font-size:11px;line-height:1.35;
+  }
+  .mp-code-tools{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:10px;}
   .mp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .mp-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px;}
   .mp-step{
@@ -2725,6 +2759,14 @@
     .mp-head{gap:8px;margin-bottom:8px;}
     .mp-title{font-size:16px;letter-spacing:1.5px;}
     .mp-sub{font-size:9.5px;}
+    .mp-choice-grid{grid-template-columns:1fr;gap:8px;margin-top:8px;}
+    .mp-choice-card{min-height:118px;padding:14px;border-radius:11px;}
+    .mp-choice-card b{width:30px;height:30px;font-size:14px;margin-bottom:8px;}
+    .mp-choice-card strong{font-size:13px;letter-spacing:1px;margin-bottom:5px;}
+    .mp-choice-card span{font-size:9px;}
+    .mp-card.single{max-width:none;}
+    .mp-card-titleline{gap:8px;}
+    .mp-next-hint{font-size:9px;padding:7px 8px;border-radius:7px;}
     .mp-flow{grid-template-columns:1fr;gap:5px;margin-bottom:7px;}
     .mp-step{min-height:0;padding:6px 7px;border-radius:8px;grid-template-columns:auto 1fr;}
     .mp-step b{width:21px;height:21px;font-size:10px;}
@@ -3647,25 +3689,39 @@
   <button class="btn stone" id="lbBack">НАЗАД</button>
 </div>
 
-<!-- МУЛЬТИПЛЕЕР: базовый слой под будущие транспорты -->
+<!-- МУЛЬТИПЛЕЕР: пошаговое подключение -->
 <div class="screen" id="multiplayer">
   <div class="mp-shell">
     <div class="mp-head">
       <button class="btn stone" id="mpBack">← НАЗАД</button>
       <div>
         <div class="mp-title">🌐 МУЛЬТИПЛЕЕР</div>
-        <div class="mp-sub">Играй с другом через обмен кодами. Один создаёт игру, второй вставляет код и возвращает ответ.</div>
+        <div class="mp-sub">Выбери действие. Игра покажет только нужный следующий шаг.</div>
       </div>
     </div>
-    <div class="mp-flow">
-      <div class="mp-step"><b>1</b><div><strong>Создать или войти</strong><span>первый жмёт «Создать игру», второй вставляет код</span></div></div>
-      <div class="mp-step"><b>2</b><div><strong>Передать ответ</strong><span>игра сама поймёт, какой код ты вставил</span></div></div>
-      <div class="mp-step"><b>3</b><div><strong>Начать матч</strong><span>создатель запускает бой после соединения</span></div></div>
+
+    <div class="mp-view active" id="mpChoiceView">
+      <div class="mp-choice-grid">
+        <button class="mp-choice-card" id="mpChooseCreate">
+          <b>1</b>
+          <strong>Создать игру</strong>
+          <span>Ты первый игрок. Выбираешь способ соединения, получаешь код и отправляешь его другу.</span>
+        </button>
+        <button class="mp-choice-card" id="mpChooseJoin">
+          <b>2</b>
+          <strong>Присоединиться</strong>
+          <span>Друг уже прислал код. Вставляешь его, получаешь ответный код и отправляешь обратно.</span>
+        </button>
+      </div>
     </div>
-    <div class="mp-grid">
-      <section class="mp-card">
-        <h3>Создать игру <small>если ты первый</small></h3>
-        <p>Нажми кнопку, скопируй появившийся код и отправь другу. Когда друг пришлёт ответный код — вставь его справа и нажми «Продолжить».</p>
+
+    <div class="mp-view compact" id="mpCreateView">
+      <section class="mp-card single">
+        <div class="mp-card-titleline">
+          <h3>Создать игру <small>первый шаг для создателя</small></h3>
+          <button class="btn stone mp-small-back" id="mpCreateBack">← ВЫБОР</button>
+        </div>
+        <p>Выбери способ соединения и нажми кнопку. После этого появится один код, который надо отправить другу.</p>
         <label>Способ соединения
           <select id="mpTransport">
             <option value="webrtc">Прямое соединение</option>
@@ -3673,36 +3729,59 @@
             <option value="manual" disabled>Ручной режим — позже</option>
           </select>
         </label>
-        <button class="btn" id="mpCreateInvite">СОЗДАТЬ ИГРУ</button>
-        <div class="mp-role-note"><i>Ты создатель</i><span>после соединения у тебя станет доступна кнопка «Начать матч».</span></div>
+        <div class="mp-actions">
+          <button class="btn" id="mpCreateInvite">СОЗДАТЬ КОД</button>
+        </div>
+        <div class="mp-next-hint">Дальше: скопируй код, отправь другу, потом вставь ответный код друга.</div>
       </section>
-      <section class="mp-card">
-        <h3>Присоединиться <small>если тебе прислали код</small></h3>
-        <p>Вставь код друга и нажми одну кнопку. Если нужен ответный код — он появится ниже, и его надо отправить обратно.</p>
+    </div>
+
+    <div class="mp-view compact" id="mpJoinView">
+      <section class="mp-card single">
+        <div class="mp-card-titleline">
+          <h3 id="mpJoinTitle">Присоединиться <small id="mpJoinSmall">если тебе прислали код</small></h3>
+          <button class="btn stone mp-small-back" id="mpJoinBack">← НАЗАД</button>
+        </div>
+        <p id="mpJoinHint">Вставь код друга и нажми «Продолжить». Если нужен ответный код, он появится следующим экраном.</p>
         <textarea id="mpCodeIn" class="mp-code-in" placeholder="Вставь код друга сюда..."></textarea>
         <div class="mp-actions">
           <button class="btn stone" id="mpAcceptInvite">ПРОДОЛЖИТЬ</button>
           <button class="btn stone mp-hidden" id="mpAcceptAnswer">ПРИНЯТЬ ОТВЕТ</button>
         </div>
       </section>
-      <section class="mp-card mp-wide">
-        <h3>Код для отправки <small>скопируй и отправь другу</small></h3>
+    </div>
+
+    <div class="mp-view compact" id="mpCodeView">
+      <section class="mp-card single">
+        <div class="mp-card-titleline">
+          <h3 id="mpCodeTitle">Код для друга <small id="mpCodeSmall">скопируй и отправь</small></h3>
+          <button class="btn stone mp-small-back" id="mpCodeBack">← ВЫБОР</button>
+        </div>
+        <p id="mpCodeHint">Скопируй код и отправь другу. Если ты создал игру, затем вставь ответный код друга.</p>
         <textarea id="mpCodeOut" class="mp-code-out" readonly placeholder="Здесь появится код для друга."></textarea>
         <div class="mp-code-meta" id="mpCodeMeta">Создай игру или вставь код друга — здесь появится следующий код.</div>
-        <div class="mp-actions">
+        <div class="mp-code-tools">
           <button class="btn stone" id="mpCopyCode">СКОПИРОВАТЬ</button>
           <button class="btn stone" id="mpLegacyCode">ДЛИННЫЙ КОД</button>
           <button class="btn stone" id="mpClearCode">ОЧИСТИТЬ</button>
+          <button class="btn" id="mpNeedAnswer">ВСТАВИТЬ ОТВЕТ ДРУГА</button>
         </div>
       </section>
-      <section class="mp-card mp-wide">
-        <h3>Статус</h3>
-        <div class="mp-status" id="mpStatus">Готово. Создай игру или вставь код друга.</div>
+    </div>
+
+    <div class="mp-status" id="mpStatus">Готово. Создай игру или вставь код друга.</div>
+
+    <div class="mp-view compact" id="mpStatusView">
+      <section class="mp-card single">
+        <div class="mp-card-titleline">
+          <h3>Связь и старт <small>после обмена кодами</small></h3>
+          <button class="btn stone mp-small-back" id="mpStatusBack">← КОДЫ</button>
+        </div>
         <div class="mp-protocol">
-          <b>Коротко:</b>
-          <span>обмен кодами</span>
+          <b>Сейчас:</b>
+          <span>кодами обменялись</span>
           <span>создатель запускает бой</span>
-          <span>если код не вставляется — жми «Длинный код»</span>
+          <span>если связь не ожила — сбрось и создай заново</span>
         </div>
 	        <div class="mp-actions mp-net-actions">
 	          <button class="btn stone" id="mpSendPing" disabled>ПРОВЕРИТЬ СВЯЗЬ</button>
@@ -3825,7 +3904,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-10-mp-hand-browse';
+const CARD_ARENA_BUILD = '2026-07-10-mp-wizard';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -10622,6 +10701,52 @@ function mpSetStatus(text, kind){
   el.className = 'mp-status' + (kind ? ' ' + kind : '');
   el.textContent = text;
 }
+function mpSetView(name){
+  const shell = document.querySelector('#multiplayer .mp-shell');
+  if (shell) shell.dataset.view = name;
+  const views = ['mpChoiceView','mpCreateView','mpJoinView','mpCodeView','mpStatusView'];
+  views.forEach(id => {
+    const el = $(id);
+    if (el) el.classList.toggle('active', id === `mp${name[0].toUpperCase()}${name.slice(1)}View`);
+  });
+}
+function mpSetJoinMode(mode){
+  const title = $('mpJoinTitle');
+  const small = $('mpJoinSmall');
+  const hint = $('mpJoinHint');
+  const input = $('mpCodeIn');
+  const btn = $('mpAcceptInvite');
+  if (mode === 'answer'){
+    if (title) title.childNodes[0].nodeValue = 'Вставить ответ друга ';
+    if (small) small.textContent = 'последний шаг создателя';
+    if (hint) hint.textContent = 'Друг прислал ответный код. Вставь его сюда и нажми «Продолжить», потом можно запускать матч.';
+    if (input) input.placeholder = 'Вставь ответный код друга сюда...';
+    if (btn) btn.textContent = 'ПРОДОЛЖИТЬ';
+  } else {
+    if (title) title.childNodes[0].nodeValue = 'Присоединиться ';
+    if (small) small.textContent = 'если тебе прислали код';
+    if (hint) hint.textContent = 'Вставь код друга и нажми «Продолжить». Игра сама сделает ответный код для отправки обратно.';
+    if (input) input.placeholder = 'Вставь код друга сюда...';
+    if (btn) btn.textContent = 'ПРОДОЛЖИТЬ';
+  }
+}
+function mpSetCodeMode(mode){
+  const title = $('mpCodeTitle');
+  const small = $('mpCodeSmall');
+  const hint = $('mpCodeHint');
+  const needAnswer = $('mpNeedAnswer');
+  if (mode === 'answer'){
+    if (title) title.childNodes[0].nodeValue = 'Ответный код ';
+    if (small) small.textContent = 'отправь создателю';
+    if (hint) hint.textContent = 'Отправь этот код создателю игры. После этого он запускает матч, а ты ждёшь старта.';
+    if (needAnswer) needAnswer.classList.add('mp-hidden');
+  } else {
+    if (title) title.childNodes[0].nodeValue = 'Код для друга ';
+    if (small) small.textContent = 'скопируй и отправь';
+    if (hint) hint.textContent = 'Отправь этот код другу. Когда он пришлёт ответный код, нажми кнопку ниже и вставь ответ.';
+    if (needAnswer) needAnswer.classList.remove('mp-hidden');
+  }
+}
 function mpSetPingEnabled(on){
   const btn = $('mpSendPing');
   if (btn) btn.disabled = !on;
@@ -10677,6 +10802,8 @@ function mpClosePeer(silent){
 	  if (!silent){
     MP_STATE.status = 'idle';
     mpSetStatus('Связь сброшена. Можно создать новую игру.', 'warn');
+    const mpScreen = $('multiplayer');
+    if (mpScreen && mpScreen.classList.contains('active')) mpSetView('choice');
     mpLog('Канал сброшен.');
   }
 }
@@ -10720,6 +10847,8 @@ function mpBindDataChannel(dc){
 	    mpSetPingEnabled(true);
 	    mpSetStartEnabled();
 	    mpSetStatus('Связь открыта. Создатель игры может начать матч.', 'ok');
+	    const mpScreen = $('multiplayer');
+	    if (mpScreen && mpScreen.classList.contains('active')) mpSetView('status');
     mpLog('DataChannel открыт.');
     mpSendNet({ type:'hello', roomId:MP_STATE.roomId, role:MP_STATE.role, build:CARD_ARENA_BUILD });
   };
@@ -11763,6 +11892,8 @@ async function mpCreateInvite(){
       payload.iceGatheringState = pc.iceGatheringState;
     }
     await mpWriteCodeOut(payload, 'Код для друга');
+    mpSetCodeMode('invite');
+    mpSetView('code');
     mpSetStatus(`Код игры создан. Отправь его другу. Комната ${MP_STATE.roomId}.`, 'ok');
     mpLog('Invite готов для отправки.');
   }catch(e){
@@ -11816,6 +11947,8 @@ async function mpAcceptInvite(decodedOffer){
       answer.iceGatheringState = pc.iceGatheringState;
     }
     await mpWriteCodeOut(answer, 'Ответный код');
+	    mpSetCodeMode('answer');
+	    mpSetView('code');
 	    mpSetStatus(`Код принят: ${mpDescribePeer(offer)}. Отправь появившийся ответный код создателю игры.${peerCheck.buildMismatch ? ' Версии HTML разные, но карты совпали.' : ''}`, 'ok');
     mpLog('Answer готов для отправки host.');
   }catch(e){
@@ -11849,9 +11982,11 @@ async function mpAcceptAnswer(decodedAnswer){
       if (!MP_STATE.pc) throw new Error('Локальное соединение потеряно. Создай игру заново.');
       await MP_STATE.pc.setRemoteDescription(new RTCSessionDescription(answer.sdp));
 	      mpSetStatus(`Ответный код принят: ${mpDescribePeer(answer)}. Жду открытия связи...${peerCheck.buildMismatch ? ' Версии HTML разные, но карты совпали.' : ''}`, 'ok');
+	      mpSetView('status');
       mpLog('Remote answer установлен. Ждём connected/open.');
     } else {
       mpSetStatus(`Связь готова: ${mpDescribePeer(answer)}. Можно начинать матч.`, 'ok');
+      mpSetView('status');
     }
   }catch(e){
     mpSetStatus('Не удалось принять ответный код: ' + (e.message || e), 'bad');
@@ -11915,6 +12050,9 @@ function mpSendPing(){
 function openMultiplayer(){
   showScreen('multiplayer');
   MP_STATE.local = mpLocalSnapshot();
+  mpSetView('choice');
+  mpSetJoinMode('join');
+  mpSetCodeMode('invite');
   mpSetStatus('Готово. Создай игру или вставь код друга.', 'ok');
   $('mpCodeIn').value = '';
   $('mpCodeOut').value = '';
@@ -12827,6 +12965,51 @@ function startGame(heroId, opts){
 $('btnPlay').addEventListener('click', openHeroSelect);
 $('btnMultiplayer').addEventListener('click', () => { sfx.click(); openMultiplayer(); });
 $('mpBack').addEventListener('click', () => { sfx.click(); showScreen('menu'); renderMenu(); });
+$('mpChooseCreate').addEventListener('click', () => {
+  sfx.click();
+  mpSetView('create');
+  mpSetStatus('Создай код и отправь его другу.', 'ok');
+});
+$('mpChooseJoin').addEventListener('click', () => {
+  sfx.click();
+  mpSetJoinMode('join');
+  $('mpCodeIn').value = '';
+  mpSetView('join');
+  mpSetStatus('Вставь код, который прислал друг.', 'ok');
+});
+$('mpCreateBack').addEventListener('click', () => {
+  sfx.click();
+  mpSetView('choice');
+  mpSetStatus('Выбери: создать игру или присоединиться.', 'ok');
+});
+$('mpJoinBack').addEventListener('click', () => {
+  sfx.click();
+  if (MP_STATE.role === 'host' && $('mpCodeOut').value.trim()) {
+    mpSetCodeMode('invite');
+    mpSetView('code');
+    mpSetStatus('Код для друга всё ещё готов. Можно вставить ответный код.', 'ok');
+  } else {
+    mpSetView('choice');
+    mpSetStatus('Выбери: создать игру или присоединиться.', 'ok');
+  }
+});
+$('mpCodeBack').addEventListener('click', () => {
+  sfx.click();
+  mpSetView('choice');
+  mpSetStatus('Код сохранён в поле. Можно начать новый путь или вернуться позже.', 'warn');
+});
+$('mpNeedAnswer').addEventListener('click', () => {
+  sfx.click();
+  mpSetJoinMode('answer');
+  $('mpCodeIn').value = '';
+  mpSetView('join');
+  mpSetStatus('Вставь ответный код друга.', 'ok');
+});
+$('mpStatusBack').addEventListener('click', () => {
+  sfx.click();
+  if ($('mpCodeOut').value.trim()) mpSetView('code');
+  else mpSetView('choice');
+});
 $('mpCreateInvite').addEventListener('click', () => { sfx.click(); mpCreateInvite(); });
 $('mpAcceptInvite').addEventListener('click', () => { sfx.click(); mpAcceptIncoming(); });
 	$('mpAcceptAnswer').addEventListener('click', () => { sfx.click(); mpAcceptAnswer(); });
@@ -12845,6 +13028,9 @@ $('mpClearCode').addEventListener('click', () => {
   MP_STATE.lastPayload = null;
   MP_STATE.lastCodeLabel = '';
   MP_STATE.lastCodeInfo = null;
+  mpSetJoinMode('join');
+  mpSetCodeMode('invite');
+  mpSetView('choice');
   mpSetStatus('Поля очищены. Можно создать игру или вставить код друга.', 'warn');
 });
 $('againBtn').addEventListener('click', () => openMatchmaking(SAVE.hero));
