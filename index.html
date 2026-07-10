@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-10-mp-compressed-ui';
+    var build = '2026-07-10-mp-simple-flow';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -2638,6 +2638,7 @@
     color:#a08c60;font-size:10px;line-height:1.32;
   }
   .mp-role-note i{font-style:normal;color:#f0d080;}
+  .mp-hidden{display:none!important;}
   .mp-wide{grid-column:1 / -1;}
   .mp-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center;}
   .mp-actions .btn,.mp-card>.btn{font-size:12px;padding:8px 12px;}
@@ -2668,6 +2669,18 @@
 	    background:rgba(0,0,0,.32);color:#cdbb93;font-size:10.5px;line-height:1.35;
 	    white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
 	  }
+  .mp-details{
+    margin-top:9px;border:1px solid rgba(107,81,36,.55);border-radius:9px;
+    background:rgba(0,0,0,.18);overflow:hidden;
+  }
+  .mp-details summary{
+    cursor:pointer;list-style:none;padding:8px 10px;
+    color:#b9a57b;font-size:11px;font-weight:bold;letter-spacing:.7px;
+  }
+  .mp-details summary::-webkit-details-marker{display:none;}
+  .mp-details summary::before{content:'▸ ';color:#f0d080;}
+  .mp-details[open] summary::before{content:'▾ ';}
+  .mp-details .mp-netlog{margin:0;border:0;border-top:1px solid rgba(107,81,36,.42);border-radius:0;}
 	  #mpJournalPanel{
 	    position:absolute;left:14px;top:72px;z-index:31;
 	    width:260px;max-height:210px;display:none;flex-direction:column;gap:6px;
@@ -3634,70 +3647,69 @@
       <button class="btn stone" id="mpBack">← НАЗАД</button>
       <div>
         <div class="mp-title">🌐 МУЛЬТИПЛЕЕР</div>
-        <div class="mp-sub">База под WebRTC, ручные коды и будущий сервер. Host ведёт случайности, ход боя и снимки состояния.</div>
+        <div class="mp-sub">Играй с другом через обмен кодами. Один создаёт игру, второй вставляет код и возвращает ответ.</div>
       </div>
     </div>
     <div class="mp-flow">
-      <div class="mp-step"><b>1</b><div><strong>Выбери роль</strong><span>один создаёт invite, второй отвечает answer</span></div></div>
-      <div class="mp-step"><b>2</b><div><strong>Обменяйтесь кодами</strong><span>короткий CA2, старый формат оставлен запасным</span></div></div>
-      <div class="mp-step"><b>3</b><div><strong>Host запускает матч</strong><span>после открытия канала нажми старт</span></div></div>
+      <div class="mp-step"><b>1</b><div><strong>Создать или войти</strong><span>первый жмёт «Создать игру», второй вставляет код</span></div></div>
+      <div class="mp-step"><b>2</b><div><strong>Передать ответ</strong><span>игра сама поймёт, какой код ты вставил</span></div></div>
+      <div class="mp-step"><b>3</b><div><strong>Начать матч</strong><span>создатель запускает бой после соединения</span></div></div>
     </div>
     <div class="mp-grid">
       <section class="mp-card">
-        <h3>Я создаю комнату <small>первый игрок / host</small></h3>
-        <p>Нажми один раз, отправь появившийся invite другу. После его answer именно ты запускаешь матч.</p>
-        <label>Транспорт
+        <h3>Создать игру <small>если ты первый</small></h3>
+        <p>Нажми кнопку, скопируй появившийся код и отправь другу. Когда друг пришлёт ответный код — вставь его справа и нажми «Продолжить».</p>
+        <label>Способ соединения
           <select id="mpTransport">
-            <option value="webrtc">WebRTC P2P</option>
-            <option value="relay">Relay/backend позже</option>
-            <option value="manual">Коды вручную</option>
+            <option value="webrtc">Прямое соединение</option>
+            <option value="relay" disabled>Через сервер — позже</option>
+            <option value="manual" disabled>Ручной режим — позже</option>
           </select>
         </label>
-        <button class="btn" id="mpCreateInvite">СОЗДАТЬ INVITE</button>
-        <div class="mp-role-note"><i>Host</i><span>у host будет кнопка «Начать матч», когда канал откроется.</span></div>
+        <button class="btn" id="mpCreateInvite">СОЗДАТЬ ИГРУ</button>
+        <div class="mp-role-note"><i>Ты создатель</i><span>после соединения у тебя станет доступна кнопка «Начать матч».</span></div>
       </section>
       <section class="mp-card">
-        <h3>Мне прислали код <small>второй шаг обмена</small></h3>
-        <p>Вставь код друга. Если это invite — ты подключаешься и получаешь answer. Если это answer — ты host и завершаешь связку.</p>
-        <textarea id="mpCodeIn" class="mp-code-in" placeholder="Вставь сюда CA2-код или старый длинный код..."></textarea>
+        <h3>Присоединиться <small>если тебе прислали код</small></h3>
+        <p>Вставь код друга и нажми одну кнопку. Если нужен ответный код — он появится ниже, и его надо отправить обратно.</p>
+        <textarea id="mpCodeIn" class="mp-code-in" placeholder="Вставь код друга сюда..."></textarea>
         <div class="mp-actions">
-          <button class="btn stone" id="mpAcceptInvite">ЭТО INVITE — СОЗДАТЬ ANSWER</button>
-          <button class="btn stone" id="mpAcceptAnswer">ЭТО ANSWER — ЗАВЕРШИТЬ</button>
+          <button class="btn stone" id="mpAcceptInvite">ПРОДОЛЖИТЬ</button>
+          <button class="btn stone mp-hidden" id="mpAcceptAnswer">ПРИНЯТЬ ОТВЕТ</button>
         </div>
       </section>
       <section class="mp-card mp-wide">
-        <h3>Отправь этот код другу <small>короткий формат CA2 включается автоматически</small></h3>
-        <textarea id="mpCodeOut" class="mp-code-out" readonly placeholder="Здесь появится invite или answer."></textarea>
-        <div class="mp-code-meta" id="mpCodeMeta">Код ещё не создан. CA2 сжимает WebRTC-пакет, а старый формат остаётся запасным.</div>
+        <h3>Код для отправки <small>скопируй и отправь другу</small></h3>
+        <textarea id="mpCodeOut" class="mp-code-out" readonly placeholder="Здесь появится код для друга."></textarea>
+        <div class="mp-code-meta" id="mpCodeMeta">Создай игру или вставь код друга — здесь появится следующий код.</div>
         <div class="mp-actions">
-          <button class="btn stone" id="mpCopyCode">СКОПИРОВАТЬ ДРУГУ</button>
-          <button class="btn stone" id="mpLegacyCode">СТАРЫЙ КОД</button>
+          <button class="btn stone" id="mpCopyCode">СКОПИРОВАТЬ</button>
+          <button class="btn stone" id="mpLegacyCode">ДЛИННЫЙ КОД</button>
           <button class="btn stone" id="mpClearCode">ОЧИСТИТЬ</button>
         </div>
       </section>
       <section class="mp-card mp-wide">
-        <h3>Связь и старт матча</h3>
-        <div class="mp-status" id="mpStatus">Мультиплеер готов как заготовка. Создай invite или вставь код друга.</div>
+        <h3>Статус</h3>
+        <div class="mp-status" id="mpStatus">Готово. Создай игру или вставь код друга.</div>
         <div class="mp-protocol">
-          <b>Заложено сейчас:</b>
-          <span>host-authoritative матч</span>
-          <span>проверка версии и базы карт</span>
-          <span>сжатые CA2-коды + legacy fallback</span>
-          <span>снимок колоды/героя</span>
-          <span>WebRTC DataChannel</span>
-          <span>живые намерения и подсвет целей</span>
-          <span>журнал действий и checksum</span>
+          <b>Коротко:</b>
+          <span>обмен кодами</span>
+          <span>создатель запускает бой</span>
+          <span>если код не вставляется — жми «Длинный код»</span>
         </div>
 	        <div class="mp-actions mp-net-actions">
-	          <button class="btn stone" id="mpSendPing" disabled>ОТПРАВИТЬ ТЕСТ</button>
+	          <button class="btn stone" id="mpSendPing" disabled>ПРОВЕРИТЬ СВЯЗЬ</button>
 	          <button class="btn" id="mpStartMatch" disabled>НАЧАТЬ МАТЧ</button>
-	          <button class="btn stone" id="mpCopyFreshLink">ССЫЛКА ВЕРСИИ</button>
-	          <button class="btn stone" id="mpHardRefresh">ОБНОВИТЬ ИГРУ</button>
-	          <button class="btn stone" id="mpDropLink">СБРОСИТЬ КАНАЛ</button>
+	          <button class="btn stone" id="mpCopyFreshLink">СКОПИРОВАТЬ ССЫЛКУ</button>
+	          <button class="btn stone" id="mpHardRefresh">ОБНОВИТЬ</button>
+	          <button class="btn stone" id="mpDropLink">СБРОСИТЬ</button>
 	        </div>
 	        <div class="mp-linkbox" id="mpFreshLink">Свежая ссылка появится после открытия экрана.</div>
-	        <div class="mp-matchbox" id="mpMatchInfo">Матч ещё не запущен. Сначала соединись с другом через invite/answer.</div>
-        <div class="mp-netlog" id="mpNetLog">Канал ещё не создан.</div>
+	        <div class="mp-matchbox" id="mpMatchInfo">Матч ещё не запущен.</div>
+        <details class="mp-details">
+          <summary>Технический журнал</summary>
+          <div class="mp-netlog" id="mpNetLog">Канал ещё не создан.</div>
+        </details>
       </section>
     </div>
   </div>
@@ -3806,7 +3818,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-10-mp-compressed-ui';
+const CARD_ARENA_BUILD = '2026-07-10-mp-simple-flow';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -10436,6 +10448,12 @@ function mpSetCodeMeta(text){
   const el = $('mpCodeMeta');
   if (el) el.innerHTML = text;
 }
+function mpFriendlyCodeLabel(label){
+  const key = String(label || '').toLowerCase();
+  if (key.includes('answer') || key.includes('ответ')) return 'Ответный код';
+  if (key.includes('invite') || key.includes('игр') || key.includes('друг')) return 'Код для друга';
+  return 'Код';
+}
 async function mpWriteCodeOut(payload, label){
   MP_STATE.lastPayload = payload;
   MP_STATE.lastCodeLabel = label || '';
@@ -10444,19 +10462,20 @@ async function mpWriteCodeOut(payload, label){
   $('mpCodeOut').value = code;
   const saved = legacy.length > code.length ? Math.round((1 - code.length / legacy.length) * 100) : 0;
   MP_STATE.lastCodeInfo = { label, format:mpCodeFormat(code), len:code.length, legacyLen:legacy.length, saved };
+  const nice = mpFriendlyCodeLabel(label);
   if (code.startsWith(MP_CODE_PREFIX)){
-    mpSetCodeMeta(`<b>${label || 'Код'} · CA2</b>: ${code.length} символов, короче старого примерно на ${saved}%. Если у друга не примется — нажми «СТАРЫЙ КОД».`);
+    mpSetCodeMeta(`<b>${nice} готов</b>: ${code.length} символов, короче длинного примерно на ${saved}%. Если у друга не вставляется — нажми «ДЛИННЫЙ КОД».`);
   } else {
-    mpSetCodeMeta(`<b>${label || 'Код'} · старый формат</b>: ${code.length} символов. Браузер не сжал пакет или сжатие не дало выигрыша.`);
+    mpSetCodeMeta(`<b>${nice} готов</b>: ${code.length} символов. Это длинный совместимый вариант.`);
   }
 }
 function mpShowLegacyCode(){
-  if (!MP_STATE.lastPayload){ mpSetStatus('Сначала создай invite или answer.', 'warn'); return; }
+  if (!MP_STATE.lastPayload){ mpSetStatus('Сначала создай игру или вставь код друга.', 'warn'); return; }
   const code = mpEncodeLegacy(MP_STATE.lastPayload);
   $('mpCodeOut').value = code;
   MP_STATE.lastCodeInfo = { label:MP_STATE.lastCodeLabel, format:'legacy', len:code.length, legacyLen:code.length, saved:0 };
-  mpSetCodeMeta(`<b>${MP_STATE.lastCodeLabel || 'Код'} · старый формат</b>: максимальная совместимость, но код длиннее. Используй только если CA2 не принялся у друга.`);
-  mpSetStatus('Выдан старый длинный код для совместимости.', 'warn');
+  mpSetCodeMeta(`<b>${mpFriendlyCodeLabel(MP_STATE.lastCodeLabel)} готов</b>: длинный вариант для максимальной совместимости.`);
+  mpSetStatus('Выдан длинный код. Используй его, если короткий код не вставился у друга.', 'warn');
 }
 function freshGameUrl(force){
   try{
@@ -10488,17 +10507,17 @@ async function mpDecode(txt){
   if (!raw) throw new Error('Код пустой.');
   if (raw.startsWith(MP_CODE_PREFIX)){
     const parts = raw.split('.');
-    if (parts.length !== 3 || parts[0] !== 'CA2') throw new Error('CA2-код повреждён.');
+    if (parts.length !== 3 || parts[0] !== 'CA2') throw new Error('Код повреждён.');
     let json = '';
     const body = mpBase64UrlToBytes(parts[2]);
     try{
       json = mpLzwUnpackText(body);
     }catch(e){
       try{ json = await mpGunzipText(body); }
-      catch(e2){ throw new Error('Не удалось распаковать CA2-код. Попроси друга нажать «СТАРЫЙ КОД» и прислать длинный вариант.'); }
+      catch(e2){ throw new Error('Не удалось прочитать короткий код. Попроси друга нажать «ДЛИННЫЙ КОД» и прислать длинный вариант.'); }
     }
     const hash = mpHashString(json);
-    if (hash !== parts[1]) throw new Error('Checksum CA2 не совпал: код повреждён при копировании.');
+  if (hash !== parts[1]) throw new Error('Код повреждён при копировании.');
     return JSON.parse(json);
   }
   return mpDecodeLegacy(raw);
@@ -10605,7 +10624,7 @@ function mpClosePeer(silent){
 	  mpSetStartEnabled();
 	  if (!silent){
     MP_STATE.status = 'idle';
-    mpSetStatus('Канал сброшен. Можно создать новый invite.', 'warn');
+    mpSetStatus('Связь сброшена. Можно создать новую игру.', 'warn');
     mpLog('Канал сброшен.');
   }
 }
@@ -10633,9 +10652,9 @@ function mpBindPeer(pc){
     mpLog('PeerConnection: ' + st);
     if (st === 'connected'){
       MP_STATE.status = 'connected';
-      mpSetStatus('WebRTC соединение установлено. Тестовый канал готовится/работает.', 'ok');
+      mpSetStatus('Соединение установлено. Жду готовности канала.', 'ok');
     } else if (st === 'failed' || st === 'disconnected'){
-      mpSetStatus('WebRTC соединение просело: ' + st + '. Можно попробовать заново обменяться кодами.', 'bad');
+      mpSetStatus('Связь просела. Можно попробовать заново обменяться кодами.', 'bad');
     }
   };
   pc.oniceconnectionstatechange = () => {
@@ -10648,7 +10667,7 @@ function mpBindDataChannel(dc){
 	    MP_STATE.status = 'connected';
 	    mpSetPingEnabled(true);
 	    mpSetStartEnabled();
-	    mpSetStatus('DataChannel открыт. Тестовые сообщения уже можно отправлять.', 'ok');
+	    mpSetStatus('Связь открыта. Создатель игры может начать матч.', 'ok');
     mpLog('DataChannel открыт.');
     mpSendNet({ type:'hello', roomId:MP_STATE.roomId, role:MP_STATE.role, build:CARD_ARENA_BUILD });
   };
@@ -10658,13 +10677,13 @@ function mpBindDataChannel(dc){
 	    mpLog('DataChannel закрыт.');
 	  };
   dc.onerror = () => {
-    mpSetStatus('Ошибка DataChannel. Попробуй новый invite.', 'bad');
+    mpSetStatus('Ошибка связи. Попробуй создать игру заново.', 'bad');
     mpLog('DataChannel error.');
   };
   dc.onmessage = ev => mpHandleNetMessage(ev.data);
 }
 function mpCreatePeer(){
-  if (!mpRtcSupported()) throw new Error('Этот браузер не поддерживает RTCPeerConnection.');
+  if (!mpRtcSupported()) throw new Error('Этот браузер не поддерживает прямое соединение.');
   mpClosePeer(true);
   const pc = new RTCPeerConnection(mpRtcConfig());
   MP_STATE.pc = pc;
@@ -10674,7 +10693,7 @@ function mpCreatePeer(){
 function mpSendNet(msg){
   const dc = MP_STATE.dc;
   if (!dc || dc.readyState !== 'open'){
-    if (msg && msg.type !== 'intent') mpSetStatus('Канал ещё не открыт.', 'warn');
+    if (msg && msg.type !== 'intent') mpSetStatus('Связь ещё не открыта.', 'warn');
     return false;
   }
   dc.send(JSON.stringify(Object.assign({ sentAt:Date.now() }, msg)));
@@ -10686,7 +10705,7 @@ function mpHandleNetMessage(raw){
   try { msg = JSON.parse(raw); } catch(e){ mpLog('← raw: ' + String(raw).slice(0, 80)); return; }
   if (msg.type !== 'intent') mpLog('← ' + (msg.type || 'message'));
   if (msg.type === 'hello'){
-    mpSetStatus(`Связь живая: ${msg.role || 'peer'} на версии ${msg.build || '?'}.`, 'ok');
+    mpSetStatus('Связь живая. Можно готовиться к матчу.', 'ok');
     return;
   }
   if (msg.type === 'intent'){
@@ -10707,7 +10726,7 @@ function mpHandleNetMessage(raw){
 	    return;
 	  }
 	  if (msg.type === 'match.ready'){
-	    mpSetStatus(`Друг вошёл в матч (${msg.seat || 'peer'}).`, 'ok');
+	    mpSetStatus('Друг вошёл в матч.', 'ok');
 	    return;
 	  }
 	  if (msg.type === 'state.snapshot'){
@@ -10736,7 +10755,7 @@ function mpPayloadBase(kind){
 }
 function mpValidatePeer(payload, expectedKind){
   if (!payload || payload.kind !== expectedKind) throw new Error('Это не тот тип кода.');
-  if (payload.protocol !== MP_PROTOCOL_VERSION) throw new Error('Разная версия мультиплеер-протокола.');
+  if (payload.protocol !== MP_PROTOCOL_VERSION) throw new Error('Разные версии мультиплеера. Обновитесь оба и попробуйте снова.');
   const localCardHash = mpCardDbHash();
   if (payload.cardDbHash !== localCardHash)
     throw new Error(`Разная база карт. У друга ${payload.cardDbHash || '?'}, у тебя ${localCardHash}. Нужно обновить страницу у обоих игроков.`);
@@ -10798,8 +10817,8 @@ function mpMatchPlayer(match, seat){
   return match && match.players ? match.players[seat] : null;
 }
 function mpMakeMatch(){
-  if (MP_STATE.role !== 'host') throw new Error('Матч запускает host.');
-  if (!MP_STATE.local || !MP_STATE.remote || !MP_STATE.remote.player) throw new Error('Сначала нужен answer от друга.');
+  if (MP_STATE.role !== 'host') throw new Error('Матч запускает создатель игры.');
+  if (!MP_STATE.local || !MP_STATE.remote || !MP_STATE.remote.player) throw new Error('Сначала нужен ответный код от друга.');
   const seed = mpHashString(`${MP_STATE.roomId}|${Date.now()}|${JSON.stringify(MP_STATE.local.deck)}|${JSON.stringify(MP_STATE.remote.player.deck)}`);
   const coin = mpSeededRandom(seed)();
   return {
@@ -11254,7 +11273,7 @@ function mpApplyRemoteSnapshot(snap){
     stopTimer();
   }
 	  MP_STATE.applyingRemote = false;
-	  mpSetStatus(`Состояние получено: ${snap.action || 'ход'} #${snap.seq || 0}${snap.checksum ? ' · ' + snap.checksum : ''}.`, 'ok');
+	  mpSetStatus('Ход друга применён. Состояние синхронизировано.', 'ok');
 	}
 function mpLaunchMatch(match){
   if (!match || !match.decks || !match.players) throw new Error('Некорректный пакет матча.');
@@ -11302,7 +11321,7 @@ function mpLaunchMatch(match){
     stopTimer();
   }
   sfx.gong();
-  mpSetMatchInfo(`Матч ${match.id}: ты ${localSeat}, первый ход — ${match.firstSeat}. Seed ${match.seed}.`);
+  mpSetMatchInfo(match.firstSeat === localSeat ? 'Матч начался. Первый ход твой.' : 'Матч начался. Первый ход друга.');
 }
 function mpReceiveMatchStart(match){
   if (!match || match.roomId !== MP_STATE.roomId) throw new Error('Матч от другой комнаты.');
@@ -11312,8 +11331,8 @@ function mpReceiveMatchStart(match){
 }
 function mpStartMatch(){
   try{
-    if (MP_STATE.role !== 'host') throw new Error('Стартовать может только host.');
-    if (!MP_STATE.remote) throw new Error('Сначала прими answer друга.');
+    if (MP_STATE.role !== 'host') throw new Error('Стартовать может только создатель игры.');
+    if (!MP_STATE.remote) throw new Error('Сначала вставь ответный код друга.');
     const match = mpMakeMatch();
     if (!mpSendNet({ type:'match.start', roomId:MP_STATE.roomId, match })) throw new Error('Канал ещё не открыт.');
     mpLaunchMatch(match);
@@ -11341,7 +11360,7 @@ async function mpCreateInvite(){
 	    MP_STATE.actionLog = [];
 	    MP_STATE.netLog = [];
 	    if ($('mpNetLog')) $('mpNetLog').textContent = '';
-	    mpSetMatchInfo('Invite создан. Жду answer друга, потом можно стартовать матч.');
+	    mpSetMatchInfo('Код создан. Отправь его другу, потом вставь ответный код сюда.');
 	    mpSetStartEnabled();
     let payload = Object.assign(mpPayloadBase('cardArena.mp.offer'), {
       role: 'host',
@@ -11354,23 +11373,23 @@ async function mpCreateInvite(){
       mpBindDataChannel(dc);
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      mpSetStatus('Собираю WebRTC-кандидаты для invite...', 'warn');
+      mpSetStatus('Готовлю код для прямого соединения...', 'warn');
       mpLog('Создаю offer и собираю ICE.');
       await mpWaitIceComplete(pc, 9000);
       payload.sdp = pc.localDescription ? { type:pc.localDescription.type, sdp:pc.localDescription.sdp } : offer;
       payload.iceGatheringState = pc.iceGatheringState;
     }
-    await mpWriteCodeOut(payload, 'INVITE');
-    mpSetStatus(`Invite создан. Отправь код другу. Комната ${MP_STATE.roomId}; ты host-арбитр.`, 'ok');
+    await mpWriteCodeOut(payload, 'Код для друга');
+    mpSetStatus(`Код игры создан. Отправь его другу. Комната ${MP_STATE.roomId}.`, 'ok');
     mpLog('Invite готов для отправки.');
   }catch(e){
-    mpSetStatus('Не удалось создать invite: ' + (e.message || e), 'bad');
+    mpSetStatus('Не удалось создать игру: ' + (e.message || e), 'bad');
     mpLog('Ошибка invite: ' + (e.message || e));
   }
 }
-async function mpAcceptInvite(){
+async function mpAcceptInvite(decodedOffer){
   try{
-	    const offer = await mpDecode($('mpCodeIn').value);
+	    const offer = decodedOffer || await mpDecode($('mpCodeIn').value);
 	    const peerCheck = mpValidatePeer(offer, 'cardArena.mp.offer');
     MP_STATE.role = 'guest';
     MP_STATE.roomId = offer.roomId;
@@ -11388,7 +11407,7 @@ async function mpAcceptInvite(){
 	    MP_STATE.actionLog = [];
 	    MP_STATE.netLog = [];
 	    if ($('mpNetLog')) $('mpNetLog').textContent = '';
-	    mpSetMatchInfo('Answer создан. Отправь его host-игроку и жди старта матча.');
+	    mpSetMatchInfo('Ответный код создан. Отправь его создателю игры и жди старта матча.');
 	    mpSetStartEnabled();
     let answer = Object.assign(mpPayloadBase('cardArena.mp.answer'), {
       roomId: offer.roomId,
@@ -11397,7 +11416,7 @@ async function mpAcceptInvite(){
       acceptedOfferAt: offer.createdAt
     });
     if (MP_STATE.transport === 'webrtc'){
-      if (!offer.sdp) throw new Error('В invite нет WebRTC offer. Создай invite заново с транспортом WebRTC.');
+      if (!offer.sdp) throw new Error('В коде нет данных прямого соединения. Пусть друг создаст игру заново.');
       const pc = mpCreatePeer();
       pc.ondatachannel = ev => {
         mpLog('Получен DataChannel от host.');
@@ -11406,28 +11425,28 @@ async function mpAcceptInvite(){
       await pc.setRemoteDescription(new RTCSessionDescription(offer.sdp));
       const answerDesc = await pc.createAnswer();
       await pc.setLocalDescription(answerDesc);
-      mpSetStatus('Собираю WebRTC-кандидаты для answer...', 'warn');
+      mpSetStatus('Готовлю ответный код...', 'warn');
       mpLog('Принял offer, создаю answer и собираю ICE.');
       await mpWaitIceComplete(pc, 9000);
       answer.sdp = pc.localDescription ? { type:pc.localDescription.type, sdp:pc.localDescription.sdp } : answerDesc;
       answer.iceGatheringState = pc.iceGatheringState;
     }
-    await mpWriteCodeOut(answer, 'ANSWER');
-	    mpSetStatus(`Invite принят: ${mpDescribePeer(offer)}. Отправь answer-код host-игроку.${peerCheck.buildMismatch ? ' HTML-кэш отличается, но база карт совпала.' : ''}`, 'ok');
+    await mpWriteCodeOut(answer, 'Ответный код');
+	    mpSetStatus(`Код принят: ${mpDescribePeer(offer)}. Отправь появившийся ответный код создателю игры.${peerCheck.buildMismatch ? ' Версии HTML разные, но карты совпали.' : ''}`, 'ok');
     mpLog('Answer готов для отправки host.');
   }catch(e){
-    mpSetStatus('Не удалось принять invite: ' + (e.message || e), 'bad');
+    mpSetStatus('Не удалось принять код: ' + (e.message || e), 'bad');
     mpLog('Ошибка invite: ' + (e.message || e));
   }
 }
-async function mpAcceptAnswer(){
+async function mpAcceptAnswer(decodedAnswer){
   try{
-	    const answer = await mpDecode($('mpCodeIn').value);
+	    const answer = decodedAnswer || await mpDecode($('mpCodeIn').value);
 	    const peerCheck = mpValidatePeer(answer, 'cardArena.mp.answer');
     if (MP_STATE.role !== 'host' || !MP_STATE.roomId)
-      throw new Error('Сначала создай invite как host.');
+      throw new Error('Сначала нажми «Создать игру», отправь код другу и дождись ответного кода.');
     if (answer.roomId !== MP_STATE.roomId)
-      throw new Error('Answer от другой комнаты.');
+      throw new Error('Этот ответный код от другой комнаты.');
 	    MP_STATE.remote = answer;
 	    MP_STATE.status = 'paired';
 	    MP_STATE.match = null;
@@ -11439,29 +11458,48 @@ async function mpAcceptAnswer(){
 	    MP_STATE.intentLastKey = '';
 	    MP_STATE.remoteIntentKey = '';
 	    mpSetStartEnabled();
-	    mpSetMatchInfo('Answer принят. Когда DataChannel откроется, host сможет начать матч.');
+	    mpSetMatchInfo('Ответный код принят. Когда связь откроется, можно начинать матч.');
     if (MP_STATE.transport === 'webrtc'){
-      if (!answer.sdp) throw new Error('В answer нет WebRTC SDP.');
-      if (!MP_STATE.pc) throw new Error('Локальный WebRTC peer не найден. Создай invite заново.');
+      if (!answer.sdp) throw new Error('В ответном коде нет данных прямого соединения.');
+      if (!MP_STATE.pc) throw new Error('Локальное соединение потеряно. Создай игру заново.');
       await MP_STATE.pc.setRemoteDescription(new RTCSessionDescription(answer.sdp));
-	      mpSetStatus(`Answer принят: ${mpDescribePeer(answer)}. Жду открытия DataChannel...${peerCheck.buildMismatch ? ' HTML-кэш отличается, но база карт совпала.' : ''}`, 'ok');
+	      mpSetStatus(`Ответный код принят: ${mpDescribePeer(answer)}. Жду открытия связи...${peerCheck.buildMismatch ? ' Версии HTML разные, но карты совпали.' : ''}`, 'ok');
       mpLog('Remote answer установлен. Ждём connected/open.');
     } else {
-      mpSetStatus(`Связка готова: ${mpDescribePeer(answer)}. Следующий шаг — подключить выбранный транспорт.`, 'ok');
+      mpSetStatus(`Связь готова: ${mpDescribePeer(answer)}. Можно начинать матч.`, 'ok');
     }
   }catch(e){
-    mpSetStatus('Не удалось принять answer: ' + (e.message || e), 'bad');
+    mpSetStatus('Не удалось принять ответный код: ' + (e.message || e), 'bad');
     mpLog('Ошибка answer: ' + (e.message || e));
+  }
+}
+async function mpAcceptIncoming(){
+  try{
+    const raw = $('mpCodeIn').value.trim();
+    if (!raw){ mpSetStatus('Вставь код друга в поле сверху.', 'warn'); return; }
+    const payload = await mpDecode(raw);
+    if (payload.kind === 'cardArena.mp.offer'){
+      await mpAcceptInvite(payload);
+      return;
+    }
+    if (payload.kind === 'cardArena.mp.answer'){
+      await mpAcceptAnswer(payload);
+      return;
+    }
+    mpSetStatus('Не понял этот код. Попроси друга скопировать код ещё раз.', 'bad');
+  }catch(e){
+    mpSetStatus('Не удалось прочитать код: ' + (e.message || e), 'bad');
+    mpLog('Ошибка чтения кода: ' + (e.message || e));
   }
 }
 async function mpCopyCode(){
   const code = $('mpCodeOut').value.trim();
   if (!code){ mpSetStatus('Сначала создай код.', 'warn'); return; }
-  let label = 'код мультиплеера';
+  let label = 'код для игры';
   try{
     const payload = await mpDecode(code);
-    if (payload.kind === 'cardArena.mp.offer') label = 'INVITE';
-    if (payload.kind === 'cardArena.mp.answer') label = 'ANSWER';
+    if (payload.kind === 'cardArena.mp.offer') label = 'код для входа в игру';
+    if (payload.kind === 'cardArena.mp.answer') label = 'ответный код';
   }catch(e){}
   const text = `Карточная Арена · ${label}
 Открой свежую версию: ${freshGameUrl(false)}
@@ -11470,7 +11508,7 @@ async function mpCopyCode(){
 ${code}`;
   try{
     await copyTextSmart(text);
-    mpSetStatus('Код и свежая ссылка скопированы. Кинь это другу в Telegram/Discord.', 'ok');
+    mpSetStatus('Код и свежая ссылка скопированы. Отправь это другу.', 'ok');
   }catch(e){
     $('mpCodeOut').focus();
     $('mpCodeOut').select();
@@ -11482,20 +11520,20 @@ async function copyFreshLink(){
   const link = freshGameUrl(false);
   await copyTextSmart(link);
   if ($('setBuildInfo')) $('setBuildInfo').textContent = `Ссылка скопирована · ${CARD_ARENA_BUILD}`;
-  mpSetStatus('Свежая ссылка версии скопирована.', 'ok');
+  mpSetStatus('Ссылка на свежую версию скопирована.', 'ok');
 }
 function mpSendPing(){
   if (mpSendNet({ type:'ping', pingAt:Date.now(), roomId:MP_STATE.roomId })){
-    mpSetStatus('Тестовое сообщение отправлено. Жду pong от друга...', 'warn');
+    mpSetStatus('Проверяю связь. Жду ответ от друга...', 'warn');
   }
 }
 function openMultiplayer(){
   showScreen('multiplayer');
   MP_STATE.local = mpLocalSnapshot();
-  mpSetStatus(`Готово. Твоя версия ${CARD_ARENA_BUILD}, база карт ${MP_STATE.local.cardDbHash}.`, 'ok');
+  mpSetStatus('Готово. Создай игру или вставь код друга.', 'ok');
   $('mpCodeIn').value = '';
   $('mpCodeOut').value = '';
-  mpSetCodeMeta('Код ещё не создан. CA2 сжимает WebRTC-пакет, а старый формат остаётся запасным.');
+  mpSetCodeMeta('Создай игру или вставь код друга — здесь появится следующий код.');
   MP_STATE.lastPayload = null;
   MP_STATE.lastCodeLabel = '';
   MP_STATE.lastCodeInfo = null;
@@ -11503,7 +11541,7 @@ function openMultiplayer(){
 	  mpSetPingEnabled(!!(MP_STATE.dc && MP_STATE.dc.readyState === 'open'));
 	  mpSetStartEnabled();
 	  updateFreshLinkUi();
-	  mpSetMatchInfo(MP_STATE.match ? `Матч готов: ${MP_STATE.match.id}` : 'Матч ещё не запущен. Сначала соединись с другом через invite/answer.');
+	  mpSetMatchInfo(MP_STATE.match ? `Матч готов: ${MP_STATE.match.id}` : 'Матч ещё не запущен.');
 	}
 
 /* ================== ЭКРАНЫ / СТАРТ ================== */
@@ -12405,7 +12443,7 @@ $('btnPlay').addEventListener('click', openHeroSelect);
 $('btnMultiplayer').addEventListener('click', () => { sfx.click(); openMultiplayer(); });
 $('mpBack').addEventListener('click', () => { sfx.click(); showScreen('menu'); renderMenu(); });
 $('mpCreateInvite').addEventListener('click', () => { sfx.click(); mpCreateInvite(); });
-$('mpAcceptInvite').addEventListener('click', () => { sfx.click(); mpAcceptInvite(); });
+$('mpAcceptInvite').addEventListener('click', () => { sfx.click(); mpAcceptIncoming(); });
 	$('mpAcceptAnswer').addEventListener('click', () => { sfx.click(); mpAcceptAnswer(); });
 	$('mpCopyCode').addEventListener('click', () => { sfx.click(); mpCopyCode(); });
 	$('mpLegacyCode').addEventListener('click', () => { sfx.click(); mpShowLegacyCode(); });
@@ -12418,11 +12456,11 @@ $('mpClearCode').addEventListener('click', () => {
   sfx.click();
   $('mpCodeIn').value = '';
   $('mpCodeOut').value = '';
-  mpSetCodeMeta('Код ещё не создан. CA2 сжимает WebRTC-пакет, а старый формат остаётся запасным.');
+  mpSetCodeMeta('Создай игру или вставь код друга — здесь появится следующий код.');
   MP_STATE.lastPayload = null;
   MP_STATE.lastCodeLabel = '';
   MP_STATE.lastCodeInfo = null;
-  mpSetStatus('Поля очищены. Можно создать новый invite или вставить код друга.', 'warn');
+  mpSetStatus('Поля очищены. Можно создать игру или вставить код друга.', 'warn');
 });
 $('againBtn').addEventListener('click', () => openMatchmaking(SAVE.hero));
 $('toMenuBtn').addEventListener('click', () => {
@@ -12456,7 +12494,7 @@ function endGame(winner){
 	    }
 	    mergeMatchImpact(winner);
 	    storeSave();
-	    $('resultReward').textContent = 'Дружеский матч: рейтинг, золото и паки не начисляются. Состояние боя синхронизировано через P2P.';
+	    $('resultReward').textContent = 'Дружеский матч: рейтинг, золото и паки не начисляются. Состояние боя синхронизировано через прямое соединение.';
 	    $('againBtn').style.display = 'none';
 	    $('toMenuBtn').textContent = 'В МЕНЮ';
 	    $('toMenuBtn').dataset.dest = 'menu';
