@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-10-mp-intent-fx';
+    var build = '2026-07-10-mp-compressed-ui';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -2599,12 +2599,26 @@
   .mp-title{font-size:24px;color:var(--gold-bright);letter-spacing:3px;text-shadow:0 2px 6px #000;}
   .mp-sub{font-size:12px;color:#a08c60;line-height:1.35;margin-top:3px;}
   .mp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .mp-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px;}
+  .mp-step{
+    min-height:52px;padding:9px 10px;border:1.5px solid rgba(107,81,36,.82);border-radius:11px;
+    background:linear-gradient(180deg,rgba(55,38,15,.86),rgba(18,11,5,.86));
+    display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;
+  }
+  .mp-step b{
+    width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 35% 30%,#6ea8dc,#24517e);color:#fff;text-shadow:0 1px 2px #000;
+    box-shadow:0 0 0 2px #102b42;
+  }
+  .mp-step strong{display:block;color:var(--gold-bright);font-size:11px;letter-spacing:.8px;}
+  .mp-step span{display:block;color:#a08c60;font-size:9.5px;line-height:1.25;margin-top:2px;}
   .mp-card{
     min-width:0;padding:14px;border:2px solid #6b5124;border-radius:12px;
     background:linear-gradient(180deg,rgba(36,25,10,.95),rgba(18,11,5,.95));
     box-shadow:inset 0 0 18px rgba(0,0,0,.38);
   }
   .mp-card h3{font-size:15px;color:var(--gold-bright);letter-spacing:1px;margin-bottom:7px;}
+  .mp-card h3 small{display:block;color:#8fa8c4;font-size:9px;letter-spacing:.3px;margin-top:2px;font-weight:normal;}
   .mp-card p{font-size:11px;color:#a08c60;line-height:1.35;margin-bottom:10px;}
   .mp-card label{display:flex;flex-direction:column;gap:5px;font-size:11px;color:#d8c8a2;margin-bottom:10px;}
   .mp-card select,.mp-card textarea{
@@ -2612,6 +2626,18 @@
     background:#120b05;border:2px solid #6b5124;border-radius:9px;padding:8px 10px;outline:none;
   }
   .mp-card textarea{min-height:112px;resize:vertical;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:10.5px;line-height:1.35;}
+  .mp-code-out{min-height:92px!important;}
+  .mp-code-in{min-height:92px!important;}
+  .mp-code-meta{
+    margin:8px 0 0;padding:7px 9px;border:1px solid rgba(90,130,180,.62);border-radius:8px;
+    background:rgba(15,36,54,.34);color:#bdd8f0;font-size:10.5px;line-height:1.35;
+  }
+  .mp-code-meta b{color:#f0d080;}
+  .mp-role-note{
+    display:flex;gap:7px;align-items:flex-start;margin-top:8px;
+    color:#a08c60;font-size:10px;line-height:1.32;
+  }
+  .mp-role-note i{font-style:normal;color:#f0d080;}
   .mp-wide{grid-column:1 / -1;}
   .mp-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center;}
   .mp-actions .btn,.mp-card>.btn{font-size:12px;padding:8px 12px;}
@@ -2679,6 +2705,11 @@
     .mp-head{gap:8px;margin-bottom:8px;}
     .mp-title{font-size:16px;letter-spacing:1.5px;}
     .mp-sub{font-size:9.5px;}
+    .mp-flow{grid-template-columns:1fr;gap:5px;margin-bottom:7px;}
+    .mp-step{min-height:0;padding:6px 7px;border-radius:8px;grid-template-columns:auto 1fr;}
+    .mp-step b{width:21px;height:21px;font-size:10px;}
+    .mp-step strong{font-size:9px;}
+    .mp-step span{font-size:8px;}
     .mp-grid{grid-template-columns:1fr;gap:7px;}
     .mp-wide{grid-column:auto;}
     .mp-card{padding:9px;border-radius:10px;border-width:1.5px;}
@@ -3606,10 +3637,15 @@
         <div class="mp-sub">База под WebRTC, ручные коды и будущий сервер. Host ведёт случайности, ход боя и снимки состояния.</div>
       </div>
     </div>
+    <div class="mp-flow">
+      <div class="mp-step"><b>1</b><div><strong>Выбери роль</strong><span>один создаёт invite, второй отвечает answer</span></div></div>
+      <div class="mp-step"><b>2</b><div><strong>Обменяйтесь кодами</strong><span>короткий CA2, старый формат оставлен запасным</span></div></div>
+      <div class="mp-step"><b>3</b><div><strong>Host запускает матч</strong><span>после открытия канала нажми старт</span></div></div>
+    </div>
     <div class="mp-grid">
       <section class="mp-card">
-        <h3>1. Создать матч</h3>
-        <p>Ты становишься host: твой браузер будет арбитром случайностей, цепочек эффектов и итогового состояния.</p>
+        <h3>Я создаю комнату <small>первый игрок / host</small></h3>
+        <p>Нажми один раз, отправь появившийся invite другу. После его answer именно ты запускаешь матч.</p>
         <label>Транспорт
           <select id="mpTransport">
             <option value="webrtc">WebRTC P2P</option>
@@ -3617,32 +3653,36 @@
             <option value="manual">Коды вручную</option>
           </select>
         </label>
-        <button class="btn" id="mpCreateInvite">СОЗДАТЬ ПРИГЛАШЕНИЕ</button>
+        <button class="btn" id="mpCreateInvite">СОЗДАТЬ INVITE</button>
+        <div class="mp-role-note"><i>Host</i><span>у host будет кнопка «Начать матч», когда канал откроется.</span></div>
       </section>
       <section class="mp-card">
-        <h3>2. Принять код друга</h3>
-        <p>Если друг прислал invite — вставь его сюда. Игра проверит версию, карты и соберёт ответ.</p>
-        <textarea id="mpCodeIn" placeholder="Вставь invite или answer-код..."></textarea>
+        <h3>Мне прислали код <small>второй шаг обмена</small></h3>
+        <p>Вставь код друга. Если это invite — ты подключаешься и получаешь answer. Если это answer — ты host и завершаешь связку.</p>
+        <textarea id="mpCodeIn" class="mp-code-in" placeholder="Вставь сюда CA2-код или старый длинный код..."></textarea>
         <div class="mp-actions">
-          <button class="btn stone" id="mpAcceptInvite">ПРИНЯТЬ INVITE</button>
-          <button class="btn stone" id="mpAcceptAnswer">ПРИНЯТЬ ANSWER</button>
+          <button class="btn stone" id="mpAcceptInvite">ЭТО INVITE — СОЗДАТЬ ANSWER</button>
+          <button class="btn stone" id="mpAcceptAnswer">ЭТО ANSWER — ЗАВЕРШИТЬ</button>
         </div>
       </section>
       <section class="mp-card mp-wide">
-        <h3>Код для отправки</h3>
-        <textarea id="mpCodeOut" readonly placeholder="Здесь появится invite/answer код."></textarea>
+        <h3>Отправь этот код другу <small>короткий формат CA2 включается автоматически</small></h3>
+        <textarea id="mpCodeOut" class="mp-code-out" readonly placeholder="Здесь появится invite или answer."></textarea>
+        <div class="mp-code-meta" id="mpCodeMeta">Код ещё не создан. CA2 сжимает WebRTC-пакет, а старый формат остаётся запасным.</div>
         <div class="mp-actions">
-          <button class="btn stone" id="mpCopyCode">СКОПИРОВАТЬ</button>
+          <button class="btn stone" id="mpCopyCode">СКОПИРОВАТЬ ДРУГУ</button>
+          <button class="btn stone" id="mpLegacyCode">СТАРЫЙ КОД</button>
           <button class="btn stone" id="mpClearCode">ОЧИСТИТЬ</button>
         </div>
       </section>
       <section class="mp-card mp-wide">
-        <h3>Статус протокола</h3>
+        <h3>Связь и старт матча</h3>
         <div class="mp-status" id="mpStatus">Мультиплеер готов как заготовка. Создай invite или вставь код друга.</div>
         <div class="mp-protocol">
           <b>Заложено сейчас:</b>
           <span>host-authoritative матч</span>
           <span>проверка версии и базы карт</span>
+          <span>сжатые CA2-коды + legacy fallback</span>
           <span>снимок колоды/героя</span>
           <span>WebRTC DataChannel</span>
           <span>живые намерения и подсвет целей</span>
@@ -3766,7 +3806,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-10-mp-intent-fx';
+const CARD_ARENA_BUILD = '2026-07-10-mp-compressed-ui';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -10174,10 +10214,9 @@ $('mmCancel').addEventListener('click', () => {
   renderMenu();
 });
 
-/* ================== МУЛЬТИПЛЕЕР: БАЗОВЫЙ ПРОТОКОЛ ==================
-   Это пока не сетевой бой, а безопасный фундамент:
-   handshake, роли, снимок колоды/героя, проверка версии и место под транспорты.
-   Боевой цикл startGame/aiTurn не меняется. */
+/* ================== МУЛЬТИПЛЕЕР: WEBRTC + CA2 ==================
+   Host-authoritative матч: WebRTC-канал, сжатые коды обмена,
+   живые intent-подсветки и контрольные снимки состояния. */
 const MP_PROTOCOL_VERSION = 1;
 const MP_STATE = {
   role: null,
@@ -10199,6 +10238,9 @@ const MP_STATE = {
 	  intentLastAt: 0,
 	  remoteIntentKey: '',
 	  remoteIntentTimer: null,
+	  lastPayload: null,
+	  lastCodeLabel: '',
+	  lastCodeInfo: null,
 	  netLog: [],
 	  actionLog: []
 	};
@@ -10245,9 +10287,176 @@ function mpCardDbHash(){
   });
   return mpHashString(JSON.stringify(slim));
 }
-function mpEncode(obj){
+const MP_CODE_PREFIX = 'CA2.';
+function mpEncodeLegacy(obj){
   const json = JSON.stringify(obj);
   return btoa(unescape(encodeURIComponent(json)));
+}
+function mpDecodeLegacy(raw){
+  return JSON.parse(decodeURIComponent(escape(atob(raw))));
+}
+function mpBytesToBase64Url(bytes){
+  let bin = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk){
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  }
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+function mpBase64UrlToBytes(str){
+  const b64 = String(str || '').replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(str.length / 4) * 4, '=');
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+function mpUtf8Bytes(text){
+  return new TextEncoder().encode(text);
+}
+function mpUtf8Text(bytes){
+  return new TextDecoder().decode(bytes);
+}
+function mpCodesToBytes(codes){
+  const out = new Uint8Array(codes.length * 2);
+  const view = new DataView(out.buffer);
+  for (let i = 0; i < codes.length; i++){
+    if (codes[i] > 65535) throw new Error('CA2 dictionary too large');
+    view.setUint16(i * 2, codes[i], true);
+  }
+  return out;
+}
+function mpBytesToCodes(bytes){
+  if (bytes.length % 2) throw new Error('CA2 body length is odd');
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const out = [];
+  for (let i = 0; i < bytes.length; i += 2) out.push(view.getUint16(i, true));
+  return out;
+}
+function mpLzwPackText(text){
+  const bytes = mpUtf8Bytes(text);
+  const dict = new Map();
+  for (let i = 0; i < 256; i++) dict.set(String(i), i);
+  const EOF = 256;
+  let next = 257;
+  let width = 9;
+  let w = '';
+  const out = [];
+  let bitBuf = 0, bitLen = 0;
+  const write = code => {
+    bitBuf |= code << bitLen;
+    bitLen += width;
+    while (bitLen >= 8){
+      out.push(bitBuf & 255);
+      bitBuf >>>= 8;
+      bitLen -= 8;
+    }
+  };
+  for (const b of bytes){
+    const c = String(b);
+    const wc = w ? w + ',' + c : c;
+    if (dict.has(wc)){
+      w = wc;
+    } else {
+      write(dict.get(w));
+      if (next < 32768){
+        dict.set(wc, next++);
+        if (next > (1 << width) && width < 15) width++;
+      }
+      w = c;
+    }
+  }
+  if (w) write(dict.get(w));
+  write(EOF);
+  if (bitLen > 0) out.push(bitBuf & 255);
+  return new Uint8Array(out);
+}
+function mpLzwUnpackText(packed){
+  if (!packed.length) return '';
+  let offset = 0, bitBuf = 0, bitLen = 0, width = 9;
+  const read = () => {
+    while (bitLen < width && offset < packed.length){
+      bitBuf |= packed[offset++] << bitLen;
+      bitLen += 8;
+    }
+    if (bitLen < width) return null;
+    const mask = (1 << width) - 1;
+    const code = bitBuf & mask;
+    bitBuf >>>= width;
+    bitLen -= width;
+    return code;
+  };
+  const dict = [];
+  for (let i = 0; i < 256; i++) dict[i] = [i];
+  const EOF = 256;
+  dict[EOF] = null;
+  let next = 257;
+  const first = read();
+  if (first === null || first === EOF) return '';
+  let w = dict[first];
+  if (!w) throw new Error('CA2 starts with unknown code');
+  const out = w.slice();
+  while (true){
+    const k = read();
+    if (k === null || k === EOF) break;
+    let entry = dict[k];
+    if (!entry){
+      if (k === next) entry = w.concat(w[0]);
+      else throw new Error('CA2 contains unknown code');
+    }
+    out.push(...entry);
+    if (next < 32768){
+      dict[next++] = w.concat(entry[0]);
+      if (next === (1 << width) && width < 15) width++;
+    }
+    w = entry;
+  }
+  return mpUtf8Text(new Uint8Array(out));
+}
+async function mpGunzipText(bytes){
+  if (typeof DecompressionStream === 'undefined') throw new Error('DecompressionStream недоступен');
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return await new Response(stream).text();
+}
+async function mpEncode(obj){
+  const json = JSON.stringify(obj);
+  const legacy = mpEncodeLegacy(obj);
+  try{
+    const packed = mpLzwPackText(json);
+    const code = `${MP_CODE_PREFIX}${mpHashString(json)}.${mpBytesToBase64Url(packed)}`;
+    return code.length < legacy.length ? code : legacy;
+  }catch(e){
+    return legacy;
+  }
+}
+function mpCodeFormat(raw){
+  raw = String(raw || '').trim();
+  return raw.startsWith(MP_CODE_PREFIX) ? 'CA2' : 'legacy';
+}
+function mpSetCodeMeta(text){
+  const el = $('mpCodeMeta');
+  if (el) el.innerHTML = text;
+}
+async function mpWriteCodeOut(payload, label){
+  MP_STATE.lastPayload = payload;
+  MP_STATE.lastCodeLabel = label || '';
+  const legacy = mpEncodeLegacy(payload);
+  const code = await mpEncode(payload);
+  $('mpCodeOut').value = code;
+  const saved = legacy.length > code.length ? Math.round((1 - code.length / legacy.length) * 100) : 0;
+  MP_STATE.lastCodeInfo = { label, format:mpCodeFormat(code), len:code.length, legacyLen:legacy.length, saved };
+  if (code.startsWith(MP_CODE_PREFIX)){
+    mpSetCodeMeta(`<b>${label || 'Код'} · CA2</b>: ${code.length} символов, короче старого примерно на ${saved}%. Если у друга не примется — нажми «СТАРЫЙ КОД».`);
+  } else {
+    mpSetCodeMeta(`<b>${label || 'Код'} · старый формат</b>: ${code.length} символов. Браузер не сжал пакет или сжатие не дало выигрыша.`);
+  }
+}
+function mpShowLegacyCode(){
+  if (!MP_STATE.lastPayload){ mpSetStatus('Сначала создай invite или answer.', 'warn'); return; }
+  const code = mpEncodeLegacy(MP_STATE.lastPayload);
+  $('mpCodeOut').value = code;
+  MP_STATE.lastCodeInfo = { label:MP_STATE.lastCodeLabel, format:'legacy', len:code.length, legacyLen:code.length, saved:0 };
+  mpSetCodeMeta(`<b>${MP_STATE.lastCodeLabel || 'Код'} · старый формат</b>: максимальная совместимость, но код длиннее. Используй только если CA2 не принялся у друга.`);
+  mpSetStatus('Выдан старый длинный код для совместимости.', 'warn');
 }
 function freshGameUrl(force){
   try{
@@ -10263,7 +10472,10 @@ function freshGameUrl(force){
 function mpExtractCode(txt){
   const raw = String(txt || '').trim();
   if (!raw) return raw;
+  const ca2 = raw.match(/CA2\.[A-Fa-f0-9]{8}\.[A-Za-z0-9_-]{20,}/);
+  if (ca2) return ca2[0];
   const direct = raw.replace(/\s+/g, '');
+  if (/^CA2\.[A-Fa-f0-9]{8}\.[A-Za-z0-9_-]{20,}$/.test(direct)) return direct;
   if (/^[A-Za-z0-9+/=]{80,}$/.test(direct)) return direct;
   const parts = raw.split(/\s+/).map(x => x.trim()).filter(Boolean);
   for (let i = parts.length - 1; i >= 0; i--){
@@ -10271,10 +10483,25 @@ function mpExtractCode(txt){
   }
   return raw;
 }
-function mpDecode(txt){
+async function mpDecode(txt){
   const raw = mpExtractCode(txt);
   if (!raw) throw new Error('Код пустой.');
-  return JSON.parse(decodeURIComponent(escape(atob(raw))));
+  if (raw.startsWith(MP_CODE_PREFIX)){
+    const parts = raw.split('.');
+    if (parts.length !== 3 || parts[0] !== 'CA2') throw new Error('CA2-код повреждён.');
+    let json = '';
+    const body = mpBase64UrlToBytes(parts[2]);
+    try{
+      json = mpLzwUnpackText(body);
+    }catch(e){
+      try{ json = await mpGunzipText(body); }
+      catch(e2){ throw new Error('Не удалось распаковать CA2-код. Попроси друга нажать «СТАРЫЙ КОД» и прислать длинный вариант.'); }
+    }
+    const hash = mpHashString(json);
+    if (hash !== parts[1]) throw new Error('Checksum CA2 не совпал: код повреждён при копировании.');
+    return JSON.parse(json);
+  }
+  return mpDecodeLegacy(raw);
 }
 async function copyTextSmart(text){
   try{
@@ -11133,7 +11360,7 @@ async function mpCreateInvite(){
       payload.sdp = pc.localDescription ? { type:pc.localDescription.type, sdp:pc.localDescription.sdp } : offer;
       payload.iceGatheringState = pc.iceGatheringState;
     }
-    $('mpCodeOut').value = mpEncode(payload);
+    await mpWriteCodeOut(payload, 'INVITE');
     mpSetStatus(`Invite создан. Отправь код другу. Комната ${MP_STATE.roomId}; ты host-арбитр.`, 'ok');
     mpLog('Invite готов для отправки.');
   }catch(e){
@@ -11143,7 +11370,7 @@ async function mpCreateInvite(){
 }
 async function mpAcceptInvite(){
   try{
-	    const offer = mpDecode($('mpCodeIn').value);
+	    const offer = await mpDecode($('mpCodeIn').value);
 	    const peerCheck = mpValidatePeer(offer, 'cardArena.mp.offer');
     MP_STATE.role = 'guest';
     MP_STATE.roomId = offer.roomId;
@@ -11185,7 +11412,7 @@ async function mpAcceptInvite(){
       answer.sdp = pc.localDescription ? { type:pc.localDescription.type, sdp:pc.localDescription.sdp } : answerDesc;
       answer.iceGatheringState = pc.iceGatheringState;
     }
-    $('mpCodeOut').value = mpEncode(answer);
+    await mpWriteCodeOut(answer, 'ANSWER');
 	    mpSetStatus(`Invite принят: ${mpDescribePeer(offer)}. Отправь answer-код host-игроку.${peerCheck.buildMismatch ? ' HTML-кэш отличается, но база карт совпала.' : ''}`, 'ok');
     mpLog('Answer готов для отправки host.');
   }catch(e){
@@ -11195,7 +11422,7 @@ async function mpAcceptInvite(){
 }
 async function mpAcceptAnswer(){
   try{
-	    const answer = mpDecode($('mpCodeIn').value);
+	    const answer = await mpDecode($('mpCodeIn').value);
 	    const peerCheck = mpValidatePeer(answer, 'cardArena.mp.answer');
     if (MP_STATE.role !== 'host' || !MP_STATE.roomId)
       throw new Error('Сначала создай invite как host.');
@@ -11232,7 +11459,7 @@ async function mpCopyCode(){
   if (!code){ mpSetStatus('Сначала создай код.', 'warn'); return; }
   let label = 'код мультиплеера';
   try{
-    const payload = mpDecode(code);
+    const payload = await mpDecode(code);
     if (payload.kind === 'cardArena.mp.offer') label = 'INVITE';
     if (payload.kind === 'cardArena.mp.answer') label = 'ANSWER';
   }catch(e){}
@@ -11268,6 +11495,10 @@ function openMultiplayer(){
   mpSetStatus(`Готово. Твоя версия ${CARD_ARENA_BUILD}, база карт ${MP_STATE.local.cardDbHash}.`, 'ok');
   $('mpCodeIn').value = '';
   $('mpCodeOut').value = '';
+  mpSetCodeMeta('Код ещё не создан. CA2 сжимает WebRTC-пакет, а старый формат остаётся запасным.');
+  MP_STATE.lastPayload = null;
+  MP_STATE.lastCodeLabel = '';
+  MP_STATE.lastCodeInfo = null;
 	  if (!MP_STATE.netLog.length && $('mpNetLog')) $('mpNetLog').textContent = 'Канал ещё не создан.';
 	  mpSetPingEnabled(!!(MP_STATE.dc && MP_STATE.dc.readyState === 'open'));
 	  mpSetStartEnabled();
@@ -12177,6 +12408,7 @@ $('mpCreateInvite').addEventListener('click', () => { sfx.click(); mpCreateInvit
 $('mpAcceptInvite').addEventListener('click', () => { sfx.click(); mpAcceptInvite(); });
 	$('mpAcceptAnswer').addEventListener('click', () => { sfx.click(); mpAcceptAnswer(); });
 	$('mpCopyCode').addEventListener('click', () => { sfx.click(); mpCopyCode(); });
+	$('mpLegacyCode').addEventListener('click', () => { sfx.click(); mpShowLegacyCode(); });
 	$('mpSendPing').addEventListener('click', () => { sfx.click(); mpSendPing(); });
 	$('mpStartMatch').addEventListener('click', () => { sfx.click(); mpStartMatch(); });
 	$('mpCopyFreshLink').addEventListener('click', async () => { sfx.click(); await copyFreshLink(); });
@@ -12186,6 +12418,10 @@ $('mpClearCode').addEventListener('click', () => {
   sfx.click();
   $('mpCodeIn').value = '';
   $('mpCodeOut').value = '';
+  mpSetCodeMeta('Код ещё не создан. CA2 сжимает WebRTC-пакет, а старый формат остаётся запасным.');
+  MP_STATE.lastPayload = null;
+  MP_STATE.lastCodeLabel = '';
+  MP_STATE.lastCodeInfo = null;
   mpSetStatus('Поля очищены. Можно создать новый invite или вставить код друга.', 'warn');
 });
 $('againBtn').addEventListener('click', () => openMatchmaking(SAVE.hero));
