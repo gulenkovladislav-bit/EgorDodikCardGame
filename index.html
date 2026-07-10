@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-10-mp-simple-flow';
+    var build = '2026-07-10-mp-shared-vfx';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -3818,7 +3818,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-10-mp-simple-flow';
+const CARD_ARENA_BUILD = '2026-07-10-mp-shared-vfx';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -10228,7 +10228,7 @@ $('mmCancel').addEventListener('click', () => {
 
 /* ================== МУЛЬТИПЛЕЕР: WEBRTC + CA2 ==================
    Host-authoritative матч: WebRTC-канал, сжатые коды обмена,
-   живые intent-подсветки и контрольные снимки состояния. */
+   общие VFX обычной игры, живые подсветки и контрольные снимки состояния. */
 const MP_PROTOCOL_VERSION = 1;
 const MP_STATE = {
   role: null,
@@ -10243,6 +10243,8 @@ const MP_STATE = {
 	  seq: 0,
 	  remoteSeq: 0,
 	  applyingRemote: false,
+	  remoteFxQueue: [],
+	  remoteFxPlaying: false,
 	  journal: [],
 	  lastSummary: null,
 	  intentSeq: 0,
@@ -10569,6 +10571,7 @@ function mpLocalSnapshot(){
 	    deck,
 	    deckCount: deckTotal(deck),
 	    back: SAVE.back || 'default',
+	    fxActive: fxActiveList(),
 	    rating: SAVE.rating || 0,
     build: CARD_ARENA_BUILD,
     cardDbHash: mpCardDbHash()
@@ -10594,6 +10597,10 @@ function mpSetMatchInfo(text){
   const el = $('mpMatchInfo');
   if (el) el.textContent = text;
 }
+function mpResetRemoteFxQueue(){
+  MP_STATE.remoteFxQueue = [];
+  MP_STATE.remoteFxPlaying = false;
+}
 function mpLog(line){
   const stamp = new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
   MP_STATE.netLog.push(`[${stamp}] ${line}`);
@@ -10618,6 +10625,7 @@ function mpClosePeer(silent){
   try { if (MP_STATE.dc) MP_STATE.dc.close(); } catch(e){}
   try { if (MP_STATE.pc) MP_STATE.pc.close(); } catch(e){}
 	  mpRemoveIntentOverlays();
+	  mpResetRemoteFxQueue();
 	  MP_STATE.pc = null;
 	  MP_STATE.dc = null;
 	  mpSetPingEnabled(false);
@@ -11207,6 +11215,211 @@ function mpRemoteSnapshotCue(snap){
   toast.classList.add('show');
   mpClearRemoteIntent(650);
 }
+function mpActionCardId(action, meta){
+  if (meta && meta.cardId) return meta.cardId;
+  const m = String(action || '').match(/^play:[^:]+:(.+)$/);
+  return m ? m[1] : null;
+}
+function mpActualTargetFromRemoteDesc(desc){
+  if (!G || !desc) return null;
+  const side = mpRemoteSide(desc.side);
+  if (desc.kind === 'hero' && side) return { kind:'hero', side };
+  if (desc.kind === 'board' && side) return { kind:'board', side };
+  if (desc.kind === 'minion' && side){
+    const minion = (side.board || []).find(m => m.uid === desc.uid)
+      || (side.board || []).find(m => m.cardId === desc.cardId);
+    return minion ? { kind:'minion', side, minion } : null;
+  }
+  return null;
+}
+function mpPointForRemoteDesc(desc, fallbackEl){
+  const el = mpElementForRemoteDesc(desc);
+  if (el) return safeCenter(el, $('board'));
+  const target = mpActualTargetFromRemoteDesc(desc);
+  if (target && target.kind === 'board') return safeCenter(boardElForSide(target.side), $('board'));
+  if (target && target.kind === 'hero') return safeCenter(heroEl(target.side), $('board'));
+  return safeCenter(fallbackEl || $('board'), $('board'));
+}
+function mpRemoteCardHtml(cardId){
+  if (cardId && CARD_DB[cardId]) return `<div class="card ${skinClass(G.enemyBack || 'default')}" style="margin:0">${cardHTML(cardId)}</div>`;
+  return `<div class="card-back cardback-${G.enemyBack || 'default'}"></div>`;
+}
+function mpRemoteFxList(){
+  return (G && Array.isArray(G.enemyFxActive)) ? G.enemyFxActive : [];
+}
+function mpBurstRemoteFx(event, pt){
+  mpRemoteFxList().forEach(id => {
+    const d = FX_DEF[id];
+    if (d && d.event === event) burstFx(pt, d.kind);
+  });
+}
+function mpVisualSideState(side){
+  return {
+    hp: side && side.hp || 0,
+    armor: side && side.armor || 0,
+    hand: side && side.hand ? side.hand.length : 0,
+    deck: side && side.deck ? side.deck.length : 0,
+    board: (side && side.board || []).map(m => ({
+      uid:m.uid, cardId:m.cardId, atk:m.atk || 0, hp:m.hp || 0,
+      maxHp:m.maxHp || CARD_DB[m.cardId]?.hp || 0
+    }))
+  };
+}
+function mpVisualState(){
+  return G ? { player:mpVisualSideState(G.player), enemy:mpVisualSideState(G.enemy) } : null;
+}
+function mpBoardMap(list){
+  const map = new Map();
+  (list || []).forEach(m => map.set(m.uid, m));
+  return map;
+}
+async function mpAnimateRemoteAction(snap){
+  if (!G || !snap) return;
+  const action = String(snap.action || '');
+  const meta = snap.meta || {};
+  const src = meta.source || null;
+  const tgt = meta.target || null;
+  const cardId = mpActionCardId(action, meta);
+  const def = cardId && CARD_DB[cardId];
+  const fromHand = safeCenter($('enemyHand'), heroEl(G.enemy) || $('board'));
+  const enemyHeroPt = safeCenter($('enemyHero'), $('board'));
+  const boardPt = mpPointForRemoteDesc(tgt && tgt.kind === 'board' ? tgt : { kind:'board', side:'player' }, $('enemyBoard'));
+  try{
+    if (action.startsWith('play:minion:')){
+      await flyEl(mpRemoteCardHtml(cardId), fromHand, boardPt, 310);
+      sfx.play();
+      mpBurstRemoteFx('spawn', boardPt);
+      burstFx(boardPt, 'gold');
+      await sleep(90);
+      return;
+    }
+    if (action.startsWith('play:magnetic:')){
+      const to = mpPointForRemoteDesc(tgt, $('enemyBoard'));
+      await flyEl(mpRemoteCardHtml(cardId), fromHand, to, 310);
+      spellImpact(to, 'armor', { legendary:def && def.rarity === 'legendary' });
+      await sleep(90);
+      return;
+    }
+    if (action.startsWith('play:weapon:')){
+      await flyEl(mpRemoteCardHtml(cardId), fromHand, enemyHeroPt, 300);
+      spellImpact(enemyHeroPt, 'armor', { legendary:def && def.rarity === 'legendary' });
+      return;
+    }
+    if (action.startsWith('play:spell:')){
+      const to = mpPointForRemoteDesc(tgt, tgt && tgt.kind === 'board' ? $('playerBoard') : $('playerHero'));
+      if (def) await castVfx(def, enemyHeroPt, to, { legendary:def.rarity === 'legendary' });
+      else {
+        await flyEl('<div style="font-size:38px;filter:drop-shadow(0 0 12px #c79bff)">✨</div>', enemyHeroPt, to, 280);
+        spellImpact(to, 'arcane');
+      }
+      return;
+    }
+    if (action === 'attack:minion'){
+      const sourceTarget = mpActualTargetFromRemoteDesc(src);
+      const target = mpActualTargetFromRemoteDesc(tgt);
+      const attEl = mpElementForRemoteDesc(src);
+      const targetEl = mpElementForRemoteDesc(tgt);
+      const targetPt = target && target.kind !== 'board' ? combatPoint(target, sourceTarget && sourceTarget.side || G.enemy) : mpPointForRemoteDesc(tgt, $('playerHero'));
+      mpBurstRemoteFx('attack', targetPt);
+      await lungeAnim(attEl, targetPt);
+      if (targetEl) shake(targetEl);
+      if (sourceTarget && sourceTarget.minion && target && target.kind !== 'board') splashAt(targetPt, Math.max(1, sourceTarget.minion.atk || 1));
+      sfx.hit();
+      await sleep(90);
+      return;
+    }
+    if (action === 'attack:hero'){
+      const target = mpActualTargetFromRemoteDesc(tgt);
+      const targetEl = mpElementForRemoteDesc(tgt);
+      const to = target && target.kind !== 'board' ? combatPoint(target, G.enemy) : mpPointForRemoteDesc(tgt, $('playerHero'));
+      const heroElFrom = heroEl(G.enemy);
+      const w = G.enemy && G.enemy.weapon;
+      mpBurstRemoteFx('attack', to);
+      if (w && w.ranged){
+        await heroRecoil(heroElFrom, enemyHeroPt, to);
+        const pj = weaponProjectile(CARD_DB[w.cardId]);
+        await flyEl(`<div style="font-size:26px;filter:drop-shadow(0 0 6px ${pj.glow}) drop-shadow(0 2px 3px #000)">${pj.emoji}</div>`, enemyHeroPt, to, 220);
+      } else {
+        await heroLunge(heroElFrom, enemyHeroPt, to);
+      }
+      if (targetEl) shake(targetEl);
+      if (w) splashAt(to, Math.max(1, w.atk || 1));
+      sfx.hit();
+      await sleep(90);
+      return;
+    }
+    if (action === 'power'){
+      const pw = src && src.icon ? src : heroPowerOf(G.enemy);
+      const to = mpPointForRemoteDesc(tgt, $('playerHero'));
+      sfx.power();
+      await flyEl(`<div style="font-size:32px;filter:drop-shadow(0 0 8px #66ccff)">${pw.icon || '✨'}</div>`,
+        safeCenter($('enemyPowerBtn'), heroEl(G.enemy)), to, 260);
+      spellImpact(to, 'arcane');
+      return;
+    }
+    if (action === 'turn:end' || action === 'turn:end-game'){
+      sfx.gong();
+      await sleep(120);
+    }
+  }catch(e){
+    mpLog('VFX: ' + (e.message || e));
+  }
+}
+async function mpPlaySideDeltaVfx(before, after, side, sideName){
+  if (!before || !after || !side) return;
+  const hero = heroEl(side);
+  const heroPt = safeCenter(hero, $('board'));
+  const beforeTotal = (before.hp || 0) + (before.armor || 0);
+  const afterTotal = (after.hp || 0) + (after.armor || 0);
+  if (afterTotal < beforeTotal){
+    if (hero) shake(hero);
+    splashAt(heroPt, beforeTotal - afterTotal);
+    sfx.hit();
+  } else if ((after.hp || 0) > (before.hp || 0)){
+    splashAt(heroPt, (after.hp || 0) - (before.hp || 0), 'heal');
+    sfx.heal();
+  } else if ((after.armor || 0) > (before.armor || 0)){
+    splashAt(heroPt, (after.armor || 0) - (before.armor || 0), 'armor');
+    sfx.armor();
+  }
+  if ((after.hand || 0) > (before.hand || 0)) sfx.draw();
+  const beforeMap = mpBoardMap(before.board);
+  const afterMap = mpBoardMap(after.board);
+  for (const m of after.board || []){
+    const old = beforeMap.get(m.uid);
+    const el = side.board ? minionEl(side.board.find(x => x.uid === m.uid)) : null;
+    const pt = safeCenter(el, boardElForSide(side) || $('board'));
+    if (!old){
+      burstFx(pt, sideName === 'enemy' ? 'gold' : 'frostfx');
+      sfx.play();
+      continue;
+    }
+    if ((m.hp || 0) < (old.hp || 0)){
+      if (el) shake(el);
+      splashAt(pt, (old.hp || 0) - (m.hp || 0));
+      sfx.hit();
+    } else if ((m.hp || 0) > (old.hp || 0)){
+      splashAt(pt, (m.hp || 0) - (old.hp || 0), 'heal');
+      sfx.heal();
+    }
+    const atkGain = (m.atk || 0) - (old.atk || 0);
+    if (atkGain > 0){
+      splashAt(pt, atkGain, 'armor');
+      sfx.armor();
+    }
+  }
+  for (const old of before.board || []){
+    if (!afterMap.has(old.uid)){
+      burstFx(safeCenter(boardElForSide(side), $('board')), 'flame');
+      sfx.death();
+    }
+  }
+}
+async function mpPlayRemoteDeltaVfx(before, after){
+  if (!before || !after || !G) return;
+  await mpPlaySideDeltaVfx(before.player, after.player, G.player, 'player');
+  await mpPlaySideDeltaVfx(before.enemy, after.enemy, G.enemy, 'enemy');
+}
 function mpSnapshot(action, meta){
   const seq = ++MP_STATE.seq;
   const summary = mpCurrentSummary();
@@ -11250,30 +11463,71 @@ function mpApplyRemoteSnapshot(snap){
   if (!G || !G.multiplayer || !snap || snap.type !== 'state.snapshot') return;
   if (snap.matchId !== G.multiplayer.matchId || snap.seat === mpLocalSeat()) return;
   if ((snap.seq || 0) <= (MP_STATE.remoteSeq || 0)) return;
+  MP_STATE.remoteFxQueue.push(snap);
+  MP_STATE.remoteFxQueue.sort((a, b) => (a.seq || 0) - (b.seq || 0));
+  mpRunRemoteSnapshotQueue();
+}
+async function mpRunRemoteSnapshotQueue(){
+  if (MP_STATE.remoteFxPlaying) return;
+  MP_STATE.remoteFxPlaying = true;
+  try{
+    while (MP_STATE.remoteFxQueue.length){
+      const snap = MP_STATE.remoteFxQueue.shift();
+      try{
+        await mpApplyRemoteSnapshotNow(snap);
+      }catch(e){
+        MP_STATE.applyingRemote = false;
+        mpLog('Ошибка применения хода друга: ' + (e.message || e));
+        mpSetStatus('Не удалось красиво проиграть ход друга, но связь не сброшена.', 'warn');
+      }
+    }
+  }finally{
+    MP_STATE.remoteFxPlaying = false;
+  }
+}
+async function mpApplyRemoteSnapshotNow(snap){
+  if (!G || !G.multiplayer || !snap || snap.type !== 'state.snapshot') return;
+  if (snap.matchId !== G.multiplayer.matchId || snap.seat === mpLocalSeat()) return;
+  if ((snap.seq || 0) <= (MP_STATE.remoteSeq || 0)) return;
 	  MP_STATE.remoteSeq = snap.seq || 0;
 	  MP_STATE.applyingRemote = true;
-	  const localWinner = mpMirrorWinner(snap.winner);
-	  mpRemoteSnapshotCue(snap);
-	  if (snap.journal) mpPushJournal(snap.journal);
-	  G.player = mpReviveSide(snap.enemy, 'player');
-  G.enemy = mpReviveSide(snap.player, 'enemy');
-  G.turn = snap.turn === 'player' ? 'enemy' : 'player';
-  G.busy = false;
-  G.over = false;
-  if ($('log') && snap.logHtml) $('log').innerHTML = snap.logHtml;
-  uidCounter = Math.max(uidCounter, mpMaxUidInSide(G.player), mpMaxUidInSide(G.enemy)) + 5;
-  render();
-  if (snap.over){
-    endGame(localWinner || 'enemy');
-  } else if (G.turn === 'player'){
-    banner('Твой ход');
-    startTimer();
-  } else {
-    banner('Ход друга');
-    stopTimer();
-  }
-	  MP_STATE.applyingRemote = false;
-	  mpSetStatus('Ход друга применён. Состояние синхронизировано.', 'ok');
+	  try{
+	    const beforeVfx = mpVisualState();
+	    const localWinner = mpMirrorWinner(snap.winner);
+	    mpRemoteSnapshotCue(snap);
+	    try{
+	      await mpAnimateRemoteAction(snap);
+	    }catch(e){
+	      mpLog('VFX действия: ' + (e.message || e));
+	    }
+	    if (snap.journal) mpPushJournal(snap.journal);
+	    G.player = mpReviveSide(snap.enemy, 'player');
+    G.enemy = mpReviveSide(snap.player, 'enemy');
+    G.turn = snap.turn === 'player' ? 'enemy' : 'player';
+    G.busy = false;
+    G.over = false;
+    if ($('log') && snap.logHtml) $('log').innerHTML = snap.logHtml;
+    uidCounter = Math.max(uidCounter, mpMaxUidInSide(G.player), mpMaxUidInSide(G.enemy)) + 5;
+    render();
+    const afterVfx = mpVisualState();
+    try{
+      await mpPlayRemoteDeltaVfx(beforeVfx, afterVfx);
+    }catch(e){
+      mpLog('VFX итогов: ' + (e.message || e));
+    }
+    if (snap.over){
+      endGame(localWinner || 'enemy');
+    } else if (G.turn === 'player'){
+      banner('Твой ход');
+      startTimer();
+    } else {
+      banner('Ход друга');
+      stopTimer();
+    }
+	    mpSetStatus('Ход друга применён. Состояние синхронизировано.', 'ok');
+	  }finally{
+	    MP_STATE.applyingRemote = false;
+	  }
 	}
 function mpLaunchMatch(match){
   if (!match || !match.decks || !match.players) throw new Error('Некорректный пакет матча.');
@@ -11285,6 +11539,7 @@ function mpLaunchMatch(match){
 	  MP_STATE.match = match;
 	  MP_STATE.seq = 0;
 	  MP_STATE.remoteSeq = 0;
+	  mpResetRemoteFxQueue();
 	  MP_STATE.journal = [];
 	  MP_STATE.intentSeq = 0;
 	  MP_STATE.intentLastKey = '';
@@ -11296,6 +11551,7 @@ function mpLaunchMatch(match){
   G.playerHeroId = localP.heroId || 'mage';
   G.enemyHeroId = remoteP.heroId || 'mage';
   G.enemyBack = remoteP.back || 'default';
+  G.enemyFxActive = Array.isArray(remoteP.fxActive) ? remoteP.fxActive.slice() : [];
   G.opp = { name:'Друг', heroId:G.enemyHeroId, rating:remoteP.rating || 0 };
   G.tournMatch = false;
   G.tournFinal = false;
@@ -11352,6 +11608,7 @@ async function mpCreateInvite(){
 	    MP_STATE.match = null;
 	    MP_STATE.seq = 0;
 	    MP_STATE.remoteSeq = 0;
+	    mpResetRemoteFxQueue();
 	    MP_STATE.journal = [];
 	    MP_STATE.lastSummary = null;
 	    MP_STATE.intentSeq = 0;
@@ -11399,6 +11656,7 @@ async function mpAcceptInvite(decodedOffer){
 	    MP_STATE.match = null;
 	    MP_STATE.seq = 0;
 	    MP_STATE.remoteSeq = 0;
+	    mpResetRemoteFxQueue();
 	    MP_STATE.journal = [];
 	    MP_STATE.lastSummary = null;
 	    MP_STATE.intentSeq = 0;
@@ -11452,6 +11710,7 @@ async function mpAcceptAnswer(decodedAnswer){
 	    MP_STATE.match = null;
 	    MP_STATE.seq = 0;
 	    MP_STATE.remoteSeq = 0;
+	    mpResetRemoteFxQueue();
 	    MP_STATE.journal = [];
 	    MP_STATE.lastSummary = null;
 	    MP_STATE.intentSeq = 0;
