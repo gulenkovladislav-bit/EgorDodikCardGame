@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-10-mobile-battle-dock';
+    var build = '2026-07-10-mobile-chat-rail';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -2285,6 +2285,61 @@
     display:flex;flex-direction:column-reverse;gap:2px;text-shadow:0 1px 2px #000;
   }
   #log div{background:rgba(0,0,0,.4);padding:1px 6px;border-radius:6px;}
+  #battleChat{
+    position:absolute;left:12px;bottom:44px;z-index:38;
+    width:280px;display:none;flex-direction:column;gap:6px;
+    color:#e8d9b4;pointer-events:auto;
+  }
+  #game.mp-game #battleChat{display:flex;}
+  .bc-toggle{
+    align-self:flex-start;border:2px solid rgba(216,178,90,.78);border-radius:10px;
+    background:linear-gradient(180deg,#4a3822,#211608);color:var(--gold-bright);
+    box-shadow:0 4px 10px rgba(0,0,0,.52), inset 0 0 12px rgba(0,0,0,.45);
+    font-family:inherit;font-weight:bold;font-size:11px;letter-spacing:1.4px;
+    padding:6px 11px;cursor:pointer;text-shadow:0 1px 2px #000;
+  }
+  .bc-toggle i{
+    display:none;min-width:16px;height:16px;margin-left:6px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #ff8866, #b3341f);
+    color:#fff;font-size:9px;line-height:16px;text-align:center;font-style:normal;
+    border:1px solid #5c150d;text-shadow:0 1px 1px #000;
+  }
+  #battleChat.has-unread .bc-toggle i{display:inline-block;}
+  .bc-panel{
+    display:none;flex-direction:column;gap:6px;padding:8px;border:2px solid rgba(112,165,200,.74);border-radius:12px;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(134,198,235,.14), transparent 58%),
+      linear-gradient(180deg,rgba(17,31,40,.9),rgba(8,12,15,.88));
+    box-shadow:0 10px 24px rgba(0,0,0,.55), inset 0 0 18px rgba(0,0,0,.45);
+  }
+  #battleChat.open .bc-panel{display:flex;}
+  .bc-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px;color:#f0d080;letter-spacing:1.3px;}
+  .bc-head button{
+    border:1px solid rgba(216,178,90,.62);border-radius:7px;background:rgba(0,0,0,.25);
+    color:#d8c8a2;font-family:inherit;font-size:10px;line-height:1;padding:3px 7px;cursor:pointer;
+  }
+  #chatRows{
+    min-height:58px;max-height:112px;overflow:auto;display:flex;flex-direction:column;gap:4px;
+    padding-right:2px;
+  }
+  .chat-row{
+    max-width:92%;align-self:flex-start;padding:5px 7px;border-radius:9px;
+    background:rgba(0,0,0,.32);border:1px solid rgba(112,165,200,.36);
+    font-size:10px;line-height:1.25;color:#d8ecff;word-break:break-word;
+  }
+  .chat-row.mine{
+    align-self:flex-end;background:rgba(145,100,28,.28);border-color:rgba(222,180,78,.46);color:#ffe6b0;
+  }
+  .chat-row b{display:block;color:#fff2c8;font-size:8.5px;margin-bottom:1px;}
+  #chatForm{display:flex;gap:5px;}
+  #chatInput{
+    flex:1;min-width:0;border:1.5px solid #6b5124;border-radius:8px;background:#120b05;
+    color:#f2e5bf;font-family:inherit;font-size:10px;font-weight:bold;padding:6px 8px;outline:none;
+  }
+  #chatSend{
+    width:34px;border:1.5px solid #6b5124;border-radius:8px;background:linear-gradient(180deg,#e0b954,#8e641e);
+    color:#241a08;font-family:inherit;font-weight:bold;cursor:pointer;text-shadow:0 1px rgba(255,255,255,.22);
+  }
 
   #banner{
     position:fixed;top:44%;left:50%;transform:translate(-50%,-50%);
@@ -3047,26 +3102,27 @@
       bottom:23%;
     }
     .row{
-      left:14%;
-      right:14%;
+      left:40%;
+      right:11%;
       height:23%;
-      gap:5px;
+      gap:3px;
+      justify-content:flex-start;
     }
     #enemyBoard{top:12%;}
     #playerBoard{bottom:12%;}
     .minion{
-      width:72px;
-      height:94px;
+      width:64px;
+      height:84px;
       padding:6px;
       border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;
     }
-    .minion .m-icon{font-size:32px;}
+    .minion .m-icon{font-size:29px;}
     .minion .m-name{display:none;}
-    .minion .stat{width:28px;height:28px;font-size:15px;bottom:12px;}
+    .minion .stat{width:24px;height:24px;font-size:13px;bottom:10px;}
     .minion .stat.atk{left:-6px;}
     .minion .stat.hp{right:-6px;}
-    .minion .rgem{width:20px;height:20px;bottom:-7px;}
-    .minion .rgem .tico{font-size:11px;}
+    .minion .rgem{width:18px;height:18px;bottom:-6px;}
+    .minion .rgem .tico{font-size:10px;}
     .m-badges{top:-8px;right:-6px;font-size:8.5px;}
     .dr-badge{bottom:-9px;font-size:9.5px;}
     .fz-badge{font-size:14px;top:-8px;}
@@ -3208,12 +3264,16 @@
     }
     #endTurnBtn{
       right:max(12px, env(safe-area-inset-right));
+      top:auto;
+      bottom:calc(96px + var(--mobile-safe-bottom));
+      transform:none;
       width:70px;
       font-size:11px;
       padding:11px 8px;
       border-width:2px;
       border-radius:14px;
     }
+    #endTurnBtn:active{transform:translateY(2px);}
     #gameSettingsBtn{
       top:8px;
       right:max(58px, calc(env(safe-area-inset-right) + 58px));
@@ -3232,6 +3292,30 @@
       max-width:34vw;
       font-size:8px;
     }
+    #game.mp-game #log{display:none;}
+    #game.mp-game #mpJournalPanel{
+      left:max(8px, env(safe-area-inset-left));
+      bottom:152px;
+      width:min(300px, 34vw);
+      max-height:82px;
+      padding:6px 7px;
+      border-width:1.5px;
+      border-radius:9px;
+    }
+    #battleChat{
+      left:max(8px, env(safe-area-inset-left));
+      bottom:10px;
+      width:min(310px, 34vw);
+      gap:4px;
+    }
+    .bc-toggle{font-size:9px;padding:5px 9px;border-radius:8px;}
+    .bc-panel{padding:6px;border-width:1.5px;border-radius:9px;}
+    .bc-head{font-size:8px;}
+    #chatRows{min-height:38px;max-height:70px;gap:3px;}
+    .chat-row{font-size:8px;padding:3px 5px;border-radius:7px;}
+    .chat-row b{font-size:7px;}
+    #chatInput{font-size:8px;padding:5px 6px;border-radius:7px;}
+    #chatSend{width:28px;border-radius:7px;}
     .deco{font-size:22px;}
     #decoCandle{left:2%;top:28%;}
     #decoPotion{left:2%;bottom:32%;}
@@ -3244,15 +3328,15 @@
     #game{--mobile-hand-scale:.50;}
     #game::before{width:158px;height:118px;}
     #board{left:5.5%;right:5.5%;top:8%;bottom:24%;}
-    .row{left:15%;right:15%;height:22%;gap:4px;}
+    .row{left:39%;right:10%;height:22%;gap:2px;justify-content:flex-start;}
     #enemyBoard{top:12%;}
     #playerBoard{bottom:12%;}
-    .minion{width:66px;height:86px;padding:5px;border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;}
-    .minion .m-icon{font-size:29px;}
+    .minion{width:58px;height:76px;padding:5px;border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;}
+    .minion .m-icon{font-size:26px;}
     .minion .m-name{display:none;}
-    .minion .stat{width:25px;height:25px;font-size:14px;bottom:11px;}
-    .minion .rgem{width:18px;height:18px;bottom:-6px;}
-    .minion .rgem .tico{font-size:10px;}
+    .minion .stat{width:22px;height:22px;font-size:12px;bottom:9px;}
+    .minion .rgem{width:16px;height:16px;bottom:-5px;}
+    .minion .rgem .tico{font-size:9px;}
     #playerHero{
       left:50%;
       bottom:76px;
@@ -3267,11 +3351,14 @@
       font-size:16px;
     }
     #playerWeapon{right:calc(100% + 1px);left:auto;top:5px;}
-    #playerHand{bottom:calc(-12px + var(--mobile-safe-bottom));height:112px;}
+    #playerHand{bottom:calc(-14px + var(--mobile-safe-bottom));height:112px;}
     #playerDeck{bottom:30px;width:39px;height:55px;}
     #playerMana{bottom:5px;}
-    #endTurnBtn{width:64px;font-size:10px;padding:9px 7px;}
+    #endTurnBtn{width:64px;font-size:10px;padding:9px 7px;bottom:calc(82px + var(--mobile-safe-bottom));}
     #log{bottom:6px;max-width:32vw;font-size:7.5px;}
+    #game.mp-game #mpJournalPanel{bottom:136px;max-height:62px;width:min(292px, 34vw);}
+    #battleChat{bottom:7px;width:min(300px, 34vw);}
+    #chatRows{max-height:58px;}
     #bossSelect{gap:5px;padding-top:max(5px, env(safe-area-inset-top));}
     #bossRow{gap:12px;}
     #bossRow .boss-card{min-width:0;padding:12px 8px 8px;}
@@ -3863,6 +3950,17 @@
 		    <div class="mpj-title">СЕТЕВОЙ ЖУРНАЛ <span id="mpJournalSeq">0</span></div>
 		    <div id="mpJournalRows"></div>
 		  </div>
+		  <div id="battleChat">
+		    <button type="button" class="bc-toggle" id="chatToggle">ЧАТ<i id="chatUnread">0</i></button>
+		    <div class="bc-panel">
+		      <div class="bc-head">ЧАТ МАТЧА <button type="button" id="chatClose">×</button></div>
+		      <div id="chatRows"></div>
+		      <form id="chatForm" autocomplete="off">
+		        <input id="chatInput" maxlength="80" placeholder="Сообщение другу..." />
+		        <button type="submit" id="chatSend">➤</button>
+		      </form>
+		    </div>
+		  </div>
 	
 		  <button class="btn stone" id="gameSettingsBtn" title="Пауза и меню">⚙</button>
 	  <button class="btn" id="endTurnBtn">КОНЕЦ ХОДА</button>
@@ -3913,7 +4011,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-10-mobile-battle-dock';
+const CARD_ARENA_BUILD = '2026-07-10-mobile-chat-rail';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -7900,6 +7998,7 @@ function render(){
 	  renderHand();
 	  renderPower();
 	  renderMpJournal();
+	  renderBattleChat();
 
 	  $('endTurnBtn').disabled = !myTurn();
 	}
@@ -10385,7 +10484,10 @@ const MP_STATE = {
 	  lastCodeLabel: '',
 	  lastCodeInfo: null,
 	  netLog: [],
-	  actionLog: []
+	  actionLog: [],
+	  chat: [],
+	  chatOpen: false,
+	  chatUnread: 0
 	};
 function mpRoomId(){
   const a = Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -10912,6 +11014,11 @@ function mpHandleNetMessage(raw){
 	    mpSetStatus('Тестовое сообщение дошло и вернулось. Канал живой.', 'ok');
 	    return;
 	  }
+	  if (msg.type === 'chat'){
+	    if (!G || !G.multiplayer || msg.matchId !== G.multiplayer.matchId) return;
+	    mpPushChat(msg, true);
+	    return;
+	  }
 	  if (msg.type === 'match.start'){
 	    try { mpReceiveMatchStart(msg.match); }
 	    catch(e){ mpSetStatus('Не удалось принять старт матча: ' + (e.message || e), 'bad'); }
@@ -11164,6 +11271,63 @@ function renderMpJournal(){
     `<div class="mpj-row ${e.seat === mpLocalSeat() ? 'local' : ''}">${mpLocalizeJournal(e)}</div>`
   ).join('') : '<div class="mpj-row">Ждём первое сетевое событие.</div>';
   if ($('mpJournalSeq')) $('mpJournalSeq').textContent = '#' + (MP_STATE.seq || MP_STATE.remoteSeq || 0);
+}
+function mpChatLabel(seat){
+  return seat === mpLocalSeat() ? 'Ты' : 'Друг';
+}
+function renderBattleChat(){
+  const box = $('battleChat');
+  const game = $('game');
+  if (!box || !game) return;
+  const on = !!(G && G.multiplayer);
+  game.classList.toggle('mp-game', on);
+  box.classList.toggle('open', on && !!MP_STATE.chatOpen);
+  box.classList.toggle('has-unread', on && !MP_STATE.chatOpen && MP_STATE.chatUnread > 0);
+  const unread = $('chatUnread');
+  if (unread) unread.textContent = Math.min(99, MP_STATE.chatUnread || 0);
+  const rows = $('chatRows');
+  if (rows){
+    const last = (MP_STATE.chat || []).slice(-24);
+    rows.innerHTML = last.length ? last.map(m => {
+      const mine = m.seat === mpLocalSeat();
+      return `<div class="chat-row ${mine ? 'mine' : ''}"><b>${mpChatLabel(m.seat)}</b>${safeTxt(m.text || '')}</div>`;
+    }).join('') : '<div class="chat-row">Чат готов. Сообщения видит только друг в этом матче.</div>';
+    rows.scrollTop = rows.scrollHeight;
+  }
+  const input = $('chatInput');
+  if (input) input.disabled = !on;
+  const send = $('chatSend');
+  if (send) send.disabled = !on;
+}
+function mpPushChat(msg, remote){
+  if (!msg || !String(msg.text || '').trim()) return;
+  const entry = {
+    seat: msg.seat || (remote ? mpOtherSeat(mpLocalSeat()) : mpLocalSeat()),
+    text: String(msg.text || '').replace(/\s+/g, ' ').trim().slice(0, 80),
+    at: msg.at || Date.now()
+  };
+  MP_STATE.chat.push(entry);
+  if (MP_STATE.chat.length > 60) MP_STATE.chat.shift();
+  if (remote && !MP_STATE.chatOpen) MP_STATE.chatUnread = Math.min(99, (MP_STATE.chatUnread || 0) + 1);
+  renderBattleChat();
+}
+function mpSendChat(){
+  const input = $('chatInput');
+  if (!input || !G || !G.multiplayer) return;
+  const text = input.value.replace(/\s+/g, ' ').trim().slice(0, 80);
+  if (!text) return;
+  const msg = {
+    type:'chat',
+    roomId:MP_STATE.roomId,
+    matchId:G.multiplayer.matchId,
+    seat:mpLocalSeat(),
+    text,
+    at:Date.now()
+  };
+  if (mpSendNet(msg)){
+    input.value = '';
+    mpPushChat(msg, false);
+  }
 }
 function mpSideRef(side){
   if (!G || !side) return null;
@@ -11807,6 +11971,9 @@ function mpLaunchMatch(match){
 	  MP_STATE.remoteSeq = 0;
 	  mpResetRemoteFxQueue();
 	  MP_STATE.journal = [];
+	  MP_STATE.chat = [];
+	  MP_STATE.chatOpen = false;
+	  MP_STATE.chatUnread = 0;
 	  MP_STATE.intentSeq = 0;
 	  MP_STATE.intentLastKey = '';
 	  MP_STATE.remoteIntentKey = '';
@@ -13021,6 +13188,25 @@ $('mpStatusBack').addEventListener('click', () => {
   if ($('mpCodeOut').value.trim()) mpSetView('code');
   else mpSetView('choice');
 });
+$('chatToggle').addEventListener('click', () => {
+  sfx.click();
+  MP_STATE.chatOpen = !MP_STATE.chatOpen;
+  if (MP_STATE.chatOpen) MP_STATE.chatUnread = 0;
+  renderBattleChat();
+  if (MP_STATE.chatOpen) setTimeout(() => $('chatInput') && $('chatInput').focus(), 30);
+});
+$('chatClose').addEventListener('click', () => {
+  sfx.click();
+  MP_STATE.chatOpen = false;
+  renderBattleChat();
+});
+$('chatForm').addEventListener('submit', e => {
+  e.preventDefault();
+  sfx.click();
+  mpSendChat();
+});
+$('battleChat').addEventListener('pointerdown', e => e.stopPropagation());
+$('battleChat').addEventListener('click', e => e.stopPropagation());
 $('mpCreateInvite').addEventListener('click', () => { sfx.click(); mpCreateInvite(); });
 $('mpAcceptInvite').addEventListener('click', () => { sfx.click(); mpAcceptIncoming(); });
 	$('mpAcceptAnswer').addEventListener('click', () => { sfx.click(); mpAcceptAnswer(); });
