@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-10-mp-journal-audit';
+    var build = '2026-07-10-mp-intent-fx';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -2199,6 +2199,57 @@
   #arrowHead{fill:url(#arrowGrad);stroke:#7a1408;stroke-width:2;filter:drop-shadow(0 0 8px #ff5540);}
   .minion.aim{transform:scale(1.16);box-shadow:0 0 20px 7px #ff7733 !important;z-index:40;}
   .portrait.aim .p-frame{transform:scale(1.12);box-shadow:0 0 22px 8px #ff7733, 0 0 0 2px #1a1206;}
+  .minion.mp-remote-source{
+    transform:scale(1.09);
+    box-shadow:0 0 20px 7px #80c9ff,0 4px 8px rgba(0,0,0,.55)!important;
+    z-index:45;animation:mpRemoteThink .72s infinite alternate;
+  }
+  .portrait.mp-remote-source .p-frame,
+  .power-btn.mp-remote-source{
+    transform:scale(1.08);
+    box-shadow:0 0 22px 8px #80c9ff,0 0 0 2px #1a1206!important;
+    animation:mpRemoteThink .72s infinite alternate;
+  }
+  .minion.mp-remote-target{
+    transform:scale(1.13);
+    box-shadow:0 0 22px 8px #ffcf67,0 4px 8px rgba(0,0,0,.55)!important;
+    z-index:44;
+  }
+  .portrait.mp-remote-target .p-frame{
+    transform:scale(1.1);
+    box-shadow:0 0 24px 9px #ffcf67,0 0 0 2px #1a1206!important;
+  }
+  @keyframes mpRemoteThink{from{filter:brightness(1.02);}to{filter:brightness(1.28);}}
+  #mpIntentToast{
+    position:fixed;z-index:118;pointer-events:none;display:none;
+    padding:6px 10px;border:1.5px solid rgba(132,196,235,.82);border-radius:999px;
+    background:linear-gradient(180deg,rgba(16,38,54,.92),rgba(5,10,14,.88));
+    color:#d8efff;font-size:11px;font-weight:bold;letter-spacing:.5px;text-shadow:0 1px 2px #000;
+    box-shadow:0 8px 20px rgba(0,0,0,.55),0 0 18px rgba(110,190,245,.25);
+  }
+  #mpIntentToast.show{display:block;animation:mpIntentPop .18s ease-out;}
+  @keyframes mpIntentPop{from{transform:translate(-50%,-50%) scale(.86);opacity:0;}to{transform:translate(-50%,-50%) scale(1);opacity:1;}}
+  .mp-intent-card{
+    position:fixed;z-index:117;pointer-events:none;width:74px;height:100px;
+    transform:translate(-50%,-50%) rotate(-5deg);
+    filter:drop-shadow(0 10px 10px rgba(0,0,0,.55));
+    animation:mpIntentCard .78s infinite alternate ease-in-out;
+  }
+  .mp-intent-card .card-back{width:74px;height:100px;border-radius:9px;}
+  .mp-intent-card .card{
+    margin:0;transform:scale(.46);transform-origin:top left;
+  }
+  @keyframes mpIntentCard{from{margin-top:0;}to{margin-top:-8px;}}
+  .mp-intent-beam{
+    position:fixed;z-index:116;pointer-events:none;height:3px;border-radius:99px;transform-origin:0 50%;
+    background:linear-gradient(90deg,transparent,rgba(130,205,255,.9),rgba(255,222,126,.95),transparent);
+    box-shadow:0 0 12px rgba(120,200,255,.8);
+    opacity:.78;animation:mpIntentBeam .6s ease-in-out infinite alternate;
+  }
+  @keyframes mpIntentBeam{from{opacity:.35;filter:blur(.2px);}to{opacity:.9;filter:blur(0);}}
+  .mp-intent-wisp{
+    font-size:24px;color:#bdeaff;text-shadow:0 0 10px #7bc9ff,0 2px 4px #000;
+  }
 
   /* фитиль */
   #rope{position:absolute;left:14%;right:14%;bottom:56px;height:10px;z-index:25;display:none;}
@@ -3594,6 +3645,7 @@
           <span>проверка версии и базы карт</span>
           <span>снимок колоды/героя</span>
           <span>WebRTC DataChannel</span>
+          <span>живые намерения и подсвет целей</span>
           <span>журнал действий и checksum</span>
         </div>
 	        <div class="mp-actions mp-net-actions">
@@ -3714,7 +3766,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-10-mp-journal-audit';
+const CARD_ARENA_BUILD = '2026-07-10-mp-intent-fx';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -7873,6 +7925,7 @@ async function playMinion(handIdx, fromPt){
   const def = CARD_DB[cardId];
   if (def.cost > G.player.mana || G.player.board.length >= MAX_BOARD) return;
   const source = handSource(G.player, handIdx, cardId);
+  const mpMeta = mpActionMeta(mpHandSourceDescriptor(cardId, true), mpBoardDescriptor(G.player), { cardId });
   G.busy = true;
   G.player.mana -= def.cost;
   removeHandCard(G.player, handIdx);
@@ -7896,7 +7949,7 @@ async function playMinion(handIdx, fromPt){
 	  });
 	  G.busy = false;
 	  render();
-	  mpAfterLocalAction('play:minion:' + cardId);
+	  mpAfterLocalAction('play:minion:' + cardId, mpMeta);
 	}
 
 /* магнетизм: слить магнитное существо со своим механизмом */
@@ -7905,6 +7958,7 @@ async function playMagnetic(handIdx, targetMinion, fromPt){
   const def = CARD_DB[cardId];
   if (def.cost > G.player.mana) return;
   const source = handSource(G.player, handIdx, cardId);
+  const mpMeta = mpActionMeta(mpHandSourceDescriptor(cardId, true), mpTargetDescriptor({ kind:'minion', side:G.player, minion:targetMinion }), { cardId });
   G.busy = true;
   G.player.mana -= def.cost;
   removeHandCard(G.player, handIdx);
@@ -7917,7 +7971,7 @@ async function playMagnetic(handIdx, targetMinion, fromPt){
 	  log(`🧲 ${def.name} → ${CARD_DB[targetMinion.cardId].name}`);
 	  G.busy = false;
 	  render();
-	  mpAfterLocalAction('play:magnetic:' + cardId);
+	  mpAfterLocalAction('play:magnetic:' + cardId, mpMeta);
 	}
 function magnetMerge(side, target, def){
   markBuffImpact(target, def.atk, def.hp);
@@ -7954,6 +8008,7 @@ async function playWeapon(handIdx, fromPt){
   const def = CARD_DB[cardId];
   if (def.cost > G.player.mana) return;
   const source = handSource(G.player, handIdx, cardId);
+  const mpMeta = mpActionMeta(mpHandSourceDescriptor(cardId, true), mpTargetDescriptor({ kind:'hero', side:G.player }), { cardId });
   G.busy = true;
   G.player.mana -= def.cost;
   removeHandCard(G.player, handIdx);
@@ -7965,7 +8020,7 @@ async function playWeapon(handIdx, fromPt){
 	  log(`Ты вооружаешься: ${def.name}`);
 	  G.busy = false;
 	  render();
-	  mpAfterLocalAction('play:weapon:' + cardId);
+	  mpAfterLocalAction('play:weapon:' + cardId, mpMeta);
 	}
 /* снаряд по типу оружия */
 function weaponProjectile(wdef){
@@ -8046,11 +8101,12 @@ async function heroSwing(side, target){
 }
 async function heroAttack(target){
   if (!G.player.weapon || G.player.heroAttacked || G.busy) return;
+  const mpMeta = mpActionMeta({ kind:'hero', side:'player' }, mpTargetDescriptor(target), { cardId:G.player.weapon && G.player.weapon.cardId });
   G.busy = true;
   await heroSwing(G.player, target);
   G.busy = false;
   render();
-  mpAfterLocalAction('attack:hero');
+  mpAfterLocalAction('attack:hero', mpMeta);
 }
 function renderWeapon(el, side){
   if (!side.weapon){ el.style.display = 'none'; return; }
@@ -8079,6 +8135,11 @@ async function castSpell(handIdx, target){
   if (def.cost > G.player.mana) return;
   if (def.secret && G.player.secrets.length >= 3){ log('Максимум 3 секрета'); render(); return; }
   const source = handSource(G.player, handIdx, cardId);
+  const mpMeta = mpActionMeta(
+    mpHandSourceDescriptor(cardId, true),
+    target ? mpTargetDescriptor(target) : (def.secret ? mpTargetDescriptor({ kind:'hero', side:G.player }) : mpBoardDescriptor(G.enemy)),
+    { cardId }
+  );
   G.busy = true;
   G.player.mana -= def.cost;
   removeHandCard(G.player, handIdx);
@@ -8110,11 +8171,12 @@ async function castSpell(handIdx, target){
 	  await resolveDeaths();
 	  G.busy = false;
 	  render();
-	  mpAfterLocalAction('play:spell:' + cardId);
+	  mpAfterLocalAction('play:spell:' + cardId, mpMeta);
 	}
 
 async function attackWith(minion, target){
   if (!minion.canAttack || G.busy) return;
+  const mpMeta = mpActionMeta({ kind:'minion', side:'player', uid:minion.uid, cardId:minion.cardId }, mpTargetDescriptor(target));
   G.busy = true;
   useAttack(minion);
   const attEl = minionEl(minion);
@@ -8125,13 +8187,14 @@ async function attackWith(minion, target){
 	  await resolveDeaths();
 	  G.busy = false;
 	  render();
-	  mpAfterLocalAction('attack:minion');
+	  mpAfterLocalAction('attack:minion', mpMeta);
 	}
 
 async function usePlayerPower(target){
   const pw = heroPowerOf(G.player);
   if (G.player.powerUsed || G.player.mana < pw.cost) return;
   if (pw.targeted && !target) return;
+  const mpMeta = mpActionMeta({ kind:'power', side:'player', heroId:G.playerHeroId, icon:pw.icon, name:pw.name }, target ? mpTargetDescriptor(target) : mpTargetDescriptor({ kind:'hero', side:G.player }));
   G.busy = true;
   G.player.powerUsed = true;
   G.player.mana -= pw.cost;
@@ -8151,7 +8214,7 @@ async function usePlayerPower(target){
 	  await resolveDeaths();
 	  G.busy = false;
 	  render();
-	  mpAfterLocalAction('power');
+	  mpAfterLocalAction('power', mpMeta);
 	}
 
 /* ================== DRAG & DROP ================== */
@@ -8269,6 +8332,8 @@ document.addEventListener('pointerdown', e => {
     drag.active = true; drag.type = 'card'; drag.handIdx = +cardEl.dataset.idx;
     drag.startX = e.clientX; drag.startY = e.clientY; drag.moved = false;
     drag.srcEl = cardEl;
+    drag.intentSource = mpDragSourceDescriptor('card', drag.handIdx);
+    mpSendIntent('begin', drag.intentSource, null, { mode:'card' });
     return;
   }
   const mEl = e.target.closest('#playerBoard .minion');
@@ -8277,9 +8342,11 @@ document.addEventListener('pointerdown', e => {
     if (m && m.canAttack){
       drag.active = true; drag.type = 'minion'; drag.minion = m;
       drag.startX = e.clientX; drag.startY = e.clientY; drag.moved = false;
+      drag.intentSource = mpDragSourceDescriptor('minion', -1, m);
       mEl.classList.add('arrow-src');
       arrowStart(center(mEl));
       markTargets('attack');
+      mpSendIntent('begin', drag.intentSource, null, { mode:'attack' });
     }
     return;
   }
@@ -8287,8 +8354,10 @@ document.addEventListener('pointerdown', e => {
   if (heroDragEl && G.player.weapon && !G.player.heroAttacked){
     drag.active = true; drag.type = 'hero';
     drag.startX = e.clientX; drag.startY = e.clientY; drag.moved = false;
+    drag.intentSource = mpDragSourceDescriptor('hero');
     arrowStart(center($('playerHero')));
     markTargets('attack');
+    mpSendIntent('begin', drag.intentSource, null, { mode:'attack' });
     return;
   }
 	  if (e.target.closest('#playerPowerBtn')){
@@ -8297,9 +8366,11 @@ document.addEventListener('pointerdown', e => {
     if (!pw.targeted){ usePlayerPower(null); return; }
     drag.active = true; drag.type = 'power';
     drag.startX = e.clientX; drag.startY = e.clientY; drag.moved = false;
+    drag.intentSource = mpDragSourceDescriptor('power');
     $('playerPowerBtn').classList.add('selected');
     arrowStart(center($('playerPowerBtn')));
     markTargets(pw.mode || 'any');
+    mpSendIntent('begin', drag.intentSource, null, { mode:pw.mode || 'any' });
     return;
   }
 });
@@ -8344,24 +8415,27 @@ document.addEventListener('pointermove', e => {
     if (def && def.type === 'spell' && def.target){
       arrowMove(e.clientX, e.clientY);
       updateAim(e.clientX, e.clientY, drag.mode);
+      mpSendIntent('aim', drag.intentSource, mpTargetDescriptor(pickTargetAt(e.clientX, e.clientY, drag.mode)), { mode:drag.mode });
     } else {
       ghost.style.left = e.clientX + 'px';
       ghost.style.top = e.clientY + 'px';
     }
   } else {
     arrowMove(e.clientX, e.clientY);
-	    const mode = (drag.type === 'minion' || drag.type === 'hero')
+    const mode = (drag.type === 'minion' || drag.type === 'hero')
 	      ? 'attack'
 	      : (heroPowerOf(G.player).mode || 'any');
     updateAim(e.clientX, e.clientY, mode);
+    mpSendIntent('aim', drag.intentSource, mpTargetDescriptor(pickTargetAt(e.clientX, e.clientY, mode)), { mode });
   }
 });
 
 document.addEventListener('pointerup', e => {
   if (!drag.active) return;
   const type = drag.type, handIdx = drag.handIdx, minion = drag.minion,
-        moved = drag.moved, srcEl = drag.srcEl;
-  drag.active = false; drag.type = null; drag.minion = null; drag.handIdx = -1; drag.srcEl = null;
+        moved = drag.moved, srcEl = drag.srcEl, intentSource = drag.intentSource;
+  drag.active = false; drag.type = null; drag.minion = null; drag.handIdx = -1; drag.srcEl = null; drag.intentSource = null;
+  const cancelIntent = () => mpSendIntent('cancel', intentSource, null, {});
 
   $('dragGhost').style.display = 'none';
   arrowStop();
@@ -8369,18 +8443,19 @@ document.addEventListener('pointerup', e => {
   $('playerPowerBtn').classList.remove('selected');
   if (srcEl) srcEl.style.opacity = '';
 
-  if (lpConsumed){ lpConsumed = false; render(); return; }
-  if (!myTurn()) { render(); return; }
+  if (lpConsumed){ lpConsumed = false; cancelIntent(); render(); return; }
+  if (!myTurn()) { cancelIntent(); render(); return; }
 
   if (type === 'card'){
     const cardId = G.player.hand[handIdx];
-    if (cardId === undefined){ render(); return; }
+    if (cardId === undefined){ cancelIntent(); render(); return; }
     const def = CARD_DB[cardId];
     if (def.type === 'weapon'){
       if ((moved && overPlayerBoard(e.clientX, e.clientY)) || !moved){
         playWeapon(handIdx, moved ? { x: e.clientX, y: e.clientY } : center(srcEl || $('playerHand')));
         return;
       }
+      cancelIntent();
       render();
       return;
     }
@@ -8390,7 +8465,7 @@ document.addEventListener('pointerup', e => {
         if (mt){ playMagnetic(handIdx, mt, { x: e.clientX, y: e.clientY }); return; }
       }
       if ((moved && overPlayerBoard(e.clientX, e.clientY)) || !moved){
-        if (!moved && def.cost > G.player.mana){ render(); return; }
+        if (!moved && def.cost > G.player.mana){ cancelIntent(); render(); return; }
         playMinion(handIdx, moved ? { x: e.clientX, y: e.clientY } : center(srcEl || $('playerHand')));
         return;
       }
@@ -8406,6 +8481,7 @@ document.addEventListener('pointerup', e => {
         if (target && def.cost <= G.player.mana){ castSpell(handIdx, target); return; }
       }
     }
+    cancelIntent();
     render();
     return;
   }
@@ -8413,27 +8489,29 @@ document.addEventListener('pointerup', e => {
   if (type === 'minion' && minion){
     const target = pickTargetAt(e.clientX, e.clientY, 'attack');
     if (target && moved) attackWith(minion, target);
-    else render();
+    else { cancelIntent(); render(); }
     return;
   }
 
   if (type === 'hero'){
     const target = pickTargetAt(e.clientX, e.clientY, 'attack');
     if (target && moved) heroAttack(target);
-    else render();
+    else { cancelIntent(); render(); }
     return;
   }
 
 	  if (type === 'power'){
-	    const pw = heroPowerOf(G.player);
+    const pw = heroPowerOf(G.player);
     const target = pickTargetAt(e.clientX, e.clientY, pw.mode || 'any');
     if (target && moved) usePlayerPower(target);
-    else render();
+    else { cancelIntent(); render(); }
     return;
   }
 });
 document.addEventListener('pointercancel', () => {
+  mpSendIntent('cancel', drag.intentSource, null, {});
   drag.active = false;
+  drag.intentSource = null;
   $('dragGhost').style.display = 'none';
   arrowStop(); clearTargets();
   $('playerPowerBtn').classList.remove('selected');
@@ -8465,7 +8543,9 @@ function stopTimer(){
   $('rope').style.display = 'none';
 }
 function forceEndTurn(){
+  mpSendIntent('cancel', drag.intentSource, null, {});
   drag.active = false;
+  drag.intentSource = null;
   $('dragGhost').style.display = 'none';
   arrowStop(); clearTargets();
   log('🔥 Фитиль догорел!');
@@ -10114,6 +10194,11 @@ const MP_STATE = {
 	  applyingRemote: false,
 	  journal: [],
 	  lastSummary: null,
+	  intentSeq: 0,
+	  intentLastKey: '',
+	  intentLastAt: 0,
+	  remoteIntentKey: '',
+	  remoteIntentTimer: null,
 	  netLog: [],
 	  actionLog: []
 	};
@@ -10286,6 +10371,7 @@ function mpRtcConfig(){
 function mpClosePeer(silent){
   try { if (MP_STATE.dc) MP_STATE.dc.close(); } catch(e){}
   try { if (MP_STATE.pc) MP_STATE.pc.close(); } catch(e){}
+	  mpRemoveIntentOverlays();
 	  MP_STATE.pc = null;
 	  MP_STATE.dc = null;
 	  mpSetPingEnabled(false);
@@ -10361,19 +10447,23 @@ function mpCreatePeer(){
 function mpSendNet(msg){
   const dc = MP_STATE.dc;
   if (!dc || dc.readyState !== 'open'){
-    mpSetStatus('Канал ещё не открыт.', 'warn');
+    if (msg && msg.type !== 'intent') mpSetStatus('Канал ещё не открыт.', 'warn');
     return false;
   }
   dc.send(JSON.stringify(Object.assign({ sentAt:Date.now() }, msg)));
-  mpLog('→ ' + (msg.type || 'message'));
+  if (msg.type !== 'intent') mpLog('→ ' + (msg.type || 'message'));
   return true;
 }
 function mpHandleNetMessage(raw){
   let msg = null;
   try { msg = JSON.parse(raw); } catch(e){ mpLog('← raw: ' + String(raw).slice(0, 80)); return; }
-  mpLog('← ' + (msg.type || 'message'));
+  if (msg.type !== 'intent') mpLog('← ' + (msg.type || 'message'));
   if (msg.type === 'hello'){
     mpSetStatus(`Связь живая: ${msg.role || 'peer'} на версии ${msg.build || '?'}.`, 'ok');
+    return;
+  }
+  if (msg.type === 'intent'){
+    mpApplyRemoteIntent(msg);
     return;
   }
   if (msg.type === 'ping'){
@@ -10411,6 +10501,7 @@ function mpPayloadBase(kind){
       hostAuthoritative: true,
       actionLog: true,
       checksum: true,
+      liveIntent: true,
       deterministicReplay: true,
       webRtcDataChannel: true
     }
@@ -10636,7 +10727,241 @@ function renderMpJournal(){
   ).join('') : '<div class="mpj-row">Ждём первое сетевое событие.</div>';
   if ($('mpJournalSeq')) $('mpJournalSeq').textContent = '#' + (MP_STATE.seq || MP_STATE.remoteSeq || 0);
 }
-function mpSnapshot(action){
+function mpSideRef(side){
+  if (!G || !side) return null;
+  return side === G.player ? 'player' : side === G.enemy ? 'enemy' : null;
+}
+function mpTargetDescriptor(target){
+  if (!target) return null;
+  if (target.kind === 'hero') return { kind:'hero', side:mpSideRef(target.side) };
+  if (target.kind === 'minion' && target.minion){
+    return {
+      kind:'minion',
+      side:mpSideRef(target.side),
+      uid:target.minion.uid,
+      cardId:target.minion.cardId
+    };
+  }
+  return null;
+}
+function mpBoardDescriptor(side){
+  return { kind:'board', side:mpSideRef(side || G.player) };
+}
+function mpHandSourceDescriptor(cardId, reveal){
+  const def = CARD_DB[cardId] || {};
+  return {
+    kind:'hand',
+    side:'player',
+    cardId: reveal ? cardId : null,
+    reveal: !!reveal,
+    cardType:def.type || '',
+    cost:def.cost || 0,
+    secret:!!def.secret
+  };
+}
+function mpDragSourceDescriptor(type, handIdx, minion){
+  if (!G) return null;
+  if (type === 'card'){
+    const cardId = G.player.hand[handIdx];
+    if (!cardId) return null;
+    return mpHandSourceDescriptor(cardId, false);
+  }
+  if (type === 'minion' && minion) return { kind:'minion', side:'player', uid:minion.uid, cardId:minion.cardId };
+  if (type === 'hero') return { kind:'hero', side:'player' };
+  if (type === 'power'){
+    const pw = heroPowerOf(G.player);
+    return { kind:'power', side:'player', heroId:G.playerHeroId, icon:pw.icon, name:pw.name };
+  }
+  return null;
+}
+function mpRemoteSide(ref){
+  if (!G) return null;
+  return ref === 'player' ? G.enemy : ref === 'enemy' ? G.player : null;
+}
+function mpElementForRemoteDesc(desc){
+  if (!G || !desc) return null;
+  if (desc.kind === 'hand') return $('enemyHand');
+  if (desc.kind === 'board') return boardElForSide(mpRemoteSide(desc.side));
+  if (desc.kind === 'hero') return heroEl(mpRemoteSide(desc.side));
+  if (desc.kind === 'power') return desc.side === 'player' ? $('enemyPowerBtn') : $('playerPowerBtn');
+  if (desc.kind === 'minion'){
+    const side = mpRemoteSide(desc.side);
+    const m = side && side.board.find(x => x.uid === desc.uid);
+    return m ? minionEl(m) : null;
+  }
+  return null;
+}
+function mpIntentLabel(source, target, phase){
+  if (phase === 'commit') return 'Друг совершает ход';
+  if (!source) return 'Друг думает';
+  if (source.kind === 'hand'){
+    if (target) return 'Друг выбирает цель карты';
+    if (source.cardType === 'spell') return 'Друг готовит заклинание';
+    if (source.cardType === 'weapon') return 'Друг берёт оружие';
+    return 'Друг держит карту';
+  }
+  if (source.kind === 'minion') return target ? 'Друг ведёт атаку' : 'Друг выбрал существо';
+  if (source.kind === 'hero') return target ? 'Друг целится героем' : 'Друг готовит удар';
+  if (source.kind === 'power') return target ? 'Друг целится силой героя' : 'Друг выбрал силу героя';
+  return 'Друг думает';
+}
+function mpEnsureIntentToast(){
+  let el = $('mpIntentToast');
+  if (!el){
+    el = document.createElement('div');
+    el.id = 'mpIntentToast';
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function mpRemoveIntentOverlays(){
+  document.querySelectorAll('.mp-remote-source,.mp-remote-target').forEach(el => {
+    el.classList.remove('mp-remote-source','mp-remote-target');
+  });
+  const toast = $('mpIntentToast');
+  if (toast) toast.classList.remove('show');
+  const card = $('mpIntentCard');
+  if (card) card.remove();
+  const beam = $('mpIntentBeam');
+  if (beam) beam.remove();
+}
+function mpClearRemoteIntent(delay){
+  if (MP_STATE.remoteIntentTimer) clearTimeout(MP_STATE.remoteIntentTimer);
+  MP_STATE.remoteIntentTimer = setTimeout(() => {
+    MP_STATE.remoteIntentKey = '';
+    mpRemoveIntentOverlays();
+  }, delay == null ? 120 : delay);
+}
+function mpShowIntentCard(source, anchorEl){
+  if (!source || source.kind !== 'hand') return null;
+  let card = $('mpIntentCard');
+  if (!card){
+    card = document.createElement('div');
+    card.id = 'mpIntentCard';
+    card.className = 'mp-intent-card';
+    document.body.appendChild(card);
+  }
+  if (source.reveal && source.cardId){
+    card.innerHTML = `<div class="card ${skinClass(G.enemyBack || 'default')}">${cardHTML(source.cardId)}</div>`;
+  } else {
+    card.innerHTML = `<div class="card-back cardback-${G.enemyBack || 'default'}"></div>`;
+  }
+  const pt = safeCenter(anchorEl || $('enemyHand'), $('board'));
+  card.style.left = pt.x + 'px';
+  card.style.top = (pt.y + 18) + 'px';
+  return card;
+}
+function mpDrawIntentBeam(fromEl, toEl){
+  const beamOld = $('mpIntentBeam');
+  if (beamOld) beamOld.remove();
+  if (!fromEl || !toEl) return;
+  const a = safeCenter(fromEl, $('board'));
+  const b = safeCenter(toEl, $('board'));
+  const len = Math.hypot(b.x - a.x, b.y - a.y);
+  if (len < 20) return;
+  const beam = document.createElement('div');
+  beam.id = 'mpIntentBeam';
+  beam.className = 'mp-intent-beam';
+  beam.style.left = a.x + 'px';
+  beam.style.top = a.y + 'px';
+  beam.style.width = len + 'px';
+  beam.style.transform = `rotate(${Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI}deg)`;
+  document.body.appendChild(beam);
+}
+function mpRemoteIntentKey(msg){
+  return JSON.stringify({
+    p:msg.phase,
+    s:msg.source && [msg.source.kind, msg.source.uid, msg.source.cardType, msg.source.cost],
+    t:msg.target && [msg.target.kind, msg.target.side, msg.target.uid]
+  });
+}
+function mpShowRemoteIntent(msg){
+  if (!G || !G.multiplayer) return;
+  if (msg.matchId && msg.matchId !== G.multiplayer.matchId) return;
+  if (msg.seat === mpLocalSeat()) return;
+  const phase = msg.phase || 'aim';
+  if (phase === 'cancel' || phase === 'clear'){
+    mpClearRemoteIntent(40);
+    return;
+  }
+  if (MP_STATE.remoteIntentTimer) clearTimeout(MP_STATE.remoteIntentTimer);
+  document.querySelectorAll('.mp-remote-source,.mp-remote-target').forEach(el => {
+    el.classList.remove('mp-remote-source','mp-remote-target');
+  });
+  const sourceEl = mpElementForRemoteDesc(msg.source);
+  let sourceAnchor = sourceEl;
+  if (msg.source && msg.source.kind === 'hand') sourceAnchor = mpShowIntentCard(msg.source, sourceEl) || sourceEl;
+  else {
+    const oldCard = $('mpIntentCard');
+    if (oldCard) oldCard.remove();
+  }
+  const targetEl = mpElementForRemoteDesc(msg.target);
+  if (sourceEl && msg.source && msg.source.kind !== 'hand') sourceEl.classList.add('mp-remote-source');
+  if (targetEl) targetEl.classList.add('mp-remote-target');
+  const toast = mpEnsureIntentToast();
+  const tpt = safeCenter(targetEl || sourceAnchor || $('board'), $('board'));
+  toast.textContent = mpIntentLabel(msg.source, msg.target, phase);
+  toast.style.left = tpt.x + 'px';
+  toast.style.top = Math.max(38, tpt.y - 52) + 'px';
+  toast.style.transform = 'translate(-50%,-50%)';
+  toast.classList.add('show');
+  mpDrawIntentBeam(sourceAnchor || sourceEl, targetEl);
+  const key = mpRemoteIntentKey(msg);
+  if (targetEl && sourceAnchor && key !== MP_STATE.remoteIntentKey){
+    flyEl('<div class="mp-intent-wisp">✦</div>', safeCenter(sourceAnchor, $('board')), safeCenter(targetEl, $('board')), 240);
+  }
+  MP_STATE.remoteIntentKey = key;
+  mpClearRemoteIntent(phase === 'commit' ? 520 : 1700);
+}
+function mpApplyRemoteIntent(msg){
+  if (!msg || msg.type !== 'intent') return;
+  mpShowRemoteIntent(msg);
+}
+function mpSendIntent(phase, source, target, opts){
+  if (!G || !G.multiplayer || MP_STATE.applyingRemote || !source) return false;
+  const now = Date.now();
+  const msg = {
+    type:'intent',
+    roomId:MP_STATE.roomId,
+    matchId:G.multiplayer.matchId,
+    seat:mpLocalSeat(),
+    seq:++MP_STATE.intentSeq,
+    phase,
+    source,
+    target:target || null,
+    mode:opts && opts.mode || '',
+  };
+  const key = JSON.stringify({ phase, source, target:target || null, mode:msg.mode });
+  if (phase === 'aim' && key === MP_STATE.intentLastKey && now - MP_STATE.intentLastAt < 160) return false;
+  if (phase === 'aim' && now - MP_STATE.intentLastAt < 70) return false;
+  MP_STATE.intentLastKey = key;
+  MP_STATE.intentLastAt = now;
+  return mpSendNet(msg);
+}
+function mpActionMeta(source, target, extra){
+  return Object.assign({ source:source || null, target:target || null }, extra || {});
+}
+function mpRemoteSnapshotCue(snap){
+  if (!snap || !snap.meta || snap.seat === mpLocalSeat()) return;
+  mpClearRemoteIntent(30);
+  const src = snap.meta.source || null;
+  const tgt = snap.meta.target || null;
+  const sourceEl = mpElementForRemoteDesc(src);
+  const targetEl = mpElementForRemoteDesc(tgt);
+  const anchor = (src && src.kind === 'hand') ? (mpShowIntentCard(src, sourceEl) || sourceEl) : sourceEl;
+  if (sourceEl && (!src || src.kind !== 'hand')) sourceEl.classList.add('mp-remote-source');
+  if (targetEl) targetEl.classList.add('mp-remote-target');
+  if (anchor && targetEl) flyEl('<div class="mp-intent-wisp">✦</div>', safeCenter(anchor, $('board')), safeCenter(targetEl, $('board')), 220);
+  const toast = mpEnsureIntentToast();
+  const pt = safeCenter(targetEl || anchor || $('board'), $('board'));
+  toast.textContent = mpIntentLabel(src, tgt, 'commit');
+  toast.style.left = pt.x + 'px';
+  toast.style.top = Math.max(38, pt.y - 52) + 'px';
+  toast.style.transform = 'translate(-50%,-50%)';
+  toast.classList.add('show');
+  mpClearRemoteIntent(650);
+}
+function mpSnapshot(action, meta){
   const seq = ++MP_STATE.seq;
   const summary = mpCurrentSummary();
   const journalEntry = mpBuildJournalEntry(action, summary, seq);
@@ -10653,6 +10978,7 @@ function mpSnapshot(action){
     winner: mpWinnerFromGame(),
     player: mpSideSnapshot(G.player),
     enemy: mpSideSnapshot(G.enemy),
+    meta: meta || null,
     journal: journalEntry,
     logHtml: $('log') ? $('log').innerHTML : ''
   };
@@ -10662,16 +10988,17 @@ function mpSnapshot(action){
   mpPushJournal(journalEntry);
   return snap;
 }
-function mpSendSnapshot(action){
+function mpSendSnapshot(action, meta){
   if (!G || !G.multiplayer || MP_STATE.applyingRemote) return false;
-  const snap = mpSnapshot(action);
+  const snap = mpSnapshot(action, meta);
   MP_STATE.actionLog.push({ seq:snap.seq, action:snap.action, at:Date.now() });
   if (MP_STATE.actionLog.length > 80) MP_STATE.actionLog.shift();
   return mpSendNet(snap);
 }
-function mpAfterLocalAction(action){
+function mpAfterLocalAction(action, meta){
   if (!G || !G.multiplayer || G.busy) return;
-  mpSendSnapshot(action);
+  mpSendIntent('commit', meta && meta.source, meta && meta.target, { mode:'commit' });
+  mpSendSnapshot(action, meta);
 }
 function mpApplyRemoteSnapshot(snap){
   if (!G || !G.multiplayer || !snap || snap.type !== 'state.snapshot') return;
@@ -10680,6 +11007,7 @@ function mpApplyRemoteSnapshot(snap){
 	  MP_STATE.remoteSeq = snap.seq || 0;
 	  MP_STATE.applyingRemote = true;
 	  const localWinner = mpMirrorWinner(snap.winner);
+	  mpRemoteSnapshotCue(snap);
 	  if (snap.journal) mpPushJournal(snap.journal);
 	  G.player = mpReviveSide(snap.enemy, 'player');
   G.enemy = mpReviveSide(snap.player, 'enemy');
@@ -10712,6 +11040,10 @@ function mpLaunchMatch(match){
 	  MP_STATE.seq = 0;
 	  MP_STATE.remoteSeq = 0;
 	  MP_STATE.journal = [];
+	  MP_STATE.intentSeq = 0;
+	  MP_STATE.intentLastKey = '';
+	  MP_STATE.remoteIntentKey = '';
+	  mpRemoveIntentOverlays();
 	  applyTableTheme();
   G = newGame((match.decks[localSeat] || []).slice(), (match.decks[remoteSeat] || []).slice());
   G.multiplayer = { roomId:match.roomId, matchId:match.id, seat:localSeat, remoteSeat, seed:match.seed };
@@ -10776,6 +11108,9 @@ async function mpCreateInvite(){
 	    MP_STATE.remoteSeq = 0;
 	    MP_STATE.journal = [];
 	    MP_STATE.lastSummary = null;
+	    MP_STATE.intentSeq = 0;
+	    MP_STATE.intentLastKey = '';
+	    MP_STATE.remoteIntentKey = '';
 	    MP_STATE.actionLog = [];
 	    MP_STATE.netLog = [];
 	    if ($('mpNetLog')) $('mpNetLog').textContent = '';
@@ -10820,6 +11155,9 @@ async function mpAcceptInvite(){
 	    MP_STATE.remoteSeq = 0;
 	    MP_STATE.journal = [];
 	    MP_STATE.lastSummary = null;
+	    MP_STATE.intentSeq = 0;
+	    MP_STATE.intentLastKey = '';
+	    MP_STATE.remoteIntentKey = '';
 	    MP_STATE.actionLog = [];
 	    MP_STATE.netLog = [];
 	    if ($('mpNetLog')) $('mpNetLog').textContent = '';
@@ -10870,6 +11208,9 @@ async function mpAcceptAnswer(){
 	    MP_STATE.remoteSeq = 0;
 	    MP_STATE.journal = [];
 	    MP_STATE.lastSummary = null;
+	    MP_STATE.intentSeq = 0;
+	    MP_STATE.intentLastKey = '';
+	    MP_STATE.remoteIntentKey = '';
 	    mpSetStartEnabled();
 	    mpSetMatchInfo('Answer принят. Когда DataChannel откроется, host сможет начать матч.');
     if (MP_STATE.transport === 'webrtc'){
