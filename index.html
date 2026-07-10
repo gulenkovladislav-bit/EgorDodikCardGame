@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-10-mp-shared-vfx';
+    var build = '2026-07-10-mp-hand-browse';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -1527,7 +1527,14 @@
   #enemyHand .card-back{width:42px;height:58px;margin-right:-16px;border-radius:7px;
     background:repeating-linear-gradient(45deg,#2c1e0e 0 5px,#38270f 5px 10px);
     border:2px solid #6b5124;transform:rotate(180deg);
-    box-shadow:0 3px 8px rgba(0,0,0,.55), inset 0 0 8px rgba(0,0,0,.3);}
+    box-shadow:0 3px 8px rgba(0,0,0,.55), inset 0 0 8px rgba(0,0,0,.3);
+    transition:transform .16s ease-out, box-shadow .16s ease-out, filter .16s ease-out;}
+  #enemyHand .card-back.mp-remote-browse{
+    transform:translateY(22px) scale(1.12) rotate(180deg);
+    z-index:80;
+    filter:brightness(1.18);
+    box-shadow:0 0 0 2px #8fd0ff, 0 0 18px rgba(120,190,255,.78), 0 8px 18px rgba(0,0,0,.72), inset 0 0 8px rgba(0,0,0,.3);
+  }
   /* ===== РУБАШКИ КАРТ (единый набор для колод/руки/паков) ===== */
   .cardback-default{
     background:
@@ -3818,7 +3825,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-10-mp-shared-vfx';
+const CARD_ARENA_BUILD = '2026-07-10-mp-hand-browse';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -7782,7 +7789,9 @@ function render(){
   renderMana($('playerMana'), G.player);
   renderMana($('enemyMana'), G.enemy);
 
-  $('enemyHand').innerHTML = G.enemy.hand.map(() => `<div class="card-back cardback-${G.enemyBack||'default'}"></div>`).join('');
+  $('enemyHand').innerHTML = G.enemy.hand.map((_, idx) =>
+    `<div class="card-back cardback-${G.enemyBack||'default'}${MP_STATE.remoteBrowseIdx === idx ? ' mp-remote-browse' : ''}" data-idx="${idx}"></div>`
+  ).join('');
   $('enemyDeck').className = 'deck-stack' + (G.enemyBack && G.enemyBack!=='default' ? ' cardback-'+G.enemyBack : '');
   $('playerDeck').className = 'deck-stack' + (SAVE.back && SAVE.back!=='default' ? ' cardback-'+SAVE.back : '');
   $('playerSecrets').innerHTML = (G.player.secrets || []).map(id => {
@@ -8374,6 +8383,30 @@ function overPlayerBoard(x, y){
   return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
 }
 
+function handCardFromEvent(e){
+  if (!$('game').classList.contains('active')) return null;
+  return e.target && e.target.closest ? e.target.closest('#playerHand .card') : null;
+}
+document.addEventListener('pointerover', e => {
+  const cardEl = handCardFromEvent(e);
+  if (!cardEl) return;
+  if (e.relatedTarget && cardEl.contains(e.relatedTarget)) return;
+  mpSendHandBrowse(+cardEl.dataset.idx, 'browse');
+});
+document.addEventListener('pointermove', e => {
+  if (drag.active) return;
+  const cardEl = handCardFromEvent(e);
+  if (!cardEl) return;
+  mpSendHandBrowse(+cardEl.dataset.idx, 'browse');
+});
+document.addEventListener('pointerout', e => {
+  const cardEl = handCardFromEvent(e);
+  if (!cardEl) return;
+  const next = e.relatedTarget && e.relatedTarget.closest ? e.relatedTarget.closest('#playerHand .card') : null;
+  if (next) return;
+  mpSendHandBrowse(+cardEl.dataset.idx, 'unbrowse');
+});
+
 document.addEventListener('pointerdown', e => {
   ac();
   if (!myTurn()) return;
@@ -8381,6 +8414,7 @@ document.addEventListener('pointerdown', e => {
 
   const cardEl = e.target.closest('#playerHand .card');
   if (cardEl){
+    mpSendHandBrowse(+cardEl.dataset.idx, 'browse');
     drag.active = true; drag.type = 'card'; drag.handIdx = +cardEl.dataset.idx;
     drag.startX = e.clientX; drag.startY = e.clientY; drag.moved = false;
     drag.srcEl = cardEl;
@@ -10252,6 +10286,11 @@ const MP_STATE = {
 	  intentLastAt: 0,
 	  remoteIntentKey: '',
 	  remoteIntentTimer: null,
+	  browseSeq: 0,
+	  browseLastIdx: -1,
+	  browseLastAt: 0,
+	  remoteBrowseIdx: -1,
+	  remoteBrowseTimer: null,
 	  lastPayload: null,
 	  lastCodeLabel: '',
 	  lastCodeInfo: null,
@@ -10600,6 +10639,11 @@ function mpSetMatchInfo(text){
 function mpResetRemoteFxQueue(){
   MP_STATE.remoteFxQueue = [];
   MP_STATE.remoteFxPlaying = false;
+  MP_STATE.browseLastIdx = -1;
+  MP_STATE.browseLastAt = 0;
+  MP_STATE.remoteBrowseIdx = -1;
+  if (MP_STATE.remoteBrowseTimer) clearTimeout(MP_STATE.remoteBrowseTimer);
+  MP_STATE.remoteBrowseTimer = null;
 }
 function mpLog(line){
   const stamp = new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
@@ -11008,17 +11052,25 @@ function mpHandSourceDescriptor(cardId, reveal){
     side:'player',
     cardId: reveal ? cardId : null,
     reveal: !!reveal,
-    cardType:def.type || '',
-    cost:def.cost || 0,
-    secret:!!def.secret
+    cardType:reveal ? (def.type || '') : '',
+    cost:reveal ? (def.cost || 0) : 0,
+    secret:reveal ? !!def.secret : false
   };
+}
+function mpHandBrowseDescriptor(handIdx){
+  const cardId = G && G.player && G.player.hand ? G.player.hand[handIdx] : null;
+  const desc = mpHandSourceDescriptor(cardId, false);
+  desc.handIndex = handIdx;
+  return desc;
 }
 function mpDragSourceDescriptor(type, handIdx, minion){
   if (!G) return null;
   if (type === 'card'){
     const cardId = G.player.hand[handIdx];
     if (!cardId) return null;
-    return mpHandSourceDescriptor(cardId, false);
+    const desc = mpHandSourceDescriptor(cardId, false);
+    desc.handIndex = handIdx;
+    return desc;
   }
   if (type === 'minion' && minion) return { kind:'minion', side:'player', uid:minion.uid, cardId:minion.cardId };
   if (type === 'hero') return { kind:'hero', side:'player' };
@@ -11032,9 +11084,21 @@ function mpRemoteSide(ref){
   if (!G) return null;
   return ref === 'player' ? G.enemy : ref === 'enemy' ? G.player : null;
 }
+function mpRemoteHandVisualIndex(handIndex){
+  const n = G && G.enemy && G.enemy.hand ? G.enemy.hand.length : 0;
+  const idx = Number(handIndex);
+  if (!Number.isFinite(idx) || idx < 0) return -1;
+  return Math.max(0, n - 1 - idx);
+}
 function mpElementForRemoteDesc(desc){
   if (!G || !desc) return null;
-  if (desc.kind === 'hand') return $('enemyHand');
+  if (desc.kind === 'hand'){
+    if (Number.isFinite(+desc.handIndex)){
+      const card = document.querySelector(`#enemyHand .card-back[data-idx="${mpRemoteHandVisualIndex(desc.handIndex)}"]`);
+      if (card) return card;
+    }
+    return $('enemyHand');
+  }
   if (desc.kind === 'board') return boardElForSide(mpRemoteSide(desc.side));
   if (desc.kind === 'hero') return heroEl(mpRemoteSide(desc.side));
   if (desc.kind === 'power') return desc.side === 'player' ? $('enemyPowerBtn') : $('playerPowerBtn');
@@ -11069,8 +11133,12 @@ function mpEnsureIntentToast(){
   return el;
 }
 function mpRemoveIntentOverlays(){
+  MP_STATE.remoteBrowseIdx = -1;
   document.querySelectorAll('.mp-remote-source,.mp-remote-target').forEach(el => {
     el.classList.remove('mp-remote-source','mp-remote-target');
+  });
+  document.querySelectorAll('#enemyHand .mp-remote-browse').forEach(el => {
+    el.classList.remove('mp-remote-browse');
   });
   const toast = $('mpIntentToast');
   if (toast) toast.classList.remove('show');
@@ -11078,6 +11146,35 @@ function mpRemoveIntentOverlays(){
   if (card) card.remove();
   const beam = $('mpIntentBeam');
   if (beam) beam.remove();
+}
+function mpClearRemoteBrowse(delay){
+  if (MP_STATE.remoteBrowseTimer) clearTimeout(MP_STATE.remoteBrowseTimer);
+  MP_STATE.remoteBrowseTimer = setTimeout(() => {
+    MP_STATE.remoteBrowseIdx = -1;
+    document.querySelectorAll('#enemyHand .mp-remote-browse').forEach(el => {
+      el.classList.remove('mp-remote-browse');
+    });
+  }, delay == null ? 420 : delay);
+}
+function mpShowRemoteBrowse(msg){
+  if (!G || !G.multiplayer || !msg || !msg.source) return;
+  if (msg.matchId && msg.matchId !== G.multiplayer.matchId) return;
+  if (msg.seat === mpLocalSeat()) return;
+  if (msg.phase === 'unbrowse' || msg.phase === 'cancel' || msg.phase === 'clear'){
+    mpClearRemoteBrowse(40);
+    return;
+  }
+  document.querySelectorAll('#enemyHand .mp-remote-browse').forEach(el => {
+    el.classList.remove('mp-remote-browse');
+  });
+  const idx = Number(msg.source.handIndex);
+  const visualIdx = mpRemoteHandVisualIndex(idx);
+  const card = visualIdx >= 0 ? document.querySelector(`#enemyHand .card-back[data-idx="${visualIdx}"]`) : null;
+  MP_STATE.remoteBrowseIdx = visualIdx;
+  if (card){
+    card.classList.add('mp-remote-browse');
+    mpClearRemoteBrowse(1300);
+  }
 }
 function mpClearRemoteIntent(delay){
   if (MP_STATE.remoteIntentTimer) clearTimeout(MP_STATE.remoteIntentTimer);
@@ -11134,7 +11231,12 @@ function mpShowRemoteIntent(msg){
   if (msg.matchId && msg.matchId !== G.multiplayer.matchId) return;
   if (msg.seat === mpLocalSeat()) return;
   const phase = msg.phase || 'aim';
+  if (phase === 'browse' || phase === 'unbrowse'){
+    mpShowRemoteBrowse(msg);
+    return;
+  }
   if (phase === 'cancel' || phase === 'clear'){
+    mpShowRemoteBrowse(msg);
     mpClearRemoteIntent(40);
     return;
   }
@@ -11191,6 +11293,30 @@ function mpSendIntent(phase, source, target, opts){
   MP_STATE.intentLastKey = key;
   MP_STATE.intentLastAt = now;
   return mpSendNet(msg);
+}
+function mpSendHandBrowse(handIdx, phase){
+  if (!G || !G.multiplayer || MP_STATE.applyingRemote) return false;
+  if (!Number.isFinite(+handIdx) || !G.player.hand[handIdx]) return false;
+  const now = Date.now();
+  if (phase === 'browse'){
+    if (MP_STATE.browseLastIdx === handIdx && now - MP_STATE.browseLastAt < 180) return false;
+    MP_STATE.browseLastIdx = handIdx;
+    MP_STATE.browseLastAt = now;
+  } else {
+    MP_STATE.browseLastIdx = -1;
+    MP_STATE.browseLastAt = now;
+  }
+  return mpSendNet({
+    type:'intent',
+    roomId:MP_STATE.roomId,
+    matchId:G.multiplayer.matchId,
+    seat:mpLocalSeat(),
+    seq:++MP_STATE.browseSeq,
+    phase:phase || 'browse',
+    source:mpHandBrowseDescriptor(handIdx),
+    target:null,
+    mode:'hand-browse'
+  });
 }
 function mpActionMeta(source, target, extra){
   return Object.assign({ source:source || null, target:target || null }, extra || {});
