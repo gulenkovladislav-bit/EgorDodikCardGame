@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-10-mobile-chat-rail';
+    var build = '2026-07-10-mobile-perf';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -1881,9 +1881,10 @@
     position:fixed;z-index:120;pointer-events:none;
     transform:translate(-50%,-60%) scale(1.08) rotate(2deg);
     filter:drop-shadow(0 14px 18px rgba(0,0,0,.7));
+    left:0;top:0;will-change:transform;contain:layout paint style;backface-visibility:hidden;
     display:none;
   }
-  #dragGhost .card{margin:0;cursor:grabbing;}
+  #dragGhost .card{margin:0;cursor:grabbing;will-change:transform;backface-visibility:hidden;contain:layout paint style;}
 
   /* существа */
   .minion{
@@ -2144,8 +2145,10 @@
   /* анимации боя */
   .fly{
     position:fixed;z-index:110;pointer-events:none;
-    transition:left .38s cubic-bezier(.5,-0.3,.6,1.2), top .38s cubic-bezier(.5,-0.3,.6,1.2), transform .38s;
+    left:0;top:0;will-change:transform;contain:layout paint style;backface-visibility:hidden;
+    transition:transform .38s cubic-bezier(.5,-0.3,.6,1.2);
   }
+  .fly .card{will-change:transform;backface-visibility:hidden;contain:layout paint style;}
   .fx-particle{
     position:fixed;z-index:80;font-size:15px;pointer-events:none;
     transform:translate(-50%,-50%);
@@ -3228,6 +3231,26 @@
       transform:translate(-50%,-60%) scale(.82) rotate(2deg);
     }
     #dragGhost .card{margin:0;}
+    body.dragging-card #playerHand .card,
+    body.dragging-card #dragGhost .card,
+    body.dragging-card .card.playable,
+    body.dragging-card .card.playable.boosted,
+    body.dragging-card .rgem,
+    body.dragging-card .targetable,
+    body.dragging-card .aim{
+      animation:none !important;
+    }
+    body.dragging-card #dragGhost,
+    body.dragging-card #arrowLayer,
+    .fly,
+    .fly *,
+    .fx-particle{
+      filter:none !important;
+    }
+    body.dragging-card #dragGhost .card,
+    .fly .card{
+      box-shadow:0 4px 9px rgba(0,0,0,.48), inset 0 0 0 1px rgba(255,248,225,.32), inset 0 0 0 3px rgba(122,99,53,.22) !important;
+    }
 
     #playerDeck{
       right:max(16px, env(safe-area-inset-right));
@@ -4016,7 +4039,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-10-disconnect-notice';
+const CARD_ARENA_BUILD = '2026-07-10-mobile-perf';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -7797,17 +7820,18 @@ function splashAt(pt, n, kind){
 }
 function flyEl(html, from, to, dur){
   return new Promise(res => {
+    const ms = perfMs(dur || 380);
     const f = document.createElement('div');
     f.className = 'fly';
     f.innerHTML = html;
-    f.style.left = from.x + 'px'; f.style.top = from.y + 'px';
-    f.style.transform = 'translate(-50%,-50%)';
-    if (dur) f.style.transitionDuration = dur + 'ms, ' + dur + 'ms, ' + dur + 'ms';
+    f.style.left = '0px'; f.style.top = '0px';
+    f.style.transform = `translate3d(${from.x}px, ${from.y}px, 0) translate(-50%,-50%)`;
+    f.style.transitionDuration = ms + 'ms';
     document.body.appendChild(f);
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      f.style.left = to.x + 'px'; f.style.top = to.y + 'px';
+      f.style.transform = `translate3d(${to.x}px, ${to.y}px, 0) translate(-50%,-50%)`;
     }));
-    setTimeout(() => { f.remove(); res(); }, (dur || 380) + 40);
+    setTimeout(() => { f.remove(); res(); }, ms + 40);
   });
 }
 function burstFx(pt, kind){
@@ -7818,18 +7842,20 @@ function burstFx(pt, kind){
     frost: { chars:['❄️','•'], color:'#9fd4ff', n:9 }
   }[kind];
   if (!conf) return;
-  for (let i = 0; i < conf.n; i++){
+  const n = perfCount(conf.n);
+  for (let i = 0; i < n; i++){
     const s = document.createElement('div');
     s.className = 'fx-particle';
     s.textContent = conf.chars[Math.floor(Math.random() * conf.chars.length)];
-    const ang = (Math.PI * 2 * i) / conf.n + Math.random() * 0.5;
+    const ang = (Math.PI * 2 * i) / n + Math.random() * 0.5;
     const dist = 28 + Math.random() * 34;
     s.style.left = pt.x + 'px'; s.style.top = pt.y + 'px';
     s.style.color = conf.color;
+    s.style.animationDuration = perfMs(700) + 'ms';
     s.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
     s.style.setProperty('--dy', Math.sin(ang) * dist + 'px');
     document.body.appendChild(s);
-    setTimeout(() => s.remove(), 720);
+    setTimeout(() => s.remove(), perfMs(720));
   }
 }
 const FX_DEF = {
@@ -7839,6 +7865,32 @@ const FX_DEF = {
 function fxActiveList(){ return (SAVE.fxActive && SAVE.fxActive.length) ? SAVE.fxActive : (SAVE.fx && SAVE.fx !== 'default' ? [SAVE.fx] : []); }
 function hasFx(id){ return fxActiveList().indexOf(id) >= 0; }
 function playerFx(){ const l = fxActiveList(); return l.length ? l[0] : null; }
+function mobilePerfMode(){
+  try{
+    return mobileBattleLayout() || (window.matchMedia && matchMedia('(pointer: coarse)').matches);
+  }catch(e){
+    return false;
+  }
+}
+function perfCount(n){
+  return mobilePerfMode() ? Math.max(3, Math.round(n * 0.58)) : n;
+}
+function perfMs(ms){
+  return mobilePerfMode() ? Math.max(120, Math.round(ms * 0.84)) : ms;
+}
+function setDragPerf(on){
+  document.body.classList.toggle('dragging-card', !!on);
+}
+function dragGhostScale(){
+  return mobileBattleLayout() ? 0.82 : 1.08;
+}
+function setDragGhostAt(x, y){
+  const ghost = $('dragGhost');
+  if (!ghost) return;
+  ghost.style.left = '0px';
+  ghost.style.top = '0px';
+  ghost.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%,-60%) scale(${dragGhostScale()}) rotate(2deg)`;
+}
 
 /* ==================== VFX ЗАКЛИНАНИЙ ПО СМЫСЛУ ==================== */
 const SPELL_SCHOOLS = {
@@ -7892,21 +7944,24 @@ function spellImpact(pt, school, opts){
   flash.className = 'sfx-flash'; flash.style.setProperty('--c', conf.c);
   flash.style.left = pt.x+'px'; flash.style.top = pt.y+'px';
   if (big) flash.style.transform = 'translate(-50%,-50%) scale(1.4)';
-  document.body.appendChild(flash); setTimeout(()=>flash.remove(), 460);
+  flash.style.animationDuration = perfMs(420) + 'ms';
+  document.body.appendChild(flash); setTimeout(()=>flash.remove(), perfMs(460));
   // кольцо
   const ring = document.createElement('div');
   ring.className = 'sfx-ring'; ring.style.setProperty('--c', conf.c);
   ring.style.left = pt.x+'px'; ring.style.top = pt.y+'px';
-  document.body.appendChild(ring); setTimeout(()=>ring.remove(), 540);
+  ring.style.animationDuration = perfMs(500) + 'ms';
+  document.body.appendChild(ring); setTimeout(()=>ring.remove(), perfMs(540));
   // легендарная ударная волна + золотое кольцо
   if (big){
     const shock = document.createElement('div');
     shock.className = 'sfx-shock'; shock.style.setProperty('--c', '#ffe08a');
     shock.style.left = pt.x+'px'; shock.style.top = pt.y+'px';
-    document.body.appendChild(shock); setTimeout(()=>shock.remove(), 720);
+    shock.style.animationDuration = perfMs(700) + 'ms';
+    document.body.appendChild(shock); setTimeout(()=>shock.remove(), perfMs(720));
   }
   // частицы
-  const n = (big ? 14 : 9);
+  const n = perfCount(big ? 14 : 9);
   for (let i=0;i<n;i++){
     const s = document.createElement('div');
     s.className = 'fx-particle';
@@ -7917,10 +7972,11 @@ function spellImpact(pt, school, opts){
     const dist = (big?42:28) + Math.random()*36;
     s.style.left = pt.x+'px'; s.style.top = pt.y+'px'; s.style.color = conf.c;
     s.style.fontSize = (13 + Math.random()*7 + (big?4:0)) + 'px';
+    s.style.animationDuration = perfMs(700) + 'ms';
     s.style.setProperty('--dx', (Math.cos(ang)*dist) + 'px');
     s.style.setProperty('--dy', ((up ? -Math.abs(Math.sin(ang)) : Math.sin(ang))*dist - (up?26:0)) + 'px');
     document.body.appendChild(s);
-    setTimeout(()=>s.remove(), 740);
+    setTimeout(()=>s.remove(), perfMs(740));
   }
   sfxSchool(conf.sound);
 }
@@ -7938,8 +7994,9 @@ async function castVfx(def, from, to, opts){
     beam.className = 'sfx-beam'; beam.style.setProperty('--c', conf.c);
     beam.style.left = from.x+'px'; beam.style.top = from.y+'px';
     beam.style.width = len+'px'; beam.style.transform = `rotate(${ang}deg)`;
-    document.body.appendChild(beam); setTimeout(()=>beam.remove(), 340);
-    await sleep(140);
+    beam.style.animationDuration = perfMs(340) + 'ms';
+    document.body.appendChild(beam); setTimeout(()=>beam.remove(), perfMs(340));
+    await sleep(perfMs(140));
   } else {
     const glow = big ? '0 0 16px #ffe08a,0 0 26px '+conf.c : '0 0 12px '+conf.c;
     await flyEl(`<div style="font-size:${big?46:38}px;filter:drop-shadow(${glow})">${conf.proj}</div>`, from, to, big?340:300);
@@ -8473,9 +8530,10 @@ async function usePlayerPower(target){
 	}
 
 /* ================== DRAG & DROP ================== */
-const drag = { active:false, type:null, handIdx:-1, minion:null, startX:0, startY:0, moved:false, srcEl:null };
+const drag = { active:false, type:null, handIdx:-1, minion:null, startX:0, startY:0, lastX:0, lastY:0, moveRaf:0, moved:false, srcEl:null };
 const arrowSvg = $('arrowLayer'), arrowSegsEl = $('arrowSegs'), arrowHeadEl = $('arrowHead');
 let arrowActive = false, arrowFrom = {x:0,y:0}, arrowTip = {x:0,y:0};
+let arrowLastDraw = 0;
 
 function arrowStart(pt){
   arrowFrom = { x: pt.x, y: pt.y };
@@ -8493,7 +8551,11 @@ function arrowStop(){
 }
 function arrowFrame(){
   if (!arrowActive) return;
-  drawArrow();
+  const now = performance.now();
+  if (!mobilePerfMode() || now - arrowLastDraw > 30){
+    arrowLastDraw = now;
+    drawArrow();
+  }
   requestAnimationFrame(arrowFrame);
 }
 /* дуга Безье вверх + шевроны, бегущие к цели — как в HS */
@@ -8516,7 +8578,8 @@ function drawArrow(){
     const ty = 2 * (1 - t) * (cy - y1) + 2 * t * (y2 - cy);
     return Math.atan2(ty, tx) * 180 / Math.PI;
   };
-  const n = Math.max(3, Math.min(14, Math.floor(dist / 36)));
+  const maxSegs = mobilePerfMode() ? 8 : 14;
+  const n = Math.max(3, Math.min(maxSegs, Math.floor(dist / (mobilePerfMode() ? 48 : 36))));
   const phase = (performance.now() / 450) % 1;
   let html = '';
   for (let i = 0; i < n; i++){
@@ -8539,6 +8602,13 @@ function aimElOf(t){
 }
 function updateAim(x, y, mode){
   const el = aimElOf(pickTargetAt(x, y, mode));
+  if (el === lastAimEl) return;
+  if (lastAimEl) lastAimEl.classList.remove('aim');
+  if (el) el.classList.add('aim');
+  lastAimEl = el;
+}
+function updateAimTarget(target){
+  const el = aimElOf(target);
   if (el === lastAimEl) return;
   if (lastAimEl) lastAimEl.classList.remove('aim');
   if (el) el.classList.add('aim');
@@ -8610,8 +8680,9 @@ document.addEventListener('pointerdown', e => {
   if (cardEl){
     mpSendHandBrowse(+cardEl.dataset.idx, 'browse');
     drag.active = true; drag.type = 'card'; drag.handIdx = +cardEl.dataset.idx;
-    drag.startX = e.clientX; drag.startY = e.clientY; drag.moved = false;
+    drag.startX = e.clientX; drag.startY = e.clientY; drag.lastX = e.clientX; drag.lastY = e.clientY; drag.moved = false;
     drag.srcEl = cardEl;
+    setDragPerf(true);
     drag.intentSource = mpDragSourceDescriptor('card', drag.handIdx);
     mpSendIntent('begin', drag.intentSource, null, { mode:'card' });
     return;
@@ -8621,7 +8692,8 @@ document.addEventListener('pointerdown', e => {
     const m = G.player.board.find(x => x.uid === +mEl.dataset.uid);
     if (m && m.canAttack){
       drag.active = true; drag.type = 'minion'; drag.minion = m;
-      drag.startX = e.clientX; drag.startY = e.clientY; drag.moved = false;
+      drag.startX = e.clientX; drag.startY = e.clientY; drag.lastX = e.clientX; drag.lastY = e.clientY; drag.moved = false;
+      setDragPerf(true);
       drag.intentSource = mpDragSourceDescriptor('minion', -1, m);
       mEl.classList.add('arrow-src');
       arrowStart(center(mEl));
@@ -8633,7 +8705,8 @@ document.addEventListener('pointerdown', e => {
   const heroDragEl = e.target.closest('#playerHero');
   if (heroDragEl && G.player.weapon && !G.player.heroAttacked){
     drag.active = true; drag.type = 'hero';
-    drag.startX = e.clientX; drag.startY = e.clientY; drag.moved = false;
+    drag.startX = e.clientX; drag.startY = e.clientY; drag.lastX = e.clientX; drag.lastY = e.clientY; drag.moved = false;
+    setDragPerf(true);
     drag.intentSource = mpDragSourceDescriptor('hero');
     arrowStart(center($('playerHero')));
     markTargets('attack');
@@ -8645,7 +8718,8 @@ document.addEventListener('pointerdown', e => {
 	    if (G.player.powerUsed || G.player.mana < pw.cost) return;
     if (!pw.targeted){ usePlayerPower(null); return; }
     drag.active = true; drag.type = 'power';
-    drag.startX = e.clientX; drag.startY = e.clientY; drag.moved = false;
+    drag.startX = e.clientX; drag.startY = e.clientY; drag.lastX = e.clientX; drag.lastY = e.clientY; drag.moved = false;
+    setDragPerf(true);
     drag.intentSource = mpDragSourceDescriptor('power');
     $('playerPowerBtn').classList.add('selected');
     arrowStart(center($('playerPowerBtn')));
@@ -8655,9 +8729,9 @@ document.addEventListener('pointerdown', e => {
   }
 });
 
-document.addEventListener('pointermove', e => {
+function handleDragMove(x, y){
   if (!drag.active) return;
-  const dx = e.clientX - drag.startX, dy = e.clientY - drag.startY;
+  const dx = x - drag.startX, dy = y - drag.startY;
   if (Math.hypot(dx, dy) > 8) drag.moved = true;
 
   if (drag.type === 'card'){
@@ -8685,36 +8759,59 @@ document.addEventListener('pointermove', e => {
            от неё тянется стрелка к пальцу — как в HS */
 	        drag.mode = spellTargetMode(def);
 	        markTargets(drag.mode);
-        ghost.style.left = (window.innerWidth / 2) + 'px';
-        ghost.style.top = (window.innerHeight - 125) + 'px';
+        setDragGhostAt(window.innerWidth / 2, window.innerHeight - 125);
         arrowStart({ x: window.innerWidth / 2, y: window.innerHeight - 190 });
       }
     }
     const cardId = G.player.hand[drag.handIdx];
     const def = cardId !== undefined ? CARD_DB[cardId] : null;
     if (def && def.type === 'spell' && def.target){
-      arrowMove(e.clientX, e.clientY);
-      updateAim(e.clientX, e.clientY, drag.mode);
-      mpSendIntent('aim', drag.intentSource, mpTargetDescriptor(pickTargetAt(e.clientX, e.clientY, drag.mode)), { mode:drag.mode });
+      arrowMove(x, y);
+      const target = pickTargetAt(x, y, drag.mode);
+      updateAimTarget(target);
+      mpSendIntent('aim', drag.intentSource, mpTargetDescriptor(target), { mode:drag.mode });
     } else {
-      ghost.style.left = e.clientX + 'px';
-      ghost.style.top = e.clientY + 'px';
+      setDragGhostAt(x, y);
     }
   } else {
-    arrowMove(e.clientX, e.clientY);
+    arrowMove(x, y);
     const mode = (drag.type === 'minion' || drag.type === 'hero')
 	      ? 'attack'
 	      : (heroPowerOf(G.player).mode || 'any');
-    updateAim(e.clientX, e.clientY, mode);
-    mpSendIntent('aim', drag.intentSource, mpTargetDescriptor(pickTargetAt(e.clientX, e.clientY, mode)), { mode });
+    const target = pickTargetAt(x, y, mode);
+    updateAimTarget(target);
+    mpSendIntent('aim', drag.intentSource, mpTargetDescriptor(target), { mode });
   }
+}
+function queueDragMove(x, y){
+  drag.lastX = x;
+  drag.lastY = y;
+  if (drag.moveRaf) return;
+  drag.moveRaf = requestAnimationFrame(() => {
+    drag.moveRaf = 0;
+    handleDragMove(drag.lastX, drag.lastY);
+  });
+}
+function flushDragMove(x, y){
+  if (drag.moveRaf){
+    cancelAnimationFrame(drag.moveRaf);
+    drag.moveRaf = 0;
+  }
+  handleDragMove(x, y);
+}
+document.addEventListener('pointermove', e => {
+  if (!drag.active) return;
+  queueDragMove(e.clientX, e.clientY);
 });
 
 document.addEventListener('pointerup', e => {
   if (!drag.active) return;
+  flushDragMove(e.clientX, e.clientY);
+  if (Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) > 8) drag.moved = true;
   const type = drag.type, handIdx = drag.handIdx, minion = drag.minion,
         moved = drag.moved, srcEl = drag.srcEl, intentSource = drag.intentSource;
   drag.active = false; drag.type = null; drag.minion = null; drag.handIdx = -1; drag.srcEl = null; drag.intentSource = null;
+  setDragPerf(false);
   const cancelIntent = () => mpSendIntent('cancel', intentSource, null, {});
 
   $('dragGhost').style.display = 'none';
@@ -8790,8 +8887,10 @@ document.addEventListener('pointerup', e => {
 });
 document.addEventListener('pointercancel', () => {
   mpSendIntent('cancel', drag.intentSource, null, {});
+  if (drag.moveRaf){ cancelAnimationFrame(drag.moveRaf); drag.moveRaf = 0; }
   drag.active = false;
   drag.intentSource = null;
+  setDragPerf(false);
   $('dragGhost').style.display = 'none';
   arrowStop(); clearTargets();
   $('playerPowerBtn').classList.remove('selected');
@@ -8824,8 +8923,10 @@ function stopTimer(){
 }
 function forceEndTurn(){
   mpSendIntent('cancel', drag.intentSource, null, {});
+  if (drag.moveRaf){ cancelAnimationFrame(drag.moveRaf); drag.moveRaf = 0; }
   drag.active = false;
   drag.intentSource = null;
+  setDragPerf(false);
   $('dragGhost').style.display = 'none';
   arrowStop(); clearTargets();
   log('🔥 Фитиль догорел!');
