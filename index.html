@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-10-mp-wizard';
+    var build = '2026-07-10-mobile-battle-dock';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -3030,7 +3030,7 @@
     }
 
     #game{
-      --mobile-hand-scale:.58;
+      --mobile-hand-scale:.52;
       --mobile-safe-bottom:max(4px, env(safe-area-inset-bottom));
     }
     #game::before{
@@ -3041,26 +3041,26 @@
         linear-gradient(90deg, rgba(9,5,2,.72), transparent);
     }
     #board{
-      left:6.5%;
-      right:6%;
-      top:10%;
-      bottom:30%;
+      left:5.5%;
+      right:5.5%;
+      top:8.5%;
+      bottom:23%;
     }
     .row{
-      left:12%;
-      right:12%;
-      height:29%;
+      left:14%;
+      right:14%;
+      height:23%;
       gap:5px;
     }
-    #enemyBoard{top:16%;}
-    #playerBoard{bottom:22%;}
+    #enemyBoard{top:12%;}
+    #playerBoard{bottom:12%;}
     .minion{
-      width:82px;
-      height:106px;
+      width:72px;
+      height:94px;
       padding:6px;
       border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;
     }
-    .minion .m-icon{font-size:36px;}
+    .minion .m-icon{font-size:32px;}
     .minion .m-name{display:none;}
     .minion .stat{width:28px;height:28px;font-size:15px;bottom:12px;}
     .minion .stat.atk{left:-6px;}
@@ -3111,10 +3111,10 @@
     }
     #enemyHero{top:6px;}
     #playerHero{
-      left:max(12px, calc(env(safe-area-inset-left) + 12px));
-      bottom:64px;
-      transform:scale(.86);
-      transform-origin:0 100%;
+      left:50%;
+      bottom:84px;
+      transform:translateX(-50%) scale(.78);
+      transform-origin:50% 100%;
       z-index:34;
     }
     .power-btn{
@@ -3133,8 +3133,8 @@
       border-width:1.5px;
     }
     #playerPowerBtn{
-      left:max(82px, calc(env(safe-area-inset-left) + 82px));
-      bottom:82px;
+      left:calc(50% + 68px);
+      bottom:100px;
       z-index:35;
     }
     #enemyPowerBtn{top:22px;left:calc(50% + 52px);width:46px;height:46px;font-size:17px;}
@@ -3147,19 +3147,19 @@
     .weapon-plate .w-icon{font-size:16px;}
     .weapon-plate .w-stats{font-size:9px;gap:4px;}
     #playerWeapon{
-      right:auto;
-      left:calc(100% + 8px);
-      top:8px;
+      right:calc(100% + 3px);
+      left:auto;
+      top:6px;
     }
 
     #playerHand{
-      bottom:calc(14px + var(--mobile-safe-bottom));
-      height:128px;
+      bottom:calc(-8px + var(--mobile-safe-bottom));
+      height:122px;
       transform:translateX(-50%) scale(var(--mobile-hand-scale));
       transform-origin:50% 100%;
       z-index:31;
     }
-    #playerHand .card{margin:0 -4px;}
+    #playerHand .card{margin:0 -6px;}
     #playerHand .card:hover{
       transform:translateY(-22px) scale(1.04) rotate(0deg) !important;
     }
@@ -3224,7 +3224,7 @@
     #rope{
       left:20%;
       right:20%;
-      bottom:34px;
+      bottom:20px;
     }
     #log{
       left:max(8px, env(safe-area-inset-left));
@@ -3241,29 +3241,33 @@
 
   @media (pointer: coarse) and (orientation: landscape) and (max-height: 430px),
          (max-width: 980px) and (max-height: 430px) and (orientation: landscape){
-    #game{--mobile-hand-scale:.54;}
+    #game{--mobile-hand-scale:.50;}
     #game::before{width:158px;height:118px;}
-    #board{left:6%;right:6%;top:11%;bottom:33%;}
-    .row{left:13%;right:13%;height:27%;}
-    #enemyBoard{top:15%;}
-    #playerBoard{bottom:22%;}
-    .minion{width:74px;height:96px;padding:5px;border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;}
-    .minion .m-icon{font-size:32px;}
+    #board{left:5.5%;right:5.5%;top:8%;bottom:24%;}
+    .row{left:15%;right:15%;height:22%;gap:4px;}
+    #enemyBoard{top:12%;}
+    #playerBoard{bottom:12%;}
+    .minion{width:66px;height:86px;padding:5px;border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;}
+    .minion .m-icon{font-size:29px;}
     .minion .m-name{display:none;}
     .minion .stat{width:25px;height:25px;font-size:14px;bottom:11px;}
     .minion .rgem{width:18px;height:18px;bottom:-6px;}
     .minion .rgem .tico{font-size:10px;}
     #playerHero{
-      left:max(9px, calc(env(safe-area-inset-left) + 9px));
-      bottom:54px;
-      transform:scale(.78);
-      transform-origin:0 100%;
+      left:50%;
+      bottom:76px;
+      transform:translateX(-50%) scale(.70);
+      transform-origin:50% 100%;
     }
     #playerPowerBtn{
-      left:max(72px, calc(env(safe-area-inset-left) + 72px));
-      bottom:68px;
+      left:calc(50% + 58px);
+      bottom:88px;
+      width:47px;
+      height:47px;
+      font-size:16px;
     }
-    #playerHand{bottom:calc(22px + var(--mobile-safe-bottom));height:120px;}
+    #playerWeapon{right:calc(100% + 1px);left:auto;top:5px;}
+    #playerHand{bottom:calc(-12px + var(--mobile-safe-bottom));height:112px;}
     #playerDeck{bottom:30px;width:39px;height:55px;}
     #playerMana{bottom:5px;}
     #endTurnBtn{width:64px;font-size:10px;padding:9px 7px;}
@@ -3909,7 +3913,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-10-mp-wizard';
+const CARD_ARENA_BUILD = '2026-07-10-mobile-battle-dock';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -6987,6 +6991,8 @@ function mobileBattleLayout(){
 }
 function combatPoint(target, attSide){
   if (!target || target.kind !== 'hero' || !mobileBattleLayout()) return targetPoint(target);
+  const hero = heroEl(target.side);
+  if (hero) return safeCenter(hero, $('board'));
   const b = $('board').getBoundingClientRect();
   if (target.side === G.player){
     return { x: b.left + b.width * 0.5, y: b.bottom - Math.max(26, b.height * 0.09) };
