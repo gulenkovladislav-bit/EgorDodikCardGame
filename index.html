@@ -2330,7 +2330,12 @@
   .chat-row.mine{
     align-self:flex-end;background:rgba(145,100,28,.28);border-color:rgba(222,180,78,.46);color:#ffe6b0;
   }
+  .chat-row.system{
+    align-self:center;max-width:96%;text-align:center;
+    background:rgba(70,35,10,.42);border-color:rgba(255,180,80,.58);color:#ffd58a;
+  }
   .chat-row b{display:block;color:#fff2c8;font-size:8.5px;margin-bottom:1px;}
+  .chat-row.system b{color:#ffd58a;}
   #chatForm{display:flex;gap:5px;}
   #chatInput{
     flex:1;min-width:0;border:1.5px solid #6b5124;border-radius:8px;background:#120b05;
@@ -4011,7 +4016,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-10-mobile-chat-rail';
+const CARD_ARENA_BUILD = '2026-07-10-disconnect-notice';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -10487,7 +10492,9 @@ const MP_STATE = {
 	  actionLog: [],
 	  chat: [],
 	  chatOpen: false,
-	  chatUnread: 0
+	  chatUnread: 0,
+	  disconnectNotified: false,
+	  localClosing: false
 	};
 function mpRoomId(){
   const a = Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -10903,7 +10910,33 @@ function mpRtcConfig(){
     ]
   };
 }
+function mpGameActive(){
+  return !!(G && G.multiplayer);
+}
+function mpSendLeave(reason){
+  if (!mpGameActive() || !MP_STATE.dc || MP_STATE.dc.readyState !== 'open') return false;
+  return mpSendNet({
+    type:'leave',
+    roomId:MP_STATE.roomId,
+    matchId:G.multiplayer.matchId,
+    seat:mpLocalSeat(),
+    reason:reason || 'leave'
+  });
+}
+function mpShowDisconnectNotice(text, reason){
+  if (!mpGameActive() || MP_STATE.disconnectNotified) return;
+  MP_STATE.disconnectNotified = true;
+  const msg = text || 'Друг отсоединился от матча.';
+  mpSetStatus(msg, 'bad');
+  mpPushChat({ seat:'system', system:true, text:msg, at:Date.now() }, true);
+  mpLog('Отключение: ' + (reason || msg));
+  if ($('game') && $('game').classList.contains('active')) banner('Друг отключился');
+}
 function mpClosePeer(silent){
+  if (!silent && mpGameActive()){
+    MP_STATE.localClosing = true;
+    try { mpSendLeave('manual'); } catch(e){}
+  }
   try { if (MP_STATE.dc) MP_STATE.dc.close(); } catch(e){}
   try { if (MP_STATE.pc) MP_STATE.pc.close(); } catch(e){}
 	  mpRemoveIntentOverlays();
@@ -10947,6 +10980,17 @@ function mpBindPeer(pc){
       mpSetStatus('Соединение установлено. Жду готовности канала.', 'ok');
     } else if (st === 'failed' || st === 'disconnected'){
       mpSetStatus('Связь просела. Можно попробовать заново обменяться кодами.', 'bad');
+      if (mpGameActive() && !MP_STATE.localClosing){
+        const lostText = st === 'failed'
+          ? 'Связь с другом потеряна.'
+          : 'Друг отсоединился или сеть оборвалась.';
+        setTimeout(() => {
+          if (!mpGameActive() || MP_STATE.localClosing || MP_STATE.disconnectNotified) return;
+          const now = MP_STATE.pc && MP_STATE.pc.connectionState;
+          if (now === 'connected') return;
+          mpShowDisconnectNotice(lostText, st);
+        }, 1200);
+      }
     }
   };
   pc.oniceconnectionstatechange = () => {
@@ -10966,9 +11010,12 @@ function mpBindDataChannel(dc){
     mpSendNet({ type:'hello', roomId:MP_STATE.roomId, role:MP_STATE.role, build:CARD_ARENA_BUILD });
   };
 	  dc.onclose = () => {
+	    const localClose = !!MP_STATE.localClosing;
 	    mpSetPingEnabled(false);
 	    mpSetStartEnabled();
 	    mpLog('DataChannel закрыт.');
+	    if (mpGameActive() && !localClose) mpShowDisconnectNotice('Друг отсоединился от матча или потерял связь.', 'channel-close');
+	    MP_STATE.localClosing = false;
 	  };
   dc.onerror = () => {
     mpSetStatus('Ошибка связи. Попробуй создать игру заново.', 'bad');
@@ -11017,6 +11064,11 @@ function mpHandleNetMessage(raw){
 	  if (msg.type === 'chat'){
 	    if (!G || !G.multiplayer || msg.matchId !== G.multiplayer.matchId) return;
 	    mpPushChat(msg, true);
+	    return;
+	  }
+	  if (msg.type === 'leave'){
+	    if (!G || !G.multiplayer || msg.matchId !== G.multiplayer.matchId) return;
+	    mpShowDisconnectNotice('Друг вышел из матча.', msg.reason || 'leave');
 	    return;
 	  }
 	  if (msg.type === 'match.start'){
@@ -11273,6 +11325,7 @@ function renderMpJournal(){
   if ($('mpJournalSeq')) $('mpJournalSeq').textContent = '#' + (MP_STATE.seq || MP_STATE.remoteSeq || 0);
 }
 function mpChatLabel(seat){
+  if (seat === 'system') return 'Система';
   return seat === mpLocalSeat() ? 'Ты' : 'Друг';
 }
 function renderBattleChat(){
@@ -11289,8 +11342,9 @@ function renderBattleChat(){
   if (rows){
     const last = (MP_STATE.chat || []).slice(-24);
     rows.innerHTML = last.length ? last.map(m => {
-      const mine = m.seat === mpLocalSeat();
-      return `<div class="chat-row ${mine ? 'mine' : ''}"><b>${mpChatLabel(m.seat)}</b>${safeTxt(m.text || '')}</div>`;
+      const system = m.seat === 'system';
+      const mine = !system && m.seat === mpLocalSeat();
+      return `<div class="chat-row ${system ? 'system' : (mine ? 'mine' : '')}"><b>${mpChatLabel(m.seat)}</b>${safeTxt(m.text || '')}</div>`;
     }).join('') : '<div class="chat-row">Чат готов. Сообщения видит только друг в этом матче.</div>';
     rows.scrollTop = rows.scrollHeight;
   }
@@ -11301,8 +11355,9 @@ function renderBattleChat(){
 }
 function mpPushChat(msg, remote){
   if (!msg || !String(msg.text || '').trim()) return;
+  const system = !!msg.system || msg.seat === 'system';
   const entry = {
-    seat: msg.seat || (remote ? mpOtherSeat(mpLocalSeat()) : mpLocalSeat()),
+    seat: system ? 'system' : (msg.seat || (remote ? mpOtherSeat(mpLocalSeat()) : mpLocalSeat())),
     text: String(msg.text || '').replace(/\s+/g, ' ').trim().slice(0, 80),
     at: msg.at || Date.now()
   };
@@ -11974,6 +12029,8 @@ function mpLaunchMatch(match){
 	  MP_STATE.chat = [];
 	  MP_STATE.chatOpen = false;
 	  MP_STATE.chatUnread = 0;
+	  MP_STATE.disconnectNotified = false;
+	  MP_STATE.localClosing = false;
 	  MP_STATE.intentSeq = 0;
 	  MP_STATE.intentLastKey = '';
 	  MP_STATE.remoteIntentKey = '';
@@ -13207,6 +13264,12 @@ $('chatForm').addEventListener('submit', e => {
 });
 $('battleChat').addEventListener('pointerdown', e => e.stopPropagation());
 $('battleChat').addEventListener('click', e => e.stopPropagation());
+window.addEventListener('beforeunload', () => {
+  try { mpSendLeave('page-close'); } catch(e){}
+});
+window.addEventListener('pagehide', () => {
+  try { mpSendLeave('page-hide'); } catch(e){}
+});
 $('mpCreateInvite').addEventListener('click', () => { sfx.click(); mpCreateInvite(); });
 $('mpAcceptInvite').addEventListener('click', () => { sfx.click(); mpAcceptIncoming(); });
 	$('mpAcceptAnswer').addEventListener('click', () => { sfx.click(); mpAcceptAnswer(); });
