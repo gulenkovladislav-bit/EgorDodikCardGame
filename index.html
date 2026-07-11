@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-10-mobile-perf';
+    var build = '2026-07-11-mp-ranked-heroes';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -2698,6 +2698,25 @@
   }
   .mp-choice-card strong{display:block;color:var(--gold-bright);font-size:20px;letter-spacing:1.6px;text-shadow:0 2px 4px #000;margin-bottom:8px;}
   .mp-choice-card span{display:block;color:#a99773;font-size:13px;line-height:1.4;}
+  .mp-loadout{
+    display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+    margin:8px 0 14px;padding:12px 14px;border:2px solid rgba(107,81,36,.82);border-radius:13px;
+    background:
+      radial-gradient(ellipse at 0% 50%, rgba(112,165,200,.16), transparent 50%),
+      linear-gradient(180deg,rgba(42,29,11,.88),rgba(15,9,4,.9));
+    box-shadow:inset 0 0 18px rgba(0,0,0,.35);
+  }
+  .mp-loadout .mpl-hero{
+    width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:32px;background:radial-gradient(circle at 50% 30%,#6b5124,#1a1006);
+    border:3px solid var(--gold);box-shadow:0 0 0 2px #221807,0 8px 18px rgba(0,0,0,.45);
+  }
+  .mp-loadout .mpl-title{font-size:15px;color:var(--gold-bright);font-weight:bold;letter-spacing:1px;}
+  .mp-loadout .mpl-sub{font-size:10.5px;color:#a99773;line-height:1.35;margin-top:3px;}
+  .mp-loadout .mpl-reward{
+    text-align:right;font-size:11px;color:#d8c8a2;line-height:1.35;min-width:190px;
+  }
+  .mp-loadout .mpl-reward b{color:#f0d080;}
   .mp-card.single{max-width:790px;margin:0 auto;}
   .mp-card-titleline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
   .mp-card-titleline h3{margin:0;}
@@ -2832,6 +2851,11 @@
     .mp-choice-card b{width:30px;height:30px;font-size:14px;margin-bottom:8px;}
     .mp-choice-card strong{font-size:13px;letter-spacing:1px;margin-bottom:5px;}
     .mp-choice-card span{font-size:9px;}
+    .mp-loadout{grid-template-columns:auto 1fr;gap:8px;margin:6px 0 8px;padding:8px 9px;border-radius:10px;border-width:1.5px;}
+    .mp-loadout .mpl-hero{width:42px;height:42px;font-size:24px;border-width:2px;}
+    .mp-loadout .mpl-title{font-size:11px;letter-spacing:.6px;}
+    .mp-loadout .mpl-sub{font-size:8.5px;}
+    .mp-loadout .mpl-reward{grid-column:1 / -1;text-align:left;min-width:0;font-size:8.5px;}
     .mp-card.single{max-width:none;}
     .mp-card-titleline{gap:8px;}
     .mp-next-hint{font-size:9px;padding:7px 8px;border-radius:7px;}
@@ -3825,6 +3849,14 @@
     </div>
 
     <div class="mp-view active" id="mpChoiceView">
+      <div class="mp-loadout" id="mpLoadout">
+        <div class="mpl-hero" id="mpHeroIcon">🧑‍🦳</div>
+        <div>
+          <div class="mpl-title" id="mpHeroTitle">Жрец · Рейтинговый матч</div>
+          <div class="mpl-sub" id="mpHeroSub">Колода 35 карт · рейтинг 0</div>
+        </div>
+        <div class="mpl-reward" id="mpRewardInfo"><b>Победа:</b> рейтинг, золото, шанс пака<br><b>Поражение:</b> рейтинг вниз, утешительная награда</div>
+      </div>
       <div class="mp-choice-grid">
         <button class="mp-choice-card" id="mpChooseCreate">
           <b>1</b>
@@ -4039,7 +4071,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-10-mobile-perf';
+const CARD_ARENA_BUILD = '2026-07-11-mp-ranked-heroes';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -5393,7 +5425,7 @@ const TRIBE_RU = { beast:'🐾 Зверь', mech:'⚙️ Механизм', unde
 const TRIBE_ICON = { beast:'🐾', mech:'⚙️', undead:'🦴', demon:'🔥', pirate:'🏴‍☠️' };
 
 /* валюта и рейтинг */
-const GOLD = { win: 50, boss: 100, tournMatch: 30, champion: 200, packPrice: 100 };
+const GOLD = { win: 50, boss: 100, tournMatch: 30, champion: 200, mpWin: 45, mpLoss: 10, packPrice: 100 };
 const RATING = { win: 25, loss: -15, boss: 40, champion: 100 };
 const RANKS = [
   { min:2500, name:'Король',   icon:'👑' },
@@ -5734,7 +5766,7 @@ function defaultSave(){
   Object.assign(deck, starterDeck());
   return { collection, deck, packs: { classic: 3, magic: 1, mech: 1, pirate: 1, codex: 3 }, dust: 0,
            gold: 200, rating: 0, tourn: null, track: 'tavern', bossProgress: 0, aiMeta: null, aiLab: null,
-           wins: 0, music: true, hero: 'priest', codexDlcGrant: true,
+           wins: 0, mpWins: 0, mpLosses: 0, music: true, hero: 'priest', codexDlcGrant: true,
            heroesOwned: ['priest','mage','warrior'],
            tracksOwned: ['tavern','march'],
            framesOwned: ['default'], frame: 'default',
@@ -5771,6 +5803,8 @@ function loadSave(){
       if (typeof merged.dust !== 'number') merged.dust = 0;
       if (typeof merged.gold !== 'number') merged.gold = 200;
       if (typeof merged.rating !== 'number') merged.rating = 0;
+      if (typeof merged.mpWins !== 'number') merged.mpWins = 0;
+      if (typeof merged.mpLosses !== 'number') merged.mpLosses = 0;
       if (!('tourn' in merged)) merged.tourn = null;
       if (!['tavern','march','mystic','storm','anthem'].includes(merged.track)) merged.track = 'tavern';
       merged.deck = normalizeDeck(merged.deck, merged.collection);
@@ -10502,6 +10536,41 @@ function eloDelta(win, oppRating){
   const d = Math.round(40 * ((win ? 1 : 0) - exp));
   return win ? Math.max(10, Math.min(38, d)) : Math.max(-30, Math.min(-8, d));
 }
+function randomPackType(){
+  const types = Object.keys(PACKS_DB);
+  return types[Math.floor(Math.random() * types.length)];
+}
+function applyMultiplayerRewards(winner, oldRating, oldRank){
+  const win = winner === 'player';
+  const rewards = [];
+  const oppRating = G && G.opp ? G.opp.rating : SAVE.rating;
+  const delta = G && G.opp ? eloDelta(win, oppRating) : (win ? RATING.win : RATING.loss);
+  SAVE.rating = Math.max(0, SAVE.rating + delta);
+  if (win){
+    SAVE.wins = (SAVE.wins || 0) + 1;
+    SAVE.mpWins = (SAVE.mpWins || 0) + 1;
+    SAVE.gold += GOLD.mpWin;
+    SAVE.dust += 8;
+    rewards.push(`+${GOLD.mpWin} 🪙`, '+8 ✨');
+    if (Math.random() < 0.35){
+      const rt = randomPackType();
+      SAVE.packs[rt] = (SAVE.packs[rt] || 0) + 1;
+      rewards.push(`+1 пак ${PACKS_DB[rt].icon}`);
+    } else {
+      rewards.push('шанс пака не сработал');
+    }
+  } else {
+    SAVE.mpLosses = (SAVE.mpLosses || 0) + 1;
+    SAVE.gold += GOLD.mpLoss;
+    SAVE.dust += 2;
+    rewards.push(`+${GOLD.mpLoss} 🪙 за бой`, '+2 ✨');
+  }
+  rewards.unshift(`рейтинг: ${oldRating} → ${SAVE.rating} (${delta >= 0 ? '+' : ''}${delta})`);
+  const newRank = rankOf(SAVE.rating);
+  if (newRank !== oldRank) rewards.push(`${newRank.icon} Новый ранг: ${newRank.name}!`);
+  rewards.push(`MP: ${SAVE.mpWins || 0} побед · ${SAVE.mpLosses || 0} поражений`);
+  return rewards;
+}
 function showEmote(text){
   if (!G || !G.opp) return;
   const b = $('emoteBubble');
@@ -10904,6 +10973,7 @@ async function hardRefreshGame(){
 }
 function mpLocalSnapshot(){
   const deck = deckValid(SAVE.deck) ? SAVE.deck : normalizeDeck(SAVE.deck, SAVE.collection);
+  const rk = rankOf(SAVE.rating || 0);
   return {
     playerName: 'Друг',
 	    heroId: SAVE.hero || 'mage',
@@ -10912,6 +10982,10 @@ function mpLocalSnapshot(){
 	    back: SAVE.back || 'default',
 	    fxActive: fxActiveList(),
 	    rating: SAVE.rating || 0,
+	    rankName: rk.name,
+	    rankIcon: rk.icon,
+	    mpWins: SAVE.mpWins || 0,
+	    mpLosses: SAVE.mpLosses || 0,
     build: CARD_ARENA_BUILD,
     cardDbHash: mpCardDbHash()
   };
@@ -11221,7 +11295,8 @@ function mpValidatePeer(payload, expectedKind){
 function mpDescribePeer(p){
   if (!p || !p.player) return 'соперник не выбран';
   const h = HEROES[p.player.heroId] || HEROES.mage;
-  return `${h.icon} ${h.name} · ${p.player.deckCount || deckTotal(p.player.deck)} карт · рейтинг ${p.player.rating || 0}`;
+  const rk = rankOf(p.player.rating || 0);
+  return `${h.icon} ${h.name} · ${p.player.deckCount || deckTotal(p.player.deck)} карт · ${rk.icon} ${rk.name} ${p.player.rating || 0}`;
 }
 function mpSeedNumber(str){
   let h = 2166136261;
@@ -11276,6 +11351,7 @@ function mpMakeMatch(){
   return {
     id: `${MP_STATE.roomId}-${seed}`,
     roomId: MP_STATE.roomId,
+    mode: 'ranked',
     seed,
     firstSeat: coin < 0.5 ? 'host' : 'guest',
     createdAt: Date.now(),
@@ -12138,7 +12214,7 @@ function mpLaunchMatch(match){
 	  mpRemoveIntentOverlays();
 	  applyTableTheme();
   G = newGame((match.decks[localSeat] || []).slice(), (match.decks[remoteSeat] || []).slice());
-  G.multiplayer = { roomId:match.roomId, matchId:match.id, seat:localSeat, remoteSeat, seed:match.seed };
+  G.multiplayer = { roomId:match.roomId, matchId:match.id, seat:localSeat, remoteSeat, seed:match.seed, mode:match.mode || 'ranked' };
   G.playerHeroId = localP.heroId || 'mage';
   G.enemyHeroId = remoteP.heroId || 'mage';
   G.enemyBack = remoteP.back || 'default';
@@ -12383,9 +12459,20 @@ function mpSendPing(){
     mpSetStatus('Проверяю связь. Жду ответ от друга...', 'warn');
   }
 }
+function renderMpLoadout(){
+  const hero = HEROES[SAVE.hero] && !HEROES[SAVE.hero].boss ? HEROES[SAVE.hero] : HEROES.priest;
+  const rk = rankOf(SAVE.rating);
+  const deck = deckValid(SAVE.deck) ? SAVE.deck : normalizeDeck(SAVE.deck, SAVE.collection);
+  if ($('mpHeroIcon')) $('mpHeroIcon').textContent = hero.icon;
+  if ($('mpHeroTitle')) $('mpHeroTitle').textContent = `${hero.name} · Рейтинговый сетевой матч`;
+  if ($('mpHeroSub')) $('mpHeroSub').textContent = `${rk.icon} ${rk.name} · рейтинг ${SAVE.rating} · колода ${deckTotal(deck)}/${DECK_SIZE}`;
+  if ($('mpRewardInfo')) $('mpRewardInfo').innerHTML =
+    `<b>Победа:</b> +${GOLD.mpWin} 🪙, +8 ✨, Elo, шанс пака<br><b>Поражение:</b> Elo вниз, +${GOLD.mpLoss} 🪙, +2 ✨`;
+}
 function openMultiplayer(){
   showScreen('multiplayer');
   MP_STATE.local = mpLocalSnapshot();
+  renderMpLoadout();
   mpSetView('choice');
   mpSetJoinMode('join');
   mpSetCodeMode('invite');
@@ -12412,7 +12499,8 @@ function renderMenu(){
   const next = [...RANKS].reverse().find(x => x.min > SAVE.rating);
   const nextTxt = next ? ` · до ${next.icon} ${next.min - SAVE.rating}` : '';
   $('menuRank').textContent = `${rk.icon} ${rk.name} · ${SAVE.rating}${nextTxt}`;
-  $('menuStats').textContent = `🪙 ${SAVE.gold} · ✨ ${SAVE.dust} · Побед: ${SAVE.wins}`;
+  const mpLine = (SAVE.mpWins || SAVE.mpLosses) ? ` · MP: ${SAVE.mpWins || 0}-${SAVE.mpLosses || 0}` : '';
+  $('menuStats').textContent = `🪙 ${SAVE.gold} · ✨ ${SAVE.dust} · Побед: ${SAVE.wins}${mpLine}`;
   $('btnMusic').textContent = '🎵 МУЗЫКА: ' + (MUSIC.on ? 'ВКЛ' : 'ВЫКЛ');
   $('btnTrack').textContent = '🎼 МЕЛОДИЯ: ' + MUSIC.track().name;
   renderMenuLeaders();
@@ -13153,10 +13241,14 @@ const HERO_CLASSES = [
 ];
 let heroClassOpen = null;
 let heroPicked = null;
-function openHeroSelect(){
+let heroSelectMode = 'rating';
+function openHeroSelect(mode){
+  heroSelectMode = mode === 'mp' ? 'mp' : 'rating';
   showScreen('heroSelect');
   heroClassOpen = null;
   heroPicked = SAVE.heroesOwned.includes(SAVE.hero) ? SAVE.hero : null;
+  $('heroSelect').dataset.mode = heroSelectMode;
+  $('heroSelect').querySelector('.hs-title').textContent = heroSelectMode === 'mp' ? '🌐 ВЫБЕРИ ГЕРОЯ ДЛЯ ДРУГА' : '⚔️ ВЫБЕРИ ГЕРОЯ';
   renderHeroSelect();
 }
 function renderHeroSelect(){
@@ -13214,12 +13306,17 @@ function updateFindBtn(){
   const btn = $('hsFind');
   const ok = heroPicked && SAVE.heroesOwned.includes(heroPicked);
   btn.disabled = !ok;
-  btn.textContent = ok ? `🔍 НАЙТИ ИГРУ (${HEROES[heroPicked].icon} ${HEROES[heroPicked].name})` : '🔍 ВЫБЕРИ ГЕРОЯ';
+  if (heroSelectMode === 'mp'){
+    btn.textContent = ok ? `🌐 В МУЛЬТИПЛЕЕР (${HEROES[heroPicked].icon} ${HEROES[heroPicked].name})` : '🌐 ВЫБЕРИ ГЕРОЯ';
+  } else {
+    btn.textContent = ok ? `🔍 НАЙТИ ИГРУ (${HEROES[heroPicked].icon} ${HEROES[heroPicked].name})` : '🔍 ВЫБЕРИ ГЕРОЯ';
+  }
 }
 $('hsFind').addEventListener('click', () => {
   if (!heroPicked || !SAVE.heroesOwned.includes(heroPicked)) return;
   sfx.click();
-  openMatchmaking(heroPicked);
+  if (heroSelectMode === 'mp') openMultiplayer();
+  else openMatchmaking(heroPicked);
 });
 $('heroBack').addEventListener('click', () => { showScreen('menu'); renderMenu(); });
 
@@ -13299,7 +13396,7 @@ function startGame(heroId, opts){
   startTimer();
 }
 $('btnPlay').addEventListener('click', openHeroSelect);
-$('btnMultiplayer').addEventListener('click', () => { sfx.click(); openMultiplayer(); });
+$('btnMultiplayer').addEventListener('click', () => { sfx.click(); openHeroSelect('mp'); });
 $('mpBack').addEventListener('click', () => { sfx.click(); showScreen('menu'); renderMenu(); });
 $('mpChooseCreate').addEventListener('click', () => {
   sfx.click();
@@ -13417,6 +13514,7 @@ function endGame(winner){
 	  const oldRating = SAVE.rating;
 	  const rewards = [];
 	  if (G.multiplayer){
+	    const mpRewards = applyMultiplayerRewards(winner, oldRating, oldRank);
 	    if (winner === 'player'){
 	      sfx.win();
 	      $('resultTitle').textContent = '🏆 ПОБЕДА В МУЛЬТИПЛЕЕРЕ!';
@@ -13426,7 +13524,7 @@ function endGame(winner){
 	    }
 	    mergeMatchImpact(winner);
 	    storeSave();
-	    $('resultReward').textContent = 'Дружеский матч: рейтинг, золото и паки не начисляются. Состояние боя синхронизировано через прямое соединение.';
+	    $('resultReward').textContent = mpRewards.join(' · ');
 	    $('againBtn').style.display = 'none';
 	    $('toMenuBtn').textContent = 'В МЕНЮ';
 	    $('toMenuBtn').dataset.dest = 'menu';
