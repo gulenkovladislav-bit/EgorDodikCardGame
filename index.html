@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-12-status-icons-1';
+    var build = '2026-07-12-audit-batch-8-1';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -3926,7 +3926,7 @@
 	        <div class="audit-review-head">
 	          <div>
 	            <div class="audit-review-title">🔎 Партия ревизии карт</div>
-	            <div class="audit-review-sub" id="auditBatchNote">Смотри 1-6 карт за раз: механика, баланс, риски и идеи анимаций/частиц.</div>
+	            <div class="audit-review-sub" id="auditBatchNote">Смотри до 8 карт за раз: механика, баланс, риски и идеи анимаций/частиц.</div>
 	          </div>
 	          <div class="audit-review-controls">
 	            <select id="auditBatchMode">
@@ -3936,7 +3936,7 @@
 	              <option value="unseen">Без данных</option>
 	              <option value="cost">По мане</option>
 	            </select>
-	            <input type="number" id="auditBatchSize" min="1" max="6" value="6" title="Сколько карт смотреть за раз">
+	            <input type="number" id="auditBatchSize" min="1" max="8" value="8" title="Сколько карт смотреть за раз">
 	            <button class="btn stone music-toggle" id="auditBatchPrevBtn">←</button>
 	            <button class="btn stone music-toggle" id="auditBatchNextBtn">→</button>
 	            <button class="btn stone music-toggle" id="auditBatchMarkBtn">ГОТОВО</button>
@@ -4414,7 +4414,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-12-status-icons-1';
+const CARD_ARENA_BUILD = '2026-07-12-audit-batch-8-1';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -13588,7 +13588,7 @@ function renderAuditReviewBatch(){
   if (!list) return;
   ensureAuditReviewed();
   const data = auditBatchRows();
-  const size = Math.max(1, Math.min(6, Math.floor(+$('auditBatchSize').value || 6)));
+  const size = Math.max(1, Math.min(8, Math.floor(+$('auditBatchSize').value || 8)));
   $('auditBatchSize').value = size;
   const maxOffset = Math.max(0, data.rows.length - size);
   auditBatchOffset = Math.max(0, Math.min(auditBatchOffset, maxOffset));
@@ -13606,7 +13606,7 @@ function renderAuditReviewBatch(){
 function markAuditBatchReviewed(){
   ensureAuditReviewed();
   const data = auditBatchRows();
-  const size = Math.max(1, Math.min(6, Math.floor(+$('auditBatchSize').value || 6)));
+  const size = Math.max(1, Math.min(8, Math.floor(+$('auditBatchSize').value || 8)));
   const now = Date.now();
   data.rows.slice(auditBatchOffset, auditBatchOffset + size).forEach(r => {
     SAVE.cardAuditReviewed[r.id] = { at:now, build:CARD_ARENA_BUILD };
@@ -14599,14 +14599,14 @@ $('trainResetBtn').addEventListener('click', () => {
 	$('auditBatchSize').addEventListener('change', () => { auditBatchOffset = 0; renderAuditReviewBatch(); });
 	$('auditBatchPrevBtn').addEventListener('click', () => {
 	  sfx.click();
-	  const size = Math.max(1, Math.min(6, Math.floor(+$('auditBatchSize').value || 6)));
+	  const size = Math.max(1, Math.min(8, Math.floor(+$('auditBatchSize').value || 8)));
 	  auditBatchOffset = Math.max(0, auditBatchOffset - size);
 	  renderAuditReviewBatch();
 	});
 	$('auditBatchNextBtn').addEventListener('click', () => {
 	  sfx.click();
 	  const data = auditBatchRows();
-	  const size = Math.max(1, Math.min(6, Math.floor(+$('auditBatchSize').value || 6)));
+	  const size = Math.max(1, Math.min(8, Math.floor(+$('auditBatchSize').value || 8)));
 	  auditBatchOffset = Math.min(Math.max(0, data.rows.length - size), auditBatchOffset + size);
 	  renderAuditReviewBatch();
 	});
