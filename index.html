@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-12-audit-vfx-1';
+    var build = '2026-07-12-mobile-board-slots-2';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -3296,14 +3296,15 @@
       bottom:23%;
     }
     .row{
-      left:40%;
-      right:11%;
-      height:23%;
-      gap:3px;
-      justify-content:flex-start;
+      left:12%;
+      right:12%;
+      height:24%;
+      gap:clamp(2px,.65vw,6px);
+      justify-content:center;
+      align-items:center;
     }
-    #enemyBoard{top:12%;}
-    #playerBoard{bottom:12%;}
+    #enemyBoard{top:22%;}
+    #playerBoard{bottom:20%;}
     .minion{
       width:64px;
       height:84px;
@@ -3312,9 +3313,9 @@
     }
     .minion .m-icon{font-size:29px;}
     .minion .m-name{display:none;}
-    .minion .stat{width:24px;height:24px;font-size:13px;bottom:10px;}
-    .minion .stat.atk{left:-6px;}
-    .minion .stat.hp{right:-6px;}
+    .minion .stat{width:22px;height:22px;font-size:12px;bottom:9px;}
+    .minion .stat.atk{left:-5px;}
+    .minion .stat.hp{right:-5px;}
     .minion .rgem{width:18px;height:18px;bottom:-6px;}
     .minion .rgem .tico{font-size:10px;}
     .m-badges{top:-8px;right:-6px;font-size:8.5px;}
@@ -3542,13 +3543,15 @@
     #game{--mobile-hand-scale:.50;}
     #game::before{width:158px;height:118px;}
     #board{left:5.5%;right:5.5%;top:8%;bottom:24%;}
-    .row{left:39%;right:10%;height:22%;gap:2px;justify-content:flex-start;}
-    #enemyBoard{top:12%;}
-    #playerBoard{bottom:12%;}
-    .minion{width:58px;height:76px;padding:5px;border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;}
-    .minion .m-icon{font-size:26px;}
+    .row{left:12%;right:12%;height:23%;gap:clamp(2px,.58vw,5px);justify-content:center;align-items:center;}
+    #enemyBoard{top:24%;}
+    #playerBoard{bottom:21%;}
+    .minion{width:54px;height:72px;padding:5px;border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;}
+    .minion .m-icon{font-size:24px;}
     .minion .m-name{display:none;}
-    .minion .stat{width:22px;height:22px;font-size:12px;bottom:9px;}
+    .minion .stat{width:20px;height:20px;font-size:11px;bottom:8px;}
+    .minion .stat.atk{left:-4px;}
+    .minion .stat.hp{right:-4px;}
     .minion .rgem{width:16px;height:16px;bottom:-5px;}
     .minion .rgem .tico{font-size:9px;}
     #playerHero{
@@ -3583,6 +3586,34 @@
     #bossRewardNote{display:none;}
     #enemyHero{transform:translateX(-50%) scale(.92);transform-origin:50% 50%;}
     .minion.aim{transform:scale(1.08);}
+  }
+
+  @media (pointer: coarse) and (orientation: landscape) and (max-width: 760px) and (max-height: 390px),
+         (max-width: 760px) and (max-height: 390px) and (orientation: landscape){
+    #game{--mobile-hand-scale:.46;}
+    #board{left:4.8%;right:4.8%;top:7%;bottom:23%;}
+    .row{left:8%;right:8%;height:23%;gap:2px;}
+    #enemyBoard{top:25%;}
+    #playerBoard{bottom:22%;}
+    .minion{width:48px;height:64px;padding:4px;}
+    .minion .m-icon{font-size:22px;}
+    .minion .stat{width:18px;height:18px;font-size:10px;bottom:7px;}
+    .minion .stat.atk{left:-3px;}
+    .minion .stat.hp{right:-3px;}
+    .minion .rgem{width:14px;height:14px;bottom:-4px;}
+    .minion .rgem .tico{font-size:8px;}
+    #playerHero{
+      bottom:68px;
+      transform:translateX(-50%) scale(.64);
+    }
+    #playerPowerBtn{
+      left:calc(50% + 52px);
+      bottom:78px;
+      width:43px;
+      height:43px;
+      font-size:15px;
+    }
+    #playerHand{height:104px;}
   }
 
 
@@ -4318,7 +4349,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-12-audit-vfx-1';
+const CARD_ARENA_BUILD = '2026-07-12-mobile-board-slots-2';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
