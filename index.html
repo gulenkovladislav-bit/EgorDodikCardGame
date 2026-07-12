@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-12-freeze-status-pack-2';
+    var build = '2026-07-12-animation-lab-2';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -583,6 +583,73 @@
 	  .audit-review-line span{color:#b9a57a;}
 	  .audit-review-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px;}
 	  .audit-review-tag{font-size:8px;color:#d8c8a2;border:1px solid rgba(107,81,36,.7);background:rgba(0,0,0,.22);border-radius:999px;padding:2px 6px;white-space:nowrap;}
+	  .anim-toolbar{display:grid;grid-template-columns:1.2fr repeat(4,minmax(110px,.8fr)) auto;gap:8px;align-items:end;margin:8px 0 10px;}
+	  .anim-toolbar input,.anim-toolbar select{
+	    width:100%;background:#120b04;color:#f0e0b8;border:1.5px solid #6b5124;border-radius:9px;
+	    padding:8px 9px;font-family:inherit;font-weight:bold;font-size:11px;
+	  }
+	  .anim-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(182px,1fr));gap:9px;max-height:54vh;overflow:auto;padding:2px 4px 8px 0;}
+	  .anim-card-tile{
+	    position:relative;min-height:142px;padding:9px;border:1.5px solid rgba(107,81,36,.75);border-radius:11px;
+	    background:linear-gradient(180deg,rgba(42,30,12,.96),rgba(14,8,3,.96));box-shadow:inset 0 0 18px rgba(0,0,0,.35);
+	    cursor:pointer;transition:transform .12s,filter .12s,border-color .12s;
+	  }
+	  .anim-card-tile:hover{transform:translateY(-2px);filter:brightness(1.12);border-color:var(--gold);}
+	  .anim-card-tile .act-head{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:7px;align-items:center;}
+	  .anim-card-tile .act-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid #8c6a2e;background:#211507;font-size:16px;}
+	  .anim-card-tile .act-name{min-width:0;color:#ead9ae;font-weight:bold;font-size:12px;line-height:1.12;}
+	  .anim-card-tile .act-name small{display:block;color:#8fa8c4;font-size:8.2px;font-weight:normal;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+	  .anim-card-tile .act-cost{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 30%,#8fd0ff,#2874ad);border:2px solid #0c2a45;color:white;font-weight:bold;text-shadow:0 1px 2px #000;}
+	  .act-text{font-size:9px;color:#cdbb93;line-height:1.28;margin:8px 0;min-height:34px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+	  .act-stats{display:flex;gap:4px;flex-wrap:wrap;}
+	  .act-chip{font-size:7.8px;border-radius:999px;border:1px solid rgba(107,81,36,.7);background:rgba(0,0,0,.25);color:#d8c8a2;padding:2px 6px;white-space:nowrap;}
+	  .act-chip.patch{color:#ffe08a;border-color:#b9872f;background:rgba(160,105,20,.22);}
+	  .act-hover{
+	    position:absolute;left:8px;right:8px;bottom:8px;z-index:3;opacity:0;transform:translateY(8px);pointer-events:none;
+	    padding:7px;border:1px solid rgba(213,170,69,.62);border-radius:8px;background:rgba(10,6,2,.94);
+	    color:#e8d9b6;font-size:8.5px;line-height:1.28;box-shadow:0 8px 20px rgba(0,0,0,.45);
+	    transition:opacity .12s,transform .12s;
+	  }
+	  .anim-card-tile:hover .act-hover{opacity:1;transform:translateY(0);}
+	  .anim-empty{padding:20px;text-align:center;color:#a08c60;border:1.5px solid rgba(107,81,36,.7);border-radius:10px;background:rgba(0,0,0,.2);}
+	  .anim-player-overlay{position:fixed;inset:0;z-index:520;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.72);backdrop-filter:blur(3px);}
+	  .anim-player-overlay.active{display:flex;}
+	  .anim-player{
+	    width:min(980px,96vw);max-height:92dvh;overflow:auto;border:3px solid var(--gold);border-radius:16px;
+	    background:radial-gradient(ellipse at 50% 20%,rgba(55,85,105,.28),transparent 48%),linear-gradient(180deg,#2e210e,#0b0703);
+	    box-shadow:0 24px 80px rgba(0,0,0,.65),inset 0 0 24px rgba(0,0,0,.45);padding:14px;
+	  }
+	  .anim-player-head{position:relative;z-index:5;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;}
+	  #animCloseBtn{position:relative;z-index:8;pointer-events:auto;}
+	  .anim-player-title{font-size:18px;color:var(--gold-bright);font-weight:bold;letter-spacing:1.6px;text-shadow:0 2px 4px #000;}
+	  .anim-player-sub{font-size:10px;color:#a99773;line-height:1.35;margin-top:2px;}
+	  .anim-stage{
+	    position:relative;height:460px;border:2px solid #37596d;border-radius:18px;overflow:hidden;
+	    background:
+	      radial-gradient(ellipse at 50% 42%,rgba(73,112,130,.75),rgba(20,56,73,.86) 58%,rgba(7,20,29,.96) 100%),
+	      repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 46px,rgba(0,0,0,.06) 46px 92px);
+	  }
+	  .anim-stage::before{content:"";position:absolute;left:7%;right:7%;top:18%;bottom:20%;border:4px solid rgba(213,170,69,.55);border-radius:46% / 32%;box-shadow:inset 0 0 20px rgba(0,0,0,.45);}
+	  .anim-hero,.anim-target,.anim-slot,.anim-hand-zone{position:absolute;z-index:2;}
+	  .anim-hero{left:50%;bottom:24px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;}
+	  .anim-target{left:50%;top:68px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;}
+	  .anim-face{width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:38px;background:radial-gradient(circle at 50% 30%,#725522,#1b1107);border:4px solid #d5aa45;box-shadow:0 8px 24px rgba(0,0,0,.45);}
+	  .anim-label{font-size:11px;color:#f0d080;background:rgba(0,0,0,.52);border:1px solid #8c6a2e;border-radius:999px;padding:2px 10px;}
+	  .anim-slot{left:50%;top:50%;transform:translate(-50%,-50%);width:118px;height:154px;border-radius:34px;background:rgba(0,0,0,.26);border:2px dashed rgba(213,170,69,.45);}
+	  .anim-slot .anim-minion{position:absolute;inset:7px;border-radius:30px;background:linear-gradient(180deg,#efe2bd,#4b3513);border:3px solid #c79a3a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-weight:bold;color:#2b1d0a;text-align:center;box-shadow:0 12px 24px rgba(0,0,0,.45);}
+	  .anim-minion .am-icon{font-size:38px;}
+	  .anim-minion .am-name{font-size:12px;line-height:1.05;padding:0 4px;}
+	  .anim-minion .am-stat{position:absolute;bottom:-11px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;text-shadow:0 1px 2px #000;font-weight:bold;}
+	  .anim-minion .am-atk{left:-8px;background:#c79a3a;border:2px solid #5a3a0f;}
+	  .anim-minion .am-hp{right:-8px;background:#b83d31;border:2px solid #552018;}
+	  .anim-hand-zone{left:50%;bottom:2px;transform:translateX(-50%);height:130px;width:420px;pointer-events:none;}
+	  .anim-card-ghost{position:absolute;left:50%;bottom:0;width:170px;height:238px;transform:translateX(-50%) scale(.72) rotate(-4deg);transform-origin:center bottom;transition:transform .55s cubic-bezier(.2,.8,.2,1),opacity .25s;z-index:10;}
+	  .anim-card-ghost .card{margin:0;transform:none!important;}
+	  .anim-card-ghost.playing{transform:translate(-50%,-170px) scale(.88) rotate(0deg);}
+	  .anim-card-ghost.resolved{opacity:0;transform:translate(-50%,-218px) scale(.62);}
+	  .anim-projectile{position:fixed;z-index:540;font-size:30px;pointer-events:none;filter:drop-shadow(0 4px 6px #000);transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .2s;}
+	  .anim-log{margin-top:9px;min-height:38px;border:1px solid rgba(107,81,36,.72);border-radius:10px;background:rgba(0,0,0,.22);padding:8px 10px;color:#d8c8a2;font-size:11px;line-height:1.35;}
+	  .anim-player-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;}
 	  @media (max-width: 760px){
 	    .audit-summary{grid-template-columns:repeat(2,minmax(0,1fr));}
 	    .audit-grid{grid-template-columns:1fr;}
@@ -592,6 +659,15 @@
 	    .audit-review-controls select,.audit-review-controls input{font-size:8.5px;min-width:68px;padding:5px 6px;}
 	    .audit-review-list{grid-template-columns:1fr;}
 	    .audit-review-line{grid-template-columns:50px minmax(0,1fr);}
+	    .anim-toolbar{grid-template-columns:1fr 1fr;gap:6px;}
+	    .anim-grid{grid-template-columns:1fr;max-height:48vh;}
+	    .anim-stage{height:360px;}
+	    .anim-hand-zone{width:300px;height:102px;}
+	    .anim-card-ghost{width:132px;height:185px;}
+	    .anim-card-ghost.playing{transform:translate(-50%,-122px) scale(.78);}
+	    .anim-face{width:56px;height:56px;font-size:29px;}
+	    .anim-target{top:46px;}
+	    .anim-slot{width:96px;height:126px;}
 	  }
 
 	  .lab-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px;}
@@ -3570,6 +3646,7 @@
         <div class="lab-tab" data-page="boss">👹 Боссы</div>
         <div class="lab-tab" data-page="train">🎓 Обучение</div>
         <div class="lab-tab" data-page="audit">🧪 Аудит карт</div>
+        <div class="lab-tab" data-page="anim">🎬 Анимации</div>
         <div class="lab-tab" data-page="stats">📊 Статистика</div>
         <div class="lab-tab" data-page="export">📦 Экспорт</div>
       </div>
@@ -3717,6 +3794,40 @@
 	      <div id="cardAuditGrid" class="audit-grid"></div>
 	      </div>
 
+	      <div class="lab-page" data-page="anim">
+	      <div class="admin-title">🎬 Тестировщик анимаций карт</div>
+	      <div class="admin-note">Сетка всех карт для ревизии: наведи на карту, смотри статы и изменения последнего патча. Нажми карту — откроется тестовый фрагмент боя с розыгрышем, целью, частицами и звуком.</div>
+	      <div class="anim-toolbar">
+	        <input id="animSearch" type="search" placeholder="Поиск карты...">
+	        <select id="animType">
+	          <option value="all">Все типы</option>
+	          <option value="minion">Существа</option>
+	          <option value="spell">Заклинания</option>
+	          <option value="weapon">Оружие</option>
+	          <option value="secret">Секреты</option>
+	        </select>
+	        <select id="animRarity">
+	          <option value="all">Все редкости</option>
+	          <option value="common">Обычные</option>
+	          <option value="rare">Редкие</option>
+	          <option value="epic">Эпические</option>
+	          <option value="legendary">Легендарные</option>
+	        </select>
+	        <select id="animTribe">
+	          <option value="all">Все племена</option>
+	          <option value="none">Без племени</option>
+	        </select>
+	        <select id="animPatch">
+	          <option value="all">Все карты</option>
+	          <option value="changed">Изменены в патче</option>
+	          <option value="needs">Нужен VFX</option>
+	        </select>
+	        <button class="btn stone music-toggle" id="animRefreshBtn">ОБНОВИТЬ</button>
+	      </div>
+	      <div class="admin-note" id="animNote">Выбери карту — откроется тестовая сцена.</div>
+	      <div class="anim-grid" id="animGrid"></div>
+	      </div>
+
 	      <div class="lab-page" data-page="stats">
       <div class="admin-title">📊 Статистика типов ИИ</div>
       <div class="admin-note">Elo считается по тренировочным матчам (устойчивее winrate при неравных парах). Матрица «кто кого»: читай по строке — процент это победы КОЛОДЫ-СТРОКИ против КОЛОДЫ-СТОЛБЦА. Ячейки с ⚠ (меньше 5 игр) приглушены: 0% или 100% при 1–2 играх — просто случайность, а не сила колоды. Прогони 500–1000 матчей обучения, и матрица наполнится смыслом. Точка «·» — пара ещё не встречалась.</div>
@@ -3733,6 +3844,34 @@
         <button class="btn stone" id="aiCopyExportBtn">СКОПИРОВАТЬ</button>
       </div>
       <label class="admin-field"><textarea class="admin-export" id="aiExportOut" readonly></textarea></label>
+      </div>
+    </div>
+    <div class="anim-player-overlay" id="animPlayerOverlay">
+      <div class="anim-player">
+        <div class="anim-player-head">
+          <div>
+            <div class="anim-player-title" id="animPlayerTitle">Тест анимации</div>
+            <div class="anim-player-sub" id="animPlayerSub">Сцена использует общие карты, частицы и звуки игры.</div>
+          </div>
+          <button class="btn stone music-toggle" id="animCloseBtn" type="button" onpointerdown="window.__closeAnimPlayer && window.__closeAnimPlayer()" onclick="window.__closeAnimPlayer && window.__closeAnimPlayer()">ЗАКРЫТЬ</button>
+        </div>
+        <div class="anim-stage" id="animStage">
+          <div class="anim-target" id="animTarget">
+            <div class="anim-face" id="animTargetFace">😈</div>
+            <div class="anim-label">Цель</div>
+          </div>
+          <div class="anim-slot" id="animSlot"></div>
+          <div class="anim-hero" id="animHero">
+            <div class="anim-face">🧙‍♂️</div>
+            <div class="anim-label">Кастер</div>
+          </div>
+          <div class="anim-hand-zone" id="animHandZone"></div>
+        </div>
+        <div class="anim-log" id="animLog">Нажми «Повторить», чтобы снова посмотреть сценарий.</div>
+        <div class="anim-player-actions">
+          <button class="btn" id="animReplayBtn" type="button">ПОВТОРИТЬ</button>
+          <button class="btn stone" id="animSlowBtn" type="button">МЕДЛЕННО: ВЫКЛ</button>
+        </div>
       </div>
     </div>
     <div class="set-row">
@@ -4120,7 +4259,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-12-freeze-status-pack-2';
+const CARD_ARENA_BUILD = '2026-07-12-animation-lab-2';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -13078,6 +13217,329 @@ function renderCardAudit(){
     <div class="audit-panel"><h4>Сильные без данных</h4><div class="audit-list">${a.highTheory.length ? a.highTheory.map(r => auditRowHtml(r)).join('') : '<div class="audit-warn">Все теоретически сильные уже имеют данные.</div>'}</div></div>`;
   renderAuditReviewBatch();
 }
+
+/* ================== ЛАБОРАТОРИЯ АНИМАЦИЙ КАРТ ================== */
+const ANIM_PATCH_NOTES = {
+  familiar:'Последний патч: атака 2 → 3. Проверить, что выход 3/1 читается сразу.',
+  snowman:'Последний патч: здоровье 4 → 5. Ледяной статус должен визуально держаться весь эффект.',
+  spiderling:'Последний патч: Паучонок закреплён как Зверь для звериных синергий.',
+  doll:'Последний патч: нежить получила отдельную ревизию племени и хрипов.',
+  ghost:'Последний патч: нежить получила отдельную ревизию племени и хрипов.',
+  graveBinder:'Новый фокус ревизии: Возрождение и хрип должны быть заметны в бою.',
+  cryptNurse:'Новый фокус ревизии: лечение от нежити должно иметь понятный зелёный импакт.',
+  boneMarshal:'Новый фокус ревизии: баф после Возрождения должен подсвечивать цель.',
+  necroticGiant:'Новый фокус ревизии: вход великана зависит от погибших хрипунов.',
+  duskWraith:'Новый фокус ревизии: хрип по всем врагам просит круговую волну.',
+  iceArrow:'Новый фокус ревизии: нужен читаемый снаряд и долгий визуал заморозки.',
+  frostNova:'Новый фокус ревизии: массовая заморозка должна покрывать весь вражеский стол.',
+  meteor:'Новый фокус ревизии: массовый урон требует крупной ударной волны.',
+  chronomagus:'Легендарная сцена: повтор заклинаний должен ощущаться как цепочка кастов.',
+  codexIntervention:'Легендарная сцена: улучшение силы героя должно подсвечивать портрет и кнопку абилки.',
+  abyssMaw:'Легендарная сцена: поглощение существа должно тянуть цель в пасть.',
+  huntmastersHorn:'Легендарная сцена: оружие и призыв гончей должны быть связаны одним ритмом.',
+  cryptSovereign:'Легендарная сцена: призыв умерших хрипунов должен выглядеть как некромантия.'
+};
+let animCurrentCard = null;
+let animSlow = false;
+let animRunSerial = 0;
+function animTypeOf(def){ return def && def.secret ? 'secret' : (def ? def.type : 'minion'); }
+function animPatchNote(id, def){
+  if (ANIM_PATCH_NOTES[id]) return ANIM_PATCH_NOTES[id];
+  if (def && def.rarity === 'legendary') return 'Легендарка: нужна усиленная входная сцена и отдельный звуковой акцент.';
+  return '';
+}
+function animNeedsVfx(def){
+  if (!def) return false;
+  const t = String(def.text || '').toLowerCase();
+  return !!(def.secret || def.type !== 'minion' || def.battlecry || def.deathrattle || def.effect ||
+    def.magnetic || def.reborn || def.freezeTouch || def.charge || def.windfury || def.poison ||
+    def.lifesteal || def.spellDamage || def.rarity === 'legendary' ||
+    /урон|исцел|лечит|здоров|брон|замороз|возьмите|карту|призыв|призывает|случайн|уничтож|поглощ|секрет|оруж|возрожд|хрип|клич/.test(t));
+}
+function animStatText(def){
+  if (!def) return '—';
+  if (def.type === 'minion') return `${def.atk || 0}/${def.hp || 0}`;
+  if (def.type === 'weapon') return `${def.atk || 0}/${def.dur || 0}`;
+  if (def.burn) return `${def.burn} урона`;
+  if (def.secret) return 'секрет';
+  return 'эффект';
+}
+function animCardMeta(id){
+  const def = CARD_DB[id];
+  if (!def) return '';
+  const tribe = def.tribe ? ' · ' + (TRIBE_RU[def.tribe] || def.tribe) : ' · Без племени';
+  return `${def.cost || 0} маны · ${TYPE_RU[animTypeOf(def)] || animTypeOf(def)} · ${RARITY_RU[def.rarity] || def.rarity}${tribe} · ${SET_RU[setOf(id)] || setOf(id)}`;
+}
+function renderAnimTribeOptions(){
+  const sel = $('animTribe');
+  if (!sel) return;
+  const cur = sel.value || 'all';
+  const tribes = [...new Set(Object.keys(CARD_DB).map(id => CARD_DB[id].tribe).filter(Boolean))]
+    .sort((a, b) => (TRIBE_RU[a] || a).localeCompare(TRIBE_RU[b] || b, 'ru'));
+  sel.innerHTML = '<option value="all">Все племена</option><option value="none">Без племени</option>' +
+    tribes.map(t => `<option value="${t}">${TRIBE_RU[t] || t}</option>`).join('');
+  sel.value = [...tribes, 'all', 'none'].includes(cur) ? cur : 'all';
+}
+function animFilteredCards(){
+  const q = (($('animSearch') && $('animSearch').value) || '').trim().toLowerCase();
+  const type = ($('animType') && $('animType').value) || 'all';
+  const rarity = ($('animRarity') && $('animRarity').value) || 'all';
+  const tribe = ($('animTribe') && $('animTribe').value) || 'all';
+  const patch = ($('animPatch') && $('animPatch').value) || 'all';
+  return Object.keys(CARD_DB).filter(id => {
+    const c = CARD_DB[id];
+    if (!c || c.token) return false;
+    if (type !== 'all' && animTypeOf(c) !== type) return false;
+    if (rarity !== 'all' && c.rarity !== rarity) return false;
+    if (tribe !== 'all' && (tribe === 'none' ? !!c.tribe : c.tribe !== tribe)) return false;
+    if (patch === 'changed' && !animPatchNote(id, c)) return false;
+    if (patch === 'needs' && !animNeedsVfx(c)) return false;
+    if (q){
+      const hay = `${c.name} ${c.text || ''} ${animCardMeta(id)} ${animPatchNote(id, c)}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }).sort((a, b) => {
+    const ca = CARD_DB[a], cb = CARD_DB[b];
+    const pa = animPatchNote(a, ca) ? 1 : 0, pb = animPatchNote(b, cb) ? 1 : 0;
+    return pb - pa || (ca.cost || 0) - (cb.cost || 0) || ca.name.localeCompare(cb.name, 'ru');
+  });
+}
+function animCardTileHtml(id){
+  const c = CARD_DB[id];
+  const info = cardImpactInfo(id);
+  const tags = auditMechanicTags(c);
+  const patch = animPatchNote(id, c);
+  const vfx = auditVfxAdvice({ id, c, info, theory:cardTheoryScore(id), norm:0 });
+  const chips = [
+    TYPE_RU[animTypeOf(c)] || animTypeOf(c),
+    RARITY_RU[c.rarity] || c.rarity,
+    c.tribe ? (TRIBE_RU[c.tribe] || c.tribe) : 'Без племени',
+    animNeedsVfx(c) ? 'нужен VFX' : 'база'
+  ];
+  if (patch) chips.push('патч');
+  const impact = info.plays ? `${info.plays} роз. · ${info.vpp.toFixed(1)}/роз · WR ${info.wr ?? '—'}%` : `теория ${cardTheoryScore(id)}`;
+  return `
+    <div class="act-head">
+      <div class="act-icon">${c.icon}</div>
+      <div class="act-name">${safeTxt(c.name)}<small>${safeTxt(animCardMeta(id))}</small></div>
+      <div class="act-cost">${c.cost || 0}</div>
+    </div>
+    <div class="act-text">${safeTxt(c.text || animStatText(c))}</div>
+    <div class="act-stats">${chips.map(x => `<span class="act-chip${x === 'патч' ? ' patch' : ''}">${safeTxt(x)}</span>`).join('')}</div>
+    <div class="act-hover">
+      <b>Статы:</b> ${safeTxt(animStatText(c))}<br>
+      <b>Вклад:</b> ${safeTxt(impact)}<br>
+      <b>Механики:</b> ${safeTxt((tags.length ? tags : ['простая карта']).join(', '))}<br>
+      <b>Патч:</b> ${safeTxt(patch || 'без отдельной заметки')}<br>
+      <b>VFX:</b> ${safeTxt(vfx.length ? vfx[0] : 'общий розыгрыш')}
+    </div>`;
+}
+function renderAnimLab(){
+  const grid = $('animGrid');
+  if (!grid) return;
+  renderAnimTribeOptions();
+  const rows = animFilteredCards();
+  if ($('animNote')){
+    const changed = rows.filter(id => animPatchNote(id, CARD_DB[id])).length;
+    const need = rows.filter(id => animNeedsVfx(CARD_DB[id])).length;
+    $('animNote').textContent = `Показано ${rows.length} карт. Из них с заметкой патча: ${changed}, требуют/просят особый VFX: ${need}.`;
+  }
+  grid.innerHTML = '';
+  if (!rows.length){
+    grid.innerHTML = '<div class="anim-empty">Карт по таким фильтрам нет.</div>';
+    return;
+  }
+  rows.forEach(id => {
+    const tile = document.createElement('button');
+    tile.type = 'button';
+    tile.className = 'anim-card-tile';
+    tile.dataset.card = id;
+    tile.innerHTML = animCardTileHtml(id);
+    tile.addEventListener('click', () => openAnimPlayer(id));
+    grid.appendChild(tile);
+  });
+}
+function animDelay(ms){ return sleep(animSlow ? Math.round(ms * 1.65) : ms); }
+function animSetLog(lines){
+  const box = $('animLog');
+  if (!box) return;
+  box.innerHTML = (Array.isArray(lines) ? lines : [lines]).map(x => `<div>${safeTxt(x)}</div>`).join('');
+}
+function animTargetFaceFor(def){
+  const txt = String(def.text || '').toLowerCase();
+  if (def.secret) return '🕵️';
+  if (def.type === 'weapon') return '🛡️';
+  if (def.freezeTouch || txt.includes('замороз')) return '🥶';
+  if (txt.includes('исцел') || txt.includes('лечит') || txt.includes('здоров')) return '🙂';
+  if (def.tribe === 'demon') return '😈';
+  if (def.tribe === 'undead') return '💀';
+  if (def.tribe === 'beast') return '🐺';
+  return '😈';
+}
+function animResetStage(cardId){
+  const def = CARD_DB[cardId];
+  const hand = $('animHandZone');
+  const slot = $('animSlot');
+  if (slot) slot.innerHTML = '';
+  if ($('animTargetFace')) $('animTargetFace').textContent = animTargetFaceFor(def);
+  if (hand){
+    hand.innerHTML = `<div class="anim-card-ghost" id="animGhost"><div class="card ${skinClass(SAVE.back)}">${cardHTML(cardId)}</div></div>`;
+  }
+}
+function animMinionHtml(def){
+  return `<div class="anim-minion">
+    <div class="am-icon">${def.icon}</div>
+    <div class="am-name">${safeTxt(def.name)}</div>
+    <div class="am-stat am-atk">${def.atk || 0}</div>
+    <div class="am-stat am-hp">${def.hp || 0}</div>
+  </div>`;
+}
+function animScenarioHint(def){
+  const txt = String(def.text || '').toLowerCase();
+  if (def.secret) return 'Секрет ставится на героя, затем показываем пример вспышки срабатывания.';
+  if (def.type === 'weapon') return 'Оружие экипируется, затем показываем удар от героя к цели.';
+  if (def.type === 'spell') return 'Заклинание вылетает из карты в цель через общий движок частиц.';
+  if (def.battlecry) return 'Существо выходит на стол и выпускает импакт боевого клича.';
+  if (def.deathrattle) return 'Существо выходит на стол, затем подсвечивается будущий хрип.';
+  if (def.charge) return 'Существо выходит на стол и делает короткий рывок к цели.';
+  if (txt.includes('призыв') || txt.includes('призывает')) return 'Выход существа сопровождается портальным импульсом призыва.';
+  return 'Базовый выход существа на стол с общими частицами розыгрыша.';
+}
+async function playAnimScenario(cardId){
+  const def = CARD_DB[cardId];
+  if (!def) return;
+  const run = ++animRunSerial;
+  animResetStage(cardId);
+  animSetLog([`${def.icon} ${def.name}`, animScenarioHint(def)]);
+  const ghost = $('animGhost');
+  const slot = $('animSlot');
+  const target = $('animTarget');
+  const hero = $('animHero');
+  if (!ghost || !slot || !target || !hero) return;
+  await animDelay(120);
+  if (run !== animRunSerial) return;
+  ghost.classList.add('playing');
+  sfx.play();
+  await animDelay(560);
+  if (run !== animRunSerial) return;
+  if (def.type === 'minion'){
+    slot.innerHTML = animMinionHtml(def);
+    ghost.classList.add('resolved');
+    await animDelay(160);
+    const spawnKind = def.tribe === 'undead' ? 'frostfx' : def.tribe === 'demon' ? 'flame' : 'gold';
+    burstFx(center(slot), spawnKind);
+    sfx.play();
+    if (def.battlecry || def.rarity === 'legendary' || /урон|замороз|поглощ|уничтож|исцел|брон|призы/.test(String(def.text || '').toLowerCase())){
+      await animDelay(260);
+      await castVfx(def, center(slot), center(target), { legendary:def.rarity === 'legendary' });
+      animSetLog([`${def.icon} ${def.name}: боевой эффект показан на тестовой цели.`, animPatchNote(cardId, def) || 'Патч-заметки нет.']);
+    } else if (def.charge){
+      await animDelay(220);
+      await lungeAnim(slot, center(target));
+      spellImpact(center(target), 'fire', { legendary:false });
+      animSetLog(`${def.name}: показан рывок к цели.`);
+    } else if (def.deathrattle || def.reborn || def.freezeTouch){
+      await animDelay(240);
+      spellImpact(center(slot), def.freezeTouch ? 'frost' : def.reborn ? 'holy' : 'shadow', { legendary:false });
+      animSetLog(`${def.name}: подсвечена пассивная/посмертная механика.`);
+    } else {
+      animSetLog(`${def.name}: базовая анимация выхода существа.`);
+    }
+    return;
+  }
+  if (def.type === 'spell'){
+    await castVfx(def, center(ghost), center(target), { legendary:def.rarity === 'legendary' });
+    ghost.classList.add('resolved');
+    animSetLog([`${def.name}: полный каст через общий движок заклинаний.`, animPatchNote(cardId, def) || (animNeedsVfx(def) ? 'Карта просит особую сцену при дальнейшей ревизии.' : 'Базовый VFX достаточен.')]);
+    return;
+  }
+  if (def.type === 'weapon'){
+    ghost.classList.add('resolved');
+    await animDelay(120);
+    spellImpact(center(hero), 'armor', { legendary:def.rarity === 'legendary' });
+    await animDelay(260);
+    await flyEl('<div style="font-size:40px;filter:drop-shadow(0 0 12px #ffe08a)">⚔️</div>', center(hero), center(target), animSlow ? 520 : 320);
+    sfx.hit();
+    spellImpact(center(target), 'armor', { legendary:false });
+    animSetLog([`${def.name}: экипировка оружия и тестовый удар.`, animPatchNote(cardId, def) || 'Для оружия важны свист удара и искры прочности.']);
+    return;
+  }
+  if (def.secret){
+    ghost.classList.add('resolved');
+    await animDelay(120);
+    spellImpact(center(hero), 'arcane', { legendary:def.rarity === 'legendary' });
+    await animDelay(420);
+    spellImpact(center(target), 'arcane', { legendary:false });
+    animSetLog([`${def.name}: постановка секрета и пример срабатывания.`, animPatchNote(cardId, def) || 'Секретам нужна печать на герое и вспышка при раскрытии.']);
+  }
+}
+function openAnimPlayer(cardId){
+  const def = CARD_DB[cardId];
+  if (!def) return;
+  animCurrentCard = cardId;
+  ac();
+  const overlay = $('animPlayerOverlay');
+  if (overlay && overlay.parentElement !== document.body) document.body.appendChild(overlay);
+  if ($('animPlayerTitle')) $('animPlayerTitle').textContent = `${def.icon} ${def.name}`;
+  if ($('animPlayerSub')) $('animPlayerSub').textContent = `${animCardMeta(cardId)} · ${animScenarioHint(def)}`;
+  if (overlay) overlay.classList.add('active');
+  playAnimScenario(cardId);
+}
+function closeAnimPlayer(){
+  animRunSerial++;
+  if ($('animPlayerOverlay')) $('animPlayerOverlay').classList.remove('active');
+}
+window.__closeAnimPlayer = closeAnimPlayer;
+function bindAnimLab(){
+  ['animSearch','animType','animRarity','animTribe','animPatch'].forEach(id => {
+    const el = $(id);
+    if (!el || el.dataset.animBound) return;
+    el.dataset.animBound = '1';
+    el.addEventListener(id === 'animSearch' ? 'input' : 'change', () => renderAnimLab());
+  });
+  if ($('animRefreshBtn') && !$('animRefreshBtn').dataset.animBound){
+    $('animRefreshBtn').dataset.animBound = '1';
+    $('animRefreshBtn').addEventListener('click', () => { sfx.click(); renderAnimLab(); });
+  }
+  if ($('animCloseBtn') && !$('animCloseBtn').dataset.animBound){
+    $('animCloseBtn').dataset.animBound = '1';
+    const closeFn = e => {
+      e.preventDefault();
+      e.stopPropagation();
+      sfx.click();
+      closeAnimPlayer();
+    };
+    ['pointerdown','mousedown','pointerup','mouseup','click'].forEach(ev => $('animCloseBtn').addEventListener(ev, closeFn, true));
+  }
+  if ($('animPlayerOverlay') && !$('animPlayerOverlay').dataset.animOverlayBound){
+    $('animPlayerOverlay').dataset.animOverlayBound = '1';
+    const overlayClose = e => {
+      if (e.target === $('animPlayerOverlay')) closeAnimPlayer();
+    };
+    $('animPlayerOverlay').addEventListener('click', overlayClose);
+    $('animPlayerOverlay').addEventListener('pointerup', overlayClose);
+  }
+  if (!window.__animEscBound){
+    window.__animEscBound = true;
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && $('animPlayerOverlay') && $('animPlayerOverlay').classList.contains('active')) closeAnimPlayer();
+    });
+  }
+  if ($('animReplayBtn') && !$('animReplayBtn').dataset.animBound){
+    $('animReplayBtn').dataset.animBound = '1';
+    $('animReplayBtn').addEventListener('click', () => { sfx.click(); if (animCurrentCard) playAnimScenario(animCurrentCard); });
+  }
+  if ($('animSlowBtn') && !$('animSlowBtn').dataset.animBound){
+    $('animSlowBtn').dataset.animBound = '1';
+    $('animSlowBtn').addEventListener('click', () => {
+      animSlow = !animSlow;
+      $('animSlowBtn').textContent = 'МЕДЛЕННО: ' + (animSlow ? 'ВКЛ' : 'ВЫКЛ');
+      sfx.click();
+      if (animCurrentCard) playAnimScenario(animCurrentCard);
+    });
+  }
+}
 function runAuditSimulations(){
   const n = Math.max(10, Math.min(5000, Math.floor(+$('auditSimN').value || 500)));
   const pool = trainingDeckPool('all', 'mixed');
@@ -13204,6 +13666,8 @@ function renderAiLabControls(){
 	  renderTrainStatus();
 	  renderTrainingReport();
 	  renderCardAudit();
+	  bindAnimLab();
+	  renderAnimLab();
 	}
 function openAiLabWindow(){
   const panel = $('adminPanel');
@@ -14174,6 +14638,7 @@ if ($('labTabs')){
 	    if (t.dataset.page === 'decks') edRefreshPick();
 	    if (t.dataset.page === 'train'){ renderTrainStatus(); renderTrainingReport(); }
 	    if (t.dataset.page === 'audit') renderCardAudit();
+	    if (t.dataset.page === 'anim') renderAnimLab();
 	    if (t.dataset.page === 'stats') renderLabStats();
     if (t.dataset.page === 'export') updateAiExport();
   });
