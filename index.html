@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-12-mobile-board-slots-2';
+    var build = '2026-07-12-live-card-vfx-1';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -2350,8 +2350,20 @@
     box-shadow:0 0 12px 2px var(--c,#fff);animation:sfxBeam .34s ease-out forwards;
   }
   @keyframes sfxBeam{0%{opacity:0;}20%{opacity:1;}100%{opacity:0;}}
+  .battle-vfx-label{
+    position:fixed;z-index:116;pointer-events:none;transform:translate(-50%,-50%);
+    padding:4px 10px;border-radius:999px;border:1.5px solid var(--c,#f0d080);
+    background:rgba(10,6,2,.76);color:#fff0c0;font-size:12px;font-weight:bold;letter-spacing:.8px;
+    text-shadow:0 1px 2px #000;box-shadow:0 0 14px var(--c,#f0d080);
+    animation:battleVfxLabel .95s ease-out forwards;
+  }
+  @keyframes battleVfxLabel{
+    0%{opacity:0;transform:translate(-50%,-28%) scale(.74);}
+    20%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+    100%{opacity:0;transform:translate(-50%,-112%) scale(1.08);}
+  }
   @media (prefers-reduced-motion:reduce){
-    .sfx-ring,.sfx-flash,.sfx-shock,.sfx-beam{animation-duration:.01s;}
+    .sfx-ring,.sfx-flash,.sfx-shock,.sfx-beam,.battle-vfx-label{animation-duration:.01s;}
   }
   .splash{
     position:fixed;z-index:115;pointer-events:none;
@@ -4349,7 +4361,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-12-mobile-board-slots-2';
+const CARD_ARENA_BUILD = '2026-07-12-live-card-vfx-1';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -8028,6 +8040,7 @@ function resolveCombat(attSide, m, target){
   if (taken > 0 && em.lifesteal) withImpactSource(target.side, em.source || em.cardId, () => G.heal({ kind:'hero', side: foeOf(attSide) }, taken));
   if (m.freezeTouch && em.hp > 0) G.freeze({ kind:'minion', side: target.side, minion: em });
   if (em.freezeTouch && m.hp > 0) G.freeze({ kind:'minion', side: attSide, minion: m });
+  liveAuditCombatVfx(attSide, m, target);
   sfx.hit();
 }
 function heroEl(side){ return side === G.player ? $('playerHero') : $('enemyHero'); }
@@ -8111,6 +8124,7 @@ async function resolveDeaths(){
       if (!def.deathrattle) continue;
       rattleFx(d.pt);
       log(`☠️ Хрип: ${def.name}`);
+      await liveAuditDeathrattleVfx(d.side, d.m, d.pt);
 	      withImpactSource(d.side, d.m.source || d.m.cardId, () => def.deathrattle(G, d.side, d.m));
       render();
       await sleep(320);
@@ -8231,7 +8245,8 @@ const SPELL_SCHOOLS = {
   arcane:   { c:'#c79bff', chars:['✦','✧','🔮'], proj:'✨', sound:'arcane' },
   shadow:   { c:'#b06bff', chars:['💀','🌑','•'], proj:'🌑', sound:'shadow' },
   armor:    { c:'#d7e2ec', chars:['🛡️','✦'],      proj:'🛡️', sound:'armor' },
-  arcaneBuff:{c:'#ffd98a', chars:['⬆️','✨','✦'], proj:'✨', sound:'arcane' }
+  arcaneBuff:{c:'#ffd98a', chars:['⬆️','✨','✦'], proj:'✨', sound:'arcane' },
+  gold:     { c:'#ffd98a', chars:['✨','⭐','🌟'], proj:'✨', sound:'arcane' }
 };
 function spellSchool(def){
   if (def.school) return def.school;
@@ -8330,6 +8345,182 @@ async function castVfx(def, from, to, opts){
     await flyEl(`<div style="font-size:${big?46:38}px;filter:drop-shadow(${glow})">${conf.proj}</div>`, from, to, big?340:300);
   }
   spellImpact(to, school, { legendary: big });
+}
+
+function battleVfxLabel(pt, text, school){
+  if (!pt || !text) return null;
+  const conf = SPELL_SCHOOLS[school] || SPELL_SCHOOLS.arcane;
+  const el = document.createElement('div');
+  el.className = 'battle-vfx-label';
+  el.textContent = text;
+  el.style.left = pt.x + 'px';
+  el.style.top = pt.y + 'px';
+  el.style.setProperty('--c', conf.c);
+  el.style.animationDuration = perfMs(950) + 'ms';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), perfMs(980));
+  return el;
+}
+function battleBeam(from, to, school, dur){
+  if (!from || !to) return null;
+  const conf = SPELL_SCHOOLS[school] || SPELL_SCHOOLS.arcane;
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const beam = document.createElement('div');
+  beam.className = 'sfx-beam';
+  beam.style.setProperty('--c', conf.c);
+  beam.style.left = from.x + 'px';
+  beam.style.top = from.y + 'px';
+  beam.style.width = len + 'px';
+  beam.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+  beam.style.animationDuration = perfMs(dur || 420) + 'ms';
+  document.body.appendChild(beam);
+  setTimeout(() => beam.remove(), perfMs((dur || 420) + 30));
+  return beam;
+}
+function battleSidePoints(side){
+  if (!side || !side.board) return [];
+  return side.board.map(m => {
+    const el = minionEl(m);
+    return el ? { minion:m, el, pt:center(el) } : null;
+  }).filter(Boolean);
+}
+function battleBoardPoint(side){
+  return safeCenter(boardElForSide(side), $('board'));
+}
+async function liveAuditSpellVfx(cardId, def, side, target, fallbackPt){
+  if (!cardId || !def || !G) return;
+  const foe = side ? foeOf(side) : null;
+  const to = target ? targetPoint(target) : (fallbackPt || (foe ? battleBoardPoint(foe) : center($('board'))));
+  if (cardId === 'iceArrow'){
+    render();
+    spellImpact(to, 'frost', {});
+    battleVfxLabel(to, 'ЗАМОРОЗКА', 'frost');
+    await sleep(perfMs(120));
+    return;
+  }
+  if (cardId === 'frostNova' && foe){
+    render();
+    const boardPt = battleBoardPoint(foe);
+    spellImpact(boardPt, 'frost', { legendary:true });
+    battleVfxLabel(boardPt, 'КОЛЬЦО МОРОЗА', 'frost');
+    const pts = battleSidePoints(foe);
+    pts.forEach(({ pt }) => spellImpact(pt, 'frost', {}));
+    await sleep(perfMs(220));
+    return;
+  }
+  if (cardId === 'meteor' && foe){
+    const boardPt = battleBoardPoint(foe);
+    await flyEl('<div style="font-size:54px;filter:drop-shadow(0 0 18px #ff7a30) drop-shadow(0 3px 5px #000)">☄️</div>',
+      { x:boardPt.x, y:Math.max(12, boardPt.y - 220) }, boardPt, 320);
+    spellImpact(boardPt, 'fire', { legendary:true });
+    battleVfxLabel(boardPt, 'МЕТЕОР', 'fire');
+    battleSidePoints(foe).forEach(({ pt, el }) => { if (el) shake(el); spellImpact(pt, 'fire', {}); });
+    await sleep(perfMs(220));
+  }
+}
+async function liveAuditMinionVfx(cardId, side, minion, phase){
+  if (!cardId || !side || !minion || !G) return;
+  const el = minionEl(minion);
+  const pt = safeCenter(el, boardElForSide(side));
+  if (phase === 'summon'){
+    if (cardId === 'familiar'){
+      burstFx(pt, 'gold');
+      battleVfxLabel(pt, 'РЫВОК', 'gold');
+      spellImpact(pt, 'arcaneBuff', {});
+      await sleep(perfMs(120));
+    } else if (cardId === 'snowman'){
+      spellImpact(pt, 'frost', {});
+      battleVfxLabel(pt, 'ЛЕДЯНОЕ КАСАНИЕ', 'frost');
+      await sleep(perfMs(120));
+    } else if (cardId === 'doll' || cardId === 'ghost' || cardId === 'graveBinder'){
+      spellImpact(pt, 'shadow', {});
+    }
+    return;
+  }
+  if (phase === 'battlecry'){
+    if (cardId === 'cryptNurse'){
+      const heroPt = safeCenter(heroEl(side), $('board'));
+      battleSidePoints(side)
+        .filter(x => CARD_DB[x.minion.cardId] && CARD_DB[x.minion.cardId].tribe === 'undead')
+        .slice(0, 3)
+        .forEach(({ pt }) => battleBeam(pt, heroPt, 'holy', 520));
+      spellImpact(heroPt, 'holy', {});
+      battleVfxLabel(heroPt, 'ЛЕЧЕНИЕ НЕЖИТИ', 'holy');
+      await sleep(perfMs(180));
+    } else if (cardId === 'necroticGiant'){
+      spellImpact(pt, 'shadow', { legendary:true });
+      battleVfxLabel(pt, 'СИЛА ХРИПОВ', 'shadow');
+      await sleep(perfMs(150));
+    } else if (cardId === 'codexIntervention'){
+      const heroPt = safeCenter(heroEl(side), $('board'));
+      spellImpact(heroPt, 'arcaneBuff', { legendary:true });
+      battleVfxLabel(heroPt, 'СИЛА ГЕРОЯ +', 'arcaneBuff');
+      await sleep(perfMs(180));
+    }
+  }
+}
+async function liveAuditCardPointVfx(cardId, pt){
+  if (!cardId || !pt) return;
+  if (cardId === 'familiar'){
+    burstFx(pt, 'gold');
+    battleVfxLabel(pt, 'РЫВОК', 'gold');
+    spellImpact(pt, 'arcaneBuff', {});
+    await sleep(perfMs(100));
+  } else if (cardId === 'snowman'){
+    spellImpact(pt, 'frost', {});
+    battleVfxLabel(pt, 'ЛЕДЯНОЕ КАСАНИЕ', 'frost');
+    await sleep(perfMs(100));
+  } else if (cardId === 'doll' || cardId === 'ghost' || cardId === 'graveBinder'){
+    spellImpact(pt, 'shadow', {});
+  }
+}
+async function liveAuditDeathrattleVfx(side, minion, pt){
+  if (!side || !minion || !G) return;
+  const cardId = minion.cardId;
+  const from = pt || battleBoardPoint(side);
+  if (cardId === 'doll'){
+    const to = safeCenter(heroEl(foeOf(side)), $('board'));
+    battleVfxLabel(from, 'ХРИП', 'shadow');
+    await castVfx({ id:'dollRattle', icon:'💀', text:'теневой хрип', school:'shadow' }, from, to, {});
+    return;
+  }
+  if (cardId === 'ghost'){
+    const to = safeCenter(side === G.player ? $('playerHand') : $('enemyHand'), heroEl(side));
+    battleVfxLabel(from, 'КАРТА', 'arcane');
+    await flyEl('<div style="font-size:36px;filter:drop-shadow(0 0 12px #ffe08a)">🃏</div>', from, to, 330);
+    spellImpact(to, 'arcane', {});
+    return;
+  }
+  if (cardId === 'graveBinder'){
+    const target = side.board.find(m => m.hp > 0);
+    const to = target ? safeCenter(minionEl(target), boardElForSide(side)) : battleBoardPoint(side);
+    battleBeam(from, to, 'holy', 620);
+    spellImpact(to, 'holy', {});
+    battleVfxLabel(to, target ? 'ВОЗРОЖДЕНИЕ' : 'СКЕЛЕТ', 'holy');
+    await sleep(perfMs(180));
+    return;
+  }
+  if (cardId === 'duskWraith'){
+    const foe = foeOf(side);
+    battleVfxLabel(from, 'ВОЛНА ХРИПА', 'shadow');
+    const pts = battleSidePoints(foe).map(x => x.pt);
+    pts.push(safeCenter(heroEl(foe), $('board')));
+    pts.forEach(to => { battleBeam(from, to, 'shadow', 520); spellImpact(to, 'shadow', {}); });
+    await sleep(perfMs(220));
+  }
+}
+function liveAuditCombatVfx(attSide, minion, target){
+  if (!minion || !target || !G) return;
+  const pt = target.kind === 'hero' ? safeCenter(heroEl(target.side), $('board')) : safeCenter(minionEl(target.minion), $('board'));
+  if (minion.cardId === 'familiar'){
+    spellImpact(pt, 'arcaneBuff', {});
+    battleVfxLabel(pt, 'РЫВОК', 'arcaneBuff');
+  }
+  if (minion.freezeTouch && target.kind === 'minion'){
+    spellImpact(pt, 'frost', {});
+    battleVfxLabel(pt, 'ЗАМОРОЖЕНО', 'frost');
+  }
 }
 
 async function lungeAnim(attEl, targetPt){
@@ -8579,11 +8770,13 @@ async function playMinion(handIdx, fromPt){
     const m = G.spawnMinion(G.player, cardId);
     log(`Ты призываешь: ${def.name}`);
     render();
+    await liveAuditMinionVfx(cardId, G.player, m, 'summon');
     checkSecrets(G.enemy, 'minionPlayed', { cardId, side: G.player });
     if (def.battlecry && !G.over){
       log(`📣 Клич: ${def.name}`);
       def.battlecry(G, G.player, m);
       render();
+      await liveAuditMinionVfx(cardId, G.player, m, 'battlecry');
       await sleep(200);
       await resolveDeaths();
     }
@@ -8805,6 +8998,7 @@ async function castSpell(handIdx, target){
 		  } else {
 		    log(`Ты: ${def.name}`);
 		    withImpactSource(G.player, source, () => def.effect(G, G.player, target));
+		    await liveAuditSpellVfx(cardId, def, G.player, target, tgtPt);
 		    resolved = true;
 		  }
 		  if (resolved) withImpactSource(G.player, source, () => runAfterSpellCast(G.player, cardId));
@@ -9545,6 +9739,7 @@ async function aiCastSpell(i, def, target){
 	  } else {
 	    log(`Враг: ${def.name}`);
 	    withImpactSource(G.enemy, source, () => def.effect(G, G.enemy, target));
+	    await liveAuditSpellVfx(def.id, def, G.enemy, target, target ? targetPoint(target) : safeCenter(tgtEl, $('board')));
 	    resolved = true;
 	  }
 	  if (resolved) withImpactSource(G.enemy, source, () => runAfterSpellCast(G.enemy, def.id));
@@ -9666,11 +9861,13 @@ async function aiTurn(){
 	          G.enemy.probeMinions = (G.enemy.probeMinions || 0) + 1;
 	          log(`Враг призывает: ${def.name}`);
 	          render();
+	          await liveAuditMinionVfx(def.id, G.enemy, nm, 'summon');
 	          checkSecrets(G.player, 'minionPlayed', { cardId: def.id, side: G.enemy });
 	          if (def.battlecry && !G.over){
 	            log(`📣 Клич: ${def.name}`);
 	            def.battlecry(G, G.enemy, nm);
 	            render();
+	            await liveAuditMinionVfx(def.id, G.enemy, nm, 'battlecry');
 	            await sleep(200);
 	            await resolveDeaths();
 	          }
@@ -12247,6 +12444,7 @@ async function mpAnimateRemoteAction(snap){
       sfx.play();
       mpBurstRemoteFx('spawn', boardPt);
       burstFx(boardPt, 'gold');
+      await liveAuditCardPointVfx(cardId, boardPt);
       await sleep(90);
       return;
     }
@@ -12269,6 +12467,7 @@ async function mpAnimateRemoteAction(snap){
         await flyEl('<div style="font-size:38px;filter:drop-shadow(0 0 12px #c79bff)">✨</div>', enemyHeroPt, to, 280);
         spellImpact(to, 'arcane');
       }
+      if (def) await liveAuditSpellVfx(cardId, def, G.enemy, mpActualTargetFromRemoteDesc(tgt), to);
       return;
     }
     if (action === 'attack:minion'){
