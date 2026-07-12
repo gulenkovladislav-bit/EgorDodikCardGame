@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-12-audit-curve-tribes';
+    var build = '2026-07-12-card-audit-pack-1';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4120,7 +4120,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-12-audit-curve-tribes';
+const CARD_ARENA_BUILD = '2026-07-12-card-audit-pack-1';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -4170,7 +4170,7 @@ const CARD_DB = {
   },
   doll: {
     id:'doll', name:'Проклятая кукла', icon:'🪆',
-    type:'minion', cost:1, atk:1, hp:1, rarity:'common',
+    type:'minion', cost:1, atk:1, hp:1, rarity:'common', tribe:'undead',
     text:'Хрип: 1 урон вражескому герою.', starter:0,
     deathrattle(game, side){ game.dealDamage({ kind:'hero', side: foeOf(side) }, 1); }
   },
@@ -4187,7 +4187,7 @@ const CARD_DB = {
   },
   ghost: {
     id:'ghost', name:'Дух таверны', icon:'👻',
-    type:'minion', cost:3, atk:3, hp:3, rarity:'common',
+    type:'minion', cost:3, atk:3, hp:3, rarity:'common', tribe:'undead',
     text:'Хрип: возьмите карту.', starter:0,
     deathrattle(game, side){ game.draw(side, 1); sfx.draw(); }
   },
@@ -4209,7 +4209,7 @@ const CARD_DB = {
   },
   spiderling: {
     id:'spiderling', name:'Паучонок', icon:'🕸️',
-    type:'minion', cost:1, atk:1, hp:1, rarity:'common',
+    type:'minion', cost:1, atk:1, hp:1, rarity:'common', tribe:'beast',
     text:'', starter:0, token:true
   },
   bolt: {
