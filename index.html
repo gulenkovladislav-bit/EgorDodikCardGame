@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-12-live-card-vfx-1';
+    var build = '2026-07-12-status-icons-1';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -2078,10 +2078,10 @@
   .minion.taunt{
     box-shadow:0 0 0 3px #6e6a60, 0 0 0 5px #3d3a34, 0 5px 10px rgba(0,0,0,.6);
   }
-  .minion.taunt::before{content:"🛡";position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-size:13px;z-index:3;}
+  .minion.taunt::before{content:none;}
   .minion.can-attack{box-shadow:0 0 11px 3px var(--green-ok),0 4px 8px rgba(0,0,0,.5);}
   .minion.taunt.can-attack{box-shadow:0 0 0 3px #3d3a34, 0 0 13px 4px var(--green-ok);}
-  .minion.asleep::after{content:"💤";position:absolute;top:-9px;right:-4px;font-size:13px;}
+  .minion.asleep::after{content:none;}
   .minion.targetable{box-shadow:0 0 13px 4px var(--hp),0 4px 8px rgba(0,0,0,.5);animation:pulse .7s infinite alternate;}
   .minion.taunt.targetable{box-shadow:0 0 0 3px #3d3a34, 0 0 14px 5px var(--hp);}
   .minion.arrow-src{box-shadow:0 0 14px 4px var(--gold),0 4px 8px rgba(0,0,0,.5);}
@@ -2118,11 +2118,42 @@
   .minion.enraged{border-color:#c4432a;}
   .minion.enraged .stat.atk{background:radial-gradient(circle at 35% 30%, #ff8866, #b3341f);box-shadow:0 0 10px #ff5540;animation:enrageThrob 1s ease-in-out infinite;}
   @keyframes enrageThrob{0%,100%{box-shadow:0 0 8px #ff5540;}50%{box-shadow:0 0 16px 3px #ff7040;}}
-  .m-badges{
-    position:absolute;top:-10px;right:-8px;font-size:10px;z-index:3;
-    background:rgba(0,0,0,.6);border-radius:8px;padding:0 3px;
-    filter:drop-shadow(0 1px 2px #000);letter-spacing:1px;
+  .m-statusbar{
+    position:absolute;top:-19px;left:50%;transform:translateX(-50%);
+    width:calc(100% + 30px);min-height:18px;display:flex;flex-wrap:wrap;
+    align-items:center;justify-content:center;gap:2px;z-index:9;pointer-events:none;
   }
+  .m-status{
+    width:18px;height:18px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+    position:relative;pointer-events:auto;cursor:help;box-sizing:border-box;
+    background:linear-gradient(180deg,rgba(34,25,12,.96),rgba(9,6,3,.92));
+    border:1.5px solid var(--ec,#7a6335);box-shadow:0 2px 5px rgba(0,0,0,.65),0 0 8px rgba(0,0,0,.35);
+    color:#fff8d8;font-size:11px;line-height:1;text-shadow:0 1px 2px #000;
+    transition:transform .12s ease, filter .12s ease, box-shadow .12s ease;
+  }
+  .m-status:hover,.m-status:focus-visible{
+    transform:translateY(-2px) scale(1.12);filter:brightness(1.18);
+    box-shadow:0 3px 8px rgba(0,0,0,.75),0 0 12px var(--ec,#f0d080);
+  }
+  .m-status .ms-val{
+    position:absolute;right:-5px;bottom:-5px;min-width:12px;height:12px;border-radius:999px;
+    display:flex;align-items:center;justify-content:center;padding:0 3px;box-sizing:border-box;
+    background:#142638;border:1px solid rgba(200,225,255,.9);color:#dff2ff;font-size:8px;font-weight:bold;
+  }
+  .m-status.taunt{--ec:#d7e2ec;}
+  .m-status.shield{--ec:#ffe08a;}
+  .m-status.lifesteal{--ec:#d64b4b;}
+  .m-status.reborn{--ec:#ffe9a6;}
+  .m-status.poison{--ec:#9fda54;}
+  .m-status.windfury{--ec:#73d1ff;}
+  .m-status.frozen,.m-status.freezeTouch{--ec:#8fd0ff;}
+  .m-status.stealth{--ec:#b8c8d4;}
+  .m-status.deathrattle{--ec:#b06bff;}
+  .m-status.spellDamage{--ec:#c79bff;}
+  .m-status.enrage{--ec:#ff7040;}
+  .m-status.sleep{--ec:#9aa4b8;}
+  .m-status.charge{--ec:#ffd98a;}
+  .m-status.siege{--ec:#d0b070;}
   .rgem.legendary{
     --gc:var(--legend);
     background:linear-gradient(135deg,#fff4cf 0%,#ffcf6a 42%,#eaa11f 58%,#a5600a 100%);
@@ -2578,6 +2609,22 @@
     background:rgba(0,0,0,.35);border:1px solid #56421f;border-radius:8px;padding:5px 7px;
   }
   .cp-kw b{display:block;color:var(--gold-bright);font-size:11px;margin-bottom:1px;}
+  #effectPreview{
+    position:fixed;z-index:470;display:none;pointer-events:none;
+    max-width:min(250px, calc(100vw - 16px));box-sizing:border-box;
+    background:linear-gradient(180deg,rgba(35,25,12,.98),rgba(14,9,4,.98));
+    border:2px solid var(--ec,var(--gold));border-radius:12px;padding:9px 11px;
+    color:#d8ccae;box-shadow:0 12px 28px rgba(0,0,0,.82),0 0 14px rgba(240,208,128,.16);
+  }
+  #effectPreview .ep-head{
+    display:flex;align-items:center;gap:7px;color:var(--gold-bright);
+    font-size:13px;font-weight:bold;letter-spacing:.8px;text-shadow:0 1px 2px #000;margin-bottom:4px;
+  }
+  #effectPreview .ep-icon{
+    width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.45);border:1.5px solid var(--ec,var(--gold));box-shadow:0 0 10px var(--ec,var(--gold));
+  }
+  #effectPreview .ep-body{font-size:10.8px;line-height:1.35;}
 
   #rotateHint{
     position:fixed;inset:0;z-index:500;background:#0c0805;
@@ -3566,6 +3613,9 @@
     .minion .stat.hp{right:-4px;}
     .minion .rgem{width:16px;height:16px;bottom:-5px;}
     .minion .rgem .tico{font-size:9px;}
+    .m-statusbar{top:-13px;width:calc(100% + 22px);gap:1px;}
+    .m-status{width:13px;height:13px;border-radius:4px;border-width:1px;font-size:8px;}
+    .m-status .ms-val{min-width:9px;height:9px;right:-4px;bottom:-4px;font-size:6px;padding:0 2px;}
     #playerHero{
       left:50%;
       bottom:76px;
@@ -3613,6 +3663,8 @@
     .minion .stat.atk{left:-3px;}
     .minion .stat.hp{right:-3px;}
     .minion .rgem{width:14px;height:14px;bottom:-4px;}
+    .m-statusbar{top:-12px;width:calc(100% + 20px);}
+    .m-status{width:12px;height:12px;font-size:7.5px;}
     .minion .rgem .tico{font-size:8px;}
     #playerHero{
       bottom:68px;
@@ -4333,6 +4385,7 @@
 <div id="dragGhost"></div>
 
 <div id="cardPreview"></div>
+<div id="effectPreview"></div>
 
 <div id="resultOverlay">
   <div id="resultTitle"></div>
@@ -4361,7 +4414,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-12-live-card-vfx-1';
+const CARD_ARENA_BUILD = '2026-07-12-status-icons-1';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -8600,6 +8653,54 @@ function sideSkinClass(side){
   return skinClass(side === G.enemy ? G.enemyBack : SAVE.back);
 }
 
+const MINION_STATUS_INFO = {
+  frozen:{ icon:'❄️', name:'Заморозка', desc:'Существо пропускает свою следующую атаку. Визуальный лёд держится, пока эффект ещё важен.' },
+  taunt:{ icon:'🛡️', name:'Провокация', desc:'Враги обязаны атаковать это существо, пока оно на столе. Заклинания провокацию игнорируют.' },
+  shield:{ icon:'💠', name:'Божественный щит', desc:'Первый полученный урон полностью поглощается, после чего щит исчезает.' },
+  lifesteal:{ icon:'🩸', name:'Вампиризм', desc:'Урон, нанесённый этим существом, лечит героя владельца.' },
+  reborn:{ icon:'🎇', name:'Возрождение', desc:'После первой смерти возвращается на стол с 1 HP. Значок исчезает, когда возрождение уже потрачено.' },
+  poison:{ icon:'☠️', name:'Яд', desc:'Любое существо, получившее урон от этого существа, погибает.' },
+  windfury:{ icon:'🌀', name:'Неистовство ветра', desc:'Может атаковать дважды за ход.' },
+  freezeTouch:{ icon:'🥶', name:'Ледяное касание', desc:'Замораживает существ, с которыми сражается.' },
+  spellDamage:{ icon:'🪄', name:'Сила заклинаний', desc:'Пока существо на столе, ваши заклинания наносят больше урона.' },
+  stealth:{ icon:'👤', name:'Скрытность', desc:'Нельзя выбрать целью атаки или заклинания, пока существо само не атакует. Массовый урон всё равно попадает.' },
+  deathrattle:{ icon:'💀', name:'Хрип', desc:'Эффект срабатывает, когда существо погибает. Хрипы могут запускать друг друга по цепочке.' },
+  charge:{ icon:'⚡', name:'Рывок', desc:'Может атаковать сразу в ход призыва.' },
+  siege:{ icon:'🏰', name:'Осада', desc:'Атакует только вражеского героя и игнорирует Провокацию.' },
+  enrage:{ icon:'🔥', name:'Берсерк', desc:'Пока существо ранено, его атака усилена.' },
+  sleep:{ icon:'💤', name:'Не готово', desc:'Существо пока не может атаковать: обычно из-за болезни призыва или уже потраченной атаки.' }
+};
+function minionStatusList(m, def, side, frozenVisible){
+  const out = [];
+  const add = (key, value) => {
+    const info = MINION_STATUS_INFO[key];
+    if (info && !out.some(x => x.key === key)) out.push(Object.assign({ key, value:'' }, info, value ? { value } : null));
+  };
+  if (frozenVisible) add('frozen');
+  if (m.taunt) add('taunt');
+  if (m.shield) add('shield');
+  if (m.lifesteal) add('lifesteal');
+  if (m.reborn && !m.rebornUsed) add('reborn');
+  if (m.poison) add('poison');
+  if (m.windfury) add('windfury', m.attacksLeft > 1 ? m.attacksLeft : '');
+  if (m.freezeTouch) add('freezeTouch');
+  if (m.spellDamage) add('spellDamage', '+' + m.spellDamage);
+  if (m.stealth) add('stealth');
+  if (def && def.deathrattle) add('deathrattle');
+  if (def && def.charge) add('charge');
+  if (m.siege || (def && def.siege)) add('siege');
+  if (m.enraged) add('enrage');
+  if (side && G && G.turn === side.name && !m.canAttack && !frozenVisible && m.atk > 0) add('sleep');
+  return out;
+}
+function minionStatusHTML(list){
+  if (!list.length) return '';
+  return `<div class="m-statusbar">${list.map(s => `
+    <span class="m-status ${s.key}" data-effect="${s.key}" tabindex="0" aria-label="${s.name}">
+      ${s.icon}${s.value ? `<em class="ms-val">${s.value}</em>` : ''}
+    </span>`).join('')}</div>`;
+}
+
 function renderBoard(el, side){
   el.innerHTML = '';
   side.board.forEach(m => {
@@ -8616,23 +8717,13 @@ function renderBoard(el, side){
       if (m.canAttack) d.classList.add('can-attack');
       else if (!frozenVisible) d.classList.add('asleep');
     }
-    const bdg = [];
-    if (m.poison) bdg.push('☠');
-    if (m.windfury) bdg.push('🌀');
-    if (m.lifesteal) bdg.push('🩸');
-	    if (m.spellDamage) bdg.push('🪄');
-	    if (m.freezeTouch) bdg.push('❄');
-	    if (m.siege) bdg.push('🏰');
-	    if (m.stealth) bdg.push('👤');
-	    if (m.reborn || def.reborn) bdg.push('🎇');
+    const statuses = minionStatusList(m, def, side, frozenVisible);
     if (side === G.player && BOOST_COND[m.cardId] && BOOST_COND[m.cardId](side)) d.classList.add('combo');
     d.innerHTML = `
+      ${minionStatusHTML(statuses)}
       <div class="m-icon">${def.icon}</div>
       <div class="m-name">${def.name}</div>
       <div class="rgem ${def.rarity}">${def.tribe ? `<i class="tico">${TRIBE_ICON[def.tribe]}</i>` : ''}</div>
-      ${bdg.length ? `<div class="m-badges">${bdg.join('')}</div>` : ''}
-      ${def.deathrattle ? '<div class="dr-badge">💀</div>' : ''}
-      ${frozenVisible ? '<div class="fz-badge">❄️</div>' : ''}
       <div class="stat atk">${m.atk}</div>
       <div class="stat hp ${m.hp < m.maxHp ? 'hurt' : ''}">${m.hp}</div>`;
     el.appendChild(d);
@@ -10113,6 +10204,40 @@ function showPowerPreview(heroId, rect, side){
     </div>`;
   placePreview(pv, rect);
 }
+const MINION_STATUS_COLORS = {
+  frozen:'#8fd0ff', taunt:'#d7e2ec', shield:'#ffe08a', lifesteal:'#d64b4b',
+  reborn:'#ffe9a6', poison:'#9fda54', windfury:'#73d1ff', freezeTouch:'#8fd0ff',
+  spellDamage:'#c79bff', stealth:'#b8c8d4', deathrattle:'#b06bff', charge:'#ffd98a',
+  siege:'#d0b070', enrage:'#ff7040', sleep:'#9aa4b8'
+};
+function showEffectPreview(key, rect){
+  const info = MINION_STATUS_INFO[key];
+  if (!info) return;
+  const pv = $('effectPreview');
+  pv.style.setProperty('--ec', MINION_STATUS_COLORS[key] || '#f0d080');
+  pv.innerHTML = `
+    <div class="ep-head"><span class="ep-icon">${info.icon}</span><span>${safeTxt(info.name)}</span></div>
+    <div class="ep-body">${safeTxt(info.desc)}</div>`;
+  placeEffectPreview(pv, rect);
+}
+function placeEffectPreview(pv, rect){
+  pv.style.display = 'block';
+  pv.style.visibility = 'hidden';
+  pv.style.left = '0px';
+  pv.style.top = '0px';
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const box = pv.getBoundingClientRect();
+  const pw = Math.min(box.width || 240, vw - 16);
+  const ph = Math.min(box.height || 90, vh - 16);
+  let x = rect.left + rect.width / 2 - pw / 2;
+  x = Math.max(8, Math.min(x, vw - pw - 8));
+  let y = rect.top - ph - 10;
+  if (y < 8) y = rect.bottom + 10;
+  y = Math.max(8, Math.min(y, vh - ph - 8));
+  pv.style.left = x + 'px';
+  pv.style.top = y + 'px';
+  pv.style.visibility = 'visible';
+}
 function placePreview(pv, rect){
   pv.style.display = 'flex';
   pv.style.visibility = 'hidden';
@@ -10137,10 +10262,15 @@ function placePreview(pv, rect){
   pv.style.top = y + 'px';
   pv.style.visibility = 'visible';
 }
-function hidePreview(){ $('cardPreview').style.display = 'none'; }
+function hidePreview(){
+  $('cardPreview').style.display = 'none';
+  $('effectPreview').style.display = 'none';
+}
 
 function previewSourceAt(el){
   if (!el || !el.closest) return null;
+  const st = el.closest('.m-status[data-effect]');
+  if (st) return { type:'effect', key: st.dataset.effect, rect: st.getBoundingClientRect() };
   const hiddenPackCard = el.closest('#packCards .pcard:not(.flipped)');
   if (hiddenPackCard) return null;
   const c = el.closest('[data-card]');
@@ -10160,7 +10290,8 @@ function previewSourceAt(el){
   return null;
 }
 function openPreview(src){
-  if (src.type === 'card') showCardPreview(src.id, src.rect, src.side);
+  if (src.type === 'effect') showEffectPreview(src.key, src.rect);
+  else if (src.type === 'card') showCardPreview(src.id, src.rect, src.side);
   else showPowerPreview(src.id, src.rect, src.side);
 }
 
@@ -10208,7 +10339,7 @@ if (window.matchMedia && matchMedia('(hover: hover)').matches){
     if (drag.active) return;
     const src = previewSourceAt(e.target);
     if (!src) return;
-    const anchor = e.target.closest('[data-card], .minion, #playerPowerBtn, #enemyPowerBtn');
+    const anchor = e.target.closest('.m-status, [data-card], .minion, #playerPowerBtn, #enemyPowerBtn');
     if (hoverAnchor === anchor) return;
     clearTimeout(hoverTimer);
     hoverAnchor = anchor;
