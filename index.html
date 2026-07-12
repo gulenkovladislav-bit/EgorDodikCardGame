@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-12-card-review-batches';
+    var build = '2026-07-12-audit-curve-tribes';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4120,7 +4120,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-12-card-review-batches';
+const CARD_ARENA_BUILD = '2026-07-12-audit-curve-tribes';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -12796,8 +12796,11 @@ function renderTrainingReport(){
     <div class="train-card"><b>Слабые колоды</b>${r.weakDecks.length ? r.weakDecks.map(deckLine).join('<br>') : 'Пока нет данных'}</div>
     <div class="train-card"><b>Карты тащат</b>${r.topCards.length ? r.topCards.map(cardLine).join('<br>') : 'Пока нет данных'}</div>`;
 }
-function auditBarRows(obj, labels){
-  const entries = Object.keys(obj || {}).sort((a, b) => (obj[b] || 0) - (obj[a] || 0));
+function auditBarRows(obj, labels, sortMode){
+  const entries = Object.keys(obj || {}).sort((a, b) => {
+    if (sortMode === 'numeric') return (+a || 0) - (+b || 0);
+    return (obj[b] || 0) - (obj[a] || 0);
+  });
   const max = Math.max(1, ...entries.map(k => obj[k] || 0));
   return entries.map(k => `<div class="audit-bar"><span>${labels?.[k] || k}</span><i style="width:${Math.max(3, Math.round((obj[k] || 0) / max * 100))}%"></i><b>${obj[k] || 0}</b></div>`).join('');
 }
@@ -12840,7 +12843,7 @@ function cardAuditRows(){
       const norm = info.plays ? live / cost : 0;
       return { id, c, info, theory, live, norm,
         set:setOf(id), type:c.secret ? 'secret' : c.type, tribe:c.tribe || 'none',
-        costBucket:Math.min(7, c.cost || 0)
+        costBucket:Math.max(0, c.cost || 0)
       };
     });
 }
@@ -12851,7 +12854,7 @@ function cardAuditData(){
     byType[r.type] = (byType[r.type] || 0) + 1;
     byRarity[r.c.rarity || 'common'] = (byRarity[r.c.rarity || 'common'] || 0) + 1;
     byCost[r.costBucket] = (byCost[r.costBucket] || 0) + 1;
-    if (r.tribe !== 'none') byTribe[r.tribe] = (byTribe[r.tribe] || 0) + 1;
+    byTribe[r.tribe] = (byTribe[r.tribe] || 0) + 1;
     bySet[r.set] = (bySet[r.set] || 0) + 1;
   });
   const played = rows.filter(r => r.info.plays > 0);
@@ -12869,7 +12872,8 @@ function cardAuditData(){
     if ((byTribe[t] || 0) < 8) notes.push(`Племя ${TRIBE_ICON[t] || ''} ${TRIBE_RU[t] || t}: мало карт для стабильного архетипа.`);
   });
   if ((byCost[0] || 0) + (byCost[1] || 0) < rows.length * .12) notes.push('Мало дешёвых карт: агро/темп могут проседать по старту.');
-  if ((byCost[6] || 0) + (byCost[7] || 0) < rows.length * .1) notes.push('Мало дорогих финишеров: контроль и боссы быстро выдыхаются.');
+  const lateCount = Object.keys(byCost).reduce((s, k) => s + ((+k >= 6) ? byCost[k] : 0), 0);
+  if (lateCount < rows.length * .1) notes.push('Мало дорогих финишеров: контроль и боссы быстро выдыхаются.');
   return { rows, played, avgNorm, byType, byRarity, byCost, byTribe, bySet, op, weak, unseen, highTheory, notes };
 }
 function auditRowHtml(r, cls){
@@ -13049,8 +13053,8 @@ function renderCardAudit(){
   const noteHtml = a.notes.length ? a.notes.slice(0, 7).map(n => `<div class="audit-warn">${safeTxt(n)}</div>`).join('') : '<div class="audit-warn">Крупных дыр не видно. Прогони больше симуляций для точнее.</div>';
   grid.innerHTML = `
     <div class="audit-panel"><h4>Типы</h4><div class="audit-bars">${auditBarRows(a.byType, TYPE_RU)}</div></div>
-    <div class="audit-panel"><h4>Стоимость</h4><div class="audit-bars">${auditBarRows(a.byCost, {0:'0',1:'1',2:'2',3:'3',4:'4',5:'5',6:'6',7:'7+'})}</div></div>
-    <div class="audit-panel"><h4>Племена</h4><div class="audit-bars">${auditBarRows(a.byTribe, TRIBE_RU) || '<div class="audit-warn">Племён нет</div>'}</div></div>
+    <div class="audit-panel"><h4>Стоимость</h4><div class="audit-bars">${auditBarRows(a.byCost, null, 'numeric')}</div></div>
+    <div class="audit-panel"><h4>Племена</h4><div class="audit-bars">${auditBarRows(a.byTribe, Object.assign({ none:'Без племени' }, TRIBE_RU)) || '<div class="audit-warn">Племён нет</div>'}</div></div>
     <div class="audit-panel"><h4>Что просит ДЛС</h4>${noteHtml}</div>
     <div class="audit-panel"><h4>Имбовые кандидаты</h4><div class="audit-list">${a.op.length ? a.op.map(r => auditRowHtml(r, 'op')).join('') : '<div class="audit-warn">Пока нет уверенных имб. Нужно больше статистики.</div>'}</div></div>
     <div class="audit-panel"><h4>Слабые карты</h4><div class="audit-list">${a.weak.length ? a.weak.map(r => auditRowHtml(r, 'weak')).join('') : '<div class="audit-warn">Пока нет уверенно слабых карт.</div>'}</div></div>
