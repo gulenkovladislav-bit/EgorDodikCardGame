@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-12-animation-lab-2';
+    var build = '2026-07-12-audit-vfx-1';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -637,6 +637,65 @@
 	  .anim-label{font-size:11px;color:#f0d080;background:rgba(0,0,0,.52);border:1px solid #8c6a2e;border-radius:999px;padding:2px 10px;}
 	  .anim-slot{left:50%;top:50%;transform:translate(-50%,-50%);width:118px;height:154px;border-radius:34px;background:rgba(0,0,0,.26);border:2px dashed rgba(213,170,69,.45);}
 	  .anim-slot .anim-minion{position:absolute;inset:7px;border-radius:30px;background:linear-gradient(180deg,#efe2bd,#4b3513);border:3px solid #c79a3a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-weight:bold;color:#2b1d0a;text-align:center;box-shadow:0 12px 24px rgba(0,0,0,.45);}
+	  .anim-special{position:absolute;z-index:4;pointer-events:none;}
+	  .anim-mini{
+	    width:76px;height:98px;border-radius:24px;transform:translate(-50%,-50%);
+	    background:linear-gradient(180deg,#f1e5c4,#5b3d15);border:2.5px solid #c79a3a;
+	    box-shadow:0 9px 22px rgba(0,0,0,.5),0 0 12px rgba(213,170,69,.18);
+	    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#2b1d0a;font-weight:bold;text-align:center;
+	    transition:transform .32s ease,filter .25s,opacity .25s;
+	  }
+	  .anim-mini.enemy{border-color:#b34b3b;background:linear-gradient(180deg,#f1e0c6,#573017);}
+	  .anim-mini.ally{border-color:#79c57b;background:linear-gradient(180deg,#e7efd0,#33501d);}
+	  .anim-mini.hit{filter:brightness(1.35) saturate(1.3);transform:translate(-50%,-50%) scale(1.08);}
+	  .anim-mini.vacuum{opacity:0;transform:translate(80px,-50%) scale(.18) rotate(35deg);}
+	  .anim-mini.freeze::after,.anim-target.freeze::after,.anim-slot.freeze::after{
+	    content:"";position:absolute;inset:-6px;border-radius:inherit;border:2px solid rgba(143,208,255,.92);
+	    background:radial-gradient(circle at 50% 20%,rgba(160,220,255,.3),rgba(120,200,255,.12) 58%,transparent 72%);
+	    box-shadow:0 0 20px rgba(120,196,255,.85);animation:animIcePulse 1.2s ease-in-out infinite;
+	  }
+	  .anim-mini .ami-icon{font-size:30px;line-height:1;}
+	  .anim-mini .ami-name{font-size:9px;line-height:1.05;max-width:66px;}
+	  .anim-mini .ami-stat{position:absolute;bottom:-9px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;text-shadow:0 1px 2px #000;font-size:11px;}
+	  .anim-mini .ami-atk{left:-7px;background:#c79a3a;border:2px solid #5a3a0f;}
+	  .anim-mini .ami-hp{right:-7px;background:#b83d31;border:2px solid #552018;}
+	  .anim-buff-pop{
+	    transform:translate(-50%,-50%);font-size:18px;font-weight:bold;color:#ffe58a;text-shadow:0 2px 6px #000,0 0 12px #ffe08a;
+	    animation:animRiseFade 1s ease-out forwards;
+	  }
+	  .anim-portal{
+	    width:96px;height:96px;border-radius:50%;transform:translate(-50%,-50%);
+	    border:3px solid rgba(190,120,255,.75);box-shadow:0 0 22px rgba(150,80,255,.75),inset 0 0 18px rgba(0,0,0,.7);
+	    background:radial-gradient(circle,rgba(190,120,255,.48),rgba(70,25,110,.25) 48%,transparent 68%);
+	    animation:animPortalSpin 1.1s linear infinite;
+	  }
+	  .anim-seal{
+	    width:96px;height:96px;border-radius:50%;transform:translate(-50%,-50%);
+	    border:2px solid rgba(255,225,130,.8);box-shadow:0 0 22px rgba(255,210,90,.72);
+	    background:repeating-conic-gradient(from 0deg,rgba(255,210,90,.18) 0 14deg,rgba(120,80,20,.05) 14deg 28deg);
+	    animation:animPulse 1s ease-in-out infinite;
+	  }
+	  .anim-ice-sheet{
+	    left:8%;right:8%;top:31%;height:34px;border-radius:999px;
+	    background:linear-gradient(90deg,transparent,rgba(160,225,255,.55),transparent);
+	    border-top:2px solid rgba(170,225,255,.8);border-bottom:2px solid rgba(100,190,255,.35);
+	    box-shadow:0 0 22px rgba(120,196,255,.55);animation:animIcePulse 1.2s ease-in-out infinite;
+	  }
+	  .anim-card-echo{
+	    width:58px;height:80px;border-radius:10px;transform:translate(-50%,-50%) rotate(-6deg);
+	    border:2px solid rgba(255,230,150,.85);background:linear-gradient(180deg,#5d431d,#211207);
+	    display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 8px 18px rgba(0,0,0,.5);
+	    animation:animRiseFade 1.1s ease-out forwards;
+	  }
+	  .anim-chain-line{
+	    height:3px;transform-origin:left center;border-radius:999px;
+	    background:linear-gradient(90deg,rgba(255,230,140,.1),rgba(255,230,140,.95),rgba(255,230,140,.1));
+	    box-shadow:0 0 12px rgba(255,210,90,.7);animation:animPulse .55s ease-in-out infinite;
+	  }
+	  @keyframes animPulse{0%,100%{opacity:.55;filter:brightness(.95);}50%{opacity:1;filter:brightness(1.35);}}
+	  @keyframes animIcePulse{0%,100%{opacity:.65;filter:brightness(.95);}50%{opacity:1;filter:brightness(1.35);}}
+	  @keyframes animPortalSpin{to{transform:translate(-50%,-50%) rotate(360deg);}}
+	  @keyframes animRiseFade{0%{opacity:0;transform:translate(-50%,-20%) scale(.78);}18%{opacity:1;}100%{opacity:0;transform:translate(-50%,-115%) scale(1.08);}}
 	  .anim-minion .am-icon{font-size:38px;}
 	  .anim-minion .am-name{font-size:12px;line-height:1.05;padding:0 4px;}
 	  .anim-minion .am-stat{position:absolute;bottom:-11px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;text-shadow:0 1px 2px #000;font-weight:bold;}
@@ -4259,7 +4318,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-12-animation-lab-2';
+const CARD_ARENA_BUILD = '2026-07-12-audit-vfx-1';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -13239,10 +13298,35 @@ const ANIM_PATCH_NOTES = {
   huntmastersHorn:'Легендарная сцена: оружие и призыв гончей должны быть связаны одним ритмом.',
   cryptSovereign:'Легендарная сцена: призыв умерших хрипунов должен выглядеть как некромантия.'
 };
+const ANIM_AUDIT_SCENES = new Set([
+  'doll','ghost','familiar','snowman','iceArrow','frostNova','meteor',
+  'graveBinder','cryptNurse','boneMarshal','necroticGiant','duskWraith',
+  'codexIntervention','chronomagus','abyssMaw','huntmastersHorn','cryptSovereign'
+]);
+const ANIM_AUDIT_HINTS = {
+  doll:'Аудит-сцена: хрип выпускает теневой урон в героя врага.',
+  ghost:'Аудит-сцена: после смерти карта тянется из колоды в руку.',
+  familiar:'Аудит-сцена: рывок существа читается как быстрый удар в цель.',
+  snowman:'Аудит-сцена: ледяное касание оставляет видимую заморозку на цели.',
+  iceArrow:'Аудит-сцена: снаряд летит в цель и оставляет стойкую ледяную оболочку.',
+  frostNova:'Аудит-сцена: кольцо мороза накрывает весь вражеский стол.',
+  meteor:'Аудит-сцена: метеор падает сверху и ударной волной бьёт несколько целей.',
+  graveBinder:'Аудит-сцена: хрип передаёт Возрождение союзнику.',
+  cryptNurse:'Аудит-сцена: лечение от нежити идёт лучами к герою.',
+  boneMarshal:'Аудит-сцена: возрождённый союзник получает видимый +1/+1.',
+  necroticGiant:'Аудит-сцена: погибшие хрипуны усиливают вход великана.',
+  duskWraith:'Аудит-сцена: посмертная волна бьёт всех врагов.',
+  codexIntervention:'Аудит-сцена: КОДЕКС навсегда усиливает силу героя.',
+  chronomagus:'Аудит-сцена: легендарка повторяет цепочку разных заклинаний.',
+  abyssMaw:'Аудит-сцена: существо врага засасывается и превращается в баф.',
+  huntmastersHorn:'Аудит-сцена: оружие, удар и гончая с рывком связаны одной сценой.',
+  cryptSovereign:'Аудит-сцена: порталы поднимают умерших хрипунов.'
+};
 let animCurrentCard = null;
 let animSlow = false;
 let animRunSerial = 0;
 function animTypeOf(def){ return def && def.secret ? 'secret' : (def ? def.type : 'minion'); }
+function animHasAuditScene(id){ return ANIM_AUDIT_SCENES.has(id); }
 function animPatchNote(id, def){
   if (ANIM_PATCH_NOTES[id]) return ANIM_PATCH_NOTES[id];
   if (def && def.rarity === 'legendary') return 'Легендарка: нужна усиленная входная сцена и отдельный звуковой акцент.';
@@ -13317,6 +13401,7 @@ function animCardTileHtml(id){
     c.tribe ? (TRIBE_RU[c.tribe] || c.tribe) : 'Без племени',
     animNeedsVfx(c) ? 'нужен VFX' : 'база'
   ];
+  if (animHasAuditScene(id)) chips.push('сцена аудита');
   if (patch) chips.push('патч');
   const impact = info.plays ? `${info.plays} роз. · ${info.vpp.toFixed(1)}/роз · WR ${info.wr ?? '—'}%` : `теория ${cardTheoryScore(id)}`;
   return `
@@ -13343,7 +13428,8 @@ function renderAnimLab(){
   if ($('animNote')){
     const changed = rows.filter(id => animPatchNote(id, CARD_DB[id])).length;
     const need = rows.filter(id => animNeedsVfx(CARD_DB[id])).length;
-    $('animNote').textContent = `Показано ${rows.length} карт. Из них с заметкой патча: ${changed}, требуют/просят особый VFX: ${need}.`;
+    const scenes = rows.filter(id => animHasAuditScene(id)).length;
+    $('animNote').textContent = `Показано ${rows.length} карт. Заметок патча: ${changed}, VFX-кандидатов: ${need}, готовых сцен аудита: ${scenes}.`;
   }
   grid.innerHTML = '';
   if (!rows.length){
@@ -13382,6 +13468,9 @@ function animResetStage(cardId){
   const hand = $('animHandZone');
   const slot = $('animSlot');
   if (slot) slot.innerHTML = '';
+  if ($('animStage')) $('animStage').querySelectorAll('.anim-special,.anim-mini').forEach(x => x.remove());
+  if ($('animTarget')) $('animTarget').classList.remove('freeze');
+  if ($('animSlot')) $('animSlot').classList.remove('freeze');
   if ($('animTargetFace')) $('animTargetFace').textContent = animTargetFaceFor(def);
   if (hand){
     hand.innerHTML = `<div class="anim-card-ghost" id="animGhost"><div class="card ${skinClass(SAVE.back)}">${cardHTML(cardId)}</div></div>`;
@@ -13396,6 +13485,7 @@ function animMinionHtml(def){
   </div>`;
 }
 function animScenarioHint(def){
+  if (def && animHasAuditScene(def.id)) return ANIM_AUDIT_HINTS[def.id] || 'Аудит-сцена: у карты есть отдельная проверочная анимация.';
   const txt = String(def.text || '').toLowerCase();
   if (def.secret) return 'Секрет ставится на героя, затем показываем пример вспышки срабатывания.';
   if (def.type === 'weapon') return 'Оружие экипируется, затем показываем удар от героя к цели.';
@@ -13405,6 +13495,258 @@ function animScenarioHint(def){
   if (def.charge) return 'Существо выходит на стол и делает короткий рывок к цели.';
   if (txt.includes('призыв') || txt.includes('призывает')) return 'Выход существа сопровождается портальным импульсом призыва.';
   return 'Базовый выход существа на стол с общими частицами розыгрыша.';
+}
+function animStageRect(){ return $('animStage').getBoundingClientRect(); }
+function animStagePoint(xPct, yPct){
+  const r = animStageRect();
+  return { x:r.left + r.width * xPct / 100, y:r.top + r.height * yPct / 100 };
+}
+function animAddSpecial(cls, html, xPct, yPct, extra){
+  const stage = $('animStage');
+  if (!stage) return null;
+  const el = document.createElement('div');
+  el.className = 'anim-special ' + cls;
+  el.innerHTML = html || '';
+  el.style.left = xPct + '%';
+  el.style.top = yPct + '%';
+  if (extra) Object.keys(extra).forEach(k => el.style[k] = extra[k]);
+  stage.appendChild(el);
+  return el;
+}
+function animMini(cardLike, xPct, yPct, role){
+  const def = typeof cardLike === 'string' ? CARD_DB[cardLike] : cardLike;
+  const el = animAddSpecial('anim-mini ' + (role || ''), `
+    <div class="ami-icon">${def.icon || '❔'}</div>
+    <div class="ami-name">${safeTxt(def.name || 'Существо')}</div>
+    <div class="ami-stat ami-atk">${def.atk || 0}</div>
+    <div class="ami-stat ami-hp">${def.hp || 0}</div>`, xPct, yPct);
+  return el;
+}
+function animBuffPop(xPct, yPct, text){
+  const el = animAddSpecial('anim-buff-pop', safeTxt(text), xPct, yPct);
+  setTimeout(() => el && el.remove(), animSlow ? 1700 : 1100);
+  return el;
+}
+function animPortalAt(xPct, yPct, ms){
+  const el = animAddSpecial('anim-portal', '', xPct, yPct);
+  setTimeout(() => el && el.remove(), animSlow ? (ms || 1500) * 1.5 : (ms || 1500));
+  return el;
+}
+function animSealAt(xPct, yPct, ms){
+  const el = animAddSpecial('anim-seal', '', xPct, yPct);
+  setTimeout(() => el && el.remove(), animSlow ? (ms || 1500) * 1.5 : (ms || 1500));
+  return el;
+}
+function animLineBetween(fromEl, toEl, ms){
+  const stage = $('animStage');
+  if (!stage || !fromEl || !toEl) return null;
+  const sr = stage.getBoundingClientRect();
+  const from = center(fromEl), to = center(toEl);
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const line = animAddSpecial('anim-chain-line', '', 0, 0, {
+    left:(from.x - sr.left) + 'px',
+    top:(from.y - sr.top) + 'px',
+    width:Math.hypot(dx, dy) + 'px',
+    transform:`rotate(${Math.atan2(dy, dx)}rad)`
+  });
+  setTimeout(() => line && line.remove(), animSlow ? (ms || 650) * 1.5 : (ms || 650));
+  return line;
+}
+async function animPlaceMainMinion(def, ghost, slot, kind){
+  slot.innerHTML = animMinionHtml(def);
+  ghost.classList.add('resolved');
+  await animDelay(120);
+  burstFx(center(slot), kind || (def.tribe === 'undead' ? 'frostfx' : def.tribe === 'demon' ? 'flame' : 'gold'));
+  sfx.play();
+}
+async function playAuditAnimScenario(cardId, def, ctx){
+  const { ghost, slot, target, hero, run } = ctx;
+  const alive = () => run === animRunSerial && $('animPlayerOverlay') && $('animPlayerOverlay').classList.contains('active');
+  if (!animHasAuditScene(cardId)) return false;
+  if (def.type === 'minion') await animPlaceMainMinion(def, ghost, slot);
+  if (!alive()) return true;
+  const enemyA = () => animMini({ icon:'🛡️', name:'Цель', atk:2, hp:3 }, 42, 38, 'enemy');
+  const enemyB = () => animMini({ icon:'👹', name:'Враг', atk:3, hp:2 }, 50, 34, 'enemy');
+  const enemyC = () => animMini({ icon:'🦴', name:'Хрипун', atk:2, hp:2 }, 58, 38, 'enemy');
+  const ally = () => animMini({ icon:'🧟', name:'Союзник', atk:2, hp:2 }, 39, 58, 'ally');
+  switch(cardId){
+    case 'iceArrow':
+      await castVfx(def, center(ghost), center(target), { legendary:false });
+      ghost.classList.add('resolved');
+      target.classList.add('freeze');
+      animBuffPop(50, 28, '❄️ ЗАМОРОЗКА');
+      animSetLog(['Ледяная стрела: снаряд попадает в цель.', 'Ледяная оболочка остаётся на цели как видимый статус.']);
+      return true;
+    case 'frostNova': {
+      ghost.classList.add('resolved');
+      const ms = [enemyA(), enemyB(), enemyC()];
+      animAddSpecial('anim-ice-sheet', '', 50, 50);
+      await animDelay(220);
+      for (const m of ms){
+        spellImpact(center(m), 'frost', {});
+        m.classList.add('freeze');
+        await animDelay(120);
+      }
+      animBuffPop(50, 42, '❄️ ВСЕ ВРАГИ');
+      animSetLog('Кольцо мороза: весь вражеский стол получает стойкий ледяной визуал.');
+      return true;
+    }
+    case 'meteor': {
+      ghost.classList.add('resolved');
+      const ms = [enemyA(), enemyB(), enemyC()];
+      await animDelay(120);
+      await flyEl('<div style="font-size:54px;filter:drop-shadow(0 0 18px #ff7a30)">☄️</div>', animStagePoint(50, 2), animStagePoint(50, 42), animSlow ? 620 : 360);
+      for (const m of ms){
+        m.classList.add('hit');
+        spellImpact(center(m), 'fire', { legendary:true });
+      }
+      animBuffPop(50, 42, '💥 МАССОВЫЙ УРОН');
+      sfx.hit();
+      animSetLog('Метеор: падение сверху и ударная волна по нескольким целям.');
+      return true;
+    }
+    case 'doll':
+      await animDelay(220);
+      await castVfx({ id:'shadowDoll', icon:'💀', text:'теневой хрип', school:'shadow' }, center(slot), center(target), {});
+      animSetLog('Проклятая кукла: хрип выпускает теневой урон в героя врага.');
+      return true;
+    case 'ghost':
+      await animDelay(220);
+      animAddSpecial('anim-card-echo', '🃏', 73, 22);
+      await flyEl('<div style="font-size:36px;filter:drop-shadow(0 0 12px #ffe08a)">🃏</div>', animStagePoint(73, 22), animStagePoint(50, 78), animSlow ? 560 : 340);
+      sfx.draw();
+      animSetLog('Дух таверны: хрип тянет карту из колоды в руку.');
+      return true;
+    case 'familiar':
+      await animDelay(180);
+      await lungeAnim(slot, center(target));
+      spellImpact(center(target), 'gold', {});
+      animSetLog('Фамильяр: рывок подчёркнут быстрым выпадом в цель.');
+      return true;
+    case 'snowman': {
+      const e = enemyB();
+      await animDelay(220);
+      await lungeAnim(slot, center(e));
+      e.classList.add('freeze');
+      slot.classList.add('freeze');
+      spellImpact(center(e), 'frost', {});
+      animSetLog('Снеговик-страж: ледяное касание оставляет морозный статус на цели и самой карте.');
+      return true;
+    }
+    case 'graveBinder': {
+      const a = ally();
+      await animDelay(240);
+      animLineBetween(slot, a, 850);
+      spellImpact(center(a), 'holy', {});
+      animSealAt(39, 58, 1100);
+      animBuffPop(39, 48, 'Возрождение');
+      animSetLog('Могильный связующий: хрип передаёт Возрождение союзнику.');
+      return true;
+    }
+    case 'cryptNurse': {
+      const a = animMini({ icon:'🦴', name:'Нежить', atk:1, hp:2 }, 36, 57, 'ally');
+      const b = animMini({ icon:'👻', name:'Нежить', atk:2, hp:1 }, 64, 57, 'ally');
+      await animDelay(200);
+      animLineBetween(a, hero, 850);
+      animLineBetween(b, hero, 850);
+      spellImpact(center(hero), 'holy', {});
+      animBuffPop(50, 70, '+3 HP');
+      animSetLog('Склепная сестра: союзная нежить даёт лучи лечения герою.');
+      return true;
+    }
+    case 'boneMarshal': {
+      const a = ally();
+      await animDelay(220);
+      animSealAt(39, 58, 1200);
+      spellImpact(center(a), 'holy', {});
+      animBuffPop(39, 48, '+1/+1');
+      animSetLog('Костяной маршал: возрождённый союзник получает заметный баф.');
+      return true;
+    }
+    case 'necroticGiant': {
+      const dead = [animMini({ icon:'💀', name:'Хрип', atk:1, hp:1 }, 35, 35, 'enemy'), animMini({ icon:'🦴', name:'Хрип', atk:1, hp:1 }, 50, 30, 'enemy'), animMini({ icon:'👻', name:'Хрип', atk:1, hp:1 }, 65, 35, 'enemy')];
+      await animDelay(220);
+      dead.forEach(m => { animLineBetween(m, slot, 900); m.style.opacity = '.32'; });
+      spellImpact(center(slot), 'shadow', { legendary:true });
+      animBuffPop(50, 43, '+3/+3');
+      animSetLog('Некротический великан: энергия погибших хрипунов собирается в баф входа.');
+      return true;
+    }
+    case 'duskWraith': {
+      const ms = [enemyA(), enemyB(), enemyC()];
+      await animDelay(240);
+      spellImpact(center(slot), 'shadow', { legendary:false });
+      for (const m of ms){
+        await castVfx({ id:'wraithWave', icon:'🌫️', text:'волна смерти', school:'shadow' }, center(slot), center(m), {});
+        m.classList.add('hit');
+      }
+      animSetLog('Сумеречный мертвец: хрип расходится волной по всем врагам.');
+      return true;
+    }
+    case 'codexIntervention':
+      await animDelay(220);
+      animSealAt(50, 80, 1300);
+      spellImpact(center(hero), 'arcaneBuff', { legendary:true });
+      animBuffPop(50, 72, 'СИЛА ГЕРОЯ +');
+      animSetLog('КОДЕКС: герой получает постоянное улучшение способности.');
+      return true;
+    case 'chronomagus': {
+      const ms = [enemyA(), enemyB(), enemyC()];
+      const spells = [
+        { id:'echoFire', icon:'🔥', text:'огонь', school:'fire' },
+        { id:'echoFrost', icon:'❄️', text:'лёд', school:'frost' },
+        { id:'echoBolt', icon:'⚡', text:'молния', school:'lightning' }
+      ];
+      for (let i = 0; i < spells.length; i++){
+        animAddSpecial('anim-card-echo', spells[i].icon, 40 + i * 10, 72);
+        await castVfx(spells[i], center(slot), center(ms[i]), { legendary:i === 0 });
+        await animDelay(120);
+      }
+      animSetLog('Хрономаг Элир: повторяет цепочку прошлых заклинаний по разным целям.');
+      return true;
+    }
+    case 'abyssMaw': {
+      const prey = enemyB();
+      await animDelay(240);
+      animPortalAt(50, 48, 1300);
+      animLineBetween(prey, slot, 950);
+      await animDelay(260);
+      prey.classList.add('vacuum');
+      await animDelay(260);
+      spellImpact(center(slot), 'shadow', { legendary:true });
+      animBuffPop(50, 39, '+3/+5');
+      animSetLog('Пасть Бездны: вражеское существо засасывается и превращается в усиление.');
+      return true;
+    }
+    case 'huntmastersHorn': {
+      ghost.classList.add('resolved');
+      spellImpact(center(hero), 'armor', { legendary:true });
+      await animDelay(250);
+      await flyEl('<div style="font-size:42px;filter:drop-shadow(0 0 14px #ffe08a)">🎺</div>', center(hero), center(target), animSlow ? 580 : 340);
+      spellImpact(center(target), 'gold', {});
+      const hound = animMini(CARD_DB.codexHound || { icon:'🐕', name:'Гончая', atk:1, hp:1 }, 42, 63, 'ally');
+      animPortalAt(42, 63, 1000);
+      await animDelay(220);
+      await lungeAnim(hound, center(target));
+      spellImpact(center(target), 'fire', {});
+      animSetLog('Рог зверолова: экипировка, удар и гончая с рывком показаны одной связкой.');
+      return true;
+    }
+    case 'cryptSovereign': {
+      const spots = [[38,58,'💀'],[50,63,'👻'],[62,58,'🦴']];
+      for (const [x,y] of spots) animPortalAt(x, y, 1500);
+      await animDelay(260);
+      spots.forEach(([x,y,ic], i) => {
+        const m = animMini({ icon:ic, name:'Хрипун', atk:2 + i, hp:1 + i }, x, y, 'ally');
+        spellImpact(center(m), 'shadow', {});
+      });
+      animBuffPop(50, 50, '3 ХРИПУНА');
+      animSetLog('Суверен склепов: порталы возвращают умерших существ с хрипом.');
+      return true;
+    }
+    default:
+      return false;
+  }
 }
 async function playAnimScenario(cardId){
   const def = CARD_DB[cardId];
@@ -13423,6 +13765,7 @@ async function playAnimScenario(cardId){
   sfx.play();
   await animDelay(560);
   if (run !== animRunSerial) return;
+  if (await playAuditAnimScenario(cardId, def, { ghost, slot, target, hero, run })) return;
   if (def.type === 'minion'){
     slot.innerHTML = animMinionHtml(def);
     ghost.classList.add('resolved');
