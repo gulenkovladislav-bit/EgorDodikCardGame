@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-12-card-audit-pack-1';
+    var build = '2026-07-12-freeze-status-pack-2';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4120,7 +4120,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-12-card-audit-pack-1';
+const CARD_ARENA_BUILD = '2026-07-12-freeze-status-pack-2';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -4264,7 +4264,7 @@ const CARD_DB = {
   },
   familiar: {
     id:'familiar', name:'Фамильяр', icon:'🦉',
-    type:'minion', cost:2, atk:2, hp:1, charge:true, rarity:'common', tribe:'beast',
+    type:'minion', cost:2, atk:3, hp:1, charge:true, rarity:'common', tribe:'beast',
     text:'Рывок: может атаковать сразу.', starter:0
   },
 
@@ -4476,7 +4476,7 @@ const CARD_DB = {
   },
   snowman: {
     id:'snowman', name:'Снеговик-страж', icon:'⛄',
-    type:'minion', cost:4, atk:3, hp:4, rarity:'rare', freezeTouch:true,
+    type:'minion', cost:4, atk:3, hp:5, rarity:'rare', freezeTouch:true,
     text:'Замораживает существ, с которыми сражается.', starter:0
   },
   nightblade: {
@@ -7265,7 +7265,7 @@ function newGame(playerDeckArr, enemyDeckArr){
 	      const ctx = currentImpact();
 	      const m = { uid: uid(), cardId, source: ctx ? ctx.source : cardId, impactLinks: {},
 	                  atk: def.atk, hp: def.hp, maxHp: def.hp,
-	                  taunt: !!def.taunt, frozen: false,
+	                  taunt: !!def.taunt, frozen: false, freezeVisual: false,
 	                  shield: !!def.shield, stealth: !!def.stealth,
 	                  poison: !!def.poison, lifesteal: !!def.lifesteal,
 	                  windfury: !!def.windfury, freezeTouch: !!def.freezeTouch,
@@ -7341,8 +7341,13 @@ function newGame(playerDeckArr, enemyDeckArr){
 	    },
 
     freeze(target){
-      if (target.kind !== 'minion' || target.minion.hp <= 0 || target.minion.frozen) return;
+      if (target.kind !== 'minion' || target.minion.hp <= 0) return;
+      if (target.minion.frozen){
+        target.minion.freezeVisual = true;
+        return;
+      }
       target.minion.frozen = true;
+      target.minion.freezeVisual = true;
       target.minion.canAttack = false;
       target.minion.attacksLeft = 0;
       const el = minionEl(target.minion);
@@ -7396,6 +7401,9 @@ function newGame(playerDeckArr, enemyDeckArr){
 
     startTurn(side){
       this.turn = side.name;
+      foeOf(side).board.forEach(m => {
+        if (!m.frozen) m.freezeVisual = false;
+      });
       if (side.maxMana < MAX_MANA) side.maxMana++;
 	      side.mana = side.maxMana;
 	      side.powerUsed = false;
@@ -7404,8 +7412,15 @@ function newGame(playerDeckArr, enemyDeckArr){
 	      side.fatalShield = false;
 	      side.board.forEach(m => {
         const d = CARD_DB[m.cardId];
-        if (m.frozen){ m.attacksLeft = 0; m.frozen = false; }
-        else m.attacksLeft = m.windfury ? 2 : 1;
+        if (m.frozen){
+          m.attacksLeft = 0;
+          m.frozen = false;
+          m.freezeVisual = true;
+        }
+        else {
+          m.freezeVisual = false;
+          m.attacksLeft = m.windfury ? 2 : 1;
+        }
         m.canAttack = m.attacksLeft > 0 && m.atk > 0;
         if (d.onTurnStart) d.onTurnStart(this, side, m);
       });
@@ -7569,7 +7584,7 @@ function cloneMinion(side, src){
               source: ctx && ctx.side === side ? ctx.source : (src.source || src.cardId),
               impactLinks: Object.assign({}, src.impactLinks || {}),
               atk: src.atk, hp: src.hp, maxHp: src.maxHp,
-              taunt: !!src.taunt, frozen: false, shield: !!src.shield, stealth: !!src.stealth,
+              taunt: !!src.taunt, frozen: false, freezeVisual: false, shield: !!src.shield, stealth: !!src.stealth,
               poison: !!src.poison, lifesteal: !!src.lifesteal, windfury: !!src.windfury,
               freezeTouch: !!src.freezeTouch, spellDamage: src.spellDamage || 0,
               siege: !!src.siege, reborn: !!src.reborn, enraged: false, rebornUsed: !!src.rebornUsed,
@@ -7847,7 +7862,7 @@ async function resolveDeaths(){
 		        const reborned = { uid: uid(), cardId: d.m.cardId, source: d.m.source || d.m.cardId,
 		                           impactLinks: Object.assign({}, d.m.impactLinks || {}),
 		                           atk: def.atk, hp: 1, maxHp: def.hp,
-	                           taunt: !!def.taunt, frozen: false,
+	                           taunt: !!def.taunt, frozen: false, freezeVisual: false,
 	                           shield: !!def.shield, stealth: !!def.stealth,
 	                           poison: !!def.poison, lifesteal: !!def.lifesteal,
 	                           windfury: !!def.windfury, freezeTouch: !!def.freezeTouch,
@@ -8169,8 +8184,9 @@ function renderBoard(el, side){
   el.innerHTML = '';
   side.board.forEach(m => {
     const def = CARD_DB[m.cardId];
+    const frozenVisible = !!(m.frozen || m.freezeVisual);
     const d = document.createElement('div');
-    d.className = 'minion' + (m.taunt ? ' taunt' : '') + (m.frozen ? ' frozen' : '')
+    d.className = 'minion' + (m.taunt ? ' taunt' : '') + (frozenVisible ? ' frozen' : '')
                 + (m.shield ? ' shielded' : '') + (m.stealth ? ' stealthy' : '')
                 + (m.enraged ? ' enraged' : '');
     d.classList.add(sideSkinClass(side));
@@ -8178,7 +8194,7 @@ function renderBoard(el, side){
     if (m.justSpawned){ d.classList.add('spawn'); m.justSpawned = false; }
     if (side === G.player && G.turn === 'player'){
       if (m.canAttack) d.classList.add('can-attack');
-      else d.classList.add('asleep');
+      else if (!frozenVisible) d.classList.add('asleep');
     }
     const bdg = [];
     if (m.poison) bdg.push('☠');
@@ -8196,7 +8212,7 @@ function renderBoard(el, side){
       <div class="rgem ${def.rarity}">${def.tribe ? `<i class="tico">${TRIBE_ICON[def.tribe]}</i>` : ''}</div>
       ${bdg.length ? `<div class="m-badges">${bdg.join('')}</div>` : ''}
       ${def.deathrattle ? '<div class="dr-badge">💀</div>' : ''}
-      ${m.frozen ? '<div class="fz-badge">❄️</div>' : ''}
+      ${frozenVisible ? '<div class="fz-badge">❄️</div>' : ''}
       <div class="stat atk">${m.atk}</div>
       <div class="stat hp ${m.hp < m.maxHp ? 'hurt' : ''}">${m.hp}</div>`;
     el.appendChild(d);
