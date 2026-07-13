@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-audit-vfx-1';
+    var build = '2026-07-13-hero-freeze-1';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -1358,6 +1358,15 @@
     font-weight:bold;font-size:19px;color:#fff;text-shadow:0 1px 2px #000;z-index:2;
   }
   .portrait.targetable .p-frame{box-shadow:0 0 16px 5px var(--hp),0 0 0 2px #1a1206;animation:pulse .7s infinite alternate;}
+  .portrait.frozen .p-frame{
+    box-shadow:0 0 0 3px #bde9ff,0 0 18px 7px rgba(90,190,255,.82),0 5px 12px rgba(0,0,0,.75),inset 0 0 22px rgba(120,215,255,.72);
+    filter:saturate(.72) brightness(1.08);
+  }
+  .portrait.frozen::before{
+    content:"❄️";position:absolute;left:4px;top:4px;z-index:5;font-size:22px;
+    filter:drop-shadow(0 0 6px #8fd0ff);pointer-events:none;
+    animation:pulse .8s ease-in-out infinite alternate;
+  }
   .armor-gem{
     position:absolute;left:-5px;bottom:20px;width:37px;height:42px;
     background:radial-gradient(circle at 35% 28%, #d8dee5, #5a636e);
@@ -4429,7 +4438,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-audit-vfx-1';
+const CARD_ARENA_BUILD = '2026-07-13-hero-freeze-1';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -7537,7 +7546,7 @@ let G = null;
 function makeSide(name, deckArr){
   return { name, hp: HERO_HP, armor: 0, mana: 0, maxMana: 0,
            deck: deckArr, hand: [], handSources: [], board: [], secrets: [], secretSources: [],
-           weapon: null, heroAttacked: false,
+           weapon: null, heroAttacked: false, frozen: false, freezeVisual: false,
            fatigue: 0, powerUsed: false, powerUpgraded: false,
            spellsCast: [], graveyard: [], deathrattleGraveyard: [],
            secretEchoes: [], healthSpentThisTurn: 0, fatalShield: false,
@@ -7649,7 +7658,23 @@ function newGame(playerDeckArr, enemyDeckArr){
 	      return paid;
 	    },
 
-    freeze(target){
+    freeze(target, quiet){
+      if (target.kind === 'hero'){
+        const side = target.side;
+        if (!side || side.hp <= 0) return;
+        side.frozen = true;
+        side.freezeVisual = true;
+        side.heroAttacked = true;
+        const el = heroEl(side);
+        if (el && !quiet){
+          const pt = center(el);
+          spellImpact(pt, 'frost', {});
+          battleVfxLabel(pt, 'ГЕРОЙ ЗАМОРОЖЕН', 'frost');
+        }
+        if (!quiet) sfx.freezeSnd();
+        log(`❄️ ${title(side)}: герой заморожен`);
+        return;
+      }
       if (target.kind !== 'minion' || target.minion.hp <= 0) return;
       if (target.minion.frozen){
         target.minion.freezeVisual = true;
@@ -7713,10 +7738,18 @@ function newGame(playerDeckArr, enemyDeckArr){
       foeOf(side).board.forEach(m => {
         if (!m.frozen) m.freezeVisual = false;
       });
+      if (!foeOf(side).frozen) foeOf(side).freezeVisual = false;
       if (side.maxMana < MAX_MANA) side.maxMana++;
 	      side.mana = side.maxMana;
 	      side.powerUsed = false;
-	      side.heroAttacked = false;
+	      if (side.frozen){
+	        side.heroAttacked = true;
+	        side.frozen = false;
+	        side.freezeVisual = true;
+	      } else {
+	        side.heroAttacked = false;
+	        side.freezeVisual = false;
+	      }
 	      side.healthSpentThisTurn = 0;
 	      side.fatalShield = false;
 	      side.board.forEach(m => {
@@ -8096,6 +8129,8 @@ function resolveCombat(attSide, m, target){
   if (target.kind === 'hero'){
     withImpactSource(attSide, m.source || m.cardId, () => G.dealDamage(target, m.atk));
     if (m.lifesteal) withImpactSource(attSide, m.source || m.cardId, () => G.heal({ kind:'hero', side: attSide }, m.atk));
+    if (m.freezeTouch && m.atk > 0 && target.side.hp > 0) G.freeze(target, true);
+    liveAuditCombatVfx(attSide, m, target);
     log(`${dA.name} бьёт героя на ${m.atk}`);
     return;
   }
@@ -8728,9 +8763,9 @@ function liveAuditCombatVfx(attSide, minion, target){
     battleBeam(attPt, pt, 'gold', 330);
     spellImpact(pt, 'arcaneBuff', {});
   }
-  if (minion.freezeTouch && target.kind === 'minion'){
+  if (minion.freezeTouch){
     spellImpact(pt, 'frost', {});
-    battleVfxLabel(pt, 'ЗАМОРОЖЕНО', 'frost');
+    battleVfxLabel(pt, target.kind === 'hero' ? 'ГЕРОЙ ЗАМОРОЖЕН' : 'ЗАМОРОЖЕНО', 'frost');
   }
 }
 
@@ -8783,7 +8818,11 @@ function render(){
   renderWeapon($('playerWeapon'), G.player);
   renderWeapon($('enemyWeapon'), G.enemy);
   $('playerHero').classList.toggle('weapon-ready',
-    G.turn === 'player' && !G.over && !!G.player.weapon && !G.player.heroAttacked);
+    G.turn === 'player' && !G.over && !!G.player.weapon && !G.player.heroAttacked && !G.player.frozen);
+  $('playerHero').classList.toggle('frozen', !!(G.player.frozen || G.player.freezeVisual));
+  $('enemyHero').classList.toggle('frozen', !!(G.enemy.frozen || G.enemy.freezeVisual));
+  $('playerHero').title = G.player.frozen || G.player.freezeVisual ? '❄️ Заморозка: герой пропускает следующую атаку оружием.' : '';
+  $('enemyHero').title = G.enemy.frozen || G.enemy.freezeVisual ? '❄️ Заморозка: герой пропускает следующую атаку оружием.' : '';
 
   renderBoard($('enemyBoard'), G.enemy);
   renderBoard($('playerBoard'), G.player);
@@ -8819,7 +8858,7 @@ const MINION_STATUS_INFO = {
   reborn:{ icon:'🎇', name:'Возрождение', desc:'После первой смерти возвращается на стол с 1 HP. Значок исчезает, когда возрождение уже потрачено.' },
   poison:{ icon:'☠️', name:'Яд', desc:'Любое существо, получившее урон от этого существа, погибает.' },
   windfury:{ icon:'🌀', name:'Неистовство ветра', desc:'Может атаковать дважды за ход.' },
-  freezeTouch:{ icon:'🥶', name:'Ледяное касание', desc:'Замораживает существ, с которыми сражается.' },
+  freezeTouch:{ icon:'🥶', name:'Ледяное касание', desc:'Замораживает персонажа, которому наносит боевой урон: существо или героя.' },
   spellDamage:{ icon:'🪄', name:'Сила заклинаний', desc:'Пока существо на столе, ваши заклинания наносят больше урона.' },
   stealth:{ icon:'👤', name:'Скрытность', desc:'Нельзя выбрать целью атаки или заклинания, пока существо само не атакует. Массовый урон всё равно попадает.' },
   deathrattle:{ icon:'💀', name:'Хрип', desc:'Эффект срабатывает, когда существо погибает. Хрипы могут запускать друг друга по цепочке.' },
@@ -9170,6 +9209,7 @@ async function heroSwing(side, target){
       trackImpact(target.side, em.source || em.cardId, 'damage', back);
       const el = heroEl(side);
       shake(el); splashAt(center(el), em.atk);
+      if (back > 0 && em.freezeTouch && side.hp > 0) G.freeze({ kind:'hero', side });
     }
     sfx.hit();
     log(`${title(side)}: оружие ⚔ ${CARD_DB[em.cardId].name}`);
@@ -9185,7 +9225,7 @@ async function heroSwing(side, target){
   render();
 }
 async function heroAttack(target){
-  if (!G.player.weapon || G.player.heroAttacked || G.busy) return;
+  if (!G.player.weapon || G.player.heroAttacked || G.player.frozen || G.busy) return;
   const mpMeta = mpActionMeta({ kind:'hero', side:'player' }, mpTargetDescriptor(target), { cardId:G.player.weapon && G.player.weapon.cardId });
   G.busy = true;
   await heroSwing(G.player, target);
@@ -9478,7 +9518,7 @@ document.addEventListener('pointerdown', e => {
     return;
   }
   const heroDragEl = e.target.closest('#playerHero');
-  if (heroDragEl && G.player.weapon && !G.player.heroAttacked){
+  if (heroDragEl && G.player.weapon && !G.player.heroAttacked && !G.player.frozen){
     drag.active = true; drag.type = 'hero';
     drag.startX = e.clientX; drag.startY = e.clientY; drag.lastX = e.clientX; drag.lastY = e.clientY; drag.moved = false;
     setDragPerf(true);
@@ -10202,7 +10242,7 @@ async function aiTurn(){
   if (G.over) return;
 
   /* 3.4 удар героя оружием */
-  if (!G.over && G.enemy.weapon && !G.enemy.heroAttacked){
+  if (!G.over && G.enemy.weapon && !G.enemy.heroAttacked && !G.enemy.frozen){
     const w = G.enemy.weapon;
     const taunts = G.player.board.filter(t => t.taunt && !t.stealth);
     const vis = aiVisible();
@@ -10285,7 +10325,7 @@ const KEYWORDS = {
   taunt:{ n:'Провокация', d:'Враги обязаны атаковать это существо, пока оно на столе. Заклинания провокацию игнорируют.' },
   deathrattle:{ n:'Хрип', d:'Эффект срабатывает, когда существо погибает. Хрипы могут запускать друг друга по цепочке.' },
   charge:{ n:'Рывок', d:'Может атаковать сразу в ход призыва — без болезни призыва 💤.' },
-  freeze:{ n:'Заморозка', d:'Замороженный ❄️ пропускает свою следующую атаку и оттаивает в начале хода владельца.' },
+  freeze:{ n:'Заморозка', d:'Замороженное существо пропускает следующую атаку. Замороженный герой не может атаковать оружием в свой следующий ход.' },
   armor:{ n:'Броня', d:'Серый щит у портрета: поглощает урон раньше здоровья героя.' },
   aoe:{ n:'Массовый урон', d:'Бьёт сразу по всем существам врага. Разыгрывается броском на стол, цель выбирать не нужно.' },
   magnetic:{ n:'Магнетизм', d:'Брось эту карту на свой Механизм ⚙️ — они сольются: статы и способности прибавятся. Или призови отдельно.' },
@@ -10297,7 +10337,7 @@ const KEYWORDS = {
   stealth:{ n:'Скрытность', d:'Нельзя выбрать целью атаки или заклинания, пока существо само не атакует. Массовый урон всё равно попадает.' },
   reborn:{ n:'Возрождение', d:'После первой смерти возвращается на стол с 1 HP.' },
   spellDamage:{ n:'Сила заклинаний', d:'Пока на столе — ваши заклинания наносят больше урона.' },
-  freezeTouch:{ n:'Ледяное касание', d:'Замораживает существ, с которыми сражается.' },
+  freezeTouch:{ n:'Ледяное касание', d:'Замораживает персонажа, которому наносит боевой урон: существо или героя.' },
   battlecry:{ n:'Боевой клич', d:'Эффект срабатывает один раз — когда карту разыгрывают из руки.' },
   weapon:{ n:'Оружие', d:'Экипируется герою. Тащи СВОЙ портрет на цель — герой атакует раз в ход. Каждый удар −1 прочность.' },
   ranged:{ n:'Боезапас', d:'Дальнобойное: герой стреляет издали и не получает сдачу от существ. Заряды 🏹 = прочность.' },
