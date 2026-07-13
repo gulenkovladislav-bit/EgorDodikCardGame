@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-scout-continuous-draw';
+    var build = '2026-07-13-stealth-rattles-audit';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -1671,6 +1671,7 @@
   #enemyMana{top:10px;right:14px;}
   .crystal{width:17px;height:17px;border-radius:3px;transform:rotate(45deg);background:#1e2b36;border:1px solid #101a22;}
   .crystal.full{background:radial-gradient(circle at 35% 30%, var(--mana-glow), var(--mana));box-shadow:0 0 6px var(--mana);}
+  .crystal.bonus{border-color:#ffe16b;box-shadow:0 0 5px #ffe16b,0 0 9px var(--mana);}
 
   .deck-stack{
     position:absolute;z-index:15;width:44px;height:60px;border-radius:6px;
@@ -4440,7 +4441,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-scout-continuous-draw';
+const CARD_ARENA_BUILD = '2026-07-13-stealth-rattles-audit';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -4982,19 +4983,19 @@ const CARD_DB = {
   },
   ambusher: {
     id:'ambusher', name:'Засадник', icon:'🪤',
-    type:'minion', cost:4, atk:5, hp:3, rarity:'epic', stealth:true,
-    text:'Скрытность.', starter:0
+    type:'minion', cost:4, atk:4, hp:2, rarity:'epic', charge:true, stealthAfterFirstAttack:true,
+    text:'Рывок. После первой атаки получает Скрытность.', starter:0
   },
   ghostblade: {
     id:'ghostblade', name:'Призрачный клинок', icon:'🔪',
-    type:'minion', cost:5, atk:4, hp:4, rarity:'rare', tribe:'undead', stealth:true, poison:true,
+    type:'minion', cost:5, atk:3, hp:3, rarity:'rare', tribe:'undead', stealth:true, poison:true,
     text:'Скрытность. Яд.', starter:0
   },
 
   /* ---- ХРИП×5 ---- */
   ratking: {
     id:'ratking', name:'Крысиный король', icon:'🐀',
-    type:'minion', cost:3, atk:2, hp:2, rarity:'rare', tribe:'beast',
+    type:'minion', cost:4, atk:2, hp:2, rarity:'rare', tribe:'beast',
     text:'Хрип: призывает трёх Крыс 1/1.', starter:0,
     deathrattle(game, side){
       for (let i = 0; i < 3; i++)
@@ -5004,40 +5005,55 @@ const CARD_DB = {
   },
   sapper: {
     id:'sapper', name:'Минёр', icon:'⛏️',
-    type:'minion', cost:4, atk:4, hp:2, rarity:'rare',
-    text:'Хрип: 3 урона случайному врагу.', starter:0,
-    deathrattle(game, side){
-      const foe = foeOf(side);
-      const ts = foe.board.filter(x => !x.stealth).map(x => ({ kind:'minion', side: foe, minion: x }));
-      ts.push({ kind:'hero', side: foe });
-      game.dealDamage(ts[Math.floor(Math.random() * ts.length)], 3);
+    type:'minion', cost:4, atk:4, hp:2, rarity:'rare', battlecryTarget:'spellEnemy',
+    text:'При призыве выберите врага. Хрип: 3 урона выбранной цели; если она погибла — случайному врагу.', starter:0,
+    battlecry(game, side, self, target){
+      if (!target) return;
+      self.sapperTargetKind = target.kind;
+      self.sapperTargetUid = target.kind === 'minion' ? target.minion.uid : 0;
+      self.battlecryVfxTargets = [target];
+    },
+    deathrattle(game, side, self){
+      const target = self.sapperResolvedTarget || resolveSapperDeathTarget(side, self);
+      delete self.sapperResolvedTarget;
+      if (target) game.dealDamage(target, 3);
     }
   },
   souljar: {
     id:'souljar', name:'Сосуд душ', icon:'🏺',
-    type:'minion', cost:3, atk:0, hp:4, taunt:true, rarity:'epic',
+    type:'minion', cost:4, atk:0, hp:4, taunt:true, rarity:'epic',
     text:'Провокация. Хрип: возьмите 2 карты.', starter:0,
     deathrattle(game, side){ game.draw(side, 2); sfx.draw(); }
   },
   frostwight: {
     id:'frostwight', name:'Мерзлец', icon:'🧟‍♂️',
     type:'minion', cost:4, atk:3, hp:3, rarity:'rare', tribe:'undead',
-    text:'Хрип: замораживает случайное существо врага.', starter:0,
-    deathrattle(game, side){
-      const foe = foeOf(side);
-      const alive = foe.board.filter(x => x.hp > 0);
-      if (alive.length)
-        game.freeze({ kind:'minion', side: foe, minion: alive[Math.floor(Math.random() * alive.length)] });
+    text:'Клич и Хрип: замораживает случайное существо врага.', starter:0,
+    battlecry(game, side, self){
+      const target = randomEnemyMinionTarget(side);
+      self.battlecryVfxTargets = target ? [target] : [];
+      if (target) game.freeze(target);
+    },
+    deathrattle(game, side, self){
+      const target = self.frostwightResolvedTarget || randomEnemyMinionTarget(side);
+      delete self.frostwightResolvedTarget;
+      if (target) game.freeze(target);
     }
   },
   goldgoose: {
     id:'goldgoose', name:'Золотая гусыня', icon:'🦢',
     type:'minion', cost:3, atk:1, hp:3, rarity:'epic', tribe:'beast',
-    text:'Хрип: +15 🪙 (даже у врага — вам!).', starter:0,
-    deathrattle(){
-      SAVE.gold += 15;
-      storeSave();
-      log('💰 +15 золота!');
+    text:'Хрип: в одиночной игре призвавший получает 15 🪙; в мультиплеере — 1 ману.', starter:0,
+    deathrattle(game, side){
+      if (game.multiplayer){
+        const before = side.mana;
+        side.mana = Math.min(MAX_MANA, side.mana + 1);
+        log(`🦢 ${title(side)}: +${side.mana - before} маны`);
+      } else if (side === game.player){
+        SAVE.gold += 15;
+        storeSave();
+        log('💰 +15 золота!');
+      }
       sfx.rare();
     }
   },
@@ -8235,6 +8251,16 @@ function useAttack(m){
   m.canAttack = m.attacksLeft > 0;
   m.stealth = false;
 }
+function applyAfterAttackStates(m){
+  if (!m || m.hp <= 0) return;
+  const def = defOf(m);
+  if (def && def.stealthAfterFirstAttack && !m.stealthAfterFirstAttackUsed){
+    m.stealthAfterFirstAttackUsed = true;
+    m.stealth = true;
+    const el = minionEl(m);
+    if (el) stealthStateVfx(center(el), true);
+  }
+}
 /* ---- СЕКРЕТЫ: скрытые заклинания, срабатывающие на действия врага ---- */
 function checkSecrets(owner, ev, data){
   if (!G || !owner || !owner.secrets || !owner.secrets.length) return {};
@@ -8306,6 +8332,41 @@ function myTurn(){ return G && G.turn === 'player' && !G.over && !G.busy; }
 function spellTargetMode(def){
   if (def.target === 'friendly' || def.target === 'friendlyMinion') return def.target;
   return def.target === 'any' ? 'any' : 'spellEnemy';
+}
+function randomEnemyMinionTarget(side){
+  const foe = foeOf(side);
+  const alive = foe.board.filter(m => m.hp > 0 && !m.stealth);
+  if (!alive.length) return null;
+  const minion = alive[Math.floor(Math.random() * alive.length)];
+  return { kind:'minion', side:foe, minion };
+}
+function randomEnemyCharacterTarget(side){
+  const foe = foeOf(side);
+  const targets = foe.board
+    .filter(m => m.hp > 0 && !m.stealth)
+    .map(minion => ({ kind:'minion', side:foe, minion }));
+  if (foe.hp > 0) targets.push({ kind:'hero', side:foe });
+  return targets.length ? targets[Math.floor(Math.random() * targets.length)] : null;
+}
+function resolveSapperDeathTarget(side, self){
+  const foe = foeOf(side);
+  if (self && self.sapperTargetKind === 'hero' && foe.hp > 0)
+    return { kind:'hero', side:foe };
+  if (self && self.sapperTargetKind === 'minion'){
+    const minion = foe.board.find(m => m.uid === self.sapperTargetUid && m.hp > 0);
+    if (minion) return { kind:'minion', side:foe, minion };
+  }
+  return randomEnemyCharacterTarget(side);
+}
+function aiBattlecryTarget(def, side){
+  if (!def || !def.battlecryTarget) return null;
+  const foe = foeOf(side);
+  if (def.id === 'sapper'){
+    const visible = foe.board.filter(m => m.hp > 0 && !m.stealth)
+      .sort((a, b) => threatScore(b) - threatScore(a));
+    return visible.length ? { kind:'minion', side:foe, minion:visible[0] } : { kind:'hero', side:foe };
+  }
+  return { kind:'hero', side:foe };
 }
 function isValidTarget(t, mode){
   if (!t) return false;
@@ -9039,6 +9100,24 @@ async function battlecryCardVfx(cardId, side, minion, targets, drawCard){
     await flyEl('<div style="font-size:24px;color:#ff526b;filter:drop-shadow(0 0 10px #a4002b)">●</div>', sourcePt, to, 270);
     spellImpact(to, 'shadow', {});
     battleVfxLabel(to, 'ЖЕРТВА −2', 'shadow');
+    return;
+  }
+  if (cardId === 'sapper' && list[0]){
+    const to = targetPoint(list[0]);
+    battleBeam(sourcePt, to, 'fire', 620);
+    await flyEl('<div style="font-size:28px;filter:drop-shadow(0 0 10px #ffbd55)">🎯</div>', sourcePt, to, 310);
+    spellImpact(to, 'fire', {});
+    battleVfxLabel(to, 'ЦЕЛЬ МИНОРА', 'fire');
+    tone(185, .12, 'square', .08, 120);
+    return;
+  }
+  if (cardId === 'frostwight' && list[0]){
+    const to = targetPoint(list[0]);
+    battleBeam(sourcePt, to, 'frost', 560);
+    await flyEl('<div style="font-size:28px;filter:drop-shadow(0 0 12px #8de8ff)">❄️</div>', sourcePt, to, 280);
+    spellImpact(to, 'frost', {});
+    iceCrackVfx(to);
+    battleVfxLabel(to, 'ЗАМОРОЗКА', 'frost');
   }
 }
 async function stoneArmorVfx(from, to){
@@ -9254,6 +9333,65 @@ async function liveAuditDeathrattleVfx(side, minion, pt){
     await sleep(perfMs(120));
     return;
   }
+  if (cardId === 'ratking'){
+    battleVfxLabel(from, 'КРЫСИНАЯ СТАЯ', 'nature');
+    for (let i = 0; i < 3; i++){
+      const to = { x:from.x + (i - 1) * 48, y:from.y + 24 + Math.abs(i - 1) * 8 };
+      flyEl('<div style="font-size:29px;filter:drop-shadow(0 3px 4px #000)">🐀</div>', from, to, 250 + i * 45);
+      setTimeout(() => spellImpact(to, 'nature', {}), perfMs(180 + i * 45));
+    }
+    await sleep(perfMs(300));
+    return;
+  }
+  if (cardId === 'sapper'){
+    const target = resolveSapperDeathTarget(side, minion);
+    minion.sapperResolvedTarget = target;
+    if (!target) return;
+    const to = targetPoint(target);
+    battleVfxLabel(from, 'МИНА ВЗВЕДЕНА', 'fire');
+    await flyEl('<div style="font-size:34px;filter:drop-shadow(0 0 12px #ff8d38)">💣</div>', from, to, 430);
+    spellImpact(to, 'fire', { legendary:false });
+    battleVfxLabel(to, 'ВЗРЫВ −3', 'fire');
+    const el = target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion);
+    if (el) shake(el);
+    return;
+  }
+  if (cardId === 'souljar'){
+    const to = safeCenter(side === G.player ? $('playerHand') : $('enemyHand'), heroEl(side));
+    battleVfxLabel(from, 'ДВЕ ДУШИ', 'shadow');
+    await Promise.all([0, 1].map(i => flyEl(
+      '<div style="font-size:30px;filter:drop-shadow(0 0 12px #b88cff)">🃏</div>',
+      { x:from.x + (i ? 16 : -16), y:from.y }, { x:to.x + (i ? 22 : -22), y:to.y }, 330 + i * 70
+    )));
+    spellImpact(to, 'arcane', {});
+    return;
+  }
+  if (cardId === 'frostwight'){
+    const target = randomEnemyMinionTarget(side);
+    minion.frostwightResolvedTarget = target;
+    if (!target) return;
+    const to = targetPoint(target);
+    battleVfxLabel(from, 'ХОЛОД МОГИЛЫ', 'frost');
+    battleBeam(from, to, 'frost', 620);
+    await flyEl('<div style="font-size:30px;filter:drop-shadow(0 0 12px #8de8ff)">❄️</div>', from, to, 320);
+    spellImpact(to, 'frost', {});
+    iceCrackVfx(to);
+    return;
+  }
+  if (cardId === 'goldgoose'){
+    const multiplayer = !!G.multiplayer;
+    const toEl = multiplayer
+      ? (side === G.player ? $('playerMana') : $('enemyMana'))
+      : heroEl(side);
+    const to = safeCenter(toEl, heroEl(side));
+    const icon = multiplayer ? '🔷' : '🪙';
+    const label = multiplayer ? '+1 МАНА' : '+15 ЗОЛОТА';
+    battleVfxLabel(from, 'ЗОЛОТОЙ ХРИП', 'gold');
+    await flyEl(`<div style="font-size:34px;filter:drop-shadow(0 0 13px #ffe16b)">${icon}</div>`, from, to, 360);
+    spellImpact(to, multiplayer ? 'arcane' : 'gold', {});
+    battleVfxLabel(to, label, multiplayer ? 'arcane' : 'gold');
+    return;
+  }
   if (cardId === 'lich'){
     const hand = side === G.player ? $('playerHand') : $('enemyHand');
     const drawTo = safeCenter(hand, heroEl(side));
@@ -9390,8 +9528,9 @@ function render(){
 
 function renderMana(el, side){
   let html = `<span>${side.mana}/${side.maxMana}</span>`;
-  for (let i = 0; i < side.maxMana; i++)
-    html += `<div class="crystal ${i < side.mana ? 'full' : ''}"></div>`;
+  const slots = Math.max(side.maxMana, side.mana);
+  for (let i = 0; i < slots; i++)
+    html += `<div class="crystal ${i < side.mana ? 'full' : ''} ${i >= side.maxMana ? 'bonus' : ''}"></div>`;
   el.innerHTML = html;
 }
 
@@ -9603,12 +9742,16 @@ function log(msg){
 }
 
 /* ================== ДЕЙСТВИЯ ИГРОКА ================== */
-async function playMinion(handIdx, fromPt){
+async function playMinion(handIdx, fromPt, battlecryTarget){
   const cardId = G.player.hand[handIdx];
   const def = CARD_DB[cardId];
   if (def.cost > G.player.mana || G.player.board.length >= MAX_BOARD) return;
   const source = handSource(G.player, handIdx, cardId);
-  const mpMeta = mpActionMeta(mpHandSourceDescriptor(cardId, true), mpBoardDescriptor(G.player), { cardId });
+  const mpMeta = mpActionMeta(
+    mpHandSourceDescriptor(cardId, true),
+    battlecryTarget ? mpTargetDescriptor(battlecryTarget) : mpBoardDescriptor(G.player),
+    { cardId }
+  );
   G.busy = true;
   G.player.mana -= def.cost;
   removeHandCard(G.player, handIdx);
@@ -9625,11 +9768,13 @@ async function playMinion(handIdx, fromPt){
     checkSecrets(G.enemy, 'minionPlayed', { cardId, side: G.player });
     if (def.battlecry && !G.over){
       log(`📣 Клич: ${def.name}`);
-      def.battlecry(G, G.player, m);
+      def.battlecry(G, G.player, m, battlecryTarget || null);
       mpMeta.battlecryTargets = (m.battlecryVfxTargets || []).map(mpTargetDescriptor).filter(Boolean);
       mpMeta.battlecryDraw = !!m.battlecryDrawCard;
       render();
       await liveAuditMinionVfx(cardId, G.player, m, 'battlecry');
+      delete m.battlecryVfxTargets;
+      delete m.battlecryDrawCard;
       await sleep(200);
       await resolveDeaths();
     }
@@ -9994,6 +10139,7 @@ async function attackWith(minion, target){
   const tgtEl = target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion);
   await lungeAnim(attEl, combatPoint(target, G.player));
   resolveCombat(G.player, minion, target);
+  applyAfterAttackStates(minion);
   await sleep(200);
 	  await resolveDeaths();
 	  G.busy = false;
@@ -10243,7 +10389,12 @@ function handleDragMove(x, y){
       ghost.innerHTML = `<div class="card ${skinClass(SAVE.back)}">${cardHTML(cardId)}</div>`;
       ghost.style.display = 'block';
       if (drag.srcEl) drag.srcEl.style.opacity = '0.25';
-      if (def.type === 'minion' || !def.target){
+      if (def.type === 'minion' && def.battlecryTarget){
+	        drag.mode = def.battlecryTarget;
+	        markTargets(drag.mode);
+        setDragGhostAt(x, y);
+        arrowStart(center(drag.srcEl || ghost));
+      } else if (def.type === 'minion' || !def.target){
         drag.mode = null;
         $('playerBoard').classList.add('drop-ok');
         if (def.magnetic){
@@ -10265,7 +10416,13 @@ function handleDragMove(x, y){
     }
     const cardId = G.player.hand[drag.handIdx];
     const def = cardId !== undefined ? CARD_DB[cardId] : null;
-    if (def && def.type === 'spell' && def.target){
+    if (def && def.type === 'minion' && def.battlecryTarget){
+      setDragGhostAt(x, y);
+      arrowMove(x, y);
+      const target = pickTargetAt(x, y, drag.mode);
+      updateAimTarget(target);
+      mpSendIntent('aim', drag.intentSource, mpTargetDescriptor(target), { mode:drag.mode });
+    } else if (def && def.type === 'spell' && def.target){
       arrowMove(x, y);
       const target = pickTargetAt(x, y, drag.mode);
       updateAimTarget(target);
@@ -10338,6 +10495,17 @@ document.addEventListener('pointerup', e => {
       return;
     }
     if (def.type === 'minion'){
+      if (def.battlecryTarget){
+        const target = moved ? pickTargetAt(e.clientX, e.clientY, def.battlecryTarget) : null;
+        if (target && def.cost <= G.player.mana && G.player.board.length < MAX_BOARD){
+          playMinion(handIdx, { x:e.clientX, y:e.clientY }, target);
+          return;
+        }
+        if (!moved) log('🎯 Перетащите Минёра на выбранного врага');
+        cancelIntent();
+        render();
+        return;
+      }
       if (moved && def.magnetic){
         const mt = pickMergeTargetAt(e.clientX, e.clientY);
         if (mt){ playMagnetic(handIdx, mt, { x: e.clientX, y: e.clientY }); return; }
@@ -10851,9 +11019,12 @@ async function aiTurn(){
 	          checkSecrets(G.player, 'minionPlayed', { cardId: def.id, side: G.enemy });
 	          if (def.battlecry && !G.over){
 	            log(`📣 Клич: ${def.name}`);
-	            def.battlecry(G, G.enemy, nm);
+	            const battlecryTarget = aiBattlecryTarget(def, G.enemy);
+	            def.battlecry(G, G.enemy, nm, battlecryTarget);
 	            render();
 	            await liveAuditMinionVfx(def.id, G.enemy, nm, 'battlecry');
+	            delete nm.battlecryVfxTargets;
+	            delete nm.battlecryDrawCard;
 	            await sleep(200);
 	            await resolveDeaths();
 	          }
@@ -10926,6 +11097,7 @@ async function aiTurn(){
       const tgtEl = target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion);
       await lungeAnim(attEl, combatPoint(target, G.enemy));
       resolveCombat(G.enemy, m, target);
+      applyAfterAttackStates(m);
       await sleep(250);
       await resolveDeaths();
       render();
@@ -13450,6 +13622,9 @@ function mpVisualSideState(side){
       lifesteal:!!m.lifesteal, frozen:!!m.frozen, freezeVisual:!!m.freezeVisual,
       stealth:!!m.stealth, enraged:!!m.enraged,
       reborn:!!m.reborn, rebornUsed:!!m.rebornUsed,
+      sapperTargetKind:m.sapperTargetKind || null,
+      sapperTargetUid:m.sapperTargetUid || 0,
+      stealthAfterFirstAttackUsed:!!m.stealthAfterFirstAttackUsed,
       extraDeathrattles:(m.extraDeathrattles || []).map(x => Object.assign({}, x))
     }))
   };
@@ -13524,6 +13699,12 @@ async function mpAnimateRemoteAction(snap){
       if (sourceTarget && sourceTarget.minion && target && target.kind !== 'board')
         liveAuditCombatVfx(sourceTarget.side || G.enemy, sourceTarget.minion, target, true);
       sfx.hit();
+      const resulting = snap.player && (snap.player.board || []).find(m => src && m.uid === src.uid);
+      if (resulting && resulting.stealth && CARD_DB[resulting.cardId] && CARD_DB[resulting.cardId].stealthAfterFirstAttack){
+        await sleep(70);
+        const pt = safeCenter(attEl, $('enemyBoard'));
+        stealthStateVfx(pt, true);
+      }
       await sleep(90);
       return;
     }
@@ -13656,7 +13837,7 @@ async function mpPlayRemoteDeathrattleCues(before, after){
     const alive = new Set((newSide && newSide.board || []).map(m => m.uid));
     const gameSide = sideName === 'player' ? G.player : G.enemy;
     for (const old of oldSide && oldSide.board || []){
-      if (alive.has(old.uid) || !['bombot','packAlpha','lich','raccoon'].includes(old.cardId)) continue;
+      if (alive.has(old.uid) || !['bombot','packAlpha','lich','raccoon','ratking','sapper','souljar','frostwight','goldgoose'].includes(old.cardId)) continue;
       const minion = (gameSide.board || []).find(m => m.uid === old.uid);
       const el = minion && minionEl(minion);
       const pt = safeCenter(el, boardElForSide(gameSide));
@@ -13669,7 +13850,7 @@ async function mpPlayRemoteDeathrattleCues(before, after){
           ? oldVictim.deckCards[oldVictim.deckCards.length - 1] : null;
         if (stolenId) await stolenCardVfx(gameSide, stolenId);
       }
-      else await liveAuditDeathrattleVfx(gameSide, old, pt);
+      else await liveAuditDeathrattleVfx(gameSide, minion || old, pt);
     }
   }
 }
@@ -14638,6 +14819,14 @@ const ANIM_PATCH_NOTES = {
   fieldmedic:'Последний патч: 2/2 → 2/3; лечение героя заменено тремя случайными импульсами по 1 HP с повторениями целей.',
   scout:'Аудит-сцена: добранная карта раскрывается владельцу и затем попадает в руку.',
   cultist:'Аудит-сцена: красная связь от Культиста наносит 2 урона его герою.',
+  panther:'Аудит-сцена: Пантера использует общую дымовую анимацию Скрытности.',
+  ambusher:'Последний патч: 4 маны 4/2 с Рывком; после первой атаки один раз уходит в Скрытность.',
+  ghostblade:'Последний патч: характеристики изменены на 3/3; Скрытность и Яд используют общие эффекты.',
+  ratking:'Последний патч: стоимость изменена на 4 маны; хрип выпускает трёх Крыс 1/1.',
+  sapper:'Последний патч: 4 маны 4/2. При призыве отмечает цель, а после смерти взрывает её на 3.',
+  souljar:'Последний патч: стоимость изменена на 4 маны; хрип показывает добор двух карт.',
+  frostwight:'Последний патч: Клич и Хрип замораживают по случайному вражескому существу.',
+  goldgoose:'Последний патч: хрип даёт 15 золота в одиночной игре или +1 текущую ману в мультиплеере.',
   shadowimp:'Общая сцена: Тень-бес входит в Скрытность через дым.',
   spy:'Общая сцена: Лазутчица входит в Скрытность через дым и раскрывается перед атакой.',
   chronomagus:'Легендарная сцена: повтор заклинаний должен ощущаться как цепочка кастов.',
@@ -14652,13 +14841,15 @@ const ANIM_AUDIT_SCENES = new Set([
   'armorUp','harpy','viper','acolyte','raccoon','shroom',
   'bloodbat','ogreb','nightblade','phoenix','izaroth','zervan','megatron',
   'shieldbot','stingbot','vampbot','sparkbot','frostbot','warcaller','pyromancer','fieldmedic','scout','cultist','shadowimp','spy',
+  'panther','ambusher','ghostblade','ratking','sapper','souljar','frostwight','goldgoose',
   'codexIntervention','chronomagus','abyssMaw','huntmastersHorn','cryptSovereign'
 ]);
 const RECENT_REBALANCE_CARDS = new Set([
   'familiar','snowman','spiderling','doll','ghost','bombot','packAlpha','beastcall',
   'vampiress','harpy','bloodbat','izaroth','zervan',
   'shieldbot','stingbot','vampbot','sparkbot','frostbot','warcaller',
-  'pyromancer','fieldmedic','scout','cultist','shadowimp','spy'
+  'pyromancer','fieldmedic','scout','cultist','shadowimp','spy',
+  'panther','ambusher','ghostblade','ratking','sapper','souljar','frostwight','goldgoose'
 ]);
 const ANIM_AUDIT_HINTS = {
   doll:'Аудит-сцена: хрип выпускает теневой урон в героя врага.',
@@ -14697,6 +14888,14 @@ const ANIM_AUDIT_HINTS = {
   cultist:'Аудит-сцена: красная жертвенная связь наносит 2 урона своему герою.',
   shadowimp:'Аудит-сцена: общий дым Скрытности покрывает Тень-беса.',
   spy:'Аудит-сцена: общий дым Скрытности покрывает Лазутчицу.',
+  panther:'Аудит-сцена: общий дым скрывает Пантеру сразу после призыва.',
+  ambusher:'Аудит-сцена: Засадник входит с Рывком, атакует и только затем растворяется в Скрытности.',
+  ghostblade:'Аудит-сцена: общий дым Скрытности и зелёный импульс Яда проверяются вместе.',
+  ratking:'Аудит-сцена: после смерти из Крысиного короля разбегаются три Крысы 1/1.',
+  sapper:'Аудит-сцена: выбранная цель получает метку; после смерти Минора в неё летит бомба на 3 урона.',
+  souljar:'Аудит-сцена: две души-карты вылетают из разбитого сосуда в руку владельца.',
+  frostwight:'Аудит-сцена: один морозный импульс идёт от Клича, второй — от Хрипа.',
+  goldgoose:'Аудит-сцена: хрип отправляет золото или дополнительный кристалл маны владельцу.',
   graveBinder:'Аудит-сцена: хрип передаёт Возрождение союзнику.',
   cryptNurse:'Аудит-сцена: лечение от нежити идёт лучами к герою.',
   boneMarshal:'Аудит-сцена: возрождённый союзник получает видимый +1/+1.',
