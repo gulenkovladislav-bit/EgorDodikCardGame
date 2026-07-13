@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-card-workshop-sandbox-7';
+    var build = '2026-07-13-card-audit-batch-8';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4404,7 +4404,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-card-workshop-sandbox-7';
+const CARD_ARENA_BUILD = '2026-07-13-card-audit-batch-8';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -4860,7 +4860,7 @@ const CARD_DB = {
   },
   sparkbot: {
     id:'sparkbot', name:'Искробот', icon:'💡',
-    type:'minion', cost:2, atk:2, hp:1, rarity:'rare', tribe:'mech', magnetic:true, windfury:true,
+    type:'minion', cost:3, atk:2, hp:1, rarity:'rare', tribe:'mech', magnetic:true, windfury:true,
     text:'Магнетизм. Неистовство ветра.', starter:0
   },
   frostbot: {
@@ -4887,24 +4887,39 @@ const CARD_DB = {
     id:'pyromancer', name:'Поджигатель', icon:'🧨',
     type:'minion', cost:3, atk:3, hp:2, rarity:'rare',
     text:'Клич: 2 урона случайному врагу.', starter:0,
-    battlecry(game, side){
+    battlecry(game, side, self){
       const foe = foeOf(side);
       const ts = foe.board.filter(x => !x.stealth).map(x => ({ kind:'minion', side: foe, minion: x }));
       ts.push({ kind:'hero', side: foe });
-      game.dealDamage(ts[Math.floor(Math.random() * ts.length)], 2);
+      const target = ts[Math.floor(Math.random() * ts.length)];
+      self.battlecryVfxTargets = [target];
+      game.dealDamage(target, 2);
     }
   },
   fieldmedic: {
     id:'fieldmedic', name:'Полевой лекарь', icon:'🩹',
-    type:'minion', cost:2, atk:2, hp:2, rarity:'common',
-    text:'Клич: восстановить 3 HP вашему герою.', starter:0,
-    battlecry(game, side){ game.heal({ kind:'hero', side }, 3); }
+    type:'minion', cost:2, atk:2, hp:3, rarity:'common',
+    text:'Клич: 3 раза восстанавливает 1 HP случайной дружественной цели.', starter:0,
+    battlecry(game, side, self){
+      const targets = [{ kind:'hero', side }, ...side.board.map(minion => ({ kind:'minion', side, minion }))];
+      self.battlecryVfxTargets = [];
+      for (let i = 0; i < 3; i++){
+        const target = targets[Math.floor(Math.random() * targets.length)];
+        self.battlecryVfxTargets.push(target);
+        game.heal(target, 1);
+      }
+    }
   },
   scout: {
     id:'scout', name:'Разведчица', icon:'🧭',
     type:'minion', cost:2, atk:1, hp:2, rarity:'common',
     text:'Клич: возьмите карту.', starter:0,
-    battlecry(game, side){ game.draw(side, 1); sfx.draw(); }
+    battlecry(game, side, self){
+      const before = side.hand.length;
+      game.draw(side, 1);
+      self.battlecryDrawCard = side.hand.length > before ? side.hand[side.hand.length - 1] : null;
+      sfx.draw();
+    }
   },
   cultist: {
     id:'cultist', name:'Культист', icon:'📿',
@@ -8867,12 +8882,89 @@ async function magnetMergeVfx(from, to, def){
     await flyEl('<div style="font-size:30px;filter:drop-shadow(0 0 10px #ffe66a)">🧲</div>', from, to, 260);
   }
   mechSparkVfx(to, `+${def.atk}/+${def.hp}`);
-  if (def && def.id === 'megatron'){
+  if (def && def.id === 'shieldbot'){
+    spellImpact(to, 'armor', {});
+    battleVfxLabel(to, 'ПРОВОКАЦИЯ', 'armor');
+  } else if (def && def.id === 'stingbot'){
+    poisonStrikeVfx(to);
+    battleVfxLabel(to, 'ЯД ПОДКЛЮЧЁН', 'nature');
+  } else if (def && def.id === 'vampbot'){
+    spellImpact(to, 'shadow', {});
+    battleVfxLabel(to, 'ВАМПИРИЗМ', 'shadow');
+  } else if (def && def.id === 'sparkbot'){
+    battleZigzag({ x:to.x - 42, y:to.y - 18 }, { x:to.x + 42, y:to.y + 18 }, 430);
+    battleZigzag({ x:to.x + 38, y:to.y - 22 }, { x:to.x - 38, y:to.y + 22 }, 470);
+    battleVfxLabel(to, 'ДВЕ АТАКИ', 'lightning');
+  } else if (def && def.id === 'frostbot'){
+    spellImpact(to, 'frost', {});
+    iceCrackVfx(to);
+    battleVfxLabel(to, 'ЛЕДЯНОЕ КАСАНИЕ', 'frost');
+  } else if (def && def.id === 'megatron'){
     battleZigzag({ x:to.x - 55, y:to.y - 25 }, { x:to.x + 55, y:to.y + 25 }, 520);
     spellImpact(to, 'lightning', { legendary:true });
     battleVfxLabel(to, 'ХРИП ПОДКЛЮЧЁН', 'lightning');
   }
   await sleep(perfMs(120));
+}
+
+async function battlecryCardVfx(cardId, side, minion, targets, drawCard){
+  if (!cardId || !side || !G) return;
+  const sourcePt = minion ? safeCenter(minionEl(minion), boardElForSide(side)) : battleBoardPoint(side);
+  const list = Array.isArray(targets) ? targets.filter(Boolean) : [];
+  if (cardId === 'warcaller'){
+    battleVfxLabel(sourcePt, 'ЗОВ К БОЮ', 'gold');
+    spellImpact(sourcePt, 'gold', {});
+    side.board.filter(m => !minion || m.uid !== minion.uid).forEach((m, i) => {
+      const to = safeCenter(minionEl(m), boardElForSide(side));
+      setTimeout(() => {
+        battleBeam(sourcePt, to, 'gold', 430);
+        spellImpact(to, 'arcaneBuff', {});
+      }, perfMs(i * 55));
+    });
+    tone(310, .12, 'sawtooth', .1, 470);
+    await sleep(perfMs(220));
+    return;
+  }
+  if (cardId === 'pyromancer' && list[0]){
+    const to = targetPoint(list[0]);
+    await flyEl('<div style="font-size:32px;filter:drop-shadow(0 0 12px #ff852f)">💣</div>', sourcePt, to, 290);
+    spellImpact(to, 'fire', {});
+    battleVfxLabel(to, 'БУМ −2', 'fire');
+    const el = list[0].kind === 'hero' ? heroEl(list[0].side) : minionEl(list[0].minion);
+    if (el) shake(el);
+    return;
+  }
+  if (cardId === 'fieldmedic'){
+    battleVfxLabel(sourcePt, 'ПЕРВАЯ ПОМОЩЬ', 'holy');
+    for (let i = 0; i < list.length; i++){
+      const to = targetPoint(list[i]);
+      await flyEl('<div style="font-size:22px;color:#afff9d;filter:drop-shadow(0 0 9px #6bff79)">✚</div>', sourcePt, to, 180);
+      spellImpact(to, 'holy', {});
+    }
+    return;
+  }
+  if (cardId === 'scout'){
+    const deckEl = side === G.player ? $('playerDeck') : $('enemyDeck');
+    const handEl = side === G.player ? $('playerHand') : $('enemyHand');
+    const from = safeCenter(deckEl, heroEl(side));
+    const to = safeCenter(handEl, heroEl(side));
+    const revealPt = { x:(from.x + to.x) / 2, y:Math.max(70, Math.min(from.y, to.y) - 54) };
+    const face = side === G.player && drawCard && CARD_DB[drawCard]
+      ? `<div class="card ${skinClass(SAVE.back)}" style="margin:0">${cardHTML(drawCard)}</div>`
+      : `<div class="card-back cardback-${side === G.enemy ? (G.enemyBack || 'default') : (SAVE.back || 'default')}"></div>`;
+    await flyEl(face, from, revealPt, 260);
+    battleVfxLabel(revealPt, side === G.player && drawCard && CARD_DB[drawCard] ? CARD_DB[drawCard].name : 'ДОБОР', 'gold');
+    await sleep(perfMs(260));
+    await flyEl(face, revealPt, to, 260);
+    return;
+  }
+  if (cardId === 'cultist'){
+    const to = safeCenter(heroEl(side), $('board'));
+    battleBeam(sourcePt, to, 'shadow', 560);
+    await flyEl('<div style="font-size:24px;color:#ff526b;filter:drop-shadow(0 0 10px #a4002b)">●</div>', sourcePt, to, 270);
+    spellImpact(to, 'shadow', {});
+    battleVfxLabel(to, 'ЖЕРТВА −2', 'shadow');
+  }
 }
 async function stoneArmorVfx(from, to){
   if (!from || !to) return;
@@ -9022,6 +9114,7 @@ async function liveAuditMinionVfx(cardId, side, minion, phase){
     return;
   }
   if (phase === 'battlecry'){
+    await battlecryCardVfx(cardId, side, minion, minion.battlecryVfxTargets, minion.battlecryDrawCard);
     if (cardId === 'cryptNurse'){
       const heroPt = safeCenter(heroEl(side), $('board'));
       battleSidePoints(side)
@@ -9457,6 +9550,8 @@ async function playMinion(handIdx, fromPt){
     if (def.battlecry && !G.over){
       log(`📣 Клич: ${def.name}`);
       def.battlecry(G, G.player, m);
+      mpMeta.battlecryTargets = (m.battlecryVfxTargets || []).map(mpTargetDescriptor).filter(Boolean);
+      mpMeta.battlecryDraw = !!m.battlecryDrawCard;
       render();
       await liveAuditMinionVfx(cardId, G.player, m, 'battlecry');
       await sleep(200);
@@ -13247,6 +13342,8 @@ async function mpAnimateRemoteAction(snap){
       mpBurstRemoteFx('spawn', boardPt);
       burstFx(boardPt, 'gold');
       await liveAuditCardPointVfx(cardId, boardPt);
+      const cueTargets = (meta.battlecryTargets || []).map(mpActualTargetFromRemoteDesc).filter(Boolean);
+      await battlecryCardVfx(cardId, G.enemy, null, cueTargets, null);
       await sleep(90);
       return;
     }
@@ -14393,6 +14490,18 @@ const ANIM_PATCH_NOTES = {
   izaroth:'Последний патч: эффект конца хода 2 → 3 урона. Добавлены тяжёлое приземление и дыхание пламени.',
   zervan:'Последний патч: 7 маны 5/5 +1 → 6 маны 3/6 +4 к урону заклинаний.',
   megatron:'Аудит-сцена: электрическое слияние сохраняет хрип и выпускает двух Шестерёнков.',
+  shieldbot:'Аудит-сцена: Магнетизм заканчивается щитовым импульсом Провокации.',
+  stingbot:'Аудит-сцена: после магнитного слияния включается общий зелёный импульс Яда.',
+  vampbot:'Аудит-сцена: слияние подключает Вампиризм красно-теневой вспышкой.',
+  sparkbot:'Последний патч: стоимость 2 → 3 маны. Магнетизм показывает две электрические дуги Неистовства ветра.',
+  frostbot:'Аудит-сцена: магнитное слияние заканчивается морозной вспышкой Ледяного касания.',
+  warcaller:'Аудит-сцена: звук горна и золотая волна показывают массовый баф +1/+1.',
+  pyromancer:'Аудит-сцена: бомба летит в реально выбранную случайную цель и наносит 2 урона.',
+  fieldmedic:'Последний патч: 2/2 → 2/3; лечение героя заменено тремя случайными импульсами по 1 HP с повторениями целей.',
+  scout:'Аудит-сцена: добранная карта раскрывается владельцу и затем попадает в руку.',
+  cultist:'Аудит-сцена: красная связь от Культиста наносит 2 урона его герою.',
+  shadowimp:'Общая сцена: Тень-бес входит в Скрытность через дым.',
+  spy:'Общая сцена: Лазутчица входит в Скрытность через дым и раскрывается перед атакой.',
   chronomagus:'Легендарная сцена: повтор заклинаний должен ощущаться как цепочка кастов.',
   codexIntervention:'Легендарная сцена: улучшение силы героя должно подсвечивать портрет и кнопку абилки.',
   abyssMaw:'Легендарная сцена: поглощение существа должно тянуть цель в пасть.',
@@ -14404,11 +14513,12 @@ const ANIM_AUDIT_SCENES = new Set([
   'packAlpha','beastcall','lich','graveBinder','cryptNurse','boneMarshal','necroticGiant','duskWraith',
   'armorUp','harpy','viper','acolyte','raccoon','shroom',
   'bloodbat','ogreb','nightblade','phoenix','izaroth','zervan','megatron',
+  'shieldbot','stingbot','vampbot','sparkbot','frostbot','warcaller','pyromancer','fieldmedic','scout','cultist','shadowimp','spy',
   'codexIntervention','chronomagus','abyssMaw','huntmastersHorn','cryptSovereign'
 ]);
 const RECENT_REBALANCE_CARDS = new Set([
   'familiar','snowman','spiderling','doll','ghost','bombot','packAlpha','beastcall',
-  'vampiress','harpy','bloodbat','izaroth','zervan'
+  'vampiress','harpy','bloodbat','izaroth','zervan','sparkbot','fieldmedic'
 ]);
 const ANIM_AUDIT_HINTS = {
   doll:'Аудит-сцена: хрип выпускает теневой урон в героя врага.',
@@ -14435,6 +14545,18 @@ const ANIM_AUDIT_HINTS = {
   izaroth:'Аудит-сцена: дракон тяжело падает на стол и в конце хода выпускает пламя на случайную цель.',
   zervan:'Аудит-сцена: Архимаг возникает из магии и вспыхивает при каждом сыгранном заклинании.',
   megatron:'Аудит-сцена: М.Е.Г.А-Трон запускается электричеством, сливается и сохраняет хрип.',
+  shieldbot:'Аудит-сцена: магнитное слияние включает Провокацию щитовым контуром.',
+  stingbot:'Аудит-сцена: магнитное слияние подключает Яд зелёным импульсом.',
+  vampbot:'Аудит-сцена: магнитное слияние подключает Вампиризм теневой вспышкой.',
+  sparkbot:'Аудит-сцена: две электрические дуги показывают две будущие атаки.',
+  frostbot:'Аудит-сцена: морозный импульс подключает Ледяное касание.',
+  warcaller:'Аудит-сцена: золотая волна Горниста усиливает всех остальных союзников.',
+  pyromancer:'Аудит-сцена: бомба явно показывает выбранную случайную цель.',
+  fieldmedic:'Аудит-сцена: три отдельных креста летят в три случайных дружественных цели с повторениями.',
+  scout:'Аудит-сцена: карта выходит из колоды, показывается владельцу и улетает в руку.',
+  cultist:'Аудит-сцена: красная жертвенная связь наносит 2 урона своему герою.',
+  shadowimp:'Аудит-сцена: общий дым Скрытности покрывает Тень-беса.',
+  spy:'Аудит-сцена: общий дым Скрытности покрывает Лазутчицу.',
   graveBinder:'Аудит-сцена: хрип передаёт Возрождение союзнику.',
   cryptNurse:'Аудит-сцена: лечение от нежити идёт лучами к герою.',
   boneMarshal:'Аудит-сцена: возрождённый союзник получает видимый +1/+1.',
