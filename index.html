@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-magnetic-drag-link';
+    var build = '2026-07-13-magnetic-windfury-turn';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4440,7 +4440,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-magnetic-drag-link';
+const CARD_ARENA_BUILD = '2026-07-13-magnetic-windfury-turn';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -7105,7 +7105,10 @@ function simulateDuel(cardsA, cardsB, tuneA, tuneB){
           if (d.taunt) host.taunt = true;
           if (d.poison) host.poison = true;
           if (d.lifesteal) host.lifesteal = true;
-          if (d.windfury){ host.windfury = true; }
+          if (d.windfury && !host.windfury){
+            host.windfury = true;
+            if (host.ready) host.hits = Math.max(1, host.hits || 0) + 1;
+          }
           if (d.shield) host.shield = true;
           if (d.deathrattle) (host.extraRattles || (host.extraRattles = [])).push(p.id);
           cur.plays[p.id] = cur.plays[p.id]; /* розыгрыш уже учтён */
@@ -7709,7 +7712,8 @@ function newGame(playerDeckArr, enemyDeckArr){
 	                  spellDamage: def.spellDamage || 0, siege: !!def.siege,
 	                  reborn: !!def.reborn, enraged: false, rebornUsed: false,
 	                  extraDeathrattles: [],
-	                  attacksLeft: n, canAttack: n > 0, justSpawned: true };
+	                  attacksLeft: n, attacksMadeThisTurn: 0,
+	                  canAttack: n > 0, justSpawned: true };
 	      side.board.push(m);
 	      if (ctx && ctx.side === side) trackImpact(side, ctx.source, 'summon', 1);
 	      return m;
@@ -7873,6 +7877,7 @@ function newGame(playerDeckArr, enemyDeckArr){
 	      side.fatalShield = false;
 	      side.board.forEach(m => {
         const d = CARD_DB[m.cardId];
+	        m.attacksMadeThisTurn = 0;
         if (m.frozen){
           m.attacksLeft = 0;
           m.frozen = false;
@@ -8050,7 +8055,8 @@ function cloneMinion(side, src){
               freezeTouch: !!src.freezeTouch, spellDamage: src.spellDamage || 0,
               siege: !!src.siege, reborn: !!src.reborn, enraged: false, rebornUsed: !!src.rebornUsed,
               extraDeathrattles: (src.extraDeathrattles || []).map(x => Object.assign({}, x)),
-              attacksLeft: 0, canAttack: false, justSpawned: true };
+              attacksLeft: 0, attacksMadeThisTurn: 0,
+              canAttack: false, justSpawned: true };
   side.board.push(m);
   return m;
 }
@@ -8225,6 +8231,7 @@ function damageMinion(mm, dmg, poison, srcSide, source){
 }
 function useAttack(m){
   m.attacksLeft = Math.max(0, (m.attacksLeft || 1) - 1);
+  m.attacksMadeThisTurn = (m.attacksMadeThisTurn || 0) + 1;
   m.canAttack = m.attacksLeft > 0;
   m.stealth = false;
 }
@@ -8356,7 +8363,8 @@ async function resolveDeaths(){
 	                           spellDamage: def.spellDamage || 0, siege: !!def.siege,
 	                           reborn: false, enraged: false, rebornUsed: true,
 	                           extraDeathrattles: [],
-	                           attacksLeft: 0, canAttack: false, justSpawned: true };
+	                           attacksLeft: 0, attacksMadeThisTurn: 0,
+	                           canAttack: false, justSpawned: true };
 	        d.side.board.push(reborned);
 	        log(`🎇 ${def.name} возрождается!`);
 	        runMinionReborn(d.side, reborned);
@@ -9628,10 +9636,18 @@ function magnetMerge(side, target, def){
   target.atk += def.atk;
   target.hp += def.hp;
   target.maxHp += def.hp;
+  const gainsWindfury = !!def.windfury && !target.windfury;
   if (def.taunt) target.taunt = true;
   if (def.poison) target.poison = true;
   if (def.lifesteal) target.lifesteal = true;
-  if (def.windfury) target.windfury = true;
+  if (gainsWindfury){
+    const wasReadyThisTurn = target.canAttack || (target.attacksMadeThisTurn || 0) > 0;
+    target.windfury = true;
+    if (wasReadyThisTurn && !target.frozen){
+      target.attacksLeft = Math.max(0, target.attacksLeft || 0) + 1;
+      target.canAttack = target.attacksLeft > 0 && target.atk > 0;
+    }
+  }
   if (def.freezeTouch) target.freezeTouch = true;
   if (def.shield) target.shield = true;
   if (def.spellDamage) target.spellDamage = (target.spellDamage || 0) + def.spellDamage;
