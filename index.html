@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-card-audit-batch-8';
+    var build = '2026-07-13-animation-recent-batch';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4404,7 +4404,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-card-audit-batch-8';
+const CARD_ARENA_BUILD = '2026-07-13-animation-recent-batch';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -14518,7 +14518,9 @@ const ANIM_AUDIT_SCENES = new Set([
 ]);
 const RECENT_REBALANCE_CARDS = new Set([
   'familiar','snowman','spiderling','doll','ghost','bombot','packAlpha','beastcall',
-  'vampiress','harpy','bloodbat','izaroth','zervan','sparkbot','fieldmedic'
+  'vampiress','harpy','bloodbat','izaroth','zervan',
+  'shieldbot','stingbot','vampbot','sparkbot','frostbot','warcaller',
+  'pyromancer','fieldmedic','scout','cultist','shadowimp','spy'
 ]);
 const ANIM_AUDIT_HINTS = {
   doll:'Аудит-сцена: хрип выпускает теневой урон в героя врага.',
