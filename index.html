@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-card-workshop-sandbox-6';
+    var build = '2026-07-13-card-workshop-sandbox-7';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -586,6 +586,8 @@
 	    cursor:pointer;transition:transform .12s,filter .12s,border-color .12s;
 	  }
 	  .anim-card-tile:hover{transform:translateY(-2px);filter:brightness(1.12);border-color:var(--gold);}
+	  .anim-card-tile.recent-rebalance{border-color:#e9b94f;box-shadow:inset 0 0 18px rgba(0,0,0,.35),0 0 0 1px rgba(255,213,100,.22),0 0 16px rgba(222,161,45,.18);}
+	  .anim-rebalance-mark{position:absolute;left:-5px;top:-5px;z-index:4;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 28%,#fff0a0,#d88a18 68%,#70410b);border:2px solid #3b2408;box-shadow:0 3px 8px #000,0 0 10px rgba(255,199,65,.7);font-size:13px;line-height:1;}
 	  .anim-card-tile .act-head{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:7px;align-items:center;}
 	  .anim-card-tile .act-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid #8c6a2e;background:#211507;font-size:16px;}
 	  .anim-card-tile .act-name{min-width:0;color:#ead9ae;font-weight:bold;font-size:12px;line-height:1.12;}
@@ -3981,6 +3983,7 @@
 	        </select>
 	        <select id="animPatch">
 	          <option value="all">Все карты</option>
+	          <option value="recent">⚖ Недавний ребаланс</option>
 	          <option value="changed">Изменены в патче</option>
 	          <option value="needs">Нужен VFX</option>
 	        </select>
@@ -4401,7 +4404,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-card-workshop-sandbox-6';
+const CARD_ARENA_BUILD = '2026-07-13-card-workshop-sandbox-7';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -14403,6 +14406,10 @@ const ANIM_AUDIT_SCENES = new Set([
   'bloodbat','ogreb','nightblade','phoenix','izaroth','zervan','megatron',
   'codexIntervention','chronomagus','abyssMaw','huntmastersHorn','cryptSovereign'
 ]);
+const RECENT_REBALANCE_CARDS = new Set([
+  'familiar','snowman','spiderling','doll','ghost','bombot','packAlpha','beastcall',
+  'vampiress','harpy','bloodbat','izaroth','zervan'
+]);
 const ANIM_AUDIT_HINTS = {
   doll:'Аудит-сцена: хрип выпускает теневой урон в героя врага.',
   ghost:'Аудит-сцена: после смерти карта тянется из колоды в руку.',
@@ -14444,6 +14451,7 @@ let animSlow = false;
 let animRunSerial = 0;
 function animTypeOf(def){ return def && def.secret ? 'secret' : (def ? def.type : 'minion'); }
 function animHasAuditScene(id){ return ANIM_AUDIT_SCENES.has(id); }
+function animRecentlyRebalanced(id){ return RECENT_REBALANCE_CARDS.has(id); }
 function animPatchNote(id, def){
   if (ANIM_PATCH_NOTES[id]) return ANIM_PATCH_NOTES[id];
   if (def && def.rarity === 'legendary') return 'Легендарка: нужна усиленная входная сцена и отдельный звуковой акцент.';
@@ -14493,6 +14501,7 @@ function animFilteredCards(){
     if (type !== 'all' && animTypeOf(c) !== type) return false;
     if (rarity !== 'all' && c.rarity !== rarity) return false;
     if (tribe !== 'all' && (tribe === 'none' ? !!c.tribe : c.tribe !== tribe)) return false;
+    if (patch === 'recent' && !animRecentlyRebalanced(id)) return false;
     if (patch === 'changed' && !animPatchNote(id, c)) return false;
     if (patch === 'needs' && !animNeedsVfx(c)) return false;
     if (q){
@@ -14502,8 +14511,9 @@ function animFilteredCards(){
     return true;
   }).sort((a, b) => {
     const ca = CARD_DB[a], cb = CARD_DB[b];
+    const ra = animRecentlyRebalanced(a) ? 1 : 0, rb = animRecentlyRebalanced(b) ? 1 : 0;
     const pa = animPatchNote(a, ca) ? 1 : 0, pb = animPatchNote(b, cb) ? 1 : 0;
-    return pb - pa || (ca.cost || 0) - (cb.cost || 0) || ca.name.localeCompare(cb.name, 'ru');
+    return rb - ra || pb - pa || (ca.cost || 0) - (cb.cost || 0) || ca.name.localeCompare(cb.name, 'ru');
   });
 }
 function animCardTileHtml(id){
@@ -14522,6 +14532,7 @@ function animCardTileHtml(id){
   if (patch) chips.push('патч');
   const impact = info.plays ? `${info.plays} роз. · ${info.vpp.toFixed(1)}/роз · WR ${info.wr ?? '—'}%` : `теория ${cardTheoryScore(id)}`;
   return `
+    ${animRecentlyRebalanced(id) ? '<span class="anim-rebalance-mark" title="Недавно перебалансирована — протестировать в первую очередь">⚖</span>' : ''}
     <div class="act-head">
       <div class="act-icon">${c.icon}</div>
       <div class="act-name">${safeTxt(c.name)}<small>${safeTxt(animCardMeta(id))}</small></div>
@@ -14543,10 +14554,11 @@ function renderAnimLab(){
   renderAnimTribeOptions();
   const rows = animFilteredCards();
   if ($('animNote')){
+    const recent = rows.filter(animRecentlyRebalanced).length;
     const changed = rows.filter(id => animPatchNote(id, CARD_DB[id])).length;
     const need = rows.filter(id => animNeedsVfx(CARD_DB[id])).length;
     const scenes = rows.filter(id => animHasAuditScene(id)).length;
-    $('animNote').textContent = `Показано ${rows.length} карт. Заметок патча: ${changed}, VFX-кандидатов: ${need}, готовых сцен аудита: ${scenes}.`;
+    $('animNote').textContent = `Показано ${rows.length} карт. ⚖ Недавно перебалансированы: ${recent}; заметок патча: ${changed}; VFX-кандидатов: ${need}; готовых сцен: ${scenes}.`;
   }
   grid.innerHTML = '';
   if (!rows.length){
@@ -14557,6 +14569,7 @@ function renderAnimLab(){
     const tile = document.createElement('button');
     tile.type = 'button';
     tile.className = 'anim-card-tile';
+    tile.classList.toggle('recent-rebalance', animRecentlyRebalanced(id));
     tile.dataset.card = id;
     tile.innerHTML = animCardTileHtml(id);
     tile.addEventListener('click', () => startAnimSandbox(id));
