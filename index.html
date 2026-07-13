@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-charge-motion-1';
+    var build = '2026-07-13-mech-audit-1';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -2093,6 +2093,14 @@
   .minion.asleep::after{content:none;}
   .minion.targetable{box-shadow:0 0 13px 4px var(--hp),0 4px 8px rgba(0,0,0,.5);animation:pulse .7s infinite alternate;}
   .minion.taunt.targetable{box-shadow:0 0 0 3px #3d3a34, 0 0 14px 5px var(--hp);}
+  .minion.magnet-ready{
+    box-shadow:0 0 0 2px #ffe66a,0 0 13px 4px rgba(255,213,88,.55),0 4px 8px rgba(0,0,0,.5);
+    animation:pulse .72s ease-in-out infinite alternate;
+  }
+  .minion.magnet-hover{
+    box-shadow:0 0 0 3px #fff4ad,0 0 22px 8px rgba(255,222,84,.88),0 4px 8px rgba(0,0,0,.5);
+    transform:translateY(-4px) scale(1.04);
+  }
   .minion.arrow-src{box-shadow:0 0 14px 4px var(--gold),0 4px 8px rgba(0,0,0,.5);}
   .minion.dying{opacity:0;transform:scale(.4) rotate(20deg);}
   .minion.spawn{animation:spawn .35s;}
@@ -4438,7 +4446,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-charge-motion-1';
+const CARD_ARENA_BUILD = '2026-07-13-mech-audit-1';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -4604,7 +4612,7 @@ const CARD_DB = {
   },
   tankbot: {
     id:'tankbot', name:'Танкобот', icon:'🚜',
-    type:'minion', cost:4, atk:2, hp:6, taunt:true, rarity:'common', tribe:'mech',
+    type:'minion', cost:4, atk:2, hp:5, taunt:true, rarity:'common', tribe:'mech',
     text:'Провокация.', starter:0
   },
   bombot: {
@@ -4618,7 +4626,7 @@ const CARD_DB = {
   },
   colossus: {
     id:'colossus', name:'Колосс', icon:'🦾',
-    type:'minion', cost:6, atk:6, hp:6, rarity:'epic', tribe:'mech', magnetic:true,
+    type:'minion', cost:6, atk:5, hp:6, rarity:'epic', tribe:'mech', magnetic:true,
     text:'Магнетизм: слей с механизмом.', starter:0
   },
 
@@ -4630,12 +4638,12 @@ const CARD_DB = {
   },
   raptor: {
     id:'raptor', name:'Раптор', icon:'🦖',
-    type:'minion', cost:3, atk:4, hp:2, rarity:'common', tribe:'beast',
+    type:'minion', cost:3, atk:4, hp:3, rarity:'common', tribe:'beast',
     text:'', starter:0
   },
   bear: {
     id:'bear', name:'Медведь', icon:'🐻',
-    type:'minion', cost:4, atk:4, hp:5, taunt:true, rarity:'rare', tribe:'beast',
+    type:'minion', cost:4, atk:3, hp:5, taunt:true, rarity:'rare', tribe:'beast',
     text:'Провокация.', starter:0
   },
   rabbit: {
@@ -8600,6 +8608,17 @@ async function manaWaveVfx(side){
   await sleep(perfMs(260));
   spellImpact(to, 'arcane', {});
 }
+async function bombotBlastVfx(side, from){
+  if (!side || !from || !G) return;
+  battleVfxLabel(from, 'ВЗРЫВ', 'fire');
+  spellImpact(from, 'fire', { legendary:false });
+  fireWaveVfx(from);
+  await sleep(perfMs(90));
+  battleSidePoints(foeOf(side)).forEach(({ pt }) => {
+    spellImpact(pt, 'fire', { legendary:false });
+  });
+  await sleep(perfMs(150));
+}
 function battleSidePoints(side){
   if (!side || !side.board) return [];
   return side.board.map(m => {
@@ -8716,6 +8735,10 @@ async function liveAuditDeathrattleVfx(side, minion, pt){
   if (!side || !minion || !G) return;
   const cardId = minion.cardId;
   const from = pt || battleBoardPoint(side);
+  if (cardId === 'bombot'){
+    await bombotBlastVfx(side, from);
+    return;
+  }
   if (cardId === 'doll'){
     const to = safeCenter(heroEl(foeOf(side)), $('board'));
     battleVfxLabel(from, 'ХРИП', 'shadow');
@@ -9013,7 +9036,12 @@ function renderPower(){
 
 function clearTargets(){
   document.querySelectorAll('.targetable').forEach(e => e.classList.remove('targetable'));
+  document.querySelectorAll('.magnet-ready,.magnet-hover').forEach(e => e.classList.remove('magnet-ready','magnet-hover'));
   document.querySelectorAll('.arrow-src').forEach(e => e.classList.remove('arrow-src'));
+  if (typeof drag !== 'undefined'){
+    drag.magnetHoverUid = null;
+    drag.magnetHoverAt = 0;
+  }
   $('playerBoard').classList.remove('drop-ok');
   clearAim();
 }
@@ -9252,6 +9280,47 @@ function pickMergeTargetAt(x, y){
   }
   return null;
 }
+function magnetHoverVfx(minion){
+  const el = minionEl(minion);
+  if (!el) return;
+  const pt = center(el);
+  const n = perfCount(6);
+  for (let i = 0; i < n; i++){
+    const ang = (Math.PI * 2 * i) / Math.max(1, n);
+    const dist = 34 + Math.random() * 20;
+    const sx = pt.x + Math.cos(ang) * dist;
+    const sy = pt.y + Math.sin(ang) * dist;
+    const p = document.createElement('div');
+    p.className = 'fx-particle';
+    p.textContent = i === 0 ? '🧲' : (i % 2 ? '✦' : '⚡');
+    p.style.left = sx + 'px';
+    p.style.top = sy + 'px';
+    p.style.color = '#ffe66a';
+    p.style.fontSize = (i === 0 ? 17 : 12 + Math.random() * 5) + 'px';
+    p.style.animationDuration = perfMs(430) + 'ms';
+    p.style.setProperty('--dx', (pt.x - sx) + 'px');
+    p.style.setProperty('--dy', (pt.y - sy) + 'px');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), perfMs(470));
+  }
+}
+function updateMagneticHover(x, y){
+  const target = pickMergeTargetAt(x, y);
+  const uidNow = target ? target.uid : null;
+  document.querySelectorAll('#playerBoard .magnet-hover').forEach(el => el.classList.remove('magnet-hover'));
+  if (!target){
+    drag.magnetHoverUid = null;
+    return;
+  }
+  const el = minionEl(target);
+  if (el) el.classList.add('magnet-hover');
+  const now = performance.now();
+  if (drag.magnetHoverUid !== uidNow || now - (drag.magnetHoverAt || 0) > 320){
+    drag.magnetHoverUid = uidNow;
+    drag.magnetHoverAt = now;
+    magnetHoverVfx(target);
+  }
+}
 
 async function castSpell(handIdx, target){
   const cardId = G.player.hand[handIdx];
@@ -9344,7 +9413,7 @@ async function usePlayerPower(target){
 	}
 
 /* ================== DRAG & DROP ================== */
-const drag = { active:false, type:null, handIdx:-1, minion:null, startX:0, startY:0, lastX:0, lastY:0, moveRaf:0, moved:false, srcEl:null };
+const drag = { active:false, type:null, handIdx:-1, minion:null, startX:0, startY:0, lastX:0, lastY:0, moveRaf:0, moved:false, srcEl:null, magnetHoverUid:null, magnetHoverAt:0 };
 const arrowSvg = $('arrowLayer'), arrowSegsEl = $('arrowSegs'), arrowHeadEl = $('arrowHead');
 let arrowActive = false, arrowFrom = {x:0,y:0}, arrowTip = {x:0,y:0};
 let arrowLastDraw = 0;
@@ -9496,6 +9565,7 @@ document.addEventListener('pointerdown', e => {
     drag.active = true; drag.type = 'card'; drag.handIdx = +cardEl.dataset.idx;
     drag.startX = e.clientX; drag.startY = e.clientY; drag.lastX = e.clientX; drag.lastY = e.clientY; drag.moved = false;
     drag.srcEl = cardEl;
+    drag.magnetHoverUid = null; drag.magnetHoverAt = 0;
     setDragPerf(true);
     drag.intentSource = mpDragSourceDescriptor('card', drag.handIdx);
     mpSendIntent('begin', drag.intentSource, null, { mode:'card' });
@@ -9564,7 +9634,7 @@ function handleDragMove(x, y){
           G.player.board.forEach(m => {
             if (isFriendlyMech(m)){
               const el = minionEl(m);
-              if (el) el.classList.add('targetable');
+              if (el) el.classList.add('magnet-ready');
             }
           });
         }
@@ -9586,6 +9656,7 @@ function handleDragMove(x, y){
       mpSendIntent('aim', drag.intentSource, mpTargetDescriptor(target), { mode:drag.mode });
     } else {
       setDragGhostAt(x, y);
+      if (def && def.magnetic) updateMagneticHover(x, y);
     }
   } else {
     arrowMove(x, y);
@@ -12913,6 +12984,21 @@ async function mpPlayRemoteDeltaVfx(before, after){
   await mpPlaySideDeltaVfx(before.player, after.player, G.player, 'player');
   await mpPlaySideDeltaVfx(before.enemy, after.enemy, G.enemy, 'enemy');
 }
+async function mpPlayRemoteDeathrattleCues(before, after){
+  if (!before || !after || !G) return;
+  for (const sideName of ['player','enemy']){
+    const oldSide = before[sideName];
+    const newSide = after[sideName];
+    const alive = new Set((newSide && newSide.board || []).map(m => m.uid));
+    const gameSide = sideName === 'player' ? G.player : G.enemy;
+    for (const old of oldSide && oldSide.board || []){
+      if (alive.has(old.uid) || old.cardId !== 'bombot') continue;
+      const minion = (gameSide.board || []).find(m => m.uid === old.uid);
+      const el = minion && minionEl(minion);
+      await bombotBlastVfx(gameSide, safeCenter(el, boardElForSide(gameSide)));
+    }
+  }
+}
 function mpSnapshot(action, meta){
   const seq = ++MP_STATE.seq;
   const summary = mpCurrentSummary();
@@ -12986,12 +13072,21 @@ async function mpApplyRemoteSnapshotNow(snap){
 	  MP_STATE.applyingRemote = true;
 	  try{
 	    const beforeVfx = mpVisualState();
+	    const incomingVfx = {
+	      player:mpVisualSideState(snap.enemy),
+	      enemy:mpVisualSideState(snap.player)
+	    };
 	    const localWinner = mpMirrorWinner(snap.winner);
 	    mpRemoteSnapshotCue(snap);
 	    try{
 	      await mpAnimateRemoteAction(snap);
 	    }catch(e){
 	      mpLog('VFX действия: ' + (e.message || e));
+	    }
+	    try{
+	      await mpPlayRemoteDeathrattleCues(beforeVfx, incomingVfx);
+	    }catch(e){
+	      mpLog('VFX хрипа: ' + (e.message || e));
 	    }
 	    if (snap.journal) mpPushJournal(snap.journal);
 	    G.player = mpReviveSide(snap.enemy, 'player');
@@ -13859,6 +13954,7 @@ const ANIM_PATCH_NOTES = {
   iceArrow:'Новый фокус ревизии: нужен читаемый снаряд и долгий визуал заморозки.',
   frostNova:'Новый фокус ревизии: массовая заморозка должна покрывать весь вражеский стол.',
   meteor:'Новый фокус ревизии: массовый урон требует крупной ударной волны.',
+  bombot:'Последний патч: Бомбобот получил отдельный взрыв хрипа по всему вражескому столу.',
   chronomagus:'Легендарная сцена: повтор заклинаний должен ощущаться как цепочка кастов.',
   codexIntervention:'Легендарная сцена: улучшение силы героя должно подсвечивать портрет и кнопку абилки.',
   abyssMaw:'Легендарная сцена: поглощение существа должно тянуть цель в пасть.',
@@ -13866,7 +13962,7 @@ const ANIM_PATCH_NOTES = {
   cryptSovereign:'Легендарная сцена: призыв умерших хрипунов должен выглядеть как некромантия.'
 };
 const ANIM_AUDIT_SCENES = new Set([
-  'doll','ghost','familiar','snowman','iceArrow','frostNova','meteor',
+  'doll','ghost','familiar','snowman','iceArrow','frostNova','meteor','bombot',
   'graveBinder','cryptNurse','boneMarshal','necroticGiant','duskWraith',
   'codexIntervention','chronomagus','abyssMaw','huntmastersHorn','cryptSovereign'
 ]);
@@ -13878,6 +13974,7 @@ const ANIM_AUDIT_HINTS = {
   iceArrow:'Аудит-сцена: снаряд летит в цель и оставляет стойкую ледяную оболочку.',
   frostNova:'Аудит-сцена: кольцо мороза накрывает весь вражеский стол.',
   meteor:'Аудит-сцена: метеор падает сверху и ударной волной бьёт несколько целей.',
+  bombot:'Аудит-сцена: смерть запускает центральный взрыв и огненные импульсы по всем врагам.',
   graveBinder:'Аудит-сцена: хрип передаёт Возрождение союзнику.',
   cryptNurse:'Аудит-сцена: лечение от нежити идёт лучами к герою.',
   boneMarshal:'Аудит-сцена: возрождённый союзник получает видимый +1/+1.',
@@ -14170,6 +14267,21 @@ async function playAuditAnimScenario(cardId, def, ctx){
       animBuffPop(50, 42, '💥 МАССОВЫЙ УРОН');
       sfx.hit();
       animSetLog('Метеор: падение сверху и ударная волна по нескольким целям.');
+      return true;
+    }
+    case 'bombot': {
+      const ms = [enemyA(), enemyB(), enemyC()];
+      await animDelay(220);
+      battleVfxLabel(center(slot), 'ВЗРЫВ', 'fire');
+      spellImpact(center(slot), 'fire', { legendary:false });
+      fireWaveVfx(center(slot));
+      await animDelay(120);
+      ms.forEach(m => {
+        m.classList.add('hit');
+        spellImpact(center(m), 'fire', { legendary:false });
+      });
+      animBuffPop(50, 42, '💥 1 ВСЕМ ВРАГАМ');
+      animSetLog('Бомбобот: хрип взрывается и одновременно задевает весь вражеский стол.');
       return true;
     }
     case 'doll':
