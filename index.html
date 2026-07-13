@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-magnetic-windfury-turn';
+    var build = '2026-07-13-pyromancer-slower-bomb';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4440,7 +4440,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-magnetic-windfury-turn';
+const CARD_ARENA_BUILD = '2026-07-13-pyromancer-slower-bomb';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -8971,7 +8971,7 @@ async function battlecryCardVfx(cardId, side, minion, targets, drawCard){
   }
   if (cardId === 'pyromancer' && list[0]){
     const to = targetPoint(list[0]);
-    await flyEl('<div style="font-size:32px;filter:drop-shadow(0 0 12px #ff852f)">💣</div>', sourcePt, to, 290);
+    await flyEl('<div style="font-size:32px;filter:drop-shadow(0 0 12px #ff852f)">💣</div>', sourcePt, to, 360);
     spellImpact(to, 'fire', {});
     battleVfxLabel(to, 'БУМ −2', 'fire');
     const el = list[0].kind === 'hero' ? heroEl(list[0].side) : minionEl(list[0].minion);
