@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-animation-recent-batch';
+    var build = '2026-07-13-magnetic-drag-link';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -2090,6 +2090,42 @@
   .minion.magnet-hover{
     box-shadow:0 0 0 3px #fff4ad,0 0 22px 8px rgba(255,222,84,.88),0 4px 8px rgba(0,0,0,.5);
     transform:translateY(-4px) scale(1.04);
+  }
+  .magnet-drag-link{
+    position:fixed;z-index:126;left:0;top:0;height:22px;pointer-events:none;
+    transform-origin:0 50%;will-change:width,transform;
+  }
+  .magnet-drag-link::before,
+  .magnet-drag-link::after{
+    content:"";position:absolute;left:0;right:0;top:50%;border-radius:999px;
+    transform:translateY(-50%);pointer-events:none;
+  }
+  .magnet-drag-link::before{
+    height:10px;background:linear-gradient(90deg,rgba(255,216,70,.06),rgba(255,229,96,.8),rgba(111,215,255,.92),rgba(255,244,164,.22));
+    box-shadow:0 0 13px 4px rgba(255,220,70,.62),0 0 22px 7px rgba(78,181,255,.32);
+    filter:blur(2px);opacity:.82;
+  }
+  .magnet-drag-link::after{
+    height:3px;background:linear-gradient(90deg,#ffcc32,#fff7b0 45%,#8ee6ff 82%,rgba(255,255,255,.15));
+    box-shadow:0 0 7px #ffe76a,0 0 11px #6edbff;
+  }
+  .magnet-drag-link i{
+    position:absolute;left:0;top:50%;width:7px;height:7px;border-radius:50%;
+    background:#fff8b1;border:1px solid #ffd43c;
+    box-shadow:0 0 7px 2px #ffe24e,0 0 11px 4px rgba(96,214,255,.8);
+    transform:translate3d(0,-50%,0);will-change:transform,opacity;
+    animation:magnetStream .72s linear infinite;
+  }
+  .magnet-drag-link i:nth-child(2){animation-delay:-.12s;width:5px;height:5px;}
+  .magnet-drag-link i:nth-child(3){animation-delay:-.24s;}
+  .magnet-drag-link i:nth-child(4){animation-delay:-.36s;width:4px;height:4px;}
+  .magnet-drag-link i:nth-child(5){animation-delay:-.48s;}
+  .magnet-drag-link i:nth-child(6){animation-delay:-.60s;width:5px;height:5px;}
+  @keyframes magnetStream{
+    0%{transform:translate3d(0,-50%,0) scale(.45);opacity:0;}
+    14%{opacity:1;}
+    82%{opacity:1;}
+    100%{transform:translate3d(var(--magnet-travel),-50%,0) scale(1.2);opacity:0;}
   }
   .minion.arrow-src{box-shadow:0 0 14px 4px var(--gold),0 4px 8px rgba(0,0,0,.5);}
   .minion.dying{opacity:0;transform:scale(.4) rotate(20deg);}
@@ -4404,7 +4440,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-animation-recent-batch';
+const CARD_ARENA_BUILD = '2026-07-13-magnetic-drag-link';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -9497,6 +9533,7 @@ function renderPower(){
 function clearTargets(){
   document.querySelectorAll('.targetable').forEach(e => e.classList.remove('targetable'));
   document.querySelectorAll('.magnet-ready,.magnet-hover').forEach(e => e.classList.remove('magnet-ready','magnet-hover'));
+  clearMagnetDragLink();
   document.querySelectorAll('.arrow-src').forEach(e => e.classList.remove('arrow-src'));
   if (typeof drag !== 'undefined'){
     drag.magnetHoverUid = null;
@@ -9777,16 +9814,70 @@ function magnetHoverVfx(minion){
     setTimeout(() => p.remove(), perfMs(470));
   }
 }
+function clearMagnetDragLink(){
+  const link = document.getElementById('magnetDragLink');
+  if (link) link.remove();
+}
+function rectEdgeToward(rect, toward, padding){
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const dx = toward.x - cx;
+  const dy = toward.y - cy;
+  const ax = Math.abs(dx), ay = Math.abs(dy);
+  if (ax < .01 && ay < .01) return { x:cx, y:cy };
+  const hx = rect.width / 2 + (padding || 0);
+  const hy = rect.height / 2 + (padding || 0);
+  const tx = ax > .01 ? hx / ax : Infinity;
+  const ty = ay > .01 ? hy / ay : Infinity;
+  const t = Math.min(tx, ty);
+  return { x:cx + dx * t, y:cy + dy * t };
+}
+function renderMagnetDragLink(minion){
+  const targetEl = minionEl(minion);
+  const ghost = $('dragGhost');
+  if (!targetEl || !ghost || ghost.style.display !== 'block'){
+    clearMagnetDragLink();
+    return;
+  }
+  const targetRect = targetEl.getBoundingClientRect();
+  const ghostRect = ghost.getBoundingClientRect();
+  if (!targetRect.width || !targetRect.height || !ghostRect.width || !ghostRect.height){
+    clearMagnetDragLink();
+    return;
+  }
+  const targetCenter = { x:targetRect.left + targetRect.width / 2, y:targetRect.top + targetRect.height / 2 };
+  const ghostCenter = { x:ghostRect.left + ghostRect.width / 2, y:ghostRect.top + ghostRect.height / 2 };
+  const from = rectEdgeToward(targetRect, ghostCenter, 5);
+  const to = rectEdgeToward(ghostRect, targetCenter, 8);
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const len = Math.hypot(dx, dy);
+  if (len < 14){ clearMagnetDragLink(); return; }
+  let link = document.getElementById('magnetDragLink');
+  if (!link){
+    link = document.createElement('div');
+    link.id = 'magnetDragLink';
+    link.className = 'magnet-drag-link';
+    link.innerHTML = '<i></i><i></i><i></i><i></i><i></i><i></i>';
+    document.body.appendChild(link);
+  }
+  link.style.left = from.x + 'px';
+  link.style.top = (from.y - 11) + 'px';
+  link.style.width = len + 'px';
+  link.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+  link.style.setProperty('--magnet-travel', Math.max(0, len - 8) + 'px');
+}
 function updateMagneticHover(x, y){
   const target = pickMergeTargetAt(x, y);
   const uidNow = target ? target.uid : null;
   document.querySelectorAll('#playerBoard .magnet-hover').forEach(el => el.classList.remove('magnet-hover'));
   if (!target){
     drag.magnetHoverUid = null;
+    clearMagnetDragLink();
     return;
   }
   const el = minionEl(target);
   if (el) el.classList.add('magnet-hover');
+  renderMagnetDragLink(target);
   const now = performance.now();
   if (drag.magnetHoverUid !== uidNow || now - (drag.magnetHoverAt || 0) > 320){
     drag.magnetHoverUid = uidNow;
