@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-fieldmedic-vfx-before-heal';
+    var build = '2026-07-13-scout-continuous-draw';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4440,7 +4440,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-fieldmedic-vfx-before-heal';
+const CARD_ARENA_BUILD = '2026-07-13-scout-continuous-draw';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -8441,6 +8441,30 @@ function flyEl(html, from, to, dur){
     setTimeout(() => { f.remove(); res(); }, ms + 40);
   });
 }
+async function flyElVia(html, from, via, to, firstDur, holdDur, secondDur, onVia){
+  const firstMs = perfMs(firstDur || 260);
+  const holdMs = perfMs(holdDur || 0);
+  const secondMs = perfMs(secondDur || 260);
+  const f = document.createElement('div');
+  f.className = 'fly';
+  f.innerHTML = html;
+  f.style.left = '0px'; f.style.top = '0px';
+  f.style.transform = `translate3d(${from.x}px, ${from.y}px, 0) translate(-50%,-50%)`;
+  f.style.transitionDuration = firstMs + 'ms';
+  document.body.appendChild(f);
+  try{
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    f.style.transform = `translate3d(${via.x}px, ${via.y}px, 0) translate(-50%,-50%)`;
+    await sleep(firstMs + 25);
+    if (onVia) onVia(f);
+    if (holdMs) await sleep(holdMs);
+    f.style.transitionDuration = secondMs + 'ms';
+    f.style.transform = `translate3d(${to.x}px, ${to.y}px, 0) translate(-50%,-50%)`;
+    await sleep(secondMs + 35);
+  }finally{
+    f.remove();
+  }
+}
 function burstFx(pt, kind){
   const conf = {
     gold:  { chars:['✨','⭐','🌟'], color:'#ffd98a', n:8 },
@@ -9003,10 +9027,10 @@ async function battlecryCardVfx(cardId, side, minion, targets, drawCard){
     const face = side === G.player && drawCard && CARD_DB[drawCard]
       ? `<div class="card ${skinClass(SAVE.back)}" style="margin:0">${cardHTML(drawCard)}</div>`
       : `<div class="card-back cardback-${side === G.enemy ? (G.enemyBack || 'default') : (SAVE.back || 'default')}"></div>`;
-    await flyEl(face, from, revealPt, 260);
-    battleVfxLabel(revealPt, side === G.player && drawCard && CARD_DB[drawCard] ? CARD_DB[drawCard].name : 'ДОБОР', 'gold');
-    await sleep(perfMs(260));
-    await flyEl(face, revealPt, to, 260);
+    await flyElVia(face, from, revealPt, to, 260, 240, 260, () => {
+      spellImpact(revealPt, 'gold', {});
+      battleVfxLabel(revealPt, side === G.player && drawCard && CARD_DB[drawCard] ? CARD_DB[drawCard].name : 'ДОБОР', 'gold');
+    });
     return;
   }
   if (cardId === 'cultist'){
