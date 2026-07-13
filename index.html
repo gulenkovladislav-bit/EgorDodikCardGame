@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-keyword-audit-3';
+    var build = '2026-07-13-card-workshop-sandbox-6';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -548,6 +548,19 @@
 	  .audit-card b{display:block;color:var(--gold-bright);font-size:18px;line-height:1.05;}
 	  .audit-card span{display:block;color:#a08c60;font-size:10px;line-height:1.25;margin-top:3px;}
 	  .audit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px;margin-top:8px;}
+	  .workshop-toolbar{display:grid;grid-template-columns:minmax(190px,1.4fr) repeat(3,minmax(120px,.7fr));gap:8px;margin:10px 0;}
+	  .workshop-toolbar input,.workshop-toolbar select{min-width:0;background:#120b04;color:#f0e0b8;border:1.5px solid #6b5124;border-radius:8px;padding:8px 10px;font:700 10px Georgia,serif;}
+	  .workshop-layout{display:grid;grid-template-columns:minmax(280px,.9fr) minmax(360px,1.35fr);gap:10px;margin-top:10px;min-height:420px;}
+	  .workshop-list{display:flex;flex-direction:column;gap:6px;max-height:620px;overflow:auto;padding-right:4px;}
+	  .workshop-card{width:100%;display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:8px;align-items:center;text-align:left;background:linear-gradient(180deg,#2b1d0b,#140c04);border:1.5px solid #654b20;border-radius:8px;padding:8px;color:#e8d7ad;font-family:Georgia,serif;cursor:pointer;}
+	  .workshop-card:hover,.workshop-card.on{border-color:#e0b64e;box-shadow:0 0 12px rgba(224,182,78,.28);}
+	  .workshop-card .wc-icon{font-size:24px;text-align:center}.workshop-card b{display:block;font-size:11px}.workshop-card small{display:block;color:#8fa8c4;font-size:8px;margin-top:2px}.workshop-card .wc-score{color:#f0c960;font-weight:bold;font-size:10px;white-space:nowrap}
+	  .workshop-detail{border:2px solid #654b20;border-radius:10px;background:linear-gradient(180deg,rgba(40,27,10,.98),rgba(13,8,3,.98));padding:12px;overflow:auto;}
+	  .workshop-detail-head{display:grid;grid-template-columns:54px minmax(0,1fr) auto;gap:10px;align-items:center}.workshop-detail-icon{font-size:36px;text-align:center}.workshop-detail h3{margin:0;color:#f1d37b;font-size:17px}.workshop-detail h3 small{display:block;color:#8fa8c4;font-size:9px;margin-top:3px}.workshop-verdict{border:1px solid #8c6a2e;border-radius:999px;padding:4px 8px;color:#f1d37b;font-size:9px;font-weight:bold}
+	  .workshop-text{margin:10px 0;padding:9px;border:1px solid rgba(107,81,36,.7);border-radius:7px;color:#d8c8a2;font-size:11px;line-height:1.35}.workshop-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.workshop-metric{background:rgba(0,0,0,.24);border:1px solid rgba(107,81,36,.58);border-radius:7px;padding:7px}.workshop-metric b{display:block;color:#f0ca6a;font-size:13px}.workshop-metric span{color:#998760;font-size:8px}.workshop-section{margin-top:10px}.workshop-section h4{margin:0 0 5px;color:#e3bf61;font-size:11px}.workshop-chips{display:flex;flex-wrap:wrap;gap:5px}.workshop-chip{border:1px solid #654b20;border-radius:999px;padding:3px 7px;color:#cdbb91;background:rgba(0,0,0,.22);font-size:8.5px}.workshop-impact-row{display:grid;grid-template-columns:72px 1fr 34px;gap:6px;align-items:center;margin:4px 0;font-size:8.5px;color:#bda97d}.workshop-impact-row i{height:6px;border-radius:3px;background:linear-gradient(90deg,#5c8dad,#e0b64e)}
+	  .anim-sandbox-bar{position:fixed;z-index:530;left:max(10px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));display:none;align-items:center;gap:5px;width:min(320px,calc(100vw - 120px));padding:6px 7px;border:2px solid #d2a43f;border-radius:9px;background:rgba(20,12,4,.96);box-shadow:0 8px 24px #000;color:#f2d57d;flex-wrap:wrap;}
+	  .anim-sandbox-bar.active{display:flex}.anim-sandbox-bar>div{display:none}.anim-sandbox-bar .btn{flex:1 1 42%;font-size:8px;padding:6px 5px;white-space:nowrap}
+	  #game.anim-sandbox-active #log{display:none;}
 	  .audit-panel{padding:10px;border:1.5px solid #5a4423;border-radius:10px;background:linear-gradient(180deg,#2b2010,#161006);}
 	  .audit-panel h4{font-size:13px;color:var(--gold-bright);letter-spacing:1px;margin-bottom:7px;}
 	  .audit-bars{display:flex;flex-direction:column;gap:5px;}
@@ -561,28 +574,6 @@
 	  .audit-row.op{border-color:rgba(220,90,70,.75);background:linear-gradient(90deg,rgba(120,35,20,.28),rgba(0,0,0,.2));}
 	  .audit-row.weak{border-color:rgba(100,130,170,.75);background:linear-gradient(90deg,rgba(35,65,100,.28),rgba(0,0,0,.2));}
 	  .audit-warn{padding:7px 9px;border-radius:8px;background:rgba(0,0,0,.26);border:1px solid rgba(107,81,36,.62);font-size:10px;color:#cdbb93;line-height:1.35;margin-bottom:5px;}
-	  .audit-review{margin:10px 0;padding:10px;border:2px solid rgba(213,170,69,.55);border-radius:12px;background:linear-gradient(180deg,rgba(48,34,13,.92),rgba(18,11,4,.94));box-shadow:inset 0 0 18px rgba(0,0,0,.4),0 10px 24px rgba(0,0,0,.24);}
-	  .audit-review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;}
-	  .audit-review-title{font-size:14px;color:var(--gold-bright);font-weight:bold;letter-spacing:1.4px;text-shadow:0 2px 3px #000;}
-	  .audit-review-sub{font-size:9.5px;color:#9d8a61;line-height:1.3;margin-top:2px;}
-	  .audit-review-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-	  .audit-review-controls select,.audit-review-controls input{width:auto;min-width:82px;background:#120b04;color:#f0e0b8;border:1.5px solid #6b5124;border-radius:8px;padding:6px 8px;font-family:inherit;font-weight:bold;font-size:10px;}
-	  .audit-review-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:8px;}
-	  .audit-review-card{position:relative;overflow:hidden;padding:9px;border:1.5px solid rgba(107,81,36,.72);border-radius:10px;background:linear-gradient(180deg,rgba(38,27,11,.96),rgba(12,7,3,.96));box-shadow:inset 0 0 18px rgba(0,0,0,.35);}
-	  .audit-review-card::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,#5c8dad,#d5aa45,#c94b3c);opacity:.85;}
-	  .audit-review-top{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:7px;align-items:center;margin-bottom:6px;}
-	  .audit-review-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 30%,#6b5124,#130b04);border:1.5px solid #8c6a2e;font-size:17px;}
-	  .audit-review-name{min-width:0;color:#ead9ae;font-size:12px;font-weight:bold;line-height:1.12;}
-	  .audit-review-name small{display:block;color:#8fa8c4;font-size:8.5px;font-weight:normal;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-	  .audit-review-badge{font-size:9px;font-weight:bold;border-radius:999px;padding:3px 7px;background:rgba(0,0,0,.35);border:1px solid rgba(213,170,69,.42);color:#f0d080;white-space:nowrap;}
-	  .audit-review-badge.hot{color:#ff9b7b;border-color:#b64c36;background:rgba(120,35,20,.24);}
-	  .audit-review-badge.cold{color:#9fd0ff;border-color:#5c8dad;background:rgba(35,65,100,.24);}
-	  .audit-review-text{font-size:9.5px;color:#d8c8a2;line-height:1.3;margin:5px 0 7px;min-height:36px;}
-	  .audit-review-line{display:grid;grid-template-columns:58px minmax(0,1fr);gap:6px;margin:4px 0;font-size:9px;line-height:1.25;}
-	  .audit-review-line b{color:#f0d080;}
-	  .audit-review-line span{color:#b9a57a;}
-	  .audit-review-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px;}
-	  .audit-review-tag{font-size:8px;color:#d8c8a2;border:1px solid rgba(107,81,36,.7);background:rgba(0,0,0,.22);border-radius:999px;padding:2px 6px;white-space:nowrap;}
 	  .anim-toolbar{display:grid;grid-template-columns:1.2fr repeat(4,minmax(110px,.8fr)) auto;gap:8px;align-items:end;margin:8px 0 10px;}
 	  .anim-toolbar input,.anim-toolbar select{
 	    width:100%;background:#120b04;color:#f0e0b8;border:1.5px solid #6b5124;border-radius:9px;
@@ -712,12 +703,9 @@
 	  @media (max-width: 760px){
 	    .audit-summary{grid-template-columns:repeat(2,minmax(0,1fr));}
 	    .audit-grid{grid-template-columns:1fr;}
+	    .workshop-toolbar{grid-template-columns:1fr 1fr}.workshop-layout{grid-template-columns:1fr}.workshop-list{max-height:330px}.workshop-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+	    .anim-sandbox-bar{width:min(250px,calc(100vw - 110px));gap:4px;padding:5px}.anim-sandbox-bar .btn{font-size:7px;padding:5px 4px}
 	    .audit-bar{grid-template-columns:58px minmax(0,1fr) 28px;}
-	    .audit-review-head{flex-direction:column;align-items:stretch;}
-	    .audit-review-controls{gap:5px;}
-	    .audit-review-controls select,.audit-review-controls input{font-size:8.5px;min-width:68px;padding:5px 6px;}
-	    .audit-review-list{grid-template-columns:1fr;}
-	    .audit-review-line{grid-template-columns:50px minmax(0,1fr);}
 	    .anim-toolbar{grid-template-columns:1fr 1fr;gap:6px;}
 	    .anim-grid{grid-template-columns:1fr;max-height:48vh;}
 	    .anim-stage{height:360px;}
@@ -2134,6 +2122,8 @@
   .minion.stealthy::after{content:"";position:absolute;inset:-2px;border-radius:inherit;border:1.5px dashed rgba(180,200,220,.5);pointer-events:none;z-index:3;}
   .minion.enraged{border-color:#c4432a;}
   .minion.enraged .stat.atk{background:radial-gradient(circle at 35% 30%, #ff8866, #b3341f);box-shadow:0 0 10px #ff5540;animation:enrageThrob 1s ease-in-out infinite;}
+  .minion.spell-react{animation:zervanReact .72s ease-out both;filter:drop-shadow(0 0 14px #c79bff) drop-shadow(0 0 24px #8054cf);}
+  @keyframes zervanReact{0%{transform:translateZ(0) scale(1)}35%{transform:translateZ(0) scale(1.12)}68%{transform:translateZ(0) scale(1.05)}100%{transform:translateZ(0) scale(1)}}
   @keyframes enrageThrob{0%,100%{box-shadow:0 0 8px #ff5540;}50%{box-shadow:0 0 16px 3px #ff7040;}}
   .m-statusbar{
     position:absolute;top:-19px;left:50%;transform:translateX(-50%);
@@ -3831,7 +3821,7 @@
         <div class="lab-tab" data-page="decks">🃏 Колоды</div>
         <div class="lab-tab" data-page="boss">👹 Боссы</div>
         <div class="lab-tab" data-page="train">🎓 Обучение</div>
-        <div class="lab-tab" data-page="audit">🧪 Аудит карт</div>
+        <div class="lab-tab" data-page="audit">🛠 Мастерская карт</div>
         <div class="lab-tab" data-page="anim">🎬 Анимации</div>
         <div class="lab-tab" data-page="stats">📊 Статистика</div>
         <div class="lab-tab" data-page="export">📦 Экспорт</div>
@@ -3946,43 +3936,29 @@
 	      </div>
 
 	      <div class="lab-page" data-page="audit">
-	      <div class="admin-title">🧪 Аудит карт и ДЛС</div>
-	      <div class="admin-note">Сводка по базе карт, кривой маны, типам, племенам и фактическому «Вкладу карт». Прогони симуляции, потом смотри имбы/слабые/дыры — так понятнее, что нерфить и какие ДЛС делать.</div>
+	      <div class="admin-title">🛠 Мастерская карт</div>
+	      <div class="admin-note">Единый рабочий экран базы и «Вклада карт»: сила, КПД, лечение, броня, урон, полезность, слабые места и предполагаемые контр-связи. Ручного аудитора здесь больше нет.</div>
 	      <div class="audit-toolbar">
 	        <button class="btn stone music-toggle" id="auditRefreshBtn">ОБНОВИТЬ</button>
 	        <button class="btn stone music-toggle" id="auditSimBtn">ПРОГНАТЬ СИМЫ</button>
 	        <label class="admin-field" style="max-width:150px;">Симуляций<input type="number" id="auditSimN" min="10" max="5000" value="500"></label>
 	        <span class="admin-note" id="auditNote"></span>
 	      </div>
-	      <div class="audit-review">
-	        <div class="audit-review-head">
-	          <div>
-	            <div class="audit-review-title">🔎 Партия ревизии карт</div>
-	            <div class="audit-review-sub" id="auditBatchNote">Смотри до 8 карт за раз: механика, баланс, риски и идеи анимаций/частиц.</div>
-	          </div>
-	          <div class="audit-review-controls">
-	            <select id="auditBatchMode">
-	              <option value="priority">Приоритет</option>
-	              <option value="weak">Слабые</option>
-	              <option value="op">Имбовые</option>
-	              <option value="unseen">Без данных</option>
-	              <option value="cost">По мане</option>
-	            </select>
-	            <input type="number" id="auditBatchSize" min="1" max="8" value="8" title="Сколько карт смотреть за раз">
-	            <button class="btn stone music-toggle" id="auditBatchPrevBtn">←</button>
-	            <button class="btn stone music-toggle" id="auditBatchNextBtn">→</button>
-	            <button class="btn stone music-toggle" id="auditBatchMarkBtn">ГОТОВО</button>
-	          </div>
-	        </div>
-	        <div id="auditBatchList" class="audit-review-list"></div>
+	      <div class="workshop-toolbar">
+	        <input id="workshopSearch" type="search" placeholder="Найти карту или эффект...">
+	        <select id="workshopMode"><option value="all">Все карты</option><option value="strong">Самые полезные</option><option value="weak">Самые слабые</option><option value="op">Подозрение на имбу</option><option value="unseen">Без статистики</option></select>
+	        <select id="workshopType"><option value="all">Все типы</option><option value="minion">Существа</option><option value="spell">Заклинания</option><option value="weapon">Оружие</option><option value="secret">Секреты</option></select>
+	        <select id="workshopEffect"><option value="all">Все эффекты</option><option value="damage">Урон</option><option value="heal">Лечение</option><option value="armor">Броня/щит</option><option value="draw">Карты</option><option value="summon">Призыв</option><option value="buff">Усиления</option><option value="control">Контроль</option></select>
 	      </div>
+	      <div class="workshop-layout"><div id="cardWorkshopList" class="workshop-list"></div><div id="cardWorkshopDetail" class="workshop-detail"><div class="audit-warn">Выбери карту слева.</div></div></div>
+	      <div class="admin-title" style="margin-top:12px;">Обзор всей базы</div>
 	      <div id="cardAuditSummary" class="audit-summary"></div>
 	      <div id="cardAuditGrid" class="audit-grid"></div>
 	      </div>
 
 	      <div class="lab-page" data-page="anim">
 	      <div class="admin-title">🎬 Тестировщик анимаций карт</div>
-	      <div class="admin-note">Сетка всех карт для ревизии: наведи на карту, смотри статы и изменения последнего патча. Нажми карту — откроется тестовый фрагмент боя с розыгрышем, целью, частицами и звуком.</div>
+	      <div class="admin-note">Выбери карту — откроется настоящий тестовый бой на обычном движке. В руке будет выбранная карта, а на столе заранее стоят повреждённые союзники и враги для проверки целей, хрипов, лечения, брони, магнетизма и цепочек эффектов.</div>
 	      <div class="anim-toolbar">
 	        <input id="animSearch" type="search" placeholder="Поиск карты...">
 	        <select id="animType">
@@ -4010,7 +3986,7 @@
 	        </select>
 	        <button class="btn stone music-toggle" id="animRefreshBtn">ОБНОВИТЬ</button>
 	      </div>
-	      <div class="admin-note" id="animNote">Выбери карту — откроется тестовая сцена.</div>
+	      <div class="admin-note" id="animNote">Выбери карту — откроется управляемый тестовый бой.</div>
 	      <div class="anim-grid" id="animGrid"></div>
 	      </div>
 
@@ -4032,33 +4008,12 @@
       <label class="admin-field"><textarea class="admin-export" id="aiExportOut" readonly></textarea></label>
       </div>
     </div>
-    <div class="anim-player-overlay" id="animPlayerOverlay">
-      <div class="anim-player">
-        <div class="anim-player-head">
-          <div>
-            <div class="anim-player-title" id="animPlayerTitle">Тест анимации</div>
-            <div class="anim-player-sub" id="animPlayerSub">Сцена использует общие карты, частицы и звуки игры.</div>
-          </div>
-          <button class="btn stone music-toggle" id="animCloseBtn" type="button" onpointerdown="window.__closeAnimPlayer && window.__closeAnimPlayer()" onclick="window.__closeAnimPlayer && window.__closeAnimPlayer()">ЗАКРЫТЬ</button>
-        </div>
-        <div class="anim-stage" id="animStage">
-          <div class="anim-target" id="animTarget">
-            <div class="anim-face" id="animTargetFace">😈</div>
-            <div class="anim-label">Цель</div>
-          </div>
-          <div class="anim-slot" id="animSlot"></div>
-          <div class="anim-hero" id="animHero">
-            <div class="anim-face">🧙‍♂️</div>
-            <div class="anim-label">Кастер</div>
-          </div>
-          <div class="anim-hand-zone" id="animHandZone"></div>
-        </div>
-        <div class="anim-log" id="animLog">Нажми «Повторить», чтобы снова посмотреть сценарий.</div>
-        <div class="anim-player-actions">
-          <button class="btn" id="animReplayBtn" type="button">ПОВТОРИТЬ</button>
-          <button class="btn stone" id="animSlowBtn" type="button">МЕДЛЕННО: ВЫКЛ</button>
-        </div>
-      </div>
+    <div class="anim-sandbox-bar" id="animSandboxBar">
+      <div><b id="animSandboxTitle">Тест карты</b><small>Обычный боевой движок · 10 маны · повреждённые цели</small></div>
+      <button class="btn stone" id="animSandboxAdd">+ КАРТА</button>
+      <button class="btn stone" id="animSandboxEnemy">СОБЫТИЕ ВРАГА</button>
+      <button class="btn stone" id="animSandboxReset">СБРОСИТЬ ПОЛЕ</button>
+      <button class="btn" id="animSandboxClose">В МАСТЕРСКУЮ</button>
     </div>
     <div class="set-row">
       <span>Прогресс</span>
@@ -4446,7 +4401,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-keyword-audit-3';
+const CARD_ARENA_BUILD = '2026-07-13-card-workshop-sandbox-6';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -4824,7 +4779,7 @@ const CARD_DB = {
   },
   bloodbat: {
     id:'bloodbat', name:'Кровосос', icon:'🦇',
-    type:'minion', cost:3, atk:2, hp:3, rarity:'rare', tribe:'undead', lifesteal:true,
+    type:'minion', cost:3, atk:3, hp:3, rarity:'rare', tribe:'undead', lifesteal:true,
     text:'Вампиризм: нанесённый урон лечит вашего героя.', starter:0
   },
   ogreb: {
@@ -4835,7 +4790,7 @@ const CARD_DB = {
   snowman: {
     id:'snowman', name:'Снеговик-страж', icon:'⛄',
     type:'minion', cost:4, atk:3, hp:5, rarity:'rare', freezeTouch:true,
-    text:'Замораживает существ, с которыми сражается.', starter:0
+    text:'Ледяное касание: замораживает персонажей, с которыми сражается.', starter:0
   },
   nightblade: {
     id:'nightblade', name:'Ночной клинок', icon:'🦹',
@@ -4852,18 +4807,26 @@ const CARD_DB = {
   izaroth: {
     id:'izaroth', name:'Изарот, Древний', icon:'🐉',
     type:'minion', cost:8, atk:7, hp:7, rarity:'legendary', taunt:true,
-    text:'Провокация. В конце вашего хода: 2 урона случайному врагу.', starter:0,
-    onTurnEnd(game, side, m){
+    text:'Провокация. В конце вашего хода: 3 урона случайному врагу.', starter:0,
+    async onTurnEnd(game, side, m){
       const foe = foeOf(side);
       const ts = foe.board.filter(x => !x.stealth).map(x => ({ kind:'minion', side: foe, minion: x }));
       ts.push({ kind:'hero', side: foe });
-      game.dealDamage(ts[Math.floor(Math.random() * ts.length)], 2);
+      const target = ts[Math.floor(Math.random() * ts.length)];
+      if (game.turnEndVfx) game.turnEndVfx.push({
+        cardId:'izaroth',
+        source:{ kind:'minion', side:side === game.player ? 'player' : 'enemy', uid:m.uid, cardId:m.cardId },
+        target:mpTargetDescriptor(target)
+      });
+      await izarothBreathVfx(side, m, target);
+      game.dealDamage(target, 3);
     }
   },
   zervan: {
     id:'zervan', name:'Архимаг Зерван', icon:'🪄',
-    type:'minion', cost:7, atk:5, hp:5, rarity:'legendary', spellDamage:1,
-    text:'+1 к урону ваших заклинаний.', starter:0
+    type:'minion', cost:6, atk:3, hp:6, rarity:'legendary', spellDamage:4,
+    text:'+4 к урону ваших заклинаний.', starter:0,
+    onSpellCast(game, side, self, cardId){ zervanSpellPulseVfx(side, self, cardId); }
   },
   megatron: {
     id:'megatron', name:'М.Е.Г.А-Трон', icon:'🦿',
@@ -6864,6 +6827,7 @@ function simMakeMinion(def, id){
     enraged:false, frozen:false, tribe:def.tribe || null,
     spellDamage:def.spellDamage || 0,
     spellBuffer: typeof def.onSpellCast === 'function',
+    extraRattles:[],
     hasRattle: typeof def.deathrattle === 'function' || /Хрип/i.test(def.text || ''),
     healerEnd:/В конце вашего хода/.test(def.text || '') && /здоров|восстан|\+\d+ HP/i.test(def.text || ''),
     ready:!!def.charge, hits:def.windfury ? 2 : 1 };
@@ -6984,7 +6948,10 @@ function simDeath(owner, foe, m){
   if (m.hasRattle && def && !def.token){
     (owner.deadRattlers || (owner.deadRattlers = [])).push(m.id);
   }
-  if (def && def.text && /Хрип/i.test(def.text)){
+  if (m.id === 'megatron'){
+    for (let i = 0; i < 2 && owner.board.length < 7; i++)
+      owner.board.push(simMakeMinion(CARD_DB.gearling, 'gearling'));
+  } else if (def && def.text && /Хрип/i.test(def.text)){
     const dr = def.text.match(/Хрип\s*:?\s*([^]*)/i);
     if (dr){
       const before = owner.board.length;
@@ -7013,6 +6980,17 @@ function simDeath(owner, foe, m){
   }
   if (m.id === 'raccoon' && foe.deck.length && owner.hand.length < 10){
     owner.hand.push(foe.deck.pop());
+  }
+  for (const id of m.extraRattles || []){
+    const rdef = CARD_DB[id];
+    if (!rdef) continue;
+    if (id === 'megatron'){
+      for (let i = 0; i < 2 && owner.board.length < 7; i++)
+        owner.board.push(simMakeMinion(CARD_DB.gearling, 'gearling'));
+    } else {
+      const dr = String(rdef.text || '').match(/Хрип\s*:?\s*([^]*)/i);
+      if (dr) simTextEffect(owner, foe, id, dr[1], 'deathrattle');
+    }
   }
 }
 /* один полный бой: возвращает телеметрию */
@@ -7075,6 +7053,7 @@ function simulateDuel(cardsA, cardsB, tuneA, tuneB){
           if (d.lifesteal) host.lifesteal = true;
           if (d.windfury){ host.windfury = true; }
           if (d.shield) host.shield = true;
+          if (d.deathrattle) (host.extraRattles || (host.extraRattles = [])).push(p.id);
           cur.plays[p.id] = cur.plays[p.id]; /* розыгрыш уже учтён */
         } else {
           const m = simMakeMinion(d, p.id);
@@ -7205,6 +7184,17 @@ function simulateDuel(cardsA, cardsB, tuneA, tuneB){
           t.hp = Math.min(t.maxHp, t.hp + 2);
         }
       }
+    });
+    cur.board.filter(m => m.id === 'izaroth' && m.hp > 0).forEach(() => {
+      const targets = foe.board.filter(m => !m.stealth && m.hp > 0);
+      if (targets.length && Math.random() < targets.length / (targets.length + 1)){
+        const target = targets[Math.floor(Math.random() * targets.length)];
+        if (simHitMinion(target, 3)){
+          simDeath(foe, cur, target);
+          foe.board.splice(foe.board.indexOf(target), 1);
+        }
+      } else simHurt(foe, 3);
+      simCardDmg(cur, 'izaroth', 3);
     });
     [cur, foe] = [foe, cur];
   }
@@ -7664,6 +7654,7 @@ function newGame(playerDeckArr, enemyDeckArr){
 	                  windfury: !!def.windfury, freezeTouch: !!def.freezeTouch,
 	                  spellDamage: def.spellDamage || 0, siege: !!def.siege,
 	                  reborn: !!def.reborn, enraged: false, rebornUsed: false,
+	                  extraDeathrattles: [],
 	                  attacksLeft: n, canAttack: n > 0, justSpawned: true };
 	      side.board.push(m);
 	      if (ctx && ctx.side === side) trackImpact(side, ctx.source, 'summon', 1);
@@ -7743,12 +7734,8 @@ function newGame(playerDeckArr, enemyDeckArr){
         side.freezeVisual = true;
         side.heroAttacked = true;
         const el = heroEl(side);
-        if (el && !quiet){
-          const pt = center(el);
-          spellImpact(pt, 'frost', {});
-          battleVfxLabel(pt, 'ГЕРОЙ ЗАМОРОЖЕН', 'frost');
-        }
-        if (!quiet) sfx.freezeSnd();
+        if (el) freezeStatusVfx(center(el), true);
+        sfx.freezeSnd();
         log(`❄️ ${title(side)}: герой заморожен`);
         return;
       }
@@ -7772,6 +7759,7 @@ function newGame(playerDeckArr, enemyDeckArr){
         b.style.top = (pt.y - 11) + 'px';
         document.body.appendChild(b);
         setTimeout(() => b.remove(), 1100);
+        freezeStatusVfx(pt, false);
       }
       sfx.freezeSnd();
       log(`❄️ ${CARD_DB[target.minion.cardId].name} заморожен`);
@@ -8007,6 +7995,7 @@ function cloneMinion(side, src){
               poison: !!src.poison, lifesteal: !!src.lifesteal, windfury: !!src.windfury,
               freezeTouch: !!src.freezeTouch, spellDamage: src.spellDamage || 0,
               siege: !!src.siege, reborn: !!src.reborn, enraged: false, rebornUsed: !!src.rebornUsed,
+              extraDeathrattles: (src.extraDeathrattles || []).map(x => Object.assign({}, x)),
               attacksLeft: 0, canAttack: false, justSpawned: true };
   side.board.push(m);
   return m;
@@ -8133,8 +8122,14 @@ function updateEnrage(m){
   const d = defOf(m);
   if (!d.enrage) return;
   const hurt = m.hp < m.maxHp && m.hp > 0;
-  if (hurt && !m.enraged){ m.atk += d.enrage; m.enraged = true; }
-  else if (!hurt && m.enraged){ m.atk = Math.max(0, m.atk - d.enrage); m.enraged = false; }
+  if (hurt && !m.enraged){
+    m.atk += d.enrage; m.enraged = true;
+    const el = minionEl(m); if (el) enrageStateVfx(center(el), true, d.enrage);
+  }
+  else if (!hurt && m.enraged){
+    m.atk = Math.max(0, m.atk - d.enrage); m.enraged = false;
+    const el = minionEl(m); if (el) enrageStateVfx(center(el), false, d.enrage);
+  }
 }
 /* урон существу: щит, яд, берсерк. Возвращает фактический урон */
 function damageMinion(mm, dmg, poison, srcSide, source){
@@ -8211,7 +8206,10 @@ function resolveCombat(attSide, m, target){
   if (m.hp <= 0 || G.over) return; /* ловушка сняла атакующего */
   if (target.kind === 'hero'){
     withImpactSource(attSide, m.source || m.cardId, () => G.dealDamage(target, m.atk));
-    if (m.lifesteal) withImpactSource(attSide, m.source || m.cardId, () => G.heal({ kind:'hero', side: attSide }, m.atk));
+    if (m.lifesteal){
+      lifestealDrainVfx(targetPoint(target), safeCenter(heroEl(attSide), $('board')), m.atk);
+      withImpactSource(attSide, m.source || m.cardId, () => G.heal({ kind:'hero', side: attSide }, m.atk));
+    }
     if (m.freezeTouch && m.atk > 0 && target.side.hp > 0) G.freeze(target, true);
     liveAuditCombatVfx(attSide, m, target);
     log(`${dA.name} бьёт героя на ${m.atk}`);
@@ -8222,8 +8220,14 @@ function resolveCombat(attSide, m, target){
   log(`${dA.name} ⚔ ${dB.name}`);
   const dealt = damageMinion(em, m.atk, m.poison, attSide, m.source || m.cardId);
   const taken = damageMinion(m, em.atk, em.poison, target.side, em.source || em.cardId);
-  if (dealt > 0 && m.lifesteal) withImpactSource(attSide, m.source || m.cardId, () => G.heal({ kind:'hero', side: attSide }, dealt));
-  if (taken > 0 && em.lifesteal) withImpactSource(target.side, em.source || em.cardId, () => G.heal({ kind:'hero', side: foeOf(attSide) }, taken));
+  if (dealt > 0 && m.lifesteal){
+    lifestealDrainVfx(safeCenter(minionEl(em), boardElForSide(target.side)), safeCenter(heroEl(attSide), $('board')), dealt);
+    withImpactSource(attSide, m.source || m.cardId, () => G.heal({ kind:'hero', side: attSide }, dealt));
+  }
+  if (taken > 0 && em.lifesteal){
+    lifestealDrainVfx(safeCenter(minionEl(m), boardElForSide(attSide)), safeCenter(heroEl(target.side), $('board')), taken);
+    withImpactSource(target.side, em.source || em.cardId, () => G.heal({ kind:'hero', side: target.side }, taken));
+  }
   if (m.freezeTouch && em.hp > 0) G.freeze({ kind:'minion', side: target.side, minion: em });
   if (em.freezeTouch && m.hp > 0) G.freeze({ kind:'minion', side: attSide, minion: m });
   liveAuditCombatVfx(attSide, m, target);
@@ -8287,6 +8291,7 @@ async function resolveDeaths(){
 	    for (const d of dead){
 	      const def = CARD_DB[d.m.cardId];
 	      if ((def.reborn || d.m.reborn) && !d.m.rebornUsed && d.side.board.length < MAX_BOARD){
+	        await rebornVfx(d.pt, d.m.cardId === 'phoenix');
 		        const reborned = { uid: uid(), cardId: d.m.cardId, source: d.m.source || d.m.cardId,
 		                           impactLinks: Object.assign({}, d.m.impactLinks || {}),
 		                           atk: def.atk, hp: 1, maxHp: def.hp,
@@ -8296,6 +8301,7 @@ async function resolveDeaths(){
 	                           windfury: !!def.windfury, freezeTouch: !!def.freezeTouch,
 	                           spellDamage: def.spellDamage || 0, siege: !!def.siege,
 	                           reborn: false, enraged: false, rebornUsed: true,
+	                           extraDeathrattles: [],
 	                           attacksLeft: 0, canAttack: false, justSpawned: true };
 	        d.side.board.push(reborned);
 	        log(`🎇 ${def.name} возрождается!`);
@@ -8307,16 +8313,25 @@ async function resolveDeaths(){
     /* предсмертные хрипы */
     for (const d of dead){
       const def = CARD_DB[d.m.cardId];
-      if (!def.deathrattle) continue;
-      rattleFx(d.pt);
-      log(`☠️ Хрип: ${def.name}`);
-      await liveAuditDeathrattleVfx(d.side, d.m, d.pt);
-      await withImpactSourceAsync(d.side, d.m.source || d.m.cardId, async () => {
-        await def.deathrattle(G, d.side, d.m);
+      const rattles = [];
+      if (def.deathrattle) rattles.push({ def, source:d.m.source || d.m.cardId, minion:d.m });
+      (d.m.extraDeathrattles || []).forEach(extra => {
+        const extraDef = CARD_DB[extra.cardId];
+        if (extraDef && extraDef.deathrattle)
+          rattles.push({ def:extraDef, source:extra.source || extra.cardId,
+            minion:Object.assign({}, d.m, { cardId:extra.cardId }) });
       });
-      render();
-      await sleep(320);
-      if (G.over) return;
+      for (const r of rattles){
+        rattleFx(d.pt);
+        log(`☠️ Хрип: ${r.def.name}`);
+        await liveAuditDeathrattleVfx(d.side, r.minion, d.pt);
+        await withImpactSourceAsync(d.side, r.source, async () => {
+          await r.def.deathrattle(G, d.side, d.m);
+        });
+        render();
+        await sleep(320);
+        if (G.over) return;
+      }
     }
     /* и по кругу: хрип мог убить кого-то ещё */
   }
@@ -8727,6 +8742,99 @@ async function stolenCardVfx(side, cardId){
   reveal.remove();
   await flyEl(`<div class="card ${skinClass(ownerBack)}" style="margin:0">${cardHTML(cardId)}</div>`, boardPt, to, 320);
 }
+function freezeStatusVfx(pt, hero){
+  if (!pt) return;
+  spellImpact(pt, 'frost', {});
+  iceCrackVfx(pt);
+  battleVfxLabel(pt, hero ? 'ГЕРОЙ ЗАМОРОЖЕН' : 'ЗАМОРОЗКА', 'frost');
+}
+function lifestealDrainVfx(from, to, amount){
+  if (!from || !to || !amount) return;
+  battleVfxLabel(from, `ВАМПИРИЗМ +${amount}`, 'shadow');
+  spellImpact(from, 'shadow', {});
+  const n = perfCount(7);
+  for (let i = 0; i < n; i++){
+    const a = Math.PI * 2 * i / Math.max(1, n);
+    const start = { x:from.x + Math.cos(a) * (18 + i % 3 * 5), y:from.y + Math.sin(a) * (18 + i % 2 * 6) };
+    const mid = { x:(from.x + to.x) / 2 + Math.sin(a) * 28, y:(from.y + to.y) / 2 - 24 + Math.cos(a) * 18 };
+    setTimeout(async () => {
+      await flyEl(`<div style="font-size:${13 + i % 3 * 3}px;color:#ff5b8f;filter:drop-shadow(0 0 9px #c21f5b)">${i % 2 ? '✦' : '●'}</div>`, start, mid, 170);
+      await flyEl('<div style="font-size:17px;color:#ff86ad;filter:drop-shadow(0 0 10px #e12668)">✦</div>', mid, to, 190);
+      if (i === n - 1) spellImpact(to, 'holy', {});
+    }, i * perfMs(34));
+  }
+}
+function enrageStateVfx(pt, active, amount){
+  if (!pt) return;
+  spellImpact(pt, active ? 'fire' : 'armor', {});
+  battleVfxLabel(pt, active ? `БЕРСЕРК +${amount || 0}` : 'БЕРСЕРК УТИХ', active ? 'fire' : 'armor');
+}
+function stealthStateVfx(pt, entering){
+  if (!pt) return;
+  spellImpact(pt, 'shadow', {});
+  const n = perfCount(8);
+  for (let i = 0; i < n; i++){
+    const p = document.createElement('div');
+    p.className = 'fx-particle'; p.textContent = i % 2 ? '●' : '☁';
+    p.style.left = pt.x + 'px'; p.style.top = pt.y + 'px'; p.style.color = '#756284';
+    p.style.fontSize = (12 + Math.random() * 9) + 'px'; p.style.animationDuration = perfMs(650) + 'ms';
+    p.style.setProperty('--dx', (-38 + Math.random() * 76) + 'px');
+    p.style.setProperty('--dy', (-12 - Math.random() * 46) + 'px');
+    document.body.appendChild(p); setTimeout(() => p.remove(), perfMs(690));
+  }
+  battleVfxLabel(pt, entering ? 'СКРЫТНОСТЬ' : 'РАСКРЫТ', 'shadow');
+}
+async function rebornVfx(pt, phoenix){
+  if (!pt) return;
+  if (phoenix){
+    battleVfxLabel(pt, 'ФЕНИКС ВОЗРОЖДАЕТСЯ', 'fire');
+    spellImpact(pt, 'fire', { legendary:true });
+    fireWaveVfx(pt);
+    await flyEl('<div style="font-size:48px;filter:drop-shadow(0 0 18px #ff6a22)">🔥</div>', { x:pt.x, y:pt.y + 42 }, pt, 330);
+  } else {
+    battleVfxLabel(pt, 'ВОЗРОЖДЕНИЕ', 'frost');
+    spellImpact(pt, 'frost', { legendary:false });
+    await flyEl('<div style="font-size:34px;filter:drop-shadow(0 0 14px #63bfff)">🜁</div>', { x:pt.x, y:pt.y + 38 }, pt, 280);
+  }
+}
+async function izarothLandingVfx(pt){
+  if (!pt) return;
+  battleVfxLabel(pt, 'ИЗАРОТ ПРОБУЖДАЕТСЯ', 'fire');
+  await flyEl('<div style="font-size:68px;filter:drop-shadow(0 12px 10px #000) drop-shadow(0 0 18px #ff7638)">🐉</div>',
+    { x:pt.x, y:Math.max(20, pt.y - 260) }, pt, 430);
+  const board = $('board'); if (board) shake(board);
+  spellImpact(pt, 'fire', { legendary:true });
+  fireWaveVfx(pt);
+  tone(82, .24, 'sawtooth', .16, 42); noiseBurst(.16, .2, 240);
+  await sleep(perfMs(170));
+}
+async function izarothBreathVfx(side, minion, target){
+  if (!side || !target) return;
+  const from = safeCenter(minionEl(minion), boardElForSide(side));
+  const to = targetPoint(target);
+  battleVfxLabel(from, 'ДРЕВНЕЕ ПЛАМЯ', 'fire');
+  await flyEl('<div style="font-size:38px;filter:drop-shadow(0 0 14px #ff6a22)">🔥</div>', from, to, 330);
+  spellImpact(to, 'fire', { legendary:false });
+  fireWaveVfx(to); sfxSchool('fire');
+  await sleep(perfMs(100));
+}
+function zervanSpellPulseVfx(side, minion, cardId){
+  if (!side || !minion) return;
+  const el = minionEl(minion), pt = safeCenter(el, boardElForSide(side));
+  if (el){ el.classList.remove('spell-react'); void el.offsetWidth; el.classList.add('spell-react'); setTimeout(() => el.classList.remove('spell-react'), perfMs(760)); }
+  spellImpact(pt, 'arcane', { legendary:false });
+  battleVfxLabel(pt, `ЧАРЫ +${minion.spellDamage || 4}`, 'arcane');
+  const hand = side === G.player ? $('playerHand') : $('enemyHand');
+  battleBeam(pt, safeCenter(hand, heroEl(side)), 'arcane', 520);
+}
+async function legendaryMechEntryVfx(pt){
+  if (!pt) return;
+  spellImpact(pt, 'lightning', { legendary:true });
+  mechSparkVfx(pt, 'М.Е.Г.А-ТРОН');
+  battleVfxLabel(pt, 'СИСТЕМЫ ЗАПУЩЕНЫ', 'lightning');
+  tone(118, .18, 'square', .12, 62); noiseBurst(.12, .16, 520);
+  await sleep(perfMs(170));
+}
 function mechSparkVfx(pt, label){
   if (!pt) return;
   spellImpact(pt, 'armor', {});
@@ -8756,6 +8864,11 @@ async function magnetMergeVfx(from, to, def){
     await flyEl('<div style="font-size:30px;filter:drop-shadow(0 0 10px #ffe66a)">🧲</div>', from, to, 260);
   }
   mechSparkVfx(to, `+${def.atk}/+${def.hp}`);
+  if (def && def.id === 'megatron'){
+    battleZigzag({ x:to.x - 55, y:to.y - 25 }, { x:to.x + 55, y:to.y + 25 }, 520);
+    spellImpact(to, 'lightning', { legendary:true });
+    battleVfxLabel(to, 'ХРИП ПОДКЛЮЧЁН', 'lightning');
+  }
   await sleep(perfMs(120));
 }
 async function stoneArmorVfx(from, to){
@@ -8875,7 +8988,20 @@ async function liveAuditMinionVfx(cardId, side, minion, phase){
   const el = minionEl(minion);
   const pt = safeCenter(el, boardElForSide(side));
   if (phase === 'summon'){
-    if (cardId === 'familiar'){
+    if (cardId === 'izaroth'){
+      await izarothLandingVfx(pt);
+    } else if (cardId === 'zervan'){
+      spellImpact(pt, 'arcane', { legendary:true });
+      battleVfxLabel(pt, 'АРХИМАГ ИЗ ЭФИРА', 'arcane');
+      await sleep(perfMs(170));
+    } else if (cardId === 'megatron'){
+      await legendaryMechEntryVfx(pt);
+    } else if (cardId === 'phoenix'){
+      spellImpact(pt, 'fire', { legendary:false });
+      fireWaveVfx(pt);
+      battleVfxLabel(pt, 'ПЛАМЯ ФЕНИКСА', 'fire');
+      await sleep(perfMs(130));
+    } else if (cardId === 'familiar'){
       chargeTrailVfx(pt, 'РЫВОК');
       spellImpact(pt, 'arcaneBuff', {});
       await sleep(perfMs(120));
@@ -8889,6 +9015,7 @@ async function liveAuditMinionVfx(cardId, side, minion, phase){
     } else if (cardId === 'doll' || cardId === 'ghost' || cardId === 'graveBinder'){
       spellImpact(pt, 'shadow', {});
     }
+    if (minion.stealth) stealthStateVfx(pt, true);
     return;
   }
   if (phase === 'battlecry'){
@@ -8915,7 +9042,18 @@ async function liveAuditMinionVfx(cardId, side, minion, phase){
 }
 async function liveAuditCardPointVfx(cardId, pt){
   if (!cardId || !pt) return;
-  if (cardId === 'familiar'){
+  if (cardId === 'izaroth'){
+    await izarothLandingVfx(pt);
+  } else if (cardId === 'zervan'){
+    spellImpact(pt, 'arcane', { legendary:true });
+    battleVfxLabel(pt, 'АРХИМАГ ИЗ ЭФИРА', 'arcane');
+    await sleep(perfMs(150));
+  } else if (cardId === 'megatron'){
+    await legendaryMechEntryVfx(pt);
+  } else if (cardId === 'phoenix'){
+    spellImpact(pt, 'fire', {}); fireWaveVfx(pt);
+    await sleep(perfMs(110));
+  } else if (cardId === 'familiar'){
     chargeTrailVfx(pt, 'РЫВОК');
     spellImpact(pt, 'arcaneBuff', {});
     await sleep(perfMs(100));
@@ -8929,6 +9067,7 @@ async function liveAuditCardPointVfx(cardId, pt){
   } else if (cardId === 'doll' || cardId === 'ghost' || cardId === 'graveBinder'){
     spellImpact(pt, 'shadow', {});
   }
+  if (CARD_DB[cardId] && CARD_DB[cardId].stealth) stealthStateVfx(pt, true);
 }
 async function liveAuditDeathrattleVfx(side, minion, pt){
   if (!side || !minion || !G) return;
@@ -9008,10 +9147,9 @@ function liveAuditCombatVfx(attSide, minion, target, remoteReplay){
     chargeTrailVfx(attPt, minion.cardId === 'familiar' ? 'РЫВОК' : '');
     spellImpact(pt, 'arcaneBuff', {});
   }
-  if (minion.freezeTouch){
-    spellImpact(pt, 'frost', {});
-    battleVfxLabel(pt, target.kind === 'hero' ? 'ГЕРОЙ ЗАМОРОЖЕН' : 'ЗАМОРОЖЕНО', 'frost');
-  }
+  if (remoteReplay && minion.freezeTouch) freezeStatusVfx(pt, target.kind === 'hero');
+  if (remoteReplay && minion.lifesteal)
+    lifestealDrainVfx(pt, safeCenter(heroEl(attSide), $('board')), Math.max(1, minion.atk || 1));
 }
 
 async function lungeAnim(attEl, targetPt){
@@ -9128,7 +9266,10 @@ function minionStatusList(m, def, side, frozenVisible){
   if (m.freezeTouch) add('freezeTouch');
   if (m.spellDamage) add('spellDamage', '+' + m.spellDamage);
   if (m.stealth) add('stealth');
-  if (def && def.deathrattle) add('deathrattle');
+  if ((def && def.deathrattle) || (m.extraDeathrattles && m.extraDeathrattles.length)){
+    const count = (def && def.deathrattle ? 1 : 0) + (m.extraDeathrattles || []).length;
+    add('deathrattle', count > 1 ? '×' + count : '');
+  }
   if (def && def.charge) add('charge');
   if (m.siege || (def && def.siege)) add('siege');
   if (m.enraged) add('enrage');
@@ -9359,6 +9500,11 @@ function magnetMerge(side, target, def){
   if (def.freezeTouch) target.freezeTouch = true;
   if (def.shield) target.shield = true;
   if (def.spellDamage) target.spellDamage = (target.spellDamage || 0) + def.spellDamage;
+  if (def.deathrattle){
+    target.extraDeathrattles = target.extraDeathrattles || [];
+    const ctx = currentImpact();
+    target.extraDeathrattles.push({ cardId:def.id, source:ctx && ctx.side === side ? ctx.source : def.id });
+  }
   if (def.charge && !target.canAttack){ target.attacksLeft = 1; target.canAttack = true; }
   const el = minionEl(target);
   if (el) splashAt(center(el), `${def.atk}/${def.hp}`, 'armor');
@@ -9448,12 +9594,18 @@ async function heroSwing(side, target){
   if (tgtEl) shake(tgtEl);
   if (target.kind === 'hero'){
     withImpactSource(side, w.source || w.cardId, () => G.dealDamage(target, w.atk));
-    if (w.lifesteal) withImpactSource(side, w.source || w.cardId, () => G.heal({ kind:'hero', side }, w.atk));
+    if (w.lifesteal){
+      lifestealDrainVfx(swTo, swFrom, w.atk);
+      withImpactSource(side, w.source || w.cardId, () => G.heal({ kind:'hero', side }, w.atk));
+    }
     log(`${title(side)}: удар оружием на ${w.atk}`);
   } else {
     const em = target.minion;
     const dealt = damageMinion(em, w.atk, false, side, w.source || w.cardId);
-    if (dealt > 0 && w.lifesteal) withImpactSource(side, w.source || w.cardId, () => G.heal({ kind:'hero', side }, dealt));
+    if (dealt > 0 && w.lifesteal){
+      lifestealDrainVfx(swTo, swFrom, dealt);
+      withImpactSource(side, w.source || w.cardId, () => G.heal({ kind:'hero', side }, dealt));
+    }
     if (!w.ranged && em.atk > 0){
       const back = withImpactSource(target.side, em.source || em.cardId, () => G.hurtHero(side, em.atk));
       trackImpact(target.side, em.source || em.cardId, 'damage', back);
@@ -9599,8 +9751,10 @@ async function attackWith(minion, target){
   if (!minion.canAttack || G.busy) return;
   const mpMeta = mpActionMeta({ kind:'minion', side:'player', uid:minion.uid, cardId:minion.cardId }, mpTargetDescriptor(target));
   G.busy = true;
-  useAttack(minion);
   const attEl = minionEl(minion);
+  const wasStealth = !!minion.stealth;
+  useAttack(minion);
+  if (wasStealth && attEl) stealthStateVfx(center(attEl), false);
   const tgtEl = target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion);
   await lungeAnim(attEl, combatPoint(target, G.player));
   resolveCombat(G.player, minion, target);
@@ -10050,12 +10204,13 @@ $('endTurnBtn').addEventListener('click', () => { if (myTurn()) endPlayerTurn();
 async function mpEndLocalTurn(){
   stopTimer();
   G.busy = true;
+  G.turnEndVfx = [];
   render();
   await runTurnEnd(G.player);
   if (G.over){
     G.busy = false;
     render();
-    mpAfterLocalAction('turn:end-game');
+    mpAfterLocalAction('turn:end-game', { turnEndVfx:G.turnEndVfx.slice() });
     return;
   }
   G.startTurn(G.enemy);
@@ -10064,11 +10219,12 @@ async function mpEndLocalTurn(){
   G.busy = false;
   render();
   stopTimer();
-  mpAfterLocalAction('turn:end');
+  mpAfterLocalAction('turn:end', { turnEndVfx:G.turnEndVfx.slice() });
 }
 
 async function endPlayerTurn(){
   if (!G || G.over || G.turn !== 'player') return;
+  if (G.animationTest){ await advanceAnimSandboxTurn(); return; }
   if (G.multiplayer){
     await mpEndLocalTurn();
     return;
@@ -10087,7 +10243,9 @@ async function runTurnEnd(side){
     const d = CARD_DB[m.cardId];
     if (!d.onTurnEnd) continue;
     if (!side.board.includes(m) || m.hp <= 0 || G.over) continue;
-    d.onTurnEnd(G, side, m);
+    await withImpactSourceAsync(side, m.source || m.cardId, async () => {
+      await d.onTurnEnd(G, side, m);
+    });
     render();
     await sleep(280);
     await resolveDeaths();
@@ -10523,7 +10681,10 @@ async function aiTurn(){
     attackers.sort((a, b) => (a.atk + a.hp) - (b.atk + b.hp));
   for (const m of attackers){
     while (!G.over && G.enemy.board.includes(m) && m.hp > 0 && m.canAttack){
+      const wasStealth = !!m.stealth;
+      const stealthEl = minionEl(m);
       useAttack(m);
+      if (wasStealth && stealthEl) stealthStateVfx(center(stealthEl), false);
       const target = aiPickAttackTarget(m, G.aiLethalPlan || aiBoardLethal());
       const attEl = minionEl(m);
       const tgtEl = target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion);
@@ -13049,7 +13210,11 @@ function mpVisualSideState(side){
     board: (side && side.board || []).map(m => ({
       uid:m.uid, cardId:m.cardId, atk:m.atk || 0, hp:m.hp || 0,
       maxHp:m.maxHp || CARD_DB[m.cardId]?.hp || 0,
-      shield:!!m.shield, poison:!!m.poison, windfury:!!m.windfury
+      shield:!!m.shield, poison:!!m.poison, windfury:!!m.windfury,
+      lifesteal:!!m.lifesteal, frozen:!!m.frozen, freezeVisual:!!m.freezeVisual,
+      stealth:!!m.stealth, enraged:!!m.enraged,
+      reborn:!!m.reborn, rebornUsed:!!m.rebornUsed,
+      extraDeathrattles:(m.extraDeathrattles || []).map(x => Object.assign({}, x))
     }))
   };
 }
@@ -13103,6 +13268,7 @@ async function mpAnimateRemoteAction(snap){
         spellImpact(to, 'arcane');
       }
       if (def) await liveAuditSpellVfx(cardId, def, G.enemy, mpActualTargetFromRemoteDesc(tgt), to);
+      (G.enemy.board || []).filter(m => m.cardId === 'zervan').forEach(m => zervanSpellPulseVfx(G.enemy, m, cardId));
       return;
     }
     if (action === 'attack:minion'){
@@ -13111,6 +13277,8 @@ async function mpAnimateRemoteAction(snap){
       const attEl = mpElementForRemoteDesc(src);
       const targetEl = mpElementForRemoteDesc(tgt);
       const targetPt = target && target.kind !== 'board' ? combatPoint(target, sourceTarget && sourceTarget.side || G.enemy) : mpPointForRemoteDesc(tgt, $('playerHero'));
+      if (sourceTarget && sourceTarget.minion && sourceTarget.minion.stealth && attEl)
+        stealthStateVfx(center(attEl), false);
       mpBurstRemoteFx('attack', targetPt);
       await lungeAnim(attEl, targetPt);
       if (targetEl) shake(targetEl);
@@ -13151,6 +13319,12 @@ async function mpAnimateRemoteAction(snap){
       return;
     }
     if (action === 'turn:end' || action === 'turn:end-game'){
+      for (const cue of meta.turnEndVfx || []){
+        if (cue.cardId !== 'izaroth') continue;
+        const source = mpActualTargetFromRemoteDesc(cue.source);
+        const target = mpActualTargetFromRemoteDesc(cue.target);
+        if (source && source.minion && target) await izarothBreathVfx(source.side, source.minion, target);
+      }
       sfx.gong();
       await sleep(120);
     }
@@ -13198,6 +13372,9 @@ async function mpPlaySideDeltaVfx(before, after, side, sideName){
       sfx.heal();
     }
     if (old.shield && !m.shield) shieldBreakVfx(pt);
+    if (!old.enraged && m.enraged) enrageStateVfx(pt, true, Math.max(0, (m.atk || 0) - (old.atk || 0)));
+    if (old.enraged && !m.enraged) enrageStateVfx(pt, false, 0);
+    if (!old.frozen && m.frozen) freezeStatusVfx(pt, false);
     const atkGain = (m.atk || 0) - (old.atk || 0);
     if (atkGain > 0){
       if (m.cardId === 'shroom') growthVfx(pt, atkGain, Math.max(0, (m.maxHp || 0) - (old.maxHp || 0)));
@@ -13216,6 +13393,22 @@ async function mpPlayRemoteDeltaVfx(before, after){
   if (!before || !after || !G) return;
   await mpPlaySideDeltaVfx(before.player, after.player, G.player, 'player');
   await mpPlaySideDeltaVfx(before.enemy, after.enemy, G.enemy, 'enemy');
+}
+async function mpPlayRemoteRebornCues(before, after){
+  if (!before || !after || !G) return;
+  for (const sideName of ['player','enemy']){
+    const oldBoard = before[sideName] && before[sideName].board || [];
+    const newBoard = after[sideName] && after[sideName].board || [];
+    const newUids = new Set(newBoard.map(m => m.uid));
+    const gameSide = sideName === 'player' ? G.player : G.enemy;
+    for (const old of oldBoard){
+      if (newUids.has(old.uid) || !old.reborn || old.rebornUsed) continue;
+      if (!newBoard.some(m => m.cardId === old.cardId && m.uid !== old.uid && m.hp === 1)) continue;
+      const liveOld = (gameSide.board || []).find(m => m.uid === old.uid);
+      const pt = safeCenter(liveOld && minionEl(liveOld), boardElForSide(gameSide));
+      await rebornVfx(pt, old.cardId === 'phoenix');
+    }
+  }
 }
 async function mpPlayRemoteDeathrattleCues(before, after){
   if (!before || !after || !G) return;
@@ -13325,6 +13518,11 @@ async function mpApplyRemoteSnapshotNow(snap){
 	      await mpAnimateRemoteAction(snap);
 	    }catch(e){
 	      mpLog('VFX действия: ' + (e.message || e));
+	    }
+	    try{
+	      await mpPlayRemoteRebornCues(beforeVfx, incomingVfx);
+	    }catch(e){
+	      mpLog('VFX возрождения: ' + (e.message || e));
 	    }
 	    try{
 	      await mpPlayRemoteDeathrattleCues(beforeVfx, incomingVfx);
@@ -14003,10 +14201,77 @@ function auditRowHtml(r, cls){
     <span>${c.icon}</span><div><strong>${safeTxt(c.name)}</strong><small>${safeTxt(meta)}</small></div><span class="audit-score">${score}</span>
   </div>`;
 }
-let auditBatchOffset = 0;
-function ensureAuditReviewed(){
-  if (!SAVE.cardAuditReviewed || typeof SAVE.cardAuditReviewed !== 'object') SAVE.cardAuditReviewed = {};
-  return SAVE.cardAuditReviewed;
+let workshopCardId = null;
+function workshopEffectMatch(c, effect){
+  if (effect === 'all') return true;
+  const t = String(c.text || '').toLowerCase();
+  if (effect === 'damage') return !!c.burn || t.includes('урон') || c.poison;
+  if (effect === 'heal') return c.lifesteal || /лечит|исцел|здоров|восстан/.test(t);
+  if (effect === 'armor') return c.taunt || c.shield || /брон|щит|провокац/.test(t);
+  if (effect === 'draw') return /возьмите|карту|создаёт|добавляет/.test(t);
+  if (effect === 'summon') return /призыв|призывает|возрожд/.test(t) || c.reborn;
+  if (effect === 'buff') return /получает|получают|усил|\+\d+\/\+\d+|сила заклинаний/.test(t) || c.spellDamage;
+  if (effect === 'control') return /замороз|уничтож|крад|секрет|вернуть|поглощ/.test(t) || c.freezeTouch || c.secret;
+  return true;
+}
+function workshopCounterScore(a, b){
+  const at = String(a.text || '').toLowerCase(), bt = String(b.text || '').toLowerCase();
+  let score = 0;
+  const damage = a.burn || +(at.match(/(\d+)\s*урон/) || [0,0])[1];
+  if (damage && b.type === 'minion' && (b.hp || 0) <= damage) score += 7 + (b.atk || 0);
+  if (a.poison && b.type === 'minion') score += Math.max(0, (b.hp || 0) - 3) * 2;
+  if (/уничтож/.test(at) && b.type === 'minion') score += (b.atk || 0) + (b.hp || 0) * .6;
+  if (/секрет/.test(at) && /съед|уничтож|крад/.test(at) && b.secret) score += 12;
+  if ((a.taunt || a.shield) && (b.charge || b.siege || (b.atk || 0) >= 5)) score += 5;
+  if ((a.lifesteal || /лечит|брон/.test(at)) && (b.burn || /урон/.test(bt))) score += 3;
+  if (a.freezeTouch && (b.atk || 0) >= 4) score += 5;
+  return score;
+}
+function workshopRelations(id){
+  const a = CARD_DB[id];
+  const rows = Object.keys(CARD_DB).filter(x => x !== id && !CARD_DB[x].token)
+    .map(x => ({ id:x, score:workshopCounterScore(a, CARD_DB[x]), danger:workshopCounterScore(CARD_DB[x], a) }));
+  return {
+    good:rows.filter(x => x.score > 0).sort((x,y) => y.score-x.score).slice(0,6),
+    bad:rows.filter(x => x.danger > 0).sort((x,y) => y.danger-x.danger).slice(0,6)
+  };
+}
+function workshopCardHtml(r){
+  const c=r.c, info=r.info;
+  const score=info.plays ? `${info.vpp.toFixed(1)} КПД` : `теория ${r.theory}`;
+  return `<button class="workshop-card${r.id===workshopCardId?' on':''}" data-workshop-card="${r.id}"><span class="wc-icon">${c.icon}</span><span><b>${safeTxt(c.name)}</b><small>${c.cost} маны · ${TYPE_RU[r.type]||r.type} · ${safeTxt((c.text||'').slice(0,76))}</small></span><span class="wc-score">${score}</span></button>`;
+}
+function workshopRelationHtml(rows){
+  return rows.length ? rows.map(x => `<span class="workshop-chip">${CARD_DB[x.id].icon} ${safeTxt(CARD_DB[x.id].name)}</span>`).join('') : '<span class="workshop-chip">Недостаточно явной связи</span>';
+}
+function renderWorkshopDetail(id){
+  const box=$('cardWorkshopDetail'), c=CARD_DB[id];
+  if(!box||!c) return;
+  const r=cardAuditRows().find(x=>x.id===id), info=r.info, verdict=auditBalanceVerdict(r,cardAuditData().avgNorm), rel=workshopRelations(id);
+  const max=Math.max(1,...IMPACT_FIELDS.map(k=>info.st[k]||0));
+  box.innerHTML=`<div class="workshop-detail-head"><div class="workshop-detail-icon">${c.icon}</div><h3>${safeTxt(c.name)}<small>${c.cost} маны · ${TYPE_RU[r.type]||r.type} · ${RARITY_RU[c.rarity]||c.rarity}${c.tribe?' · '+(TRIBE_RU[c.tribe]||c.tribe):' · Без племени'}</small></h3><span class="workshop-verdict">${verdict.label}</span></div>
+    <div class="workshop-text">${safeTxt(c.text||'Без текста эффекта.')}</div>
+    <div class="workshop-metrics"><div class="workshop-metric"><b>${Math.round(info.score*10)/10}</b><span>общий вклад</span></div><div class="workshop-metric"><b>${info.plays?info.vpp.toFixed(1):'—'}</b><span>КПД за розыгрыш</span></div><div class="workshop-metric"><b>${info.wr===null?'—':info.wr+'%'}</b><span>победы</span></div><div class="workshop-metric"><b>${r.theory}</b><span>теория баланса</span></div></div>
+    <div class="workshop-section"><h4>Весь измеряемый вклад</h4>${IMPACT_FIELDS.map(k=>`<div class="workshop-impact-row"><span>${IMPACT_LABELS[k]}</span><i style="width:${Math.max(2,Math.round((info.st[k]||0)/max*100))}%"></i><b>${Math.round((info.st[k]||0)*10)/10}</b></div>`).join('')}</div>
+    <div class="workshop-section"><h4>Механики и роли</h4><div class="workshop-chips">${(auditMechanicTags(c).length?auditMechanicTags(c):['простая карта']).map(x=>`<span class="workshop-chip">${safeTxt(x)}</span>`).join('')}</div></div>
+    <div class="workshop-section"><h4>Расчётно хороша против</h4><div class="workshop-chips">${workshopRelationHtml(rel.good)}</div></div>
+    <div class="workshop-section"><h4>Расчётно уязвима против</h4><div class="workshop-chips">${workshopRelationHtml(rel.bad)}</div></div>
+    <div class="workshop-section"><h4>Вывод</h4><div class="workshop-text">${safeTxt(verdict.text)} Контр-связи пока вычисляются из механик и статов; реальные пары будут уточняться по мере накопления матчей.</div></div>`;
+}
+function renderCardWorkshop(){
+  const list=$('cardWorkshopList'); if(!list) return;
+  const q=(($('workshopSearch')&&$('workshopSearch').value)||'').trim().toLowerCase();
+  const mode=($('workshopMode')&&$('workshopMode').value)||'all', type=($('workshopType')&&$('workshopType').value)||'all', effect=($('workshopEffect')&&$('workshopEffect').value)||'all';
+  const a=cardAuditData(); let rows=a.rows.filter(r=>(type==='all'||r.type===type)&&workshopEffectMatch(r.c,effect)&&(!q||`${r.c.name} ${r.c.text||''} ${auditMechanicTags(r.c).join(' ')}`.toLowerCase().includes(q)));
+  if(mode==='strong') rows=rows.filter(r=>r.info.plays>0).sort((x,y)=>y.info.vpp-x.info.vpp);
+  else if(mode==='weak') rows=rows.filter(r=>a.weak.some(w=>w.id===r.id)).sort((x,y)=>x.norm-y.norm);
+  else if(mode==='op') rows=rows.filter(r=>a.op.some(w=>w.id===r.id)).sort((x,y)=>y.norm-x.norm);
+  else if(mode==='unseen') rows=rows.filter(r=>!r.info.plays).sort((x,y)=>y.theory-x.theory);
+  else rows.sort((x,y)=>(y.info.plays?y.info.vpp:y.theory)-(x.info.plays?x.info.vpp:x.theory));
+  if(!rows.some(r=>r.id===workshopCardId)) workshopCardId=rows[0]&&rows[0].id;
+  list.innerHTML=rows.length?rows.map(workshopCardHtml).join(''):'<div class="audit-warn">По этим фильтрам карт нет.</div>';
+  list.querySelectorAll('[data-workshop-card]').forEach(btn=>btn.addEventListener('click',()=>{workshopCardId=btn.dataset.workshopCard;renderCardWorkshop();}));
+  if(workshopCardId) renderWorkshopDetail(workshopCardId);
 }
 function auditMechanicTags(c){
   const tags = [];
@@ -14068,97 +14333,6 @@ function auditBalanceVerdict(r, avgNorm){
     return { cls:'cold', label:'НЕТ ДАННЫХ', text:'Статистики нет. Пока не балансить резко, сначала собрать вклад.' };
   return { cls:'', label:'ОК', text:'Явной аварии не видно. Смотреть, нужна ли выразительная анимация.' };
 }
-function auditReviewPriority(r, avgNorm){
-  const c = r.c;
-  const played = r.info.plays || 0;
-  const tags = auditMechanicTags(c);
-  let s = 0;
-  if (!played) s += 18 + Math.max(0, r.theory) * 3;
-  if (played >= 3 && r.norm > Math.max(3.5, avgNorm * 1.65)) s += 44;
-  if (played >= 3 && r.norm < Math.max(.4, avgNorm * .45)) s += 34;
-  if (r.info.wr !== null && (r.info.wr >= 68 || r.info.wr <= 35)) s += 20;
-  s += tags.length * 3;
-  if (c.rarity === 'legendary') s += 12;
-  if (c.secret || c.magnetic || c.deathrattle || c.battlecry || c.spellDamage || c.reborn) s += 8;
-  if (auditVfxAdvice(r).length >= 3) s += 8;
-  if (ensureAuditReviewed()[r.id]) s -= 1000;
-  return s;
-}
-function auditBatchRows(){
-  const a = cardAuditData();
-  const mode = $('auditBatchMode') ? $('auditBatchMode').value : 'priority';
-  let rows = a.rows.slice();
-  if (mode === 'weak') rows = rows.filter(r => r.info.plays >= 3 && (r.norm < Math.max(.4, a.avgNorm * .45) || (r.info.wr !== null && r.info.wr <= 35)));
-  else if (mode === 'op') rows = rows.filter(r => r.info.plays >= 3 && (r.norm > Math.max(3.5, a.avgNorm * 1.65) || (r.info.wr !== null && r.info.wr >= 68)));
-  else if (mode === 'unseen') rows = rows.filter(r => !r.info.plays);
-  if (mode === 'cost'){
-    rows.sort((x, y) => x.c.cost - y.c.cost || x.c.name.localeCompare(y.c.name, 'ru'));
-  } else if (mode === 'weak'){
-    rows.sort((x, y) => x.norm - y.norm || x.info.power - y.info.power);
-  } else if (mode === 'op'){
-    rows.sort((x, y) => y.norm - x.norm || y.info.power - x.info.power);
-  } else if (mode === 'unseen'){
-    rows.sort((x, y) => y.theory - x.theory || y.c.cost - x.c.cost);
-  } else {
-    rows.sort((x, y) => auditReviewPriority(y, a.avgNorm) - auditReviewPriority(x, a.avgNorm) || y.theory - x.theory);
-  }
-  return { rows, avgNorm:a.avgNorm, mode };
-}
-function auditReviewCardHtml(r, avgNorm){
-  const c = r.c;
-  const verdict = auditBalanceVerdict(r, avgNorm);
-  const tags = auditMechanicTags(c);
-  const vfx = auditVfxAdvice(r);
-  const meta = `${c.cost} маны · ${TYPE_RU[c.secret ? 'secret' : c.type] || c.type} · ${RARITY_RU[c.rarity] || c.rarity}${c.tribe ? ' · ' + (TRIBE_RU[c.tribe] || c.tribe) : ''}`;
-  const stat = r.info.plays
-    ? `${r.info.plays} роз. · ${r.info.vpp.toFixed(1)}/роз · WR ${r.info.wr ?? '—'}%`
-    : `теория ${r.theory} · статистики нет`;
-  const txt = c.text || (c.type === 'minion' ? `${c.atk}/${c.hp}` : '');
-  return `<div class="audit-review-card" data-card="${r.id}">
-    <div class="audit-review-top">
-      <div class="audit-review-icon">${c.icon}</div>
-      <div class="audit-review-name">${safeTxt(c.name)}<small>${safeTxt(meta)}</small></div>
-      <div class="audit-review-badge ${verdict.cls}">${verdict.label}</div>
-    </div>
-    <div class="audit-review-text">${safeTxt(txt)}</div>
-    <div class="audit-review-line"><b>Стата</b><span>${safeTxt(stat)}</span></div>
-    <div class="audit-review-line"><b>Баланс</b><span>${safeTxt(verdict.text)}</span></div>
-    <div class="audit-review-line"><b>VFX</b><span>${safeTxt(vfx.length ? vfx.join('; ') : 'Достаточно общей анимации розыгрыша.')}</span></div>
-    <div class="audit-review-tags">${(tags.length ? tags : ['простая карта']).map(t => `<span class="audit-review-tag">${safeTxt(t)}</span>`).join('')}</div>
-  </div>`;
-}
-function renderAuditReviewBatch(){
-  const list = $('auditBatchList');
-  if (!list) return;
-  ensureAuditReviewed();
-  const data = auditBatchRows();
-  const size = Math.max(1, Math.min(8, Math.floor(+$('auditBatchSize').value || 8)));
-  $('auditBatchSize').value = size;
-  const maxOffset = Math.max(0, data.rows.length - size);
-  auditBatchOffset = Math.max(0, Math.min(auditBatchOffset, maxOffset));
-  const batch = data.rows.slice(auditBatchOffset, auditBatchOffset + size);
-  if ($('auditBatchNote')){
-    const reviewed = Object.keys(SAVE.cardAuditReviewed || {}).filter(id => CARD_DB[id]).length;
-    $('auditBatchNote').textContent = `Партия ${batch.length ? auditBatchOffset + 1 : 0}-${auditBatchOffset + batch.length} из ${data.rows.length}. Отмечено просмотренными: ${reviewed}.`;
-  }
-  list.innerHTML = batch.length
-    ? batch.map(r => auditReviewCardHtml(r, data.avgNorm)).join('')
-    : '<div class="audit-warn">В этом режиме сейчас нет карт. Переключи сортировку или прогони симуляции.</div>';
-  $('auditBatchPrevBtn').disabled = auditBatchOffset <= 0;
-  $('auditBatchNextBtn').disabled = auditBatchOffset >= maxOffset;
-}
-function markAuditBatchReviewed(){
-  ensureAuditReviewed();
-  const data = auditBatchRows();
-  const size = Math.max(1, Math.min(8, Math.floor(+$('auditBatchSize').value || 8)));
-  const now = Date.now();
-  data.rows.slice(auditBatchOffset, auditBatchOffset + size).forEach(r => {
-    SAVE.cardAuditReviewed[r.id] = { at:now, build:CARD_ARENA_BUILD };
-  });
-  storeSave();
-  auditBatchOffset = Math.min(auditBatchOffset + size, Math.max(0, data.rows.length - size));
-  renderAuditReviewBatch();
-}
 function renderCardAudit(){
   const sum = $('cardAuditSummary'), grid = $('cardAuditGrid');
   if (!sum || !grid) return;
@@ -14174,12 +14348,13 @@ function renderCardAudit(){
     <div class="audit-panel"><h4>Типы</h4><div class="audit-bars">${auditBarRows(a.byType, TYPE_RU)}</div></div>
     <div class="audit-panel"><h4>Стоимость</h4><div class="audit-bars">${auditBarRows(a.byCost, null, 'numeric')}</div></div>
     <div class="audit-panel"><h4>Племена</h4><div class="audit-bars">${auditBarRows(a.byTribe, Object.assign({ none:'Без племени' }, TRIBE_RU)) || '<div class="audit-warn">Племён нет</div>'}</div></div>
+    <div class="audit-panel"><h4>Редкости</h4><div class="audit-bars">${auditBarRows(a.byRarity, RARITY_RU)}</div></div>
     <div class="audit-panel"><h4>Что просит ДЛС</h4>${noteHtml}</div>
     <div class="audit-panel"><h4>Имбовые кандидаты</h4><div class="audit-list">${a.op.length ? a.op.map(r => auditRowHtml(r, 'op')).join('') : '<div class="audit-warn">Пока нет уверенных имб. Нужно больше статистики.</div>'}</div></div>
     <div class="audit-panel"><h4>Слабые карты</h4><div class="audit-list">${a.weak.length ? a.weak.map(r => auditRowHtml(r, 'weak')).join('') : '<div class="audit-warn">Пока нет уверенно слабых карт.</div>'}</div></div>
     <div class="audit-panel"><h4>Неигранные</h4><div class="audit-list">${a.unseen.map(r => auditRowHtml(r)).join('')}</div></div>
     <div class="audit-panel"><h4>Сильные без данных</h4><div class="audit-list">${a.highTheory.length ? a.highTheory.map(r => auditRowHtml(r)).join('') : '<div class="audit-warn">Все теоретически сильные уже имеют данные.</div>'}</div></div>`;
-  renderAuditReviewBatch();
+  renderCardWorkshop();
 }
 
 /* ================== ЛАБОРАТОРИЯ АНИМАЦИЙ КАРТ ================== */
@@ -14208,6 +14383,13 @@ const ANIM_PATCH_NOTES = {
   acolyte:'Аудит-сцена: Божественный щит заметно раскалывается при поглощении урона.',
   raccoon:'Аудит-сцена: украденная карта раскрывается, затем отправляется в руку владельца.',
   shroom:'Аудит-сцена: каждое срабатывание Роста показывает споры и +1/+1.',
+  bloodbat:'Последний патч: 2/3 → 3/3. Вампиризм получил общий вихрь поглощаемых частиц.',
+  ogreb:'Аудит-сцена: Берсерк заметно включается при ранении и гаснет после лечения.',
+  nightblade:'Аудит-сцена: Скрытность входит дымом и раскрывается при первой атаке.',
+  phoenix:'Аудит-сцена: Феникс возрождается в огне; обычное Возрождение остаётся синим.',
+  izaroth:'Последний патч: эффект конца хода 2 → 3 урона. Добавлены тяжёлое приземление и дыхание пламени.',
+  zervan:'Последний патч: 7 маны 5/5 +1 → 6 маны 3/6 +4 к урону заклинаний.',
+  megatron:'Аудит-сцена: электрическое слияние сохраняет хрип и выпускает двух Шестерёнков.',
   chronomagus:'Легендарная сцена: повтор заклинаний должен ощущаться как цепочка кастов.',
   codexIntervention:'Легендарная сцена: улучшение силы героя должно подсвечивать портрет и кнопку абилки.',
   abyssMaw:'Легендарная сцена: поглощение существа должно тянуть цель в пасть.',
@@ -14218,6 +14400,7 @@ const ANIM_AUDIT_SCENES = new Set([
   'doll','ghost','familiar','snowman','iceArrow','frostNova','meteor','bombot',
   'packAlpha','beastcall','lich','graveBinder','cryptNurse','boneMarshal','necroticGiant','duskWraith',
   'armorUp','harpy','viper','acolyte','raccoon','shroom',
+  'bloodbat','ogreb','nightblade','phoenix','izaroth','zervan','megatron',
   'codexIntervention','chronomagus','abyssMaw','huntmastersHorn','cryptSovereign'
 ]);
 const ANIM_AUDIT_HINTS = {
@@ -14238,6 +14421,13 @@ const ANIM_AUDIT_HINTS = {
   acolyte:'Аудит-сцена: первый удар разбивает золотой щит и наносит 0 урона.',
   raccoon:'Аудит-сцена: карта выходит из вражеской колоды, раскрывается и улетает в руку.',
   shroom:'Аудит-сцена: начало хода запускает зелёный Рост +1/+1.',
+  bloodbat:'Аудит-сцена: нанесённый урон собирается вихрем и частицами летит к герою.',
+  ogreb:'Аудит-сцена: ранение зажигает Берсерка +2, лечение визуально выключает его.',
+  nightblade:'Аудит-сцена: дым скрывает карту при входе и рассеивается перед атакой.',
+  phoenix:'Аудит-сцена: смерть Феникса заканчивается отдельным огненным возрождением.',
+  izaroth:'Аудит-сцена: дракон тяжело падает на стол и в конце хода выпускает пламя на случайную цель.',
+  zervan:'Аудит-сцена: Архимаг возникает из магии и вспыхивает при каждом сыгранном заклинании.',
+  megatron:'Аудит-сцена: М.Е.Г.А-Трон запускается электричеством, сливается и сохраняет хрип.',
   graveBinder:'Аудит-сцена: хрип передаёт Возрождение союзнику.',
   cryptNurse:'Аудит-сцена: лечение от нежити идёт лучами к герою.',
   boneMarshal:'Аудит-сцена: возрождённый союзник получает видимый +1/+1.',
@@ -14369,7 +14559,7 @@ function renderAnimLab(){
     tile.className = 'anim-card-tile';
     tile.dataset.card = id;
     tile.innerHTML = animCardTileHtml(id);
-    tile.addEventListener('click', () => openAnimPlayer(id));
+    tile.addEventListener('click', () => startAnimSandbox(id));
     grid.appendChild(tile);
   });
 }
@@ -14687,6 +14877,75 @@ async function playAuditAnimScenario(cardId, def, ctx){
       animSetLog('Снеговик-страж: ледяное касание оставляет морозный статус на цели и самой карте.');
       return true;
     }
+    case 'bloodbat': {
+      const e = enemyB();
+      await animDelay(180);
+      await lungeAnim(slot, center(e));
+      spellImpact(center(e), 'shadow', {});
+      lifestealDrainVfx(center(e), center(hero), 3);
+      animBuffPop(50, 72, '+3 HP');
+      animSetLog('Кровосос: 3 урона превращаются в вихрь частиц и возвращаются герою лечением.');
+      return true;
+    }
+    case 'ogreb':
+      await animDelay(220);
+      slot.classList.add('hit');
+      enrageStateVfx(center(slot), true, 2);
+      animBuffPop(50, 46, '3 → 5 АТАКИ');
+      await animDelay(620);
+      enrageStateVfx(center(slot), false, 2);
+      animSetLog('Огр-берсерк: ранение включает +2 атаки, полное лечение гасит общий эффект Берсерка.');
+      return true;
+    case 'nightblade':
+      stealthStateVfx(center(slot), true);
+      slot.style.opacity = '.58';
+      await animDelay(520);
+      stealthStateVfx(center(slot), false);
+      slot.style.opacity = '1';
+      await lungeAnim(slot, center(target));
+      animSetLog('Ночной клинок: дым скрывает карту, а перед атакой Скрытность заметно рассеивается.');
+      return true;
+    case 'phoenix':
+      await animDelay(250);
+      slot.classList.add('hit');
+      slot.style.opacity = '.18';
+      await rebornVfx(center(slot), true);
+      slot.style.opacity = '1';
+      animBuffPop(50, 47, 'ВОЗРОЖДЕНИЕ · 1 HP');
+      animSetLog('Феникс: после смерти возвращается с 1 HP через уникальный огненный цикл.');
+      return true;
+    case 'izaroth':
+      await izarothLandingVfx(center(slot));
+      await animDelay(220);
+      await flyEl('<div style="font-size:38px;filter:drop-shadow(0 0 14px #ff6a22)">🔥</div>', center(slot), center(target), animSlow ? 560 : 330);
+      spellImpact(center(target), 'fire', {}); fireWaveVfx(center(target));
+      animBuffPop(50, 28, '3 УРОНА');
+      animSetLog('Изарот: тяжёлое падение влияет на стол, затем в конце хода огонь летит к выбранной жертве.');
+      return true;
+    case 'zervan':
+      spellImpact(center(slot), 'arcane', { legendary:true });
+      battleVfxLabel(center(slot), 'АРХИМАГ ИЗ ЭФИРА', 'arcane');
+      await animDelay(420);
+      slot.classList.add('spell-react');
+      battleBeam(center(slot), center(target), 'arcane', 560);
+      spellImpact(center(slot), 'arcane', {});
+      animBuffPop(50, 46, 'ЗАКЛИНАНИЯ +4');
+      animSetLog('Архимаг Зерван: собирается из магии и реагирует свечением на каждый сыгранный спелл.');
+      return true;
+    case 'megatron': {
+      const host = animMini({ icon:'⚙️', name:'Механизм', atk:2, hp:3 }, 39, 59, 'ally');
+      await legendaryMechEntryVfx(center(slot));
+      await animDelay(220);
+      await magnetMergeVfx(center(slot), center(host), def);
+      slot.style.opacity = '.15';
+      animBuffPop(39, 49, '+5/+10 · ХРИП ×1');
+      await animDelay(430);
+      const a = animMini(CARD_DB.gearling, 35, 59, 'ally');
+      const b = animMini(CARD_DB.gearling, 45, 59, 'ally');
+      spellImpact(center(a), 'lightning', {}); spellImpact(center(b), 'lightning', {});
+      animSetLog('М.Е.Г.А-Трон: электричество подтверждает слияние, а перенесённый хрип выпускает двух Шестерёнков.');
+      return true;
+    }
     case 'graveBinder': {
       const a = ally();
       await animDelay(240);
@@ -14871,23 +15130,58 @@ async function playAnimScenario(cardId){
     animSetLog([`${def.name}: постановка секрета и пример срабатывания.`, animPatchNote(cardId, def) || 'Секретам нужна печать на герое и вспышка при раскрытии.']);
   }
 }
-function openAnimPlayer(cardId){
-  const def = CARD_DB[cardId];
-  if (!def) return;
-  animCurrentCard = cardId;
-  ac();
-  const overlay = $('animPlayerOverlay');
-  if (overlay && overlay.parentElement !== document.body) document.body.appendChild(overlay);
-  if ($('animPlayerTitle')) $('animPlayerTitle').textContent = `${def.icon} ${def.name}`;
-  if ($('animPlayerSub')) $('animPlayerSub').textContent = `${animCardMeta(cardId)} · ${animScenarioHint(def)}`;
-  if (overlay) overlay.classList.add('active');
-  playAnimScenario(cardId);
+function animSandboxCardToHand(){
+  if (!G || !G.animationTest || !animCurrentCard || G.player.hand.length >= MAX_HAND) return;
+  pushHandCard(G.player, animCurrentCard, animCurrentCard);
+  G.player.mana = 10; G.player.maxMana = 10;
+  render(); sfx.draw();
 }
-function closeAnimPlayer(){
-  animRunSerial++;
-  if ($('animPlayerOverlay')) $('animPlayerOverlay').classList.remove('active');
+function animSandboxSetupBoard(){
+  const allyIds=['shieldbot','ogreb','ghost'], enemyIds=['bear','snowman','acolyte'];
+  allyIds.forEach((id,i)=>{const m=G.spawnMinion(G.player,id);m.hp=Math.max(1,m.maxHp-(i+1));m.attacksLeft=1;m.canAttack=true;m.justSpawned=false;});
+  enemyIds.forEach((id,i)=>{const m=G.spawnMinion(G.enemy,id);m.hp=Math.max(1,m.maxHp-(i+1));m.attacksLeft=1;m.canAttack=true;m.justSpawned=false;});
 }
-window.__closeAnimPlayer = closeAnimPlayer;
+function startAnimSandbox(cardId){
+  const def=CARD_DB[cardId]; if(!def) return;
+  animCurrentCard=cardId; stopTimer();
+  G=newGame(Array(24).fill('soldier'),Array(24).fill('soldier'));
+  G.animationTest=true; G.animationTestEnemyEvent=0; G.playerHeroId='mage'; G.enemyHeroId='warrior';
+  G.player.hp=22;G.player.armor=5;G.player.maxHp=30;G.enemy.hp=19;G.enemy.armor=4;G.enemy.maxHp=30;
+  G.player.maxMana=10;G.player.mana=10;G.enemy.maxMana=10;G.enemy.mana=10;
+  G.player.hand=[];G.player.handSources=[];G.enemy.hand=['soldier','fireball','bear'];G.enemy.handSources=[null,null,null];
+  [cardId,cardId,'fireball','armorUp','bolt'].forEach(id=>pushHandCard(G.player,id,id===cardId?cardId:null));
+  animSandboxSetupBoard();
+  applyTableTheme();applyHeroUI();applyCosmetics();
+  $('log').innerHTML='';$('resultOverlay').classList.remove('active');
+  $('settingsOverlay').classList.remove('active');$('adminPanel').classList.remove('active');showScreen('game');$('game').classList.add('anim-sandbox-active');
+  const bar=$('animSandboxBar');if(bar&&bar.parentElement!==document.body)document.body.appendChild(bar);
+  if(bar)bar.classList.add('active');
+  if($('animSandboxTitle'))$('animSandboxTitle').textContent=`${def.icon} ${def.name} · тестовый бой`;
+  G.turn='player';G.busy=false;render();banner('Тестовый бой: разыграй карту');
+}
+async function advanceAnimSandboxTurn(){
+  if(!G||!G.animationTest||G.busy)return;
+  G.busy=true;render();await runTurnEnd(G.player);await resolveDeaths();
+  if(G.over)return;
+  G.startTurn(G.player);G.player.maxMana=10;G.player.mana=10;G.turn='player';G.busy=false;render();banner('Новый тестовый ход');
+}
+async function animSandboxEnemyEvent(){
+  if(!G||!G.animationTest||G.busy)return;
+  G.busy=true;const step=G.animationTestEnemyEvent++%3;
+  if(step===0){
+    const attacker=G.enemy.board.find(m=>m.hp>0);const taunt=G.player.board.find(m=>m.taunt&&!m.stealth);const target=taunt?{kind:'minion',side:G.player,minion:taunt}:{kind:'hero',side:G.player};
+    if(attacker){const el=minionEl(attacker);await lungeAnim(el,combatPoint(target,G.enemy));resolveCombat(G.enemy,attacker,target);await resolveDeaths();banner('Событие врага: атака');}
+  }else if(step===1){checkSecrets(G.player,'spellCast',{});spellImpact(safeCenter(heroEl(G.player),$('board')),'fire',{});banner('Событие врага: заклинание');}
+  else{const m=G.spawnMinion(G.enemy,'soldier');checkSecrets(G.player,'minionPlayed',{cardId:'soldier',side:G.enemy,minion:m});banner('Событие врага: существо');}
+  G.busy=false;render();
+}
+function closeAnimSandbox(){
+  stopTimer();if($('animSandboxBar'))$('animSandboxBar').classList.remove('active');$('game').classList.remove('anim-sandbox-active');
+  showScreen('menu');renderMenu();$('settingsOverlay').classList.add('active');$('adminPanel').classList.add('active');
+  document.querySelectorAll('#labTabs .lab-tab').forEach(x=>x.classList.toggle('on',x.dataset.page==='anim'));
+  document.querySelectorAll('#adminPanel .lab-page').forEach(x=>x.classList.toggle('on',x.dataset.page==='anim'));
+  renderAnimLab();
+}
 function bindAnimLab(){
   ['animSearch','animType','animRarity','animTribe','animPatch'].forEach(id => {
     const el = $(id);
@@ -14898,43 +15192,6 @@ function bindAnimLab(){
   if ($('animRefreshBtn') && !$('animRefreshBtn').dataset.animBound){
     $('animRefreshBtn').dataset.animBound = '1';
     $('animRefreshBtn').addEventListener('click', () => { sfx.click(); renderAnimLab(); });
-  }
-  if ($('animCloseBtn') && !$('animCloseBtn').dataset.animBound){
-    $('animCloseBtn').dataset.animBound = '1';
-    const closeFn = e => {
-      e.preventDefault();
-      e.stopPropagation();
-      sfx.click();
-      closeAnimPlayer();
-    };
-    ['pointerdown','mousedown','pointerup','mouseup','click'].forEach(ev => $('animCloseBtn').addEventListener(ev, closeFn, true));
-  }
-  if ($('animPlayerOverlay') && !$('animPlayerOverlay').dataset.animOverlayBound){
-    $('animPlayerOverlay').dataset.animOverlayBound = '1';
-    const overlayClose = e => {
-      if (e.target === $('animPlayerOverlay')) closeAnimPlayer();
-    };
-    $('animPlayerOverlay').addEventListener('click', overlayClose);
-    $('animPlayerOverlay').addEventListener('pointerup', overlayClose);
-  }
-  if (!window.__animEscBound){
-    window.__animEscBound = true;
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && $('animPlayerOverlay') && $('animPlayerOverlay').classList.contains('active')) closeAnimPlayer();
-    });
-  }
-  if ($('animReplayBtn') && !$('animReplayBtn').dataset.animBound){
-    $('animReplayBtn').dataset.animBound = '1';
-    $('animReplayBtn').addEventListener('click', () => { sfx.click(); if (animCurrentCard) playAnimScenario(animCurrentCard); });
-  }
-  if ($('animSlowBtn') && !$('animSlowBtn').dataset.animBound){
-    $('animSlowBtn').dataset.animBound = '1';
-    $('animSlowBtn').addEventListener('click', () => {
-      animSlow = !animSlow;
-      $('animSlowBtn').textContent = 'МЕДЛЕННО: ' + (animSlow ? 'ВКЛ' : 'ВЫКЛ');
-      sfx.click();
-      if (animCurrentCard) playAnimScenario(animCurrentCard);
-    });
   }
 }
 function runAuditSimulations(){
@@ -15288,22 +15545,13 @@ $('trainResetBtn').addEventListener('click', () => {
 	});
 	$('auditRefreshBtn').addEventListener('click', () => { sfx.click(); renderCardAudit(); });
 	$('auditSimBtn').addEventListener('click', () => { sfx.click(); runAuditSimulations(); });
-	$('auditBatchMode').addEventListener('change', () => { sfx.click(); auditBatchOffset = 0; renderAuditReviewBatch(); });
-	$('auditBatchSize').addEventListener('change', () => { auditBatchOffset = 0; renderAuditReviewBatch(); });
-	$('auditBatchPrevBtn').addEventListener('click', () => {
-	  sfx.click();
-	  const size = Math.max(1, Math.min(8, Math.floor(+$('auditBatchSize').value || 8)));
-	  auditBatchOffset = Math.max(0, auditBatchOffset - size);
-	  renderAuditReviewBatch();
+	['workshopSearch','workshopMode','workshopType','workshopEffect'].forEach(id=>{
+	  const el=$(id);if(el)el.addEventListener(id==='workshopSearch'?'input':'change',renderCardWorkshop);
 	});
-	$('auditBatchNextBtn').addEventListener('click', () => {
-	  sfx.click();
-	  const data = auditBatchRows();
-	  const size = Math.max(1, Math.min(8, Math.floor(+$('auditBatchSize').value || 8)));
-	  auditBatchOffset = Math.min(Math.max(0, data.rows.length - size), auditBatchOffset + size);
-	  renderAuditReviewBatch();
-	});
-	$('auditBatchMarkBtn').addEventListener('click', () => { sfx.rare(); markAuditBatchReviewed(); });
+	$('animSandboxAdd').addEventListener('click',()=>{sfx.click();animSandboxCardToHand();});
+	$('animSandboxEnemy').addEventListener('click',()=>{sfx.click();animSandboxEnemyEvent();});
+	$('animSandboxReset').addEventListener('click',()=>{sfx.click();if(animCurrentCard)startAnimSandbox(animCurrentCard);});
+	$('animSandboxClose').addEventListener('click',()=>{sfx.click();closeAnimSandbox();});
 	$('setAiDecksBtn').addEventListener('click', () => { sfx.click(); openAiDecks(); });
 $('aiExportBtn').addEventListener('click', () => { updateAiExport(); sfx.click(); });
 $('aiCopyExportBtn').addEventListener('click', async () => {
