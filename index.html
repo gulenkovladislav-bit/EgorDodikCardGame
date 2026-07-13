@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-pyromancer-slower-bomb';
+    var build = '2026-07-13-fieldmedic-vfx-before-heal';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4440,7 +4440,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-pyromancer-slower-bomb';
+const CARD_ARENA_BUILD = '2026-07-13-fieldmedic-vfx-before-heal';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -4942,8 +4942,8 @@ const CARD_DB = {
       for (let i = 0; i < 3; i++){
         const target = targets[Math.floor(Math.random() * targets.length)];
         self.battlecryVfxTargets.push(target);
-        game.heal(target, 1);
       }
+      self.pendingBattlecryHeals = self.battlecryVfxTargets.slice();
     }
   },
   scout: {
@@ -8980,11 +8980,18 @@ async function battlecryCardVfx(cardId, side, minion, targets, drawCard){
   }
   if (cardId === 'fieldmedic'){
     battleVfxLabel(sourcePt, 'ПЕРВАЯ ПОМОЩЬ', 'holy');
+    const pending = minion && Array.isArray(minion.pendingBattlecryHeals)
+      ? minion.pendingBattlecryHeals : null;
     for (let i = 0; i < list.length; i++){
       const to = targetPoint(list[i]);
       await flyEl('<div style="font-size:22px;color:#afff9d;filter:drop-shadow(0 0 9px #6bff79)">✚</div>', sourcePt, to, 180);
       spellImpact(to, 'holy', {});
+      if (pending && pending[i]){
+        G.heal(pending[i], 1);
+        render();
+      }
     }
+    if (minion) delete minion.pendingBattlecryHeals;
     return;
   }
   if (cardId === 'scout'){
