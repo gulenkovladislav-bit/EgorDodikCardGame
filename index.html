@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-mech-audit-1';
+    var build = '2026-07-13-beast-undead-audit-2';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4446,7 +4446,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-mech-audit-1';
+const CARD_ARENA_BUILD = '2026-07-13-beast-undead-audit-2';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -4654,19 +4654,47 @@ const CARD_DB = {
   packAlpha: {
     id:'packAlpha', name:'Вожак стаи', icon:'🐕',
     type:'minion', cost:4, atk:3, hp:3, rarity:'rare', tribe:'beast',
-    text:'Хрип: призывает Волчонка 1/1.', starter:0,
-    deathrattle(game, side){
-      if (side.board.length < MAX_BOARD) game.spawnMinion(side, 'wolfpup');
+    text:'Хрип: призывает двух Волчат 1/1. Они сразу атакуют случайных врагов.', starter:0,
+    async deathrattle(game, side){
+      const pups = [];
+      for (let i = 0; i < 2; i++){
+        if (side.board.length >= MAX_BOARD) break;
+        pups.push(game.spawnMinion(side, 'wolfpup'));
+      }
       sfx.play();
+      render();
+      await sleep(perfMs(170));
+      const foe = foeOf(side);
+      for (const pup of pups){
+        if (game.over || pup.hp <= 0 || !side.board.includes(pup)) break;
+        const targets = foe.board
+          .filter(m => m.hp > 0)
+          .map(m => ({ kind:'minion', side:foe, minion:m }));
+        if (foe.hp > 0) targets.push({ kind:'hero', side:foe });
+        if (!targets.length) break;
+        const target = targets[Math.floor(Math.random() * targets.length)];
+        const el = minionEl(pup);
+        chargeTrailVfx(safeCenter(el, boardElForSide(side)), 'АТАКА СТАИ');
+        await lungeAnim(el, combatPoint(target, side));
+        withImpactSource(side, pup.source || 'packAlpha', () => resolveCombat(side, pup, target));
+        pup.attacksLeft = 0;
+        pup.canAttack = false;
+        render();
+        await sleep(perfMs(150));
+      }
     }
   },
   beastcall: {
     id:'beastcall', name:'Зов стаи', icon:'🐾',
-    type:'spell', cost:2, rarity:'common',
-    text:'Призывает двух Волчат 1/1.', starter:0,
+    type:'spell', cost:2, rarity:'common', school:'nature', boardTarget:'friendly',
+    text:'Призывает двух Волчат 1/1 с Рывком.', starter:0,
     effect(game, side){
-      for (let i = 0; i < 2; i++)
-        if (side.board.length < MAX_BOARD) game.spawnMinion(side, 'wolfpup');
+      for (let i = 0; i < 2; i++){
+        if (side.board.length >= MAX_BOARD) break;
+        const pup = game.spawnMinion(side, 'wolfpup');
+        pup.attacksLeft = 1;
+        pup.canAttack = true;
+      }
       sfx.play();
     },
     aiCast(game){ return game.enemy.board.length <= MAX_BOARD - 2; }
@@ -4698,9 +4726,9 @@ const CARD_DB = {
   },
   vampiress: {
     id:'vampiress', name:'Вампиресса', icon:'🧛',
-    type:'minion', cost:3, atk:2, hp:2, rarity:'rare', tribe:'undead',
-    text:'Хрип: восстанавливает 3 HP вашему герою.', starter:0,
-    deathrattle(game, side){ game.heal({ kind:'hero', side }, 3); }
+    type:'minion', cost:3, atk:2, hp:3, rarity:'rare', tribe:'undead',
+    text:'Хрип: восстанавливает 4 HP вашему герою.', starter:0,
+    deathrattle(game, side){ game.heal({ kind:'hero', side }, 4); }
   },
 
   /* ---- ДЕМОНЫ ---- */
@@ -6954,7 +6982,30 @@ function simDeath(owner, foe, m){
   }
   if (def && def.text && /Хрип/i.test(def.text)){
     const dr = def.text.match(/Хрип\s*:?\s*([^]*)/i);
-    if (dr) simTextEffect(owner, foe, m.id, dr[1], 'deathrattle');
+    if (dr){
+      const before = owner.board.length;
+      simTextEffect(owner, foe, m.id, dr[1], 'deathrattle');
+      if (m.id === 'packAlpha'){
+        const pups = owner.board.slice(before);
+        pups.forEach(pup => { pup.id = 'wolfpup'; pup.hasRattle = false; });
+        for (const pup of pups){
+          const enemies = foe.board.filter(x => !x.stealth && x.hp > 0);
+          if (enemies.length && Math.random() < enemies.length / (enemies.length + 1)){
+            const target = enemies[Math.floor(Math.random() * enemies.length)];
+            const retaliation = target.atk || 0;
+            if (simHitMinion(target, pup.atk || 1)){
+              simDeath(foe, owner, target);
+              foe.board.splice(foe.board.indexOf(target), 1);
+            }
+            simCardDmg(owner, 'packAlpha', pup.atk || 1);
+            if (simHitMinion(pup, retaliation)) owner.board.splice(owner.board.indexOf(pup), 1);
+          } else {
+            simHurt(foe, pup.atk || 1);
+            simCardDmg(owner, 'packAlpha', pup.atk || 1);
+          }
+        }
+      }
+    }
   }
 }
 /* один полный бой: возвращает телеметрию */
@@ -7051,7 +7102,11 @@ function simulateDuel(cardsA, cardsB, tuneA, tuneB){
             simCardDmg(cur, p.id, n);
           }
         } else {
+          const before = cur.board.length;
           simTextEffect(cur, foe, p.id, txt, 'spell');
+          if (p.id === 'beastcall'){
+            cur.board.slice(before).forEach(m => { m.ready = true; m.hits = 1; });
+          }
         }
       }
       if (foe.hp <= 0) break;
@@ -7552,7 +7607,7 @@ function showScreen(id){
 let G = null;
 
 function makeSide(name, deckArr){
-  return { name, hp: HERO_HP, armor: 0, mana: 0, maxMana: 0,
+  return { name, hp: HERO_HP, maxHp: HERO_HP, armor: 0, mana: 0, maxMana: 0,
            deck: deckArr, hand: [], handSources: [], board: [], secrets: [], secretSources: [],
            weapon: null, heroAttacked: false, frozen: false, freezeVisual: false,
            fatigue: 0, powerUsed: false, powerUpgraded: false,
@@ -7629,7 +7684,7 @@ function newGame(playerDeckArr, enemyDeckArr){
 	    heal(target, n){
 	      if (target.kind === 'hero'){
 	        const before = target.side.hp;
-	        target.side.hp = Math.min(HERO_HP, target.side.hp + n);
+	        target.side.hp = Math.min(target.side.maxHp || HERO_HP, target.side.hp + n);
 	        const done = target.side.hp - before;
 	        trackCurrent('heal', done);
 	        splashAt(center(heroEl(target.side)), done || n, 'heal');
@@ -8236,7 +8291,9 @@ async function resolveDeaths(){
       rattleFx(d.pt);
       log(`☠️ Хрип: ${def.name}`);
       await liveAuditDeathrattleVfx(d.side, d.m, d.pt);
-	      withImpactSource(d.side, d.m.source || d.m.cardId, () => def.deathrattle(G, d.side, d.m));
+      await withImpactSourceAsync(d.side, d.m.source || d.m.cardId, async () => {
+        await def.deathrattle(G, d.side, d.m);
+      });
       render();
       await sleep(320);
       if (G.over) return;
@@ -8650,6 +8707,28 @@ async function liveAuditSpellVfx(cardId, def, side, target, fallbackPt){
     await manaWaveVfx(side);
     return;
   }
+  if (cardId === 'beastcall'){
+    render();
+    const from = safeCenter(heroEl(side), $('board'));
+    const board = boardElForSide(side);
+    const br = board ? board.getBoundingClientRect() : null;
+    const base = br ? { x:br.left + br.width / 2, y:br.top + br.height / 2 } : (fallbackPt || center($('board')));
+    const landings = [
+      { x:base.x - Math.min(52, (br ? br.width : 240) * .12), y:base.y },
+      { x:base.x + Math.min(52, (br ? br.width : 240) * .12), y:base.y }
+    ];
+    battleVfxLabel(from, 'ЗОВ СТАИ', 'nature');
+    await Promise.all(landings.map((to, i) => flyEl(
+      '<div style="font-size:34px;filter:drop-shadow(0 0 12px #83f06b) drop-shadow(0 2px 3px #000)">🐾</div>',
+      { x:from.x + (i ? 14 : -14), y:from.y }, to, 300 + i * 45
+    )));
+    landings.forEach(to => {
+      spellImpact(to, 'nature', {});
+      chargeTrailVfx(to, 'РЫВОК');
+    });
+    await sleep(perfMs(150));
+    return;
+  }
   if (cardId === 'frostNova' && foe){
     render();
     const boardPt = battleBoardPoint(foe);
@@ -8737,6 +8816,25 @@ async function liveAuditDeathrattleVfx(side, minion, pt){
   const from = pt || battleBoardPoint(side);
   if (cardId === 'bombot'){
     await bombotBlastVfx(side, from);
+    return;
+  }
+  if (cardId === 'packAlpha'){
+    battleVfxLabel(from, 'СТАЯ', 'nature');
+    spellImpact(from, 'nature', {});
+    await sleep(perfMs(120));
+    return;
+  }
+  if (cardId === 'lich'){
+    const hand = side === G.player ? $('playerHand') : $('enemyHand');
+    const drawTo = safeCenter(hand, heroEl(side));
+    const hitTo = safeCenter(heroEl(foeOf(side)), $('board'));
+    battleVfxLabel(from, 'ЗАВЕЩАНИЕ ЛИЧА', 'shadow');
+    await Promise.all([
+      flyEl('<div style="font-size:36px;filter:drop-shadow(0 0 12px #ffe08a)">🃏</div>', from, drawTo, 350),
+      castVfx({ id:'lichRattle', icon:'☠️', text:'тёмная жатва', school:'shadow' }, from, hitTo, {})
+    ]);
+    spellImpact(drawTo, 'arcane', {});
+    spellImpact(hitTo, 'shadow', {});
     return;
   }
   if (cardId === 'doll'){
@@ -9330,7 +9428,9 @@ async function castSpell(handIdx, target){
   const source = handSource(G.player, handIdx, cardId);
   const mpMeta = mpActionMeta(
     mpHandSourceDescriptor(cardId, true),
-    target ? mpTargetDescriptor(target) : (def.secret ? mpTargetDescriptor({ kind:'hero', side:G.player }) : mpBoardDescriptor(G.enemy)),
+    target ? mpTargetDescriptor(target) : (def.secret
+      ? mpTargetDescriptor({ kind:'hero', side:G.player })
+      : mpBoardDescriptor(def.boardTarget === 'friendly' ? G.player : G.enemy)),
     { cardId }
   );
   G.busy = true;
@@ -9341,6 +9441,7 @@ async function castSpell(handIdx, target){
   const tgtEl = def.secret ? $('playerHero')
     : target ? (target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion))
     : cardId === 'manaWave' ? $('playerHand')
+    : def.boardTarget === 'friendly' ? $('playerBoard')
     : $('enemyBoard');
   const tgtPt = target ? targetPoint(target) : safeCenter(tgtEl, $('board'));
   await castVfx(def, center($('playerHero')), tgtPt, { legendary: def.rarity === 'legendary' });
@@ -10086,6 +10187,7 @@ async function aiCastSpell(i, def, target){
   const tgtEl = def.secret ? $('enemyHero')
     : target ? (target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion))
     : def.id === 'manaWave' ? $('enemyHand')
+    : def.boardTarget === 'friendly' ? $('enemyBoard')
     : $('playerBoard');
   await castVfx(def, safeCenter($('enemyHero'), $('board')), target ? targetPoint(target) : safeCenter(tgtEl, $('board')), { legendary: def.rarity === 'legendary' });
 	  const sc = checkSecrets(G.player, 'spellCast', {});
@@ -12992,10 +13094,12 @@ async function mpPlayRemoteDeathrattleCues(before, after){
     const alive = new Set((newSide && newSide.board || []).map(m => m.uid));
     const gameSide = sideName === 'player' ? G.player : G.enemy;
     for (const old of oldSide && oldSide.board || []){
-      if (alive.has(old.uid) || old.cardId !== 'bombot') continue;
+      if (alive.has(old.uid) || !['bombot','packAlpha','lich'].includes(old.cardId)) continue;
       const minion = (gameSide.board || []).find(m => m.uid === old.uid);
       const el = minion && minionEl(minion);
-      await bombotBlastVfx(gameSide, safeCenter(el, boardElForSide(gameSide)));
+      const pt = safeCenter(el, boardElForSide(gameSide));
+      if (old.cardId === 'bombot') await bombotBlastVfx(gameSide, pt);
+      else await liveAuditDeathrattleVfx(gameSide, old, pt);
     }
   }
 }
@@ -13955,6 +14059,10 @@ const ANIM_PATCH_NOTES = {
   frostNova:'Новый фокус ревизии: массовая заморозка должна покрывать весь вражеский стол.',
   meteor:'Новый фокус ревизии: массовый урон требует крупной ударной волны.',
   bombot:'Последний патч: Бомбобот получил отдельный взрыв хрипа по всему вражескому столу.',
+  packAlpha:'Последний патч: хрип призывает двух Волчат, и каждый сразу атакует случайного врага.',
+  beastcall:'Последний патч: оба Волчонка получили Рывок и отдельную сцену призыва стаи.',
+  lich:'Новый фокус ревизии: хрип одновременно показывает добор карты и 2 теневого урона герою.',
+  vampiress:'Последний патч: 2/2 → 2/3, лечение хрипа 3 → 4.',
   chronomagus:'Легендарная сцена: повтор заклинаний должен ощущаться как цепочка кастов.',
   codexIntervention:'Легендарная сцена: улучшение силы героя должно подсвечивать портрет и кнопку абилки.',
   abyssMaw:'Легендарная сцена: поглощение существа должно тянуть цель в пасть.',
@@ -13963,7 +14071,7 @@ const ANIM_PATCH_NOTES = {
 };
 const ANIM_AUDIT_SCENES = new Set([
   'doll','ghost','familiar','snowman','iceArrow','frostNova','meteor','bombot',
-  'graveBinder','cryptNurse','boneMarshal','necroticGiant','duskWraith',
+  'packAlpha','beastcall','lich','graveBinder','cryptNurse','boneMarshal','necroticGiant','duskWraith',
   'codexIntervention','chronomagus','abyssMaw','huntmastersHorn','cryptSovereign'
 ]);
 const ANIM_AUDIT_HINTS = {
@@ -13975,6 +14083,9 @@ const ANIM_AUDIT_HINTS = {
   frostNova:'Аудит-сцена: кольцо мороза накрывает весь вражеский стол.',
   meteor:'Аудит-сцена: метеор падает сверху и ударной волной бьёт несколько целей.',
   bombot:'Аудит-сцена: смерть запускает центральный взрыв и огненные импульсы по всем врагам.',
+  packAlpha:'Аудит-сцена: хрип выпускает двух Волчат, которые немедленно атакуют случайные цели.',
+  beastcall:'Аудит-сцена: два Волчонка входят на стол с читаемым Рывком.',
+  lich:'Аудит-сцена: хрип разделяется на добор карты владельцу и теневой удар по врагу.',
   graveBinder:'Аудит-сцена: хрип передаёт Возрождение союзнику.',
   cryptNurse:'Аудит-сцена: лечение от нежити идёт лучами к герою.',
   boneMarshal:'Аудит-сцена: возрождённый союзник получает видимый +1/+1.',
@@ -14282,6 +14393,54 @@ async function playAuditAnimScenario(cardId, def, ctx){
       });
       animBuffPop(50, 42, '💥 1 ВСЕМ ВРАГАМ');
       animSetLog('Бомбобот: хрип взрывается и одновременно задевает весь вражеский стол.');
+      return true;
+    }
+    case 'packAlpha': {
+      const enemies = [enemyA(), enemyC()];
+      await animDelay(220);
+      slot.classList.add('hit');
+      spellImpact(center(slot), 'nature', {});
+      const pups = [
+        animMini(CARD_DB.wolfpup || { icon:'🐺', name:'Волчонок', atk:1, hp:1 }, 43, 61, 'ally'),
+        animMini(CARD_DB.wolfpup || { icon:'🐺', name:'Волчонок', atk:1, hp:1 }, 57, 61, 'ally')
+      ];
+      pups.forEach(p => chargeTrailVfx(center(p), 'АТАКА СТАИ'));
+      await animDelay(170);
+      await Promise.all(pups.map((p, i) => lungeAnim(p, center(enemies[i]))));
+      enemies.forEach(e => { e.classList.add('hit'); spellImpact(center(e), 'gold', {}); });
+      animBuffPop(50, 48, '🐾 2 СЛУЧАЙНЫЕ АТАКИ');
+      animSetLog('Вожак стаи: после хрипа два Волчонка появляются и сразу атакуют случайных врагов.');
+      return true;
+    }
+    case 'beastcall': {
+      ghost.classList.add('resolved');
+      const spots = [animStagePoint(43, 61), animStagePoint(57, 61)];
+      await Promise.all(spots.map((to, i) => flyEl(
+        '<div style="font-size:34px;filter:drop-shadow(0 0 12px #83f06b)">🐾</div>',
+        center(ghost), to, animSlow ? 560 + i * 50 : 320 + i * 40
+      )));
+      const pups = spots.map((_, i) => animMini(
+        CARD_DB.wolfpup || { icon:'🐺', name:'Волчонок', atk:1, hp:1 }, i ? 57 : 43, 61, 'ally'
+      ));
+      pups.forEach(p => { spellImpact(center(p), 'nature', {}); chargeTrailVfx(center(p), 'РЫВОК'); });
+      animBuffPop(50, 49, '2 ВОЛЧОНКА С РЫВКОМ');
+      animSetLog('Зов стаи: оба Волчонка входят на стол и сразу готовы атаковать.');
+      return true;
+    }
+    case 'lich': {
+      const drawTo = animStagePoint(37, 79);
+      const enemy = enemyB();
+      await animDelay(220);
+      battleVfxLabel(center(slot), 'ЗАВЕЩАНИЕ ЛИЧА', 'shadow');
+      await Promise.all([
+        flyEl('<div style="font-size:36px;filter:drop-shadow(0 0 12px #ffe08a)">🃏</div>', center(slot), drawTo, animSlow ? 580 : 350),
+        castVfx({ id:'lichRattleAudit', icon:'☠️', text:'тёмная жатва', school:'shadow' }, center(slot), center(enemy), {})
+      ]);
+      enemy.classList.add('hit');
+      spellImpact(drawTo, 'arcane', {});
+      spellImpact(center(enemy), 'shadow', {});
+      animBuffPop(50, 48, '🃏 +1 · ☠️ 2 УРОНА');
+      animSetLog('Лич: хрип одновременно добирает карту и наносит 2 теневого урона вражескому герою.');
       return true;
     }
     case 'doll':
@@ -15094,6 +15253,7 @@ function startGame(heroId, opts){
       G.heroic = true;
       G.enemy.hp = Math.round(G.enemy.hp * 1.4);
     }
+    G.enemy.maxHp = G.enemy.hp;
   } else if (opts.opp){
     G.opp = opts.opp;
     G.enemyHeroId = opts.opp.heroId;
