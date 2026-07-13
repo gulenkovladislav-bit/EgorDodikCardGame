@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-12-audit-batch-8-1';
+    var build = '2026-07-13-audit-vfx-1';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -2381,6 +2381,21 @@
     box-shadow:0 0 12px 2px var(--c,#fff);animation:sfxBeam .34s ease-out forwards;
   }
   @keyframes sfxBeam{0%{opacity:0;}20%{opacity:1;}100%{opacity:0;}}
+  .sfx-zap-svg{
+    position:fixed;inset:0;z-index:114;pointer-events:none;width:100vw;height:100vh;overflow:visible;
+    filter:drop-shadow(0 0 8px #ffe66a) drop-shadow(0 2px 3px #000);
+  }
+  .sfx-zap-path{
+    fill:none;stroke:#ffe66a;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:700;stroke-dashoffset:700;animation:sfxZap .36s ease-out forwards;
+  }
+  .sfx-zap-path.core{stroke:#fff7b0;stroke-width:2.2;animation-duration:.28s;}
+  @keyframes sfxZap{
+    0%{opacity:0;stroke-dashoffset:700;}
+    12%{opacity:1;}
+    78%{opacity:1;}
+    100%{opacity:0;stroke-dashoffset:0;}
+  }
   .battle-vfx-label{
     position:fixed;z-index:116;pointer-events:none;transform:translate(-50%,-50%);
     padding:4px 10px;border-radius:999px;border:1.5px solid var(--c,#f0d080);
@@ -2394,7 +2409,7 @@
     100%{opacity:0;transform:translate(-50%,-112%) scale(1.08);}
   }
   @media (prefers-reduced-motion:reduce){
-    .sfx-ring,.sfx-flash,.sfx-shock,.sfx-beam,.battle-vfx-label{animation-duration:.01s;}
+    .sfx-ring,.sfx-flash,.sfx-shock,.sfx-beam,.sfx-zap-path,.battle-vfx-label{animation-duration:.01s;}
   }
   .splash{
     position:fixed;z-index:115;pointer-events:none;
@@ -4414,7 +4429,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-12-audit-batch-8-1';
+const CARD_ARENA_BUILD = '2026-07-13-audit-vfx-1';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -8382,17 +8397,11 @@ async function castVfx(def, from, to, opts){
   const conf = SPELL_SCHOOLS[school] || SPELL_SCHOOLS.arcane;
   const o = opts || {};
   const big = !!o.legendary;
-  if (school === 'lightning'){
-    // луч-разряд вместо полёта
-    const dx = to.x-from.x, dy = to.y-from.y;
-    const len = Math.hypot(dx,dy), ang = Math.atan2(dy,dx)*180/Math.PI;
-    const beam = document.createElement('div');
-    beam.className = 'sfx-beam'; beam.style.setProperty('--c', conf.c);
-    beam.style.left = from.x+'px'; beam.style.top = from.y+'px';
-    beam.style.width = len+'px'; beam.style.transform = `rotate(${ang}deg)`;
-    beam.style.animationDuration = perfMs(340) + 'ms';
-    document.body.appendChild(beam); setTimeout(()=>beam.remove(), perfMs(340));
-    await sleep(perfMs(140));
+  if (def && def.id === 'iceArrow'){
+    await flyEl('<div style="font-size:46px;filter:drop-shadow(0 0 14px #8fd0ff) drop-shadow(0 2px 4px #000)">🧊</div>', from, to, 310);
+  } else if (school === 'lightning'){
+    battleZigzag(from, to, 360);
+    await sleep(perfMs(150));
   } else {
     const glow = big ? '0 0 16px #ffe08a,0 0 26px '+conf.c : '0 0 12px '+conf.c;
     await flyEl(`<div style="font-size:${big?46:38}px;filter:drop-shadow(${glow})">${conf.proj}</div>`, from, to, big?340:300);
@@ -8431,6 +8440,131 @@ function battleBeam(from, to, school, dur){
   setTimeout(() => beam.remove(), perfMs((dur || 420) + 30));
   return beam;
 }
+function battleZigzag(from, to, dur){
+  if (!from || !to) return null;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'sfx-zap-svg');
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len, ny = dx / len;
+  const segs = mobilePerfMode() ? 5 : 8;
+  const pts = [{ x:from.x, y:from.y }];
+  for (let i = 1; i < segs; i++){
+    const t = i / segs;
+    const amp = (i % 2 ? 1 : -1) * (10 + Math.random() * 9);
+    pts.push({
+      x: from.x + dx * t + nx * amp,
+      y: from.y + dy * t + ny * amp
+    });
+  }
+  pts.push({ x:to.x, y:to.y });
+  const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+  ['outer', 'core'].forEach(cls => {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('class', 'sfx-zap-path ' + cls);
+    path.setAttribute('d', d);
+    path.style.animationDuration = perfMs(dur || 360) + 'ms';
+    svg.appendChild(path);
+  });
+  document.body.appendChild(svg);
+  setTimeout(() => svg.remove(), perfMs((dur || 360) + 40));
+  sfxSchool('zap');
+  return svg;
+}
+function fireWaveVfx(pt){
+  if (!pt) return;
+  const n = perfCount(10);
+  [-1, 1].forEach(side => {
+    for (let i = 0; i < n; i++){
+      const p = document.createElement('div');
+      p.className = 'fx-particle';
+      p.textContent = Math.random() < .7 ? '🔥' : '✦';
+      p.style.left = pt.x + 'px';
+      p.style.top = pt.y + 'px';
+      p.style.color = '#ff7a30';
+      p.style.fontSize = (17 + Math.random() * 9) + 'px';
+      p.style.animationDuration = perfMs(820) + 'ms';
+      p.style.setProperty('--dx', side * (42 + i * 15 + Math.random() * 18) + 'px');
+      p.style.setProperty('--dy', (-18 + Math.random() * 36) + 'px');
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), perfMs(860));
+    }
+  });
+}
+function chargeTrailVfx(pt, label){
+  if (!pt) return;
+  burstFx(pt, 'gold');
+  for (let i = 0; i < perfCount(7); i++){
+    const p = document.createElement('div');
+    p.className = 'fx-particle';
+    p.textContent = i % 2 ? '›' : '✦';
+    p.style.left = (pt.x - 30 + Math.random() * 60) + 'px';
+    p.style.top = (pt.y - 10 + Math.random() * 20) + 'px';
+    p.style.color = '#ffd98a';
+    p.style.fontSize = (14 + Math.random() * 6) + 'px';
+    p.style.animationDuration = perfMs(520) + 'ms';
+    p.style.setProperty('--dx', (22 + Math.random() * 36) + 'px');
+    p.style.setProperty('--dy', (-10 + Math.random() * 20) + 'px');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), perfMs(560));
+  }
+  if (label) battleVfxLabel(pt, label, 'gold');
+}
+function mechSparkVfx(pt, label){
+  if (!pt) return;
+  spellImpact(pt, 'armor', {});
+  const n = perfCount(8);
+  for (let i = 0; i < n; i++){
+    const p = document.createElement('div');
+    p.className = 'fx-particle';
+    p.textContent = ['⚙️','🔩','✦'][Math.floor(Math.random() * 3)];
+    const ang = (Math.PI * 2 * i) / Math.max(1, n);
+    p.style.left = pt.x + 'px';
+    p.style.top = pt.y + 'px';
+    p.style.color = '#d7e2ec';
+    p.style.fontSize = (13 + Math.random() * 6) + 'px';
+    p.style.animationDuration = perfMs(680) + 'ms';
+    p.style.setProperty('--dx', Math.cos(ang) * (22 + Math.random() * 28) + 'px');
+    p.style.setProperty('--dy', Math.sin(ang) * (22 + Math.random() * 28) + 'px');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), perfMs(720));
+  }
+  if (label) battleVfxLabel(pt, label, 'armor');
+}
+async function magnetMergeVfx(from, to, def){
+  if (!to) return;
+  if (from) {
+    battleBeam(from, to, 'lightning', 420);
+    battleBeam({ x:from.x + 10, y:from.y - 8 }, { x:to.x - 6, y:to.y + 5 }, 'armor', 460);
+    await flyEl('<div style="font-size:30px;filter:drop-shadow(0 0 10px #ffe66a)">🧲</div>', from, to, 260);
+  }
+  mechSparkVfx(to, `+${def.atk}/+${def.hp}`);
+  await sleep(perfMs(120));
+}
+async function stoneArmorVfx(from, to){
+  if (!from || !to) return;
+  battleVfxLabel(from, 'ХРИП', 'armor');
+  for (let i = 0; i < perfCount(4); i++){
+    const jitter = { x:from.x - 18 + Math.random() * 36, y:from.y - 14 + Math.random() * 28 };
+    flyEl('<div style="font-size:24px;filter:drop-shadow(0 0 8px #d7e2ec)">🪨</div>', jitter, to, 300 + i * 40);
+  }
+  await sleep(perfMs(220));
+  spellImpact(to, 'armor', {});
+  battleVfxLabel(to, 'БРОНЯ +3', 'armor');
+}
+async function manaWaveVfx(side){
+  if (!side) return;
+  const from = safeCenter(heroEl(side), $('board'));
+  const hand = side === G.player ? $('playerHand') : $('enemyHand');
+  const to = safeCenter(hand, heroEl(side));
+  battleVfxLabel(from, 'ВОЛНА МАНЫ', 'arcane');
+  for (let i = 0; i < 2; i++){
+    flyEl(`<div style="font-size:${i ? 34 : 38}px;filter:drop-shadow(0 0 12px #c79bff)">🔷</div>`,
+      { x:from.x + (i ? 18 : -18), y:from.y - 8 }, { x:to.x + (i ? 16 : -16), y:to.y }, 330 + i * 50);
+  }
+  await sleep(perfMs(260));
+  spellImpact(to, 'arcane', {});
+}
 function battleSidePoints(side){
   if (!side || !side.board) return [];
   return side.board.map(m => {
@@ -8445,11 +8579,21 @@ async function liveAuditSpellVfx(cardId, def, side, target, fallbackPt){
   if (!cardId || !def || !G) return;
   const foe = side ? foeOf(side) : null;
   const to = target ? targetPoint(target) : (fallbackPt || (foe ? battleBoardPoint(foe) : center($('board'))));
+  if (cardId === 'bolt'){
+    spellImpact(to, 'lightning', {});
+    battleVfxLabel(to, 'МОЛНИЯ', 'lightning');
+    await sleep(perfMs(110));
+    return;
+  }
   if (cardId === 'iceArrow'){
     render();
     spellImpact(to, 'frost', {});
     battleVfxLabel(to, 'ЗАМОРОЗКА', 'frost');
     await sleep(perfMs(120));
+    return;
+  }
+  if (cardId === 'manaWave'){
+    await manaWaveVfx(side);
     return;
   }
   if (cardId === 'frostNova' && foe){
@@ -8467,6 +8611,7 @@ async function liveAuditSpellVfx(cardId, def, side, target, fallbackPt){
     await flyEl('<div style="font-size:54px;filter:drop-shadow(0 0 18px #ff7a30) drop-shadow(0 3px 5px #000)">☄️</div>',
       { x:boardPt.x, y:Math.max(12, boardPt.y - 220) }, boardPt, 320);
     spellImpact(boardPt, 'fire', { legendary:true });
+    fireWaveVfx(boardPt);
     battleVfxLabel(boardPt, 'МЕТЕОР', 'fire');
     battleSidePoints(foe).forEach(({ pt, el }) => { if (el) shake(el); spellImpact(pt, 'fire', {}); });
     await sleep(perfMs(220));
@@ -8478,9 +8623,11 @@ async function liveAuditMinionVfx(cardId, side, minion, phase){
   const pt = safeCenter(el, boardElForSide(side));
   if (phase === 'summon'){
     if (cardId === 'familiar'){
-      burstFx(pt, 'gold');
-      battleVfxLabel(pt, 'РЫВОК', 'gold');
+      chargeTrailVfx(pt, 'РЫВОК');
       spellImpact(pt, 'arcaneBuff', {});
+      await sleep(perfMs(120));
+    } else if (CARD_DB[cardId] && CARD_DB[cardId].tribe === 'mech'){
+      mechSparkVfx(pt, cardId === 'magnetron' ? 'МАГНИТ' : 'МЕХАНИЗМ');
       await sleep(perfMs(120));
     } else if (cardId === 'snowman'){
       spellImpact(pt, 'frost', {});
@@ -8516,9 +8663,11 @@ async function liveAuditMinionVfx(cardId, side, minion, phase){
 async function liveAuditCardPointVfx(cardId, pt){
   if (!cardId || !pt) return;
   if (cardId === 'familiar'){
-    burstFx(pt, 'gold');
-    battleVfxLabel(pt, 'РЫВОК', 'gold');
+    chargeTrailVfx(pt, 'РЫВОК');
     spellImpact(pt, 'arcaneBuff', {});
+    await sleep(perfMs(100));
+  } else if (CARD_DB[cardId] && CARD_DB[cardId].tribe === 'mech'){
+    mechSparkVfx(pt, cardId === 'magnetron' ? 'МАГНИТ' : 'МЕХАНИЗМ');
     await sleep(perfMs(100));
   } else if (cardId === 'snowman'){
     spellImpact(pt, 'frost', {});
@@ -8554,6 +8703,11 @@ async function liveAuditDeathrattleVfx(side, minion, pt){
     await sleep(perfMs(180));
     return;
   }
+  if (cardId === 'golem'){
+    const to = safeCenter(heroEl(side), $('board'));
+    await stoneArmorVfx(from, to);
+    return;
+  }
   if (cardId === 'duskWraith'){
     const foe = foeOf(side);
     battleVfxLabel(from, 'ВОЛНА ХРИПА', 'shadow');
@@ -8565,10 +8719,14 @@ async function liveAuditDeathrattleVfx(side, minion, pt){
 }
 function liveAuditCombatVfx(attSide, minion, target){
   if (!minion || !target || !G) return;
+  const attPt = safeCenter(minionEl(minion), $('board'));
   const pt = target.kind === 'hero' ? safeCenter(heroEl(target.side), $('board')) : safeCenter(minionEl(target.minion), $('board'));
-  if (minion.cardId === 'familiar'){
+  const def = CARD_DB[minion.cardId];
+  if (def && def.charge && !minion.chargeVfxUsed){
+    minion.chargeVfxUsed = true;
+    chargeTrailVfx(attPt, minion.cardId === 'familiar' ? 'РЫВОК' : '');
+    battleBeam(attPt, pt, 'gold', 330);
     spellImpact(pt, 'arcaneBuff', {});
-    battleVfxLabel(pt, 'РЫВОК', 'arcaneBuff');
   }
   if (minion.freezeTouch && target.kind === 'minion'){
     spellImpact(pt, 'frost', {});
@@ -8890,8 +9048,10 @@ async function playMagnetic(handIdx, targetMinion, fromPt){
   trackImpact(G.player, source, 'plays', 1);
   render();
   const tgtEl = minionEl(targetMinion);
+  const tgtPt = safeCenter(tgtEl, $('playerBoard'));
   if (fromPt && tgtEl)
-    await flyEl(`<div class="card ${skinClass(SAVE.back)}" style="margin:0">${cardHTML(cardId)}</div>`, fromPt, safeCenter(tgtEl, $('playerBoard')), 260);
+    await flyEl(`<div class="card ${skinClass(SAVE.back)}" style="margin:0">${cardHTML(cardId)}</div>`, fromPt, tgtPt, 260);
+  if (tgtEl) await magnetMergeVfx(fromPt || tgtPt, tgtPt, def);
   withImpactSource(G.player, source, () => magnetMerge(G.player, targetMinion, def));
 	  log(`🧲 ${def.name} → ${CARD_DB[targetMinion.cardId].name}`);
 	  G.busy = false;
@@ -9072,6 +9232,7 @@ async function castSpell(handIdx, target){
   render();
   const tgtEl = def.secret ? $('playerHero')
     : target ? (target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion))
+    : cardId === 'manaWave' ? $('playerHand')
     : $('enemyBoard');
   const tgtPt = target ? targetPoint(target) : safeCenter(tgtEl, $('board'));
   await castVfx(def, center($('playerHero')), tgtPt, { legendary: def.rarity === 'legendary' });
@@ -9814,6 +9975,7 @@ async function aiCastSpell(i, def, target){
   trackImpact(G.enemy, source, 'plays', 1);
   const tgtEl = def.secret ? $('enemyHero')
     : target ? (target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion))
+    : def.id === 'manaWave' ? $('enemyHand')
     : $('playerBoard');
   await castVfx(def, safeCenter($('enemyHero'), $('board')), target ? targetPoint(target) : safeCenter(tgtEl, $('board')), { legendary: def.rarity === 'legendary' });
 	  const sc = checkSecrets(G.player, 'spellCast', {});
@@ -9939,8 +10101,10 @@ async function aiTurn(){
 	      trackImpact(G.enemy, source, 'plays', 1);
 	      if (mech){
         const tgtEl = minionEl(mech);
+        const tgtPt = safeCenter(tgtEl, $('enemyBoard'));
         await flyEl(`<div class="card ${skinClass(G.enemyBack)}" style="margin:0">${cardHTML(def.id)}</div>`,
-                    safeCenter($('enemyHand'), $('enemyHero')), safeCenter(tgtEl, $('enemyBoard')), 340);
+                    safeCenter($('enemyHand'), $('enemyHero')), tgtPt, 340);
+	        await magnetMergeVfx(safeCenter($('enemyHand'), $('enemyHero')), tgtPt, def);
 	        withImpactSource(G.enemy, source, () => magnetMerge(G.enemy, mech, def));
 	        log(`Враг: 🧲 ${def.name}`);
 	      } else {
@@ -12582,7 +12746,8 @@ async function mpAnimateRemoteAction(snap){
     if (action.startsWith('play:magnetic:')){
       const to = mpPointForRemoteDesc(tgt, $('enemyBoard'));
       await flyEl(mpRemoteCardHtml(cardId), fromHand, to, 310);
-      spellImpact(to, 'armor', { legendary:def && def.rarity === 'legendary' });
+      if (def) await magnetMergeVfx(fromHand, to, def);
+      else spellImpact(to, 'armor', {});
       await sleep(90);
       return;
     }
@@ -12611,6 +12776,8 @@ async function mpAnimateRemoteAction(snap){
       await lungeAnim(attEl, targetPt);
       if (targetEl) shake(targetEl);
       if (sourceTarget && sourceTarget.minion && target && target.kind !== 'board') splashAt(targetPt, Math.max(1, sourceTarget.minion.atk || 1));
+      if (sourceTarget && sourceTarget.minion && target && target.kind !== 'board')
+        liveAuditCombatVfx(sourceTarget.side || G.enemy, sourceTarget.minion, target);
       sfx.hit();
       await sleep(90);
       return;
