@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-beast-undead-audit-2';
+    var build = '2026-07-13-keyword-audit-3';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4446,7 +4446,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-beast-undead-audit-2';
+const CARD_ARENA_BUILD = '2026-07-13-keyword-audit-3';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -4782,7 +4782,7 @@ const CARD_DB = {
   /* ---- УНИКАЛЬНЫЕ МЕХАНИКИ ---- */
   harpy: {
     id:'harpy', name:'Гарпия', icon:'🦅',
-    type:'minion', cost:4, atk:2, hp:3, rarity:'rare', tribe:'beast', windfury:true,
+    type:'minion', cost:4, atk:3, hp:3, rarity:'rare', tribe:'beast', windfury:true,
     text:'Неистовство ветра: атакует дважды за ход.', starter:0
   },
   viper: {
@@ -4799,12 +4799,15 @@ const CARD_DB = {
     id:'raccoon', name:'Карманник', icon:'🦝',
     type:'minion', cost:3, atk:2, hp:2, rarity:'rare', tribe:'beast',
     text:'Хрип: крадёт карту из колоды врага.', starter:0,
-    deathrattle(game, side){
+    async deathrattle(game, side){
       const foe = foeOf(side);
       if (foe.deck.length && side.hand.length < MAX_HAND){
-        pushHandCard(side, foe.deck.pop(), currentImpact() && currentImpact().source);
+        const stolenId = foe.deck.pop();
+        await stolenCardVfx(side, stolenId);
+        pushHandCard(side, stolenId, currentImpact() && currentImpact().source);
         trackCurrent('generate', 1);
         sfx.draw();
+        render();
       }
     }
   },
@@ -4814,8 +4817,9 @@ const CARD_DB = {
     text:'Рост: +1/+1 в начале вашего хода.', starter:0,
     onTurnStart(game, side, m){
       m.atk++; m.hp++; m.maxHp++;
+      trackActor(side, m, 'buff', 2);
       const el = minionEl(m);
-      if (el) splashAt(center(el), '1/1', 'heal');
+      if (el) growthVfx(center(el), 1, 1);
     }
   },
   bloodbat: {
@@ -7007,6 +7011,9 @@ function simDeath(owner, foe, m){
       }
     }
   }
+  if (m.id === 'raccoon' && foe.deck.length && owner.hand.length < 10){
+    owner.hand.push(foe.deck.pop());
+  }
 }
 /* один полный бой: возвращает телеметрию */
 function simulateDuel(cardsA, cardsB, tuneA, tuneB){
@@ -7033,6 +7040,11 @@ function simulateDuel(cardsA, cardsB, tuneA, tuneB){
     cur.board.forEach(m => {
       if (m.frozen){ m.frozen = false; m.ready = false; m.hits = 0; }
       else { m.ready = true; m.hits = m.windfury ? 2 : 1; }
+      if (m.id === 'shroom'){
+        m.atk += 1;
+        m.hp += 1;
+        m.maxHp += 1;
+      }
     });
     /* фаза розыгрышей */
     const aggro = (cur.tune.style === 'aggro');
@@ -7706,7 +7718,9 @@ function newGame(playerDeckArr, enemyDeckArr){
 		        side.armorSources.push({ source: ctx.source, n });
 		        trackImpact(side, ctx.source, 'armor', n);
 		      }
-		      splashAt(center(heroEl(side)), n, 'armor');
+		      const pt = center(heroEl(side));
+		      splashAt(pt, n, 'armor');
+		      armorGainVfx(pt, n);
 	      sfx.armor();
 	    },
 
@@ -8131,11 +8145,17 @@ function damageMinion(mm, dmg, poison, srcSide, source){
     mm.shield = false;
     if (targetSide) trackActor(targetSide, mm, 'blocked', Math.min(1, dmg));
     const el = minionEl(mm);
-    if (el) splashAt(center(el), '0', 'armor');
+    if (el){
+      const pt = center(el);
+      splashAt(pt, '0', 'armor');
+      shieldBreakVfx(pt);
+    }
     log(`✨ Щит поглотил урон`);
     return 0;
   }
   const before = Math.max(0, mm.hp);
+  const poisonEl = poison ? minionEl(mm) : null;
+  if (poisonEl) poisonStrikeVfx(center(poisonEl));
   mm.hp -= dmg;
   const actual = Math.min(before, dmg);
   if (srcSide && src) trackImpact(srcSide, src, 'damage', actual);
@@ -8610,6 +8630,103 @@ function chargeTrailVfx(pt, label){
   }
   if (label) battleVfxLabel(pt, label, 'gold');
 }
+function armorGainVfx(pt, amount){
+  if (!pt) return;
+  const starts = [
+    { x:pt.x - 58, y:pt.y - 22 },
+    { x:pt.x + 58, y:pt.y - 22 },
+    { x:pt.x, y:pt.y + 54 }
+  ];
+  starts.slice(0, mobilePerfMode() ? 2 : 3).forEach((from, i) => {
+    flyEl('<div style="font-size:26px;filter:drop-shadow(0 0 9px #d7e2ec)">🛡️</div>', from, pt, 230 + i * 35);
+  });
+  setTimeout(() => spellImpact(pt, 'armor', {}), perfMs(180));
+  battleVfxLabel(pt, `БРОНЯ +${amount}`, 'armor');
+}
+function shieldBreakVfx(pt){
+  if (!pt) return;
+  spellImpact(pt, 'armor', {});
+  battleVfxLabel(pt, 'ЩИТ РАЗБИТ', 'armor');
+  for (let i = 0; i < perfCount(7); i++){
+    const p = document.createElement('div');
+    p.className = 'fx-particle';
+    p.textContent = i % 2 ? '◇' : '✦';
+    p.style.left = pt.x + 'px'; p.style.top = pt.y + 'px';
+    p.style.color = '#fff0b0'; p.style.fontSize = (13 + Math.random() * 7) + 'px';
+    p.style.animationDuration = perfMs(620) + 'ms';
+    const ang = Math.PI * 2 * i / 7;
+    p.style.setProperty('--dx', Math.cos(ang) * (30 + Math.random() * 30) + 'px');
+    p.style.setProperty('--dy', Math.sin(ang) * (30 + Math.random() * 30) + 'px');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), perfMs(660));
+  }
+}
+function poisonStrikeVfx(pt){
+  if (!pt) return;
+  spellImpact(pt, 'poison', {});
+  battleVfxLabel(pt, 'ЯД', 'poison');
+}
+function growthVfx(pt, atk, hp){
+  if (!pt) return;
+  spellImpact(pt, 'nature', {});
+  battleVfxLabel(pt, `РОСТ +${atk}/+${hp}`, 'nature');
+  splashAt(pt, `${atk}/${hp}`, 'heal');
+}
+function windfuryStrikeVfx(from, to, second){
+  if (!from || !to) return;
+  const n = perfCount(6);
+  for (let i = 0; i < n; i++){
+    const p = document.createElement('div');
+    p.className = 'fx-particle';
+    p.textContent = i % 2 ? '›' : '≈';
+    p.style.left = (from.x - 12 + Math.random() * 24) + 'px';
+    p.style.top = (from.y - 10 + Math.random() * 20) + 'px';
+    p.style.color = '#73d1ff'; p.style.fontSize = (15 + Math.random() * 7) + 'px';
+    p.style.animationDuration = perfMs(520) + 'ms';
+    p.style.setProperty('--dx', ((to.x - from.x) * .38 + Math.random() * 18) + 'px');
+    p.style.setProperty('--dy', ((to.y - from.y) * .38 - 9 + Math.random() * 18) + 'px');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), perfMs(560));
+  }
+  if (second) battleVfxLabel(from, 'ВТОРАЯ АТАКА', 'frost');
+}
+function iceCrackVfx(pt){
+  if (!pt) return;
+  for (let i = 0; i < perfCount(6); i++){
+    const p = document.createElement('div');
+    p.className = 'fx-particle';
+    p.textContent = i % 2 ? '✧' : '🧊';
+    p.style.left = pt.x + 'px'; p.style.top = pt.y + 'px';
+    p.style.color = '#c7ecff'; p.style.fontSize = (12 + Math.random() * 7) + 'px';
+    p.style.animationDuration = perfMs(560) + 'ms';
+    const ang = Math.PI * 2 * i / 6;
+    p.style.setProperty('--dx', Math.cos(ang) * (24 + Math.random() * 24) + 'px');
+    p.style.setProperty('--dy', Math.sin(ang) * (24 + Math.random() * 24) + 'px');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), perfMs(600));
+  }
+}
+async function stolenCardVfx(side, cardId){
+  if (!G || !side || !cardId || !CARD_DB[cardId]) return;
+  const foe = foeOf(side);
+  const from = safeCenter(foe === G.player ? $('playerDeck') : $('enemyDeck'), $('board'));
+  const to = safeCenter(side === G.player ? $('playerHand') : $('enemyHand'), heroEl(side));
+  const boardPt = safeCenter($('board'), heroEl(side));
+  const foeBack = foe === G.enemy ? (G.enemyBack || 'default') : (SAVE.back || 'default');
+  const ownerBack = side === G.enemy ? (G.enemyBack || 'default') : (SAVE.back || 'default');
+  await flyEl(`<div class="card-back cardback-${foeBack}"></div>`, from, boardPt, 300);
+  const reveal = document.createElement('div');
+  reveal.className = 'fly';
+  reveal.innerHTML = `<div class="card ${skinClass(ownerBack)}" style="margin:0">${cardHTML(cardId)}</div>`;
+  reveal.style.left = '0'; reveal.style.top = '0';
+  reveal.style.transform = `translate3d(${boardPt.x}px, ${boardPt.y}px, 0) translate(-50%,-50%) scale(.82)`;
+  document.body.appendChild(reveal);
+  spellImpact(boardPt, 'gold', {});
+  battleVfxLabel(boardPt, `УКРАДЕНО: ${CARD_DB[cardId].name}`, 'gold');
+  await sleep(perfMs(760));
+  reveal.remove();
+  await flyEl(`<div class="card ${skinClass(ownerBack)}" style="margin:0">${cardHTML(cardId)}</div>`, boardPt, to, 320);
+}
 function mechSparkVfx(pt, label){
   if (!pt) return;
   spellImpact(pt, 'armor', {});
@@ -8735,7 +8852,10 @@ async function liveAuditSpellVfx(cardId, def, side, target, fallbackPt){
     spellImpact(boardPt, 'frost', { legendary:true });
     battleVfxLabel(boardPt, 'КОЛЬЦО МОРОЗА', 'frost');
     const pts = battleSidePoints(foe);
-    pts.forEach(({ pt }) => spellImpact(pt, 'frost', {}));
+    pts.forEach(({ pt }, i) => {
+      spellImpact(pt, 'frost', {});
+      setTimeout(() => iceCrackVfx(pt), perfMs(70 + i * 35));
+    });
     await sleep(perfMs(220));
     return;
   }
@@ -8873,11 +8993,16 @@ async function liveAuditDeathrattleVfx(side, minion, pt){
     await sleep(perfMs(220));
   }
 }
-function liveAuditCombatVfx(attSide, minion, target){
+function liveAuditCombatVfx(attSide, minion, target, remoteReplay){
   if (!minion || !target || !G) return;
   const attPt = safeCenter(minionEl(minion), $('board'));
   const pt = target.kind === 'hero' ? safeCenter(heroEl(target.side), $('board')) : safeCenter(minionEl(target.minion), $('board'));
   const def = CARD_DB[minion.cardId];
+  if (minion.windfury){
+    windfuryStrikeVfx(attPt, pt, remoteReplay ? minion.attacksLeft <= 1 : minion.attacksLeft === 0);
+  }
+  if (remoteReplay && minion.poison) poisonStrikeVfx(pt);
+  if (remoteReplay && target.kind === 'minion' && target.minion.poison) poisonStrikeVfx(attPt);
   if (def && def.charge && !minion.chargeVfxUsed){
     minion.chargeVfxUsed = true;
     chargeTrailVfx(attPt, minion.cardId === 'familiar' ? 'РЫВОК' : '');
@@ -12920,9 +13045,11 @@ function mpVisualSideState(side){
     armor: side && side.armor || 0,
     hand: side && side.hand ? side.hand.length : 0,
     deck: side && side.deck ? side.deck.length : 0,
+    deckCards: side && side.deck ? side.deck.slice() : [],
     board: (side && side.board || []).map(m => ({
       uid:m.uid, cardId:m.cardId, atk:m.atk || 0, hp:m.hp || 0,
-      maxHp:m.maxHp || CARD_DB[m.cardId]?.hp || 0
+      maxHp:m.maxHp || CARD_DB[m.cardId]?.hp || 0,
+      shield:!!m.shield, poison:!!m.poison, windfury:!!m.windfury
     }))
   };
 }
@@ -12989,7 +13116,7 @@ async function mpAnimateRemoteAction(snap){
       if (targetEl) shake(targetEl);
       if (sourceTarget && sourceTarget.minion && target && target.kind !== 'board') splashAt(targetPt, Math.max(1, sourceTarget.minion.atk || 1));
       if (sourceTarget && sourceTarget.minion && target && target.kind !== 'board')
-        liveAuditCombatVfx(sourceTarget.side || G.enemy, sourceTarget.minion, target);
+        liveAuditCombatVfx(sourceTarget.side || G.enemy, sourceTarget.minion, target, true);
       sfx.hit();
       await sleep(90);
       return;
@@ -13045,7 +13172,9 @@ async function mpPlaySideDeltaVfx(before, after, side, sideName){
     splashAt(heroPt, (after.hp || 0) - (before.hp || 0), 'heal');
     sfx.heal();
   } else if ((after.armor || 0) > (before.armor || 0)){
-    splashAt(heroPt, (after.armor || 0) - (before.armor || 0), 'armor');
+    const gained = (after.armor || 0) - (before.armor || 0);
+    splashAt(heroPt, gained, 'armor');
+    armorGainVfx(heroPt, gained);
     sfx.armor();
   }
   if ((after.hand || 0) > (before.hand || 0)) sfx.draw();
@@ -13068,9 +13197,11 @@ async function mpPlaySideDeltaVfx(before, after, side, sideName){
       splashAt(pt, (m.hp || 0) - (old.hp || 0), 'heal');
       sfx.heal();
     }
+    if (old.shield && !m.shield) shieldBreakVfx(pt);
     const atkGain = (m.atk || 0) - (old.atk || 0);
     if (atkGain > 0){
-      splashAt(pt, atkGain, 'armor');
+      if (m.cardId === 'shroom') growthVfx(pt, atkGain, Math.max(0, (m.maxHp || 0) - (old.maxHp || 0)));
+      else splashAt(pt, atkGain, 'armor');
       sfx.armor();
     }
   }
@@ -13094,11 +13225,19 @@ async function mpPlayRemoteDeathrattleCues(before, after){
     const alive = new Set((newSide && newSide.board || []).map(m => m.uid));
     const gameSide = sideName === 'player' ? G.player : G.enemy;
     for (const old of oldSide && oldSide.board || []){
-      if (alive.has(old.uid) || !['bombot','packAlpha','lich'].includes(old.cardId)) continue;
+      if (alive.has(old.uid) || !['bombot','packAlpha','lich','raccoon'].includes(old.cardId)) continue;
       const minion = (gameSide.board || []).find(m => m.uid === old.uid);
       const el = minion && minionEl(minion);
       const pt = safeCenter(el, boardElForSide(gameSide));
       if (old.cardId === 'bombot') await bombotBlastVfx(gameSide, pt);
+      else if (old.cardId === 'raccoon'){
+        const victimName = sideName === 'player' ? 'enemy' : 'player';
+        const oldVictim = before[victimName];
+        const newVictim = after[victimName];
+        const stolenId = oldVictim && newVictim && oldVictim.deck > newVictim.deck
+          ? oldVictim.deckCards[oldVictim.deckCards.length - 1] : null;
+        if (stolenId) await stolenCardVfx(gameSide, stolenId);
+      }
       else await liveAuditDeathrattleVfx(gameSide, old, pt);
     }
   }
@@ -14063,6 +14202,12 @@ const ANIM_PATCH_NOTES = {
   beastcall:'Последний патч: оба Волчонка получили Рывок и отдельную сцену призыва стаи.',
   lich:'Новый фокус ревизии: хрип одновременно показывает добор карты и 2 теневого урона герою.',
   vampiress:'Последний патч: 2/2 → 2/3, лечение хрипа 3 → 4.',
+  harpy:'Последний патч: атака 2 → 3. Неистовство ветра использует общий воздушный след.',
+  armorUp:'Аудит-сцена: общая анимация брони собирает пластины вокруг портрета героя.',
+  viper:'Аудит-сцена: Яд получил общий зелёный импакт при нанесении урона.',
+  acolyte:'Аудит-сцена: Божественный щит заметно раскалывается при поглощении урона.',
+  raccoon:'Аудит-сцена: украденная карта раскрывается, затем отправляется в руку владельца.',
+  shroom:'Аудит-сцена: каждое срабатывание Роста показывает споры и +1/+1.',
   chronomagus:'Легендарная сцена: повтор заклинаний должен ощущаться как цепочка кастов.',
   codexIntervention:'Легендарная сцена: улучшение силы героя должно подсвечивать портрет и кнопку абилки.',
   abyssMaw:'Легендарная сцена: поглощение существа должно тянуть цель в пасть.',
@@ -14072,6 +14217,7 @@ const ANIM_PATCH_NOTES = {
 const ANIM_AUDIT_SCENES = new Set([
   'doll','ghost','familiar','snowman','iceArrow','frostNova','meteor','bombot',
   'packAlpha','beastcall','lich','graveBinder','cryptNurse','boneMarshal','necroticGiant','duskWraith',
+  'armorUp','harpy','viper','acolyte','raccoon','shroom',
   'codexIntervention','chronomagus','abyssMaw','huntmastersHorn','cryptSovereign'
 ]);
 const ANIM_AUDIT_HINTS = {
@@ -14086,6 +14232,12 @@ const ANIM_AUDIT_HINTS = {
   packAlpha:'Аудит-сцена: хрип выпускает двух Волчат, которые немедленно атакуют случайные цели.',
   beastcall:'Аудит-сцена: два Волчонка входят на стол с читаемым Рывком.',
   lich:'Аудит-сцена: хрип разделяется на добор карты владельцу и теневой удар по врагу.',
+  armorUp:'Аудит-сцена: три защитные пластины сходятся на портрете и дают +4 брони.',
+  harpy:'Аудит-сцена: две последовательные атаки связаны общим воздушным следом.',
+  viper:'Аудит-сцена: после боевого урона цель покрывается ядовитым импульсом.',
+  acolyte:'Аудит-сцена: первый удар разбивает золотой щит и наносит 0 урона.',
+  raccoon:'Аудит-сцена: карта выходит из вражеской колоды, раскрывается и улетает в руку.',
+  shroom:'Аудит-сцена: начало хода запускает зелёный Рост +1/+1.',
   graveBinder:'Аудит-сцена: хрип передаёт Возрождение союзнику.',
   cryptNurse:'Аудит-сцена: лечение от нежити идёт лучами к герою.',
   boneMarshal:'Аудит-сцена: возрождённый союзник получает видимый +1/+1.',
@@ -14443,6 +14595,70 @@ async function playAuditAnimScenario(cardId, def, ctx){
       animSetLog('Лич: хрип одновременно добирает карту и наносит 2 теневого урона вражескому герою.');
       return true;
     }
+    case 'armorUp':
+      ghost.classList.add('resolved');
+      armorGainVfx(center(hero), 4);
+      animBuffPop(50, 72, '🛡️ +4 БРОНИ');
+      animSetLog('Железная кожа: защитные пластины сходятся вокруг портрета героя.');
+      await animDelay(520);
+      return true;
+    case 'harpy': {
+      const enemy = enemyB();
+      await animDelay(170);
+      windfuryStrikeVfx(center(slot), center(enemy), false);
+      await lungeAnim(slot, center(enemy));
+      spellImpact(center(enemy), 'frost', {});
+      await animDelay(170);
+      windfuryStrikeVfx(center(slot), center(enemy), true);
+      await lungeAnim(slot, center(enemy));
+      spellImpact(center(enemy), 'frost', {});
+      animBuffPop(50, 45, '🌀 ДВЕ АТАКИ');
+      animSetLog('Гарпия: две атаки за ход читаются как последовательные воздушные выпады.');
+      return true;
+    }
+    case 'viper': {
+      const enemy = enemyB();
+      await animDelay(200);
+      await lungeAnim(slot, center(enemy));
+      poisonStrikeVfx(center(enemy));
+      enemy.classList.add('hit');
+      animBuffPop(50, 43, '☠️ ЯД');
+      animSetLog('Гадюка: после нанесения урона общий ядовитый импульс уничтожает цель.');
+      return true;
+    }
+    case 'acolyte': {
+      slot.classList.add('shielded');
+      spellImpact(center(slot), 'holy', {});
+      await animDelay(320);
+      shieldBreakVfx(center(slot));
+      slot.classList.remove('shielded');
+      animBuffPop(50, 48, '0 УРОНА');
+      animSetLog('Послушник Света: первый удар полностью поглощён, затем щит раскалывается.');
+      return true;
+    }
+    case 'raccoon': {
+      const from = animStagePoint(76, 25);
+      const mid = animStagePoint(50, 44);
+      const hand = animStagePoint(36, 79);
+      await animDelay(180);
+      await flyEl('<div class="card-back cardback-default"></div>', from, mid, animSlow ? 520 : 300);
+      const stolen = CARD_DB.fireball || CARD_DB.bolt;
+      const reveal = animAddSpecial('anim-card-echo', stolen.icon, 50, 44);
+      reveal.innerHTML = `<b>${stolen.icon}</b><small>${safeTxt(stolen.name)}</small>`;
+      spellImpact(mid, 'gold', {});
+      animBuffPop(50, 34, `УКРАДЕНО: ${stolen.name}`);
+      await animDelay(650);
+      reveal.remove();
+      await flyEl(`<div style="font-size:38px;filter:drop-shadow(0 0 12px #ffe08a)">${stolen.icon}</div>`, mid, hand, animSlow ? 520 : 310);
+      animSetLog('Карманник: украденная карта показывается обоим игрокам и только потом попадает в руку.');
+      return true;
+    }
+    case 'shroom':
+      await animDelay(260);
+      growthVfx(center(slot), 1, 1);
+      animBuffPop(50, 47, '1/2 → 2/3');
+      animSetLog('Грибной друид: начало хода запускает общий эффект Роста +1/+1.');
+      return true;
     case 'doll':
       await animDelay(220);
       await castVfx({ id:'shadowDoll', icon:'💀', text:'теневой хрип', school:'shadow' }, center(slot), center(target), {});
