@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-14-pirate-vfx-polish';
+    var build = '2026-07-14-siege-captain-audit';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -589,7 +589,8 @@
 	  .anim-card-tile.recent-rebalance{border-color:#e9b94f;box-shadow:inset 0 0 18px rgba(0,0,0,.35),0 0 0 1px rgba(255,213,100,.22),0 0 16px rgba(222,161,45,.18);}
 	  .anim-rebalance-mark{position:absolute;left:-5px;top:-5px;z-index:4;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 28%,#fff0a0,#d88a18 68%,#70410b);border:2px solid #3b2408;box-shadow:0 3px 8px #000,0 0 10px rgba(255,199,65,.7);font-size:13px;line-height:1;}
 	  .anim-card-tile .act-head{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:7px;align-items:center;}
-	  .anim-card-tile .act-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid #8c6a2e;background:#211507;font-size:16px;}
+	  .anim-card-tile .act-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid #8c6a2e;background:#211507;font-size:16px;overflow:hidden;}
+	  .anim-card-tile .act-icon img{width:100%;height:100%;object-fit:cover;object-position:50% 22%;}
 	  .anim-card-tile .act-name{min-width:0;color:#ead9ae;font-weight:bold;font-size:12px;line-height:1.12;}
 	  .anim-card-tile .act-name small{display:block;color:#8fa8c4;font-size:8.2px;font-weight:normal;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 	  .anim-card-tile .act-cost{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 30%,#8fd0ff,#2874ad);border:2px solid #0c2a45;color:white;font-weight:bold;text-shadow:0 1px 2px #000;}
@@ -2886,6 +2887,13 @@
   .card:has(.rgem.legendary) .c-icon{
     box-shadow:0 0 0 2px #2a1608, 0 0 10px 1px rgba(255,176,32,.7), inset 0 0 14px rgba(0,0,0,.55);
   }
+  .card .c-icon img,.minion .m-icon img{
+    width:100%;height:100%;display:block;object-fit:contain;object-position:center;
+    border-radius:inherit;filter:drop-shadow(0 2px 3px rgba(0,0,0,.52));pointer-events:none;
+  }
+  .card .c-icon img{padding:2px;box-sizing:border-box;}
+  .minion .m-icon img{object-fit:cover;object-position:50% 20%;}
+  .weapon-plate .w-icon img{width:30px;height:24px;display:block;object-fit:contain;filter:drop-shadow(0 0 5px #67d9ff);}
 
   /* имя — золотая плашка, светлый текст */
   .card .c-name{
@@ -4446,7 +4454,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-14-pirate-vfx-polish';
+const CARD_ARENA_BUILD = '2026-07-14-siege-captain-audit';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -5114,6 +5122,12 @@ const CARD_DB = {
     type:'weapon', cost:2, atk:2, dur:2, rarity:'common',
     text:'Оружие героя 2/2.', starter:0
   },
+  stormSaber: {
+    id:'stormSaber', name:'Сабля Шторма', icon:'🗡️', art:'assets/cards/boarding-saber.png',
+    type:'weapon', cost:2, atk:2, dur:2, rarity:'legendary', token:true,
+    text:'Оружие 2/2. После атаки все ваши пираты получают +1/+1.', starter:0,
+    onHeroAttack(game, side){ buffAllPirates(side, 1, 1, 'ШТОРМОВОЙ НАТИСК'); }
+  },
   axe: {
     id:'axe', name:'Боевой топор', icon:'🪓',
     type:'weapon', cost:3, atk:3, dur:2, rarity:'common',
@@ -5196,15 +5210,18 @@ const CARD_DB = {
     id:'gunner', name:'Канонир', icon:'🛢️',
     type:'minion', cost:3, atk:3, hp:2, rarity:'rare', tribe:'pirate',
     text:'Клич: 1 урон случайному врагу за каждую прочность вашего оружия.', starter:0,
-    battlecry(game, side){
+    battlecry(game, side, self){
       if (!side.weapon) return;
       const foe = foeOf(side);
+      self.battlecryVfxTargets = [];
       for (let i = 0; i < side.weapon.dur; i++){
         if (game.over) return;
         const ts = foe.board.filter(x => !x.stealth && x.hp > 0)
           .map(x => ({ kind:'minion', side: foe, minion: x }));
         ts.push({ kind:'hero', side: foe });
-        game.dealDamage(ts[Math.floor(Math.random() * ts.length)], 1);
+        const target = ts[Math.floor(Math.random() * ts.length)];
+        self.battlecryVfxTargets.push(target);
+        game.dealDamage(target, 1);
       }
     }
   },
@@ -5223,45 +5240,49 @@ const CARD_DB = {
   },
   octopus: {
     id:'octopus', name:'Осьминог-абордажник', icon:'🐙',
-    type:'minion', cost:4, atk:3, hp:3, windfury:true, rarity:'epic', tribe:'pirate',
-    text:'Неистовство ветра: щупалец хватает на две атаки.', starter:0
+    type:'minion', cost:4, atk:3, hp:4, rarity:'epic', tribe:'pirate',
+    text:'Клич: если у вас есть оружие — получает Неистовство ветра.', starter:0,
+    battlecry(game, side, self){
+      if (!side.weapon) return;
+      const wasReady = self.canAttack || (self.attacksLeft || 0) > 0;
+      self.windfury = true;
+      if (wasReady){
+        self.attacksLeft = Math.max(self.attacksLeft || 0, 2);
+        self.canAttack = true;
+      }
+    }
   },
   captain: {
-    id:'captain', name:'Капитан Шторм', icon:'🏴‍☠️',
-    type:'minion', cost:6, atk:5, hp:5, rarity:'legendary', tribe:'pirate',
-    text:'Клич: экипирует Абордажную саблю и даёт всем пиратам +1/+1.', starter:0,
-    battlecry(game, side, self){
-      if (!side.weapon) equipWeapon(side, CARD_DB.saber);
-      side.board.forEach(x => {
-        if (x === self || CARD_DB[x.cardId].tribe !== 'pirate') return;
-        x.atk++; x.hp++; x.maxHp++;
-        const el = minionEl(x);
-        if (el) splashAt(center(el), '1/1', 'heal');
-      });
-    }
+    id:'captain', name:'Капитан Шторм', icon:'🏴‍☠️', art:'assets/cards/captain-storm.png',
+    type:'minion', cost:6, atk:3, hp:4, rarity:'legendary', tribe:'pirate',
+    text:'Клич: экипирует Саблю Шторма 2/2. После её атаки все ваши пираты получают +1/+1.', starter:0,
+    battlecry(game, side){ equipWeapon(side, CARD_DB.stormSaber); }
   },
 
   /* ---- ОСАДНЫЕ ОРУДИЯ×3 ---- */
   ram: {
     id:'ram', name:'Таран', icon:'🪵',
-    type:'minion', cost:3, atk:3, hp:2, rarity:'common', tribe:'mech', siege:true,
-    text:'Осада: атакует только героя, игнорируя Провокацию.', starter:0
+    type:'minion', cost:3, atk:2, hp:5, rarity:'common', tribe:'mech', siege:true, autoSiege:'taunt',
+    text:'Автономная осада. В конце вашего хода атакует Провокацию, иначе героя. Не стреляет в ход призыва и не получает ответный урон.', starter:0,
+    onTurnEnd:autoSiegeTurnEnd
   },
   catapult: {
     id:'catapult', name:'Катапульта', icon:'🪨',
-    type:'minion', cost:4, atk:4, hp:2, rarity:'rare', tribe:'mech', siege:true,
-    text:'Осада: атакует только героя, игнорируя Провокацию.', starter:0
+    type:'minion', cost:4, atk:5, hp:3, rarity:'rare', tribe:'mech', siege:true, autoSiege:'random',
+    text:'Автономная осада. В конце вашего хода с равным шансом атакует героя или случайное существо, игнорируя Провокацию. Не стреляет в ход призыва.', starter:0,
+    onTurnEnd:autoSiegeTurnEnd
   },
   ballista: {
     id:'ballista', name:'Баллиста', icon:'🎯',
-    type:'minion', cost:6, atk:6, hp:3, rarity:'epic', tribe:'mech', siege:true,
-    text:'Осада: атакует только героя, игнорируя Провокацию.', starter:0
+    type:'minion', cost:6, atk:5, hp:3, rarity:'epic', tribe:'mech', siege:true, autoSiege:'face',
+    text:'Автономная осада. В конце вашего хода атакует героя сквозь Провокацию. Не стреляет в ход призыва и не получает ответный урон.', starter:0,
+    onTurnEnd:autoSiegeTurnEnd
   },
 
   /* ================= ТОП-КРИВАЯ: 7–10 МАНЫ ================= */
   ent: {
     id:'ent', name:'Древний энт', icon:'🌳',
-    type:'minion', cost:7, atk:6, hp:8, taunt:true, rarity:'rare',
+    type:'minion', cost:7, atk:5, hp:8, taunt:true, rarity:'rare',
     text:'Провокация.', starter:0
   },
   warchief: {
@@ -6934,7 +6955,8 @@ function simHitMinion(m, n, poison){
 function simMakeMinion(def, id){
   return { id, atk:def.atk || 0, hp:def.hp || 1, maxHp:def.hp || 1,
     taunt:!!def.taunt, windfury:!!def.windfury, lifesteal:!!def.lifesteal,
-    poison:!!def.poison, siege:!!def.siege, shield:!!def.shield,
+    poison:!!def.poison, siege:!!def.siege, autoSiege:def.autoSiege || null,
+    siegeCharged:false, shield:!!def.shield,
     stealth:!!def.stealth, freezeTouch:!!def.freezeTouch,
     reborn:!!def.reborn || /Возрождение/.test(def.text || ''),
     enraged:false, frozen:false, tribe:def.tribe || null,
@@ -6947,6 +6969,12 @@ function simMakeMinion(def, id){
 }
 /* точные sim-эффекты сложных легендарок (не парсятся из текста) */
 const SIM_CARD_FX = {
+  octopus(cur, foe, self){
+    if (cur.weapon && self){ self.windfury = true; self.hits = 2; }
+  },
+  captain(cur){
+    cur.weapon = { atk:2, dur:2, id:'stormSaber' };
+  },
   codexIntervention(cur){ cur.powerUpgraded = true; },
   chronomagus(cur, foe){
     const n = Math.min(5, cur.spellsCast || 0);
@@ -7130,7 +7158,7 @@ function simulateDuel(cardsA, cardsB, tuneA, tuneB){
     if (cur.hp <= 0) break;
     cur.board.forEach(m => {
       if (m.frozen){ m.frozen = false; m.ready = false; m.hits = 0; }
-      else { m.ready = true; m.hits = m.windfury ? 2 : 1; }
+      else { m.ready = !m.autoSiege; m.hits = m.autoSiege ? 0 : (m.windfury ? 2 : 1); }
       if (m.id === 'shroom'){
         m.atk += 1;
         m.hp += 1;
@@ -7246,10 +7274,16 @@ function simulateDuel(cardsA, cardsB, tuneA, tuneB){
         simCardDmg(cur, cur.weapon.id, cur.weapon.atk);
       }
       cur.weapon.dur--;
+      if (cur.weapon.id === 'stormSaber'){
+        cur.board.filter(m => m.tribe === 'pirate').forEach(m => {
+          m.atk++; m.hp++; m.maxHp++;
+        });
+      }
       if (foe.hp <= 0) break;
     }
     /* фаза атак существ */
     for (const m of [...cur.board]){
+      if (m.autoSiege) continue;
       if (!m.ready || m.atk <= 0 || m.frozen) continue;
       while (m.hits > 0 && m.hp > 0 && foe.hp > 0){
         m.hits--;
@@ -7311,6 +7345,28 @@ function simulateDuel(cardsA, cardsB, tuneA, tuneB){
         }
       } else simHurt(foe, 3);
       simCardDmg(cur, 'izaroth', 3);
+    });
+    cur.board.filter(m => m.autoSiege && m.hp > 0).forEach(m => {
+      if (!m.siegeCharged){ m.siegeCharged = true; return; }
+      const visible = foe.board.filter(x => !x.stealth && x.hp > 0);
+      let target = null;
+      if (m.autoSiege === 'random' && visible.length && Math.random() < .5)
+        target = visible[Math.floor(Math.random() * visible.length)];
+      else if (m.autoSiege === 'taunt'){
+        const taunts = visible.filter(x => x.taunt);
+        if (taunts.length) target = taunts[Math.floor(Math.random() * taunts.length)];
+      }
+      if (!target){
+        simHurt(foe, m.atk);
+        simCardDmg(cur, m.id, m.atk);
+      } else {
+        const dealt = Math.min(target.hp, m.atk);
+        if (simHitMinion(target, m.atk, false)){
+          simDeath(foe, cur, target);
+          foe.board.splice(foe.board.indexOf(target), 1);
+        }
+        simCardDmg(cur, m.id, dealt);
+      }
     });
     [cur, foe] = [foe, cur];
   }
@@ -7769,6 +7825,7 @@ function newGame(playerDeckArr, enemyDeckArr){
 	                  poison: !!def.poison, lifesteal: !!def.lifesteal,
 	                  windfury: !!def.windfury, freezeTouch: !!def.freezeTouch,
 	                  spellDamage: def.spellDamage || 0, siege: !!def.siege,
+	                  autoSiege: def.autoSiege || null, siegeCharged: false,
 	                  reborn: !!def.reborn, enraged: false, rebornUsed: false,
 	                  extraDeathrattles: [],
 	                  attacksLeft: n, attacksMadeThisTurn: 0,
@@ -7946,7 +8003,8 @@ function newGame(playerDeckArr, enemyDeckArr){
           m.freezeVisual = false;
           m.attacksLeft = m.windfury ? 2 : 1;
         }
-        m.canAttack = m.attacksLeft > 0 && m.atk > 0;
+        if (d.autoSiege) m.attacksLeft = 0;
+        m.canAttack = !d.autoSiege && m.attacksLeft > 0 && m.atk > 0;
         if (d.onTurnStart) d.onTurnStart(this, side, m);
       });
     }
@@ -8112,7 +8170,10 @@ function cloneMinion(side, src){
               taunt: !!src.taunt, frozen: false, freezeVisual: false, shield: !!src.shield, stealth: !!src.stealth,
               poison: !!src.poison, lifesteal: !!src.lifesteal, windfury: !!src.windfury,
               freezeTouch: !!src.freezeTouch, spellDamage: src.spellDamage || 0,
-              siege: !!src.siege, reborn: !!src.reborn, enraged: false, rebornUsed: !!src.rebornUsed,
+              siege: !!src.siege,
+              autoSiege: src.autoSiege || (CARD_DB[src.cardId] && CARD_DB[src.cardId].autoSiege) || null,
+              siegeCharged: !!src.siegeCharged,
+              reborn: !!src.reborn, enraged: false, rebornUsed: !!src.rebornUsed,
               extraDeathrattles: (src.extraDeathrattles || []).map(x => Object.assign({}, x)),
               attacksLeft: 0, attacksMadeThisTurn: 0,
               canAttack: false, justSpawned: true };
@@ -8392,6 +8453,154 @@ function randomEnemyCharacterTarget(side){
   if (foe.hp > 0) targets.push({ kind:'hero', side:foe });
   return targets.length ? targets[Math.floor(Math.random() * targets.length)] : null;
 }
+function pirateBuffVfx(side, atk, hp, label){
+  const pirates = side.board.filter(m => m.hp > 0 && CARD_DB[m.cardId] && CARD_DB[m.cardId].tribe === 'pirate');
+  pirates.forEach((m, i) => {
+    const el = minionEl(m);
+    if (!el) return;
+    const pt = safeCenter(el, boardElForSide(side));
+    setTimeout(() => {
+      const ring = document.createElement('div');
+      ring.className = 'sfx-ring'; ring.style.setProperty('--c', '#61d5ef');
+      ring.style.left = pt.x + 'px'; ring.style.top = pt.y + 'px';
+      ring.style.animationDuration = perfMs(420) + 'ms';
+      document.body.appendChild(ring); setTimeout(() => ring.remove(), perfMs(460));
+      splashAt(pt, `${atk}/${hp}`, 'heal');
+    }, perfMs(i * 70));
+  });
+  if (pirates.length){
+    battleVfxLabel(safeCenter(heroEl(side), $('board')), label || 'ПИРАТЫ +1/+1', 'lightning');
+    tone(205, .16, 'sawtooth', .08, 360);
+  }
+}
+function buffAllPirates(side, atk, hp, label){
+  side.board.filter(m => m.hp > 0 && CARD_DB[m.cardId] && CARD_DB[m.cardId].tribe === 'pirate').forEach(m => {
+    m.atk += atk; m.hp += hp; m.maxHp += hp;
+    markBuffImpact(m, atk, hp);
+  });
+  pirateBuffVfx(side, atk, hp, label);
+}
+
+async function octopusWindfuryVfx(side, self){
+  const pt = safeCenter(minionEl(self), boardElForSide(side));
+  battleVfxLabel(pt, 'ДВА ЩУПАЛЬЦА', 'lightning');
+  for (let arm = -1; arm <= 1; arm += 2){
+    for (let i = 0; i < perfCount(7); i++){
+      const p = document.createElement('div');
+      p.className = 'fx-particle';
+      p.textContent = i % 2 ? '●' : '◉';
+      p.style.left = pt.x + 'px'; p.style.top = pt.y + 'px';
+      p.style.color = i % 2 ? '#8c57bd' : '#d7a1ff';
+      p.style.fontSize = Math.max(7, 16 - i) + 'px';
+      p.style.animationDuration = perfMs(610 + i * 24) + 'ms';
+      p.style.setProperty('--dx', `${arm * (24 + i * 8)}px`);
+      p.style.setProperty('--dy', `${-36 + Math.sin(i * .9) * 24 + i * 3}px`);
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), perfMs(830));
+    }
+  }
+  tone(148, .2, 'triangle', .08, 260);
+  await sleep(perfMs(360));
+}
+function octopusStrikeVfx(from, to, second){
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len, ny = dx / len;
+  for (let i = 0; i < perfCount(8); i++){
+    const t = (i + 1) / 9;
+    const p = document.createElement('div');
+    p.className = 'fx-particle'; p.textContent = i % 2 ? '●' : '◉';
+    p.style.left = from.x + 'px'; p.style.top = from.y + 'px';
+    p.style.color = second ? '#69d9ff' : '#b77ae8';
+    p.style.animationDuration = perfMs(360 + i * 18) + 'ms';
+    p.style.setProperty('--dx', `${dx * t + nx * Math.sin(t * Math.PI) * (second ? -34 : 34)}px`);
+    p.style.setProperty('--dy', `${dy * t + ny * Math.sin(t * Math.PI) * (second ? -34 : 34)}px`);
+    document.body.appendChild(p); setTimeout(() => p.remove(), perfMs(560));
+  }
+  battleVfxLabel(to, second ? 'ВТОРОЕ ЩУПАЛЬЦЕ' : 'ЩУПАЛЬЦЕ', 'shadow');
+}
+
+function siegeTarget(side, mode){
+  const foe = foeOf(side);
+  const visible = foe.board.filter(m => m.hp > 0 && !m.stealth);
+  if (mode === 'random' && visible.length && Math.random() < .5){
+    const minion = visible[Math.floor(Math.random() * visible.length)];
+    return { kind:'minion', side:foe, minion };
+  }
+  if (mode === 'taunt'){
+    const taunts = visible.filter(m => m.taunt);
+    if (taunts.length) return { kind:'minion', side:foe, minion:taunts[Math.floor(Math.random() * taunts.length)] };
+  }
+  return { kind:'hero', side:foe };
+}
+async function siegeChargeVfx(side, self){
+  const pt = safeCenter(minionEl(self), boardElForSide(side));
+  battleVfxLabel(pt, 'ЗАРЯДКА ОСАДЫ', 'armor');
+  const chars = self.cardId === 'ram' ? ['▰','⚙️'] : self.cardId === 'catapult' ? ['🪨','⚙️'] : ['➤','⚙️'];
+  for (let i = 0; i < perfCount(5); i++){
+    const p = document.createElement('div');
+    p.className = 'fx-particle'; p.textContent = chars[i % chars.length];
+    p.style.left = pt.x + 'px'; p.style.top = pt.y + 'px'; p.style.color = '#d8c184';
+    p.style.animationDuration = perfMs(760) + 'ms';
+    p.style.setProperty('--dx', (-24 + i * 12) + 'px'); p.style.setProperty('--dy', (-28 - (i % 2) * 14) + 'px');
+    document.body.appendChild(p); setTimeout(() => p.remove(), perfMs(800));
+  }
+  tone(105, .22, 'square', .07, 58);
+  await sleep(perfMs(430));
+}
+async function siegeAttackVfx(side, self, target){
+  const sourceEl = minionEl(self);
+  const targetEl = target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion);
+  const from = safeCenter(sourceEl, boardElForSide(side));
+  const to = target.kind === 'hero' ? safeCenter(targetEl, $('board')) : safeCenter(targetEl, boardElForSide(target.side));
+  if (self.cardId === 'ram' && sourceEl){
+    const dx = to.x - from.x, dy = to.y - from.y, len = Math.hypot(dx, dy) || 1;
+    const travel = Math.max(0, len - 82);
+    sourceEl.style.zIndex = 65;
+    sourceEl.style.transition = 'transform .46s cubic-bezier(.26,0,.72,1)';
+    sourceEl.style.transform = `translate(${dx / len * travel}px,${dy / len * travel}px) scale(1.06)`;
+    await sleep(perfMs(470));
+    if (targetEl) shake(targetEl);
+    spellImpact(to, 'armor', {}); battleVfxLabel(to, 'ТАРАН', 'armor');
+    sourceEl.style.transition = 'transform .42s cubic-bezier(.18,.72,.28,1)'; sourceEl.style.transform = '';
+    await sleep(perfMs(430)); sourceEl.style.zIndex = ''; sourceEl.style.transition = '';
+  } else if (self.cardId === 'catapult'){
+    const apex = { x:(from.x + to.x) / 2, y:Math.max(34, Math.min(from.y, to.y) - 155) };
+    battleVfxLabel(from, 'ПУСК', 'armor');
+    await flyElVia('<div style="font-size:38px;filter:drop-shadow(0 6px 5px #000)">🪨</div>', from, apex, to, 360, 50, 390);
+    if (targetEl) shake(targetEl); spellImpact(to, 'armor', {});
+  } else {
+    battleVfxLabel(from, 'БАЛЛИСТА', 'armor');
+    const projectile = { emoji:'➤', glow:'#e7d6a1' };
+    await flyEl(weaponProjectileHtml(projectile, from, to), from, to, 560);
+    if (targetEl) shake(targetEl); spellImpact(to, 'armor', {});
+  }
+  sfx.hit();
+}
+async function autoSiegeTurnEnd(game, side, self){
+  if (!self.siegeCharged){
+    self.siegeCharged = true;
+    if (game.turnEndVfx) game.turnEndVfx.push({
+      cardId:self.cardId, kind:'charge',
+      source:{ kind:'minion', side:side === game.player ? 'player' : 'enemy', uid:self.uid, cardId:self.cardId }
+    });
+    await siegeChargeVfx(side, self);
+    return;
+  }
+  if (self.frozen || self.freezeVisual) return;
+  const def = CARD_DB[self.cardId];
+  const target = siegeTarget(side, def.autoSiege);
+  if (!target) return;
+  if (game.turnEndVfx) game.turnEndVfx.push({
+    cardId:self.cardId,
+    source:{ kind:'minion', side:side === game.player ? 'player' : 'enemy', uid:self.uid, cardId:self.cardId },
+    kind:'attack', target:mpTargetDescriptor(target)
+  });
+  await siegeAttackVfx(side, self, target);
+  if (target.kind === 'hero') game.dealDamage(target, self.atk);
+  else damageMinion(target.minion, self.atk, false, side, self.source || self.cardId);
+  log(`🏰 ${CARD_DB[self.cardId].name} автоматически атакует на ${self.atk}`);
+}
 function resolveSapperDeathTarget(side, self){
   const foe = foeOf(side);
   if (self && self.sapperTargetKind === 'hero' && foe.hp > 0)
@@ -8466,6 +8675,7 @@ async function resolveDeaths(){
 	                           poison: !!def.poison, lifesteal: !!def.lifesteal,
 	                           windfury: !!def.windfury, freezeTouch: !!def.freezeTouch,
 	                           spellDamage: def.spellDamage || 0, siege: !!def.siege,
+	                           autoSiege: def.autoSiege || null, siegeCharged: false,
 	                           reborn: false, enraged: false, rebornUsed: true,
 	                           extraDeathrattles: [],
 	                           attacksLeft: 0, attacksMadeThisTurn: 0,
@@ -9164,6 +9374,43 @@ async function battlecryCardVfx(cardId, side, minion, targets, drawCard){
   if (!cardId || !side || !G) return;
   const sourcePt = minion ? safeCenter(minionEl(minion), boardElForSide(side)) : battleBoardPoint(side);
   const list = Array.isArray(targets) ? targets.filter(Boolean) : [];
+  if (cardId === 'octopus' && minion && minion.windfury){
+    await octopusWindfuryVfx(side, minion);
+    return;
+  }
+  if (cardId === 'captain'){
+    const heroPt = safeCenter(heroEl(side), $('board'));
+    battleVfxLabel(sourcePt, 'КАПИТАН ШТОРМ', 'lightning');
+    for (let i = 0; i < perfCount(6); i++){
+      setTimeout(() => spellImpact({ x:sourcePt.x - 45 + i * 18, y:sourcePt.y + (i % 2 ? 18 : -18) }, 'lightning', {}), perfMs(i * 45));
+    }
+    await weaponEquipVfx(CARD_DB.stormSaber, heroPt);
+    battleVfxLabel(heroPt, 'САБЛЯ ШТОРМА', 'lightning');
+    return;
+  }
+  if (cardId === 'gunner'){
+    if (!list.length){ battleVfxLabel(sourcePt, 'НЕТ БОЕПРИПАСОВ', 'armor'); return; }
+    battleVfxLabel(sourcePt, `ЗАЛП ×${list.length}`, 'fire');
+    for (const target of list){
+      const to = targetPoint(target);
+      await flyEl('<div style="font-size:20px;filter:drop-shadow(0 0 8px #ffd676)">●</div>', sourcePt, to, 250);
+      spellImpact(to, 'fire', {});
+    }
+    return;
+  }
+  if (cardId === 'navigator'){
+    battleVfxLabel(sourcePt, 'КУРС НА АБОРДАЖ', 'frost');
+    const pirates = side.board.filter(m => m !== minion && CARD_DB[m.cardId] && CARD_DB[m.cardId].tribe === 'pirate');
+    pirates.forEach((m, i) => {
+      const to = safeCenter(minionEl(m), boardElForSide(side));
+      setTimeout(() => {
+        flyEl('<div style="font-size:18px;filter:drop-shadow(0 0 8px #6bdcff)">🌊</div>', sourcePt, to, 270);
+        spellImpact(to, 'arcaneBuff', {});
+      }, perfMs(i * 65));
+    });
+    await sleep(perfMs(190 + pirates.length * 55));
+    return;
+  }
   if (cardId === 'parrot' || cardId === 'cabinboy'){
     const info = minion && minion.weaponBuffVfx;
     if (info && info.location === 'none'){
@@ -9646,7 +9893,9 @@ function liveAuditCombatVfx(attSide, minion, target, remoteReplay){
   const attPt = safeCenter(minionEl(minion), $('board'));
   const pt = target.kind === 'hero' ? safeCenter(heroEl(target.side), $('board')) : safeCenter(minionEl(target.minion), $('board'));
   const def = CARD_DB[minion.cardId];
-  if (minion.windfury){
+  if (minion.cardId === 'octopus' && minion.windfury){
+    octopusStrikeVfx(attPt, pt, remoteReplay ? minion.attacksLeft <= 1 : minion.attacksLeft === 0);
+  } else if (minion.windfury){
     windfuryStrikeVfx(attPt, pt, remoteReplay ? minion.attacksLeft <= 1 : minion.attacksLeft === 0);
   }
   if (remoteReplay && minion.poison) poisonStrikeVfx(pt);
@@ -9756,7 +10005,7 @@ const MINION_STATUS_INFO = {
   stealth:{ icon:'👤', name:'Скрытность', desc:'Нельзя выбрать целью атаки или заклинания, пока существо само не атакует. Массовый урон всё равно попадает.' },
   deathrattle:{ icon:'💀', name:'Хрип', desc:'Эффект срабатывает, когда существо погибает. Хрипы могут запускать друг друга по цепочке.' },
   charge:{ icon:'⚡', name:'Рывок', desc:'Может атаковать сразу в ход призыва.' },
-  siege:{ icon:'🏰', name:'Осада', desc:'Атакует только вражеского героя и игнорирует Провокацию.' },
+  siege:{ icon:'🏰', name:'Автономная осада', desc:'Не управляется вручную. После зарядки сама атакует в конце хода по собственным правилам и не получает ответный урон.' },
   enrage:{ icon:'🔥', name:'Берсерк', desc:'Пока существо ранено, его атака усилена.' },
   sleep:{ icon:'💤', name:'Не готово', desc:'Существо пока не может атаковать: обычно из-за болезни призыва или уже потраченной атаки.' }
 };
@@ -9781,7 +10030,7 @@ function minionStatusList(m, def, side, frozenVisible){
     add('deathrattle', count > 1 ? '×' + count : '');
   }
   if (def && def.charge) add('charge');
-  if (m.siege || (def && def.siege)) add('siege');
+  if (m.siege || (def && def.siege)) add('siege', def && def.autoSiege ? (m.siegeCharged ? 'ГОТОВО' : 'ЗАРЯД') : '');
   if (m.enraged) add('enrage');
   if (side && G && G.turn === side.name && !m.canAttack && !frozenVisible && m.atk > 0) add('sleep');
   return out;
@@ -9813,7 +10062,7 @@ function renderBoard(el, side){
     const statuses = minionStatusList(m, def, side, frozenVisible);
     d.innerHTML = `
       ${minionStatusHTML(statuses)}
-      <div class="m-icon">${def.icon}</div>
+      <div class="m-icon">${cardArtHTML(def)}</div>
       <div class="m-name">${def.name}</div>
       <div class="rgem ${def.rarity}">${def.tribe ? `<i class="tico">${TRIBE_ICON[def.tribe]}</i>` : ''}</div>
       <div class="stat atk">${m.atk}</div>
@@ -9845,6 +10094,10 @@ function dynCardText(def, side){
   }
   return t;
 }
+function cardArtHTML(def){
+  if (!def) return '';
+  return def.art ? `<img src="${def.art}" alt="" draggable="false">` : def.icon;
+}
 function cardHTML(cardId, side, cardMod){
   const def = CARD_DB[cardId];
   const tcls = def.secret ? 'ctype-secret' : def.type === 'weapon' ? 'ctype-weapon' : def.type === 'spell' ? 'ctype-spell' : 'ctype-minion';
@@ -9860,7 +10113,7 @@ function cardHTML(cardId, side, cardMod){
     <div class="ctype ${tcls}"></div>
     ${emblem ? `<div class="ctype-emblem">${emblem}</div>` : ''}
     <div class="c-cost">${def.cost}</div>
-    <div class="c-icon">${def.icon}</div>
+    <div class="c-icon">${cardArtHTML(def)}</div>
     <div class="rgem ${def.rarity}">${def.tribe ? `<i class="tico">${TRIBE_ICON[def.tribe]}</i>` : ''}</div>
     <div class="c-name">${def.name}</div>
     <div class="c-text">${fmtCardText(txt)}</div>
@@ -10134,7 +10387,9 @@ async function weaponEquipVfx(wdef, pt){
     : 'armor';
   spellImpact(pt, school, { legendary:wdef.rarity === 'legendary' });
   battleVfxLabel(pt, `ОРУЖИЕ: ${wdef.name}`, school);
-  const icon = `<div style="font-size:${wdef.id === 'anchor' ? 44 : 38}px;filter:drop-shadow(0 0 12px ${wdef.id === 'musket' ? '#ffb45c' : '#ffe3a0'})">${wdef.icon}</div>`;
+  const icon = wdef.art
+    ? `<img src="${wdef.art}" style="width:76px;height:54px;object-fit:contain;filter:drop-shadow(0 0 12px #67d9ff)">`
+    : `<div style="font-size:${wdef.id === 'anchor' ? 44 : 38}px;filter:drop-shadow(0 0 12px ${wdef.id === 'musket' ? '#ffb45c' : '#ffe3a0'})">${wdef.icon}</div>`;
   await flyEl(icon, { x:pt.x - 46, y:pt.y - 35 }, pt, 210);
   if (wdef.id === 'anchor'){
     battleBeam({ x:pt.x - 55, y:pt.y - 28 }, pt, 'armor', 360);
@@ -10169,6 +10424,13 @@ async function meleeWeaponContactVfx(wdef, from, to){
       { x:to.x - 34, y:to.y + 32 }, { x:to.x + 24, y:to.y - 28 }, 160);
     spellImpact(to, 'shadow', {});
     battleVfxLabel(to, 'КРОВАВЫЙ РАЗРЕЗ', 'shadow');
+    return;
+  }
+  if (id === 'stormSaber'){
+    await flyEl('<img src="assets/cards/boarding-saber.png" style="width:92px;height:66px;object-fit:contain;filter:drop-shadow(0 0 12px #62d9ff)">',
+      { x:to.x - 42, y:to.y + 34 }, { x:to.x + 24, y:to.y - 25 }, 220);
+    spellImpact(to, 'lightning', {});
+    battleVfxLabel(to, 'ШТОРМОВОЙ РАЗРЕЗ', 'lightning');
     return;
   }
   if (id === 'anchor'){
@@ -10323,7 +10585,7 @@ function renderWeapon(el, side){
   const w = side.weapon;
   el.style.display = 'flex';
   el.innerHTML = `
-    <div class="w-icon">${CARD_DB[w.cardId].icon}</div>
+    <div class="w-icon">${cardArtHTML(CARD_DB[w.cardId])}</div>
     <div class="w-stats"><span class="w-atk">${w.atk}</span><span class="w-dur">${w.ranged ? '🏹' : '🛠'}${w.dur}</span></div>`;
 }
 function isFriendlyMechOf(side, m){ return CARD_DB[m.cardId].tribe === 'mech'; }
@@ -11552,7 +11814,7 @@ const KEYWORDS = {
   battlecry:{ n:'Боевой клич', d:'Эффект срабатывает один раз — когда карту разыгрывают из руки.' },
   weapon:{ n:'Оружие', d:'Экипируется герою. Тащи СВОЙ портрет на цель — герой атакует раз в ход. Каждый удар −1 прочность.' },
   ranged:{ n:'Боезапас', d:'Дальнобойное: герой стреляет издали и не получает сдачу от существ. Заряды 🏹 = прочность.' },
-  siege:{ n:'Осада', d:'Атакует только вражеского героя — зато игнорирует Провокацию.' },
+  siege:{ n:'Автономная осада', d:'Не управляется вручную. После зарядки сама атакует в конце хода и не получает ответный урон.' },
   secret:{ n:'Секрет', d:'Кладётся скрытно (враг видит только 🔮) и срабатывает сам в ответ на действие врага. Максимум 3 одновременно.' },
   draw:{ n:'Добор', d:'Берёте карту из колоды. Если колода пуста — усталость бьёт по герою всё сильнее.' }
 };
@@ -14084,6 +14346,7 @@ async function mpAnimateRemoteAction(snap){
       if (w) splashAt(to, Math.max(1, w.atk || 1));
       if (w && w.cardId === 'anchor' && target && target.kind === 'minion' && target.minion.taunt)
         tauntStripVfx(target.minion);
+      if (w && w.cardId === 'stormSaber') pirateBuffVfx(G.enemy, 1, 1, 'ШТОРМОВОЙ НАТИСК');
       sfx.hit();
       await sleep(90);
       return;
@@ -14099,10 +14362,21 @@ async function mpAnimateRemoteAction(snap){
     }
     if (action === 'turn:end' || action === 'turn:end-game'){
       for (const cue of meta.turnEndVfx || []){
-        if (cue.cardId !== 'izaroth') continue;
         const source = mpActualTargetFromRemoteDesc(cue.source);
-        const target = mpActualTargetFromRemoteDesc(cue.target);
-        if (source && source.minion && target) await izarothBreathVfx(source.side, source.minion, target);
+        if (!source || !source.minion) continue;
+        if (cue.cardId === 'izaroth'){
+          const target = mpActualTargetFromRemoteDesc(cue.target);
+          if (target) await izarothBreathVfx(source.side, source.minion, target);
+          continue;
+        }
+        const def = CARD_DB[cue.cardId];
+        if (def && def.autoSiege){
+          if (cue.kind === 'charge') await siegeChargeVfx(source.side, source.minion);
+          else {
+            const target = mpActualTargetFromRemoteDesc(cue.target);
+            if (target) await siegeAttackVfx(source.side, source.minion, target);
+          }
+        }
       }
       sfx.gong();
       await sleep(120);
@@ -15237,6 +15511,14 @@ const ANIM_PATCH_NOTES = {
   shipmate:'Аудит-сцена: базовый пиратский выход с водой и флагом.',
   smuggler:'Аудит-сцена: 2 маны 1/3; хрип показывает груз-карту и только затем отправляет её в руку.',
   seawolf:'Аудит-сцена: оружие передаёт Морскому волку морской импульс +2/+2.',
+  gunner:'Аудит-сцена: залпы Канонира распределяются по случайным целям по числу прочности оружия.',
+  navigator:'Аудит-сцена: морская команда Штурмана усиливает всех остальных пиратов +1/+1.',
+  octopus:'Последний патч: 3/4. С оружием получает Неистовство ветра; две атаки показаны щупальцами без лазерных линий.',
+  captain:'Последний патч: 3/4. Экипирует уникальную Саблю Шторма 2/2; каждый её удар даёт всем пиратам +1/+1.',
+  ram:'Последний патч: 2/5. Автономно заряжается и в конце следующих ходов таранит Провокацию или героя без ответного урона.',
+  catapult:'Последний патч: 5/3. После зарядки медленно бросает камень: 50% в героя, 50% в случайное существо.',
+  ballista:'Последний патч: 5/3. После зарядки сама стреляет в героя сквозь Провокацию без ответного урона.',
+  ent:'Последний патч: здоровье 10 → 8; итоговые характеристики 5/8.',
   shadowimp:'Общая сцена: Тень-бес входит в Скрытность через дым.',
   spy:'Общая сцена: Лазутчица входит в Скрытность через дым и раскрывается перед атакой.',
   chronomagus:'Легендарная сцена: повтор заклинаний должен ощущаться как цепочка кастов.',
@@ -15254,6 +15536,7 @@ const ANIM_AUDIT_SCENES = new Set([
   'panther','ambusher','ghostblade','ratking','sapper','souljar','frostwight','goldgoose',
   'explosive','shackles','mirror','counterspell','saber','axe','anchor','musket',
   'longbow','bloodblade','parrot','cabinboy','boarder','shipmate','smuggler','seawolf',
+  'gunner','navigator','octopus','captain','ram','catapult','ballista','ent',
   'codexIntervention','chronomagus','abyssMaw','huntmastersHorn','cryptSovereign'
 ]);
 const RECENT_REBALANCE_CARDS = new Set([
@@ -15263,7 +15546,8 @@ const RECENT_REBALANCE_CARDS = new Set([
   'pyromancer','fieldmedic','scout','cultist','shadowimp','spy',
   'panther','ambusher','ghostblade','ratking','sapper','souljar','frostwight','goldgoose',
   'explosive','shackles','mirror','counterspell','saber','axe','anchor','musket',
-  'longbow','bloodblade','parrot','cabinboy','boarder','shipmate','smuggler','seawolf'
+  'longbow','bloodblade','parrot','cabinboy','boarder','shipmate','smuggler','seawolf',
+  'gunner','navigator','octopus','captain','ram','catapult','ballista','ent'
 ]);
 const ANIM_AUDIT_HINTS = {
   doll:'Аудит-сцена: хрип выпускает теневой урон в героя врага.',
@@ -15326,6 +15610,14 @@ const ANIM_AUDIT_HINTS = {
   shipmate:'Аудит-сцена: проверяется спокойный общий пиратский выход без лишнего уникального эффекта.',
   smuggler:'Аудит-сцена: хрип раскрывает реальную добираемую карту владельцу и переносит её в руку.',
   seawolf:'Аудит-сцена: от оружия к волку проходит волна, после которой показывается +2/+2.',
+  gunner:'Аудит-сцена: последовательные пушечные попадания идут по реальным случайным целям.',
+  navigator:'Аудит-сцена: морская волна усиливает каждого союзного пирата.',
+  octopus:'Аудит-сцена: условие оружия включает два щупальца; первая и вторая атака имеют разные изгибы.',
+  captain:'Аудит-сцена: новый портрет Капитана сопровождает материализацию Сабли Шторма и общий пиратский баф после удара.',
+  ram:'Аудит-сцена: первый конец хода — зарядка, следующий — медленный физический таран без ответного урона.',
+  catapult:'Аудит-сцена: механизм заряжается, затем камень летит по высокой медленной дуге.',
+  ballista:'Аудит-сцена: механизм заряжается, затем выпускает медленный ориентированный болт.',
+  ent:'Аудит-сцена: проверить читаемость нерфа до 5/8 и Провокации.',
   graveBinder:'Аудит-сцена: хрип передаёт Возрождение союзнику.',
   cryptNurse:'Аудит-сцена: лечение от нежити идёт лучами к герою.',
   boneMarshal:'Аудит-сцена: возрождённый союзник получает видимый +1/+1.',
@@ -15425,7 +15717,7 @@ function animCardTileHtml(id){
   return `
     ${animRecentlyRebalanced(id) ? '<span class="anim-rebalance-mark" title="Недавно перебалансирована — протестировать в первую очередь">⚖</span>' : ''}
     <div class="act-head">
-      <div class="act-icon">${c.icon}</div>
+      <div class="act-icon">${cardArtHTML(c)}</div>
       <div class="act-name">${safeTxt(c.name)}<small>${safeTxt(animCardMeta(id))}</small></div>
       <div class="act-cost">${c.cost || 0}</div>
     </div>
@@ -16055,7 +16347,7 @@ function startAnimSandbox(cardId){
   G.player.hand=[];G.player.handSources=[];G.player.handMods=[];G.enemy.hand=['soldier','fireball','bear'];G.enemy.handSources=[null,null,null];G.enemy.handMods=[null,null,null];
   [cardId,cardId,'fireball','armorUp','bolt'].forEach(id=>pushHandCard(G.player,id,id===cardId?cardId:null));
   if(cardId==='parrot'||cardId==='cabinboy') pushHandCard(G.player,'saber',cardId);
-  if(cardId==='seawolf') equipWeapon(G.player,CARD_DB.saber);
+  if(cardId==='seawolf'||cardId==='octopus'||cardId==='gunner') equipWeapon(G.player,CARD_DB.saber);
   animSandboxSetupBoard();
   applyTableTheme();applyHeroUI();applyCosmetics();
   $('log').innerHTML='';$('resultOverlay').classList.remove('active');
