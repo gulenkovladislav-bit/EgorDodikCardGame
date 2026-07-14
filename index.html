@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-13-stealth-rattles-audit';
+    var build = '2026-07-14-secrets-weapons-audit';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4441,7 +4441,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-13-stealth-rattles-audit';
+const CARD_ARENA_BUILD = '2026-07-14-secrets-weapons-audit';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -5062,19 +5062,20 @@ const CARD_DB = {
   explosive: {
     id:'explosive', name:'Взрывная ловушка', icon:'💥',
     type:'spell', cost:2, rarity:'rare', secret:true, secretOn:'attack',
-    text:'Секрет: когда враг атакует вашего героя — 2 урона всем его существам.', starter:0,
+    text:'Секрет: когда враг атакует вашего героя — 2 урона всем врагам.', starter:0,
     secretIf(game, owner, data){ return data.target.kind === 'hero'; },
     secretFx(game, owner, data){
       const foe = foeOf(owner);
       foe.board.slice().forEach(x => game.dealDamage({ kind:'minion', side: foe, minion: x }, 2));
+      game.dealDamage({ kind:'hero', side:foe }, 2);
     }
   },
   shackles: {
     id:'shackles', name:'Оковы', icon:'⛓️',
     type:'spell', cost:2, rarity:'rare', secret:true, secretOn:'attack',
-    text:'Секрет: атакующее существо врага получает 2 урона и замерзает.', starter:0,
+    text:'Секрет: атакующее существо врага получает 3 урона и замерзает.', starter:0,
     secretFx(game, owner, data){
-      damageMinion(data.attacker, 2, false);
+      damageMinion(data.attacker, 3, false);
       if (data.attacker.hp > 0)
         game.freeze({ kind:'minion', side: foeOf(owner), minion: data.attacker });
     }
@@ -5115,8 +5116,15 @@ const CARD_DB = {
   },
   anchor: {
     id:'anchor', name:'Якорь-кистень', icon:'⚓',
-    type:'weapon', cost:5, atk:4, dur:2, rarity:'epic',
-    text:'Оружие героя 4/2.', starter:0
+    type:'weapon', cost:4, atk:4, dur:2, rarity:'epic',
+    text:'Оружие героя 4/2. После удара по существу снимает с него Провокацию.', starter:0,
+    onHeroAttack(game, side, target){
+      if (!target || target.kind !== 'minion' || target.minion.hp <= 0 || !target.minion.taunt) return;
+      target.minion.taunt = false;
+      trackCurrent('utility', 1);
+      tauntStripVfx(target.minion);
+      log(`⚓ ${CARD_DB[target.minion.cardId].name} теряет Провокацию`);
+    }
   },
   musket: {
     id:'musket', name:'Мушкет', icon:'🔫',
@@ -8269,11 +8277,12 @@ function checkSecrets(owner, ev, data){
     const def = CARD_DB[owner.secrets[i]];
 	    if (def && def.secretOn === ev && (!def.secretIf || def.secretIf(G, owner, data || {}))){
 		      owner.secrets.splice(i, 1);
-		      const secretSource = owner.secretSources ? owner.secretSources.splice(i, 1)[0] : def.id;
-		      banner(`🔮 ${def.name}!`);
-		      log(`🔮 ${title(owner)} — секрет: ${def.name}`);
-		      sfx.rare();
-		      try{ const _sh = heroEl(owner); if (_sh) spellImpact(center(_sh), 'arcane', { legendary: def.rarity === 'legendary' }); }catch(e){}
+	      const secretSource = owner.secretSources ? owner.secretSources.splice(i, 1)[0] : def.id;
+	      banner(`🔮 ${def.name}!`);
+	      log(`🔮 ${title(owner)} — секрет: ${def.name}`);
+	      sfx.rare();
+	      secretTriggerVfx(owner, def, data || {});
+	      try{ const _sh = heroEl(owner); if (_sh) spellImpact(center(_sh), 'arcane', { legendary: def.rarity === 'legendary' }); }catch(e){}
 		      const r = withImpactSource(owner, secretSource || def.id, () => def.secretFx(G, owner, data || {}) || {});
 	      runSecretTriggered(owner, def.id);
 	      if (r.cancel) out.cancel = true;
@@ -8704,6 +8713,86 @@ function battleVfxLabel(pt, text, school){
   document.body.appendChild(el);
   setTimeout(() => el.remove(), perfMs(980));
   return el;
+}
+function secretTriggerVfx(owner, def, data){
+  if (!owner || !def || !G) return;
+  const ownerPt = safeCenter(heroEl(owner), $('board'));
+  const foe = foeOf(owner);
+  spellImpact(ownerPt, 'arcane', { legendary:def.rarity === 'legendary' });
+  battleVfxLabel(ownerPt, `СЕКРЕТ: ${def.name}`, 'gold');
+  if (def.id === 'explosive'){
+    setTimeout(() => {
+      fireWaveVfx(ownerPt);
+      const points = battleSidePoints(foe).map(x => x.pt);
+      points.push(safeCenter(heroEl(foe), $('board')));
+      points.forEach((pt, i) => setTimeout(() => {
+        spellImpact(pt, 'fire', {});
+        battleVfxLabel(pt, '−2', 'fire');
+      }, perfMs(i * 40)));
+      tone(105, .2, 'sawtooth', .16, 45);
+    }, perfMs(90));
+    return;
+  }
+  if (def.id === 'shackles' && data.attacker){
+    const to = safeCenter(minionEl(data.attacker), boardElForSide(foe));
+    const offsets = [[-48,-28],[48,-28],[-48,28],[48,28]];
+    offsets.forEach((o, i) => setTimeout(() => {
+      flyEl('<div style="font-size:25px;filter:drop-shadow(0 0 8px #b8d8ef)">⛓️</div>',
+        { x:to.x + o[0], y:to.y + o[1] }, to, 190);
+    }, perfMs(i * 28)));
+    setTimeout(() => {
+      spellImpact(to, 'frost', {});
+      iceCrackVfx(to);
+      battleVfxLabel(to, 'ОКОВЫ −3', 'frost');
+    }, perfMs(180));
+    return;
+  }
+  if (def.id === 'mirror'){
+    const hadRoom = owner.board.length < MAX_BOARD;
+    const source = [...foe.board].reverse().find(m => m.cardId === data.cardId);
+    const from = source ? safeCenter(minionEl(source), boardElForSide(foe)) : battleBoardPoint(foe);
+    const to = battleBoardPoint(owner);
+    const mid = { x:(from.x + to.x) / 2, y:(from.y + to.y) / 2 };
+    setTimeout(async () => {
+      spellImpact(mid, 'arcane', { legendary:true });
+      await flyEl('<div style="font-size:42px;filter:drop-shadow(0 0 14px #bde8ff)">🪞</div>', from, mid, 220);
+      await flyEl(`<div style="font-size:38px;filter:drop-shadow(0 0 12px #c79bff)">${CARD_DB[data.cardId]?.icon || '👤'}</div>`, mid, to, 280);
+      spellImpact(to, 'arcane', {});
+      battleVfxLabel(to, hadRoom ? 'КОПИЯ' : 'СТОЛ ЗАПОЛНЕН', 'arcane');
+    }, perfMs(70));
+    return;
+  }
+  if (def.id === 'counterspell'){
+    const from = safeCenter(heroEl(foe), $('board'));
+    const seal = { x:(from.x + ownerPt.x) / 2, y:(from.y + ownerPt.y) / 2 };
+    setTimeout(async () => {
+      battleBeam(from, seal, 'arcane', 360);
+      await flyEl('<div style="font-size:44px;filter:drop-shadow(0 0 15px #ff7891)">🚫</div>', ownerPt, seal, 240);
+      spellImpact(seal, 'arcane', { legendary:true });
+      battleVfxLabel(seal, 'РАЗВЕЯНО', 'arcane');
+      tone(170, .18, 'square', .11, 70);
+    }, perfMs(60));
+  }
+}
+function tauntStripVfx(minion){
+  if (!minion) return;
+  const el = minionEl(minion);
+  const pt = safeCenter(el, $('board'));
+  spellImpact(pt, 'armor', {});
+  battleVfxLabel(pt, 'ПРОВОКАЦИЯ СНЯТА', 'armor');
+  for (let i = 0; i < perfCount(6); i++){
+    const p = document.createElement('div');
+    p.className = 'fx-particle';
+    p.textContent = i % 2 ? '◇' : '🛡️';
+    p.style.left = pt.x + 'px'; p.style.top = pt.y + 'px';
+    p.style.color = '#d7e2ec'; p.style.fontSize = (12 + i % 3 * 3) + 'px';
+    p.style.animationDuration = perfMs(560) + 'ms';
+    const a = Math.PI * 2 * i / 6;
+    p.style.setProperty('--dx', Math.cos(a) * (35 + i * 2) + 'px');
+    p.style.setProperty('--dy', Math.sin(a) * (35 + i * 2) + 'px');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), perfMs(600));
+  }
 }
 function battleBeam(from, to, school, dur){
   if (!from || !to) return null;
@@ -9864,6 +9953,7 @@ async function playWeapon(handIdx, fromPt){
   if (fromPt) await flyEl(`<div class="card ${skinClass(SAVE.back)}" style="margin:0">${cardHTML(cardId)}</div>`,
                           fromPt, center($('playerHero')), 260);
   withImpactSource(G.player, source, () => equipWeapon(G.player, def));
+	  await weaponEquipVfx(def, safeCenter(heroEl(G.player), $('board')));
 	  log(`Ты вооружаешься: ${def.name}`);
 	  G.busy = false;
 	  render();
@@ -9878,17 +9968,93 @@ function weaponProjectile(wdef){
   if (/anchor|якор/.test(id)) return { emoji:'⚓', glow:'#bcd0dc' };
   return { emoji:ic, glow:'#ffd98a' };
 }
+async function weaponEquipVfx(wdef, pt){
+  if (!wdef || !pt) return;
+  const school = wdef.id === 'anchor' ? 'frost' : (wdef.id === 'musket' ? 'fire' : 'armor');
+  spellImpact(pt, school, { legendary:wdef.rarity === 'legendary' });
+  battleVfxLabel(pt, `ОРУЖИЕ: ${wdef.name}`, school);
+  const icon = `<div style="font-size:${wdef.id === 'anchor' ? 44 : 38}px;filter:drop-shadow(0 0 12px ${wdef.id === 'musket' ? '#ffb45c' : '#ffe3a0'})">${wdef.icon}</div>`;
+  await flyEl(icon, { x:pt.x - 46, y:pt.y - 35 }, pt, 210);
+  if (wdef.id === 'anchor'){
+    battleBeam({ x:pt.x - 55, y:pt.y - 28 }, pt, 'armor', 360);
+    for (let i = 0; i < perfCount(4); i++)
+      setTimeout(() => spellImpact({ x:pt.x - 24 + i * 16, y:pt.y + 16 }, 'frost', {}), perfMs(i * 35));
+  } else if (wdef.id === 'musket'){
+    rangedWeaponMuzzleVfx(wdef, { x:pt.x + 24, y:pt.y - 4 });
+  }
+  await sleep(perfMs(90));
+}
+async function meleeWeaponContactVfx(wdef, from, to){
+  const id = wdef && wdef.id;
+  if (id === 'saber'){
+    await flyEl('<div style="font-size:31px;filter:drop-shadow(0 0 9px #fff1ad)">🗡️</div>',
+      { x:to.x - 34, y:to.y + 27 }, { x:to.x + 22, y:to.y - 25 }, 150);
+    battleVfxLabel(to, 'РУБЯЩИЙ УДАР', 'gold');
+    spellImpact(to, 'armor', {});
+    return;
+  }
+  if (id === 'axe'){
+    await flyEl('<div style="font-size:38px;filter:drop-shadow(0 0 10px #ffcc74)">🪓</div>',
+      { x:to.x - 38, y:to.y - 42 }, { x:to.x + 9, y:to.y + 8 }, 180);
+    spellImpact(to, 'fire', {});
+    battleVfxLabel(to, 'ТЯЖЁЛЫЙ УДАР', 'fire');
+    return;
+  }
+  if (id === 'anchor'){
+    battleBeam(from, to, 'armor', 430);
+    await flyEl('<div style="font-size:44px;filter:drop-shadow(0 0 12px #9edcff) drop-shadow(0 4px 4px #000)">⚓</div>',
+      { x:to.x - 42, y:to.y - 48 }, to, 220);
+    spellImpact(to, 'frost', { legendary:false });
+    battleVfxLabel(to, 'УДАР ЯКОРЕМ', 'frost');
+    for (let i = 0; i < perfCount(5); i++){
+      const p = document.createElement('div');
+      p.className = 'fx-particle'; p.textContent = i % 2 ? '💧' : '◌';
+      p.style.left = to.x + 'px'; p.style.top = to.y + 'px'; p.style.color = '#8fd0ff';
+      p.style.animationDuration = perfMs(520) + 'ms';
+      p.style.setProperty('--dx', (-34 + i * 17) + 'px');
+      p.style.setProperty('--dy', (-18 - Math.abs(i - 2) * 8) + 'px');
+      document.body.appendChild(p); setTimeout(() => p.remove(), perfMs(560));
+    }
+    return;
+  }
+  spellImpact(to, 'armor', {});
+}
+function rangedWeaponMuzzleVfx(wdef, from){
+  if (!wdef || wdef.id !== 'musket') return;
+  spellImpact(from, 'fire', {});
+  battleVfxLabel(from, 'ВЫСТРЕЛ', 'fire');
+  for (let i = 0; i < perfCount(5); i++){
+    const p = document.createElement('div');
+    p.className = 'fx-particle'; p.textContent = i % 2 ? '·' : '☁';
+    p.style.left = (from.x + 10) + 'px'; p.style.top = from.y + 'px';
+    p.style.color = '#d8d2c4'; p.style.fontSize = (13 + i * 2) + 'px';
+    p.style.animationDuration = perfMs(480) + 'ms';
+    p.style.setProperty('--dx', (12 + i * 8) + 'px');
+    p.style.setProperty('--dy', (-20 + i * 7) + 'px');
+    document.body.appendChild(p); setTimeout(() => p.remove(), perfMs(520));
+  }
+}
 /* выпад портрета героя (ближний бой) */
-async function heroLunge(el, from, to){
+async function heroLunge(el, from, to, targetEl, onContact){
   if (!el) return;
   const dx = to.x - from.x, dy = to.y - from.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  const ux = dx / dist, uy = dy / dist;
+  const sr = el.getBoundingClientRect();
+  const tr = targetEl && targetEl.getBoundingClientRect ? targetEl.getBoundingClientRect() : null;
+  const sourceExtent = Math.abs(ux) * sr.width / 2 + Math.abs(uy) * sr.height / 2;
+  const targetExtent = tr ? Math.abs(ux) * tr.width / 2 + Math.abs(uy) * tr.height / 2 : 38;
+  const travel = Math.max(0, dist - sourceExtent - targetExtent - 3);
   el.style.zIndex = 60;
-  el.style.transition = 'transform .16s cubic-bezier(.4,0,1,1)';
-  el.style.transform = `translate(${dx * 0.34}px, ${dy * 0.34}px) scale(1.07)`;
-  await sleep(160);
-  el.style.transition = 'transform .2s ease-out';
+  el.style.transition = 'transform .19s cubic-bezier(.32,0,.78,1)';
+  el.style.transform = `translate(${ux * travel}px, ${uy * travel}px) scale(1.06)`;
+  await sleep(190);
+  if (onContact) await onContact();
+  el.style.transition = 'transform .22s cubic-bezier(.16,.75,.35,1)';
   el.style.transform = '';
-  await sleep(70);
+  await sleep(110);
+  el.style.zIndex = '';
+  el.style.transition = '';
 }
 /* отдача портрета назад (дальний бой) */
 async function heroRecoil(el, from, to){
@@ -9911,45 +10077,57 @@ async function heroSwing(side, target){
   const wdef = CARD_DB[w.cardId];
   const swFrom = safeCenter(heroEl(side), $('board'));
   const swTo = combatPoint(target, side);
+  let hitApplied = false;
+  const applyHit = () => {
+    if (hitApplied) return;
+    hitApplied = true;
+    if (tgtEl) shake(tgtEl);
+    if (target.kind === 'hero'){
+      withImpactSource(side, w.source || w.cardId, () => G.dealDamage(target, w.atk));
+      if (w.lifesteal){
+        lifestealDrainVfx(swTo, swFrom, w.atk);
+        withImpactSource(side, w.source || w.cardId, () => G.heal({ kind:'hero', side }, w.atk));
+      }
+      log(`${title(side)}: удар оружием на ${w.atk}`);
+    } else {
+      const em = target.minion;
+      const dealt = damageMinion(em, w.atk, false, side, w.source || w.cardId);
+      if (dealt > 0 && w.lifesteal){
+        lifestealDrainVfx(swTo, swFrom, dealt);
+        withImpactSource(side, w.source || w.cardId, () => G.heal({ kind:'hero', side }, dealt));
+      }
+      if (!w.ranged && em.atk > 0){
+        const back = withImpactSource(target.side, em.source || em.cardId, () => G.hurtHero(side, em.atk));
+        trackImpact(target.side, em.source || em.cardId, 'damage', back);
+        const el = heroEl(side);
+        shake(el); splashAt(center(el), em.atk);
+        if (back > 0 && em.freezeTouch && side.hp > 0) G.freeze({ kind:'hero', side });
+      }
+      sfx.hit();
+      log(`${title(side)}: оружие ⚔ ${CARD_DB[em.cardId].name}`);
+    }
+    runHeroAttack(side, target);
+    w.dur--;
+    if (w.dur <= 0){
+      side.weapon = null;
+      log(`🗡 ${title(side)}: оружие сломалось`);
+      sfx.death();
+    }
+    render();
+  };
   if (w.ranged){
     await heroRecoil(heroEl(side), swFrom, swTo);
     const pj = weaponProjectile(wdef);
+    rangedWeaponMuzzleVfx(wdef, swFrom);
     await flyEl(`<div style="font-size:26px;filter:drop-shadow(0 0 6px ${pj.glow}) drop-shadow(0 2px 3px #000)">${pj.emoji}</div>`, swFrom, swTo, 220);
+    applyHit();
   } else {
-    await heroLunge(heroEl(side), swFrom, swTo);
+    await heroLunge(heroEl(side), swFrom, swTo, tgtEl, async () => {
+      await meleeWeaponContactVfx(wdef, swFrom, swTo);
+      applyHit();
+    });
   }
-  if (tgtEl) shake(tgtEl);
-  if (target.kind === 'hero'){
-    withImpactSource(side, w.source || w.cardId, () => G.dealDamage(target, w.atk));
-    if (w.lifesteal){
-      lifestealDrainVfx(swTo, swFrom, w.atk);
-      withImpactSource(side, w.source || w.cardId, () => G.heal({ kind:'hero', side }, w.atk));
-    }
-    log(`${title(side)}: удар оружием на ${w.atk}`);
-  } else {
-    const em = target.minion;
-    const dealt = damageMinion(em, w.atk, false, side, w.source || w.cardId);
-    if (dealt > 0 && w.lifesteal){
-      lifestealDrainVfx(swTo, swFrom, dealt);
-      withImpactSource(side, w.source || w.cardId, () => G.heal({ kind:'hero', side }, dealt));
-    }
-    if (!w.ranged && em.atk > 0){
-      const back = withImpactSource(target.side, em.source || em.cardId, () => G.hurtHero(side, em.atk));
-      trackImpact(target.side, em.source || em.cardId, 'damage', back);
-      const el = heroEl(side);
-      shake(el); splashAt(center(el), em.atk);
-      if (back > 0 && em.freezeTouch && side.hp > 0) G.freeze({ kind:'hero', side });
-    }
-    sfx.hit();
-    log(`${title(side)}: оружие ⚔ ${CARD_DB[em.cardId].name}`);
-	  }
-	  runHeroAttack(side, target);
-	  w.dur--;
-  if (w.dur <= 0){
-    side.weapon = null;
-    log(`🗡 ${title(side)}: оружие сломалось`);
-    sfx.death();
-  }
+  if (!hitApplied) applyHit();
   await resolveDeaths();
   render();
 }
@@ -10989,6 +11167,7 @@ async function aiTurn(){
 	      await flyEl(`<div class="card ${skinClass(G.enemyBack)}" style="margin:0">${cardHTML(def.id)}</div>`,
 	                  center($('enemyHand')), center($('enemyHero')), 340);
 	      withImpactSource(G.enemy, source, () => equipWeapon(G.enemy, def));
+      await weaponEquipVfx(def, safeCenter(heroEl(G.enemy), $('board')));
       log(`Враг вооружается: ${def.name}`);
       render();
       await sleep(380);
@@ -13615,6 +13794,7 @@ function mpVisualSideState(side){
     hand: side && side.hand ? side.hand.length : 0,
     deck: side && side.deck ? side.deck.length : 0,
     deckCards: side && side.deck ? side.deck.slice() : [],
+    secrets: side && side.secrets ? side.secrets.slice() : [],
     board: (side && side.board || []).map(m => ({
       uid:m.uid, cardId:m.cardId, atk:m.atk || 0, hp:m.hp || 0,
       maxHp:m.maxHp || CARD_DB[m.cardId]?.hp || 0,
@@ -13670,7 +13850,8 @@ async function mpAnimateRemoteAction(snap){
     }
     if (action.startsWith('play:weapon:')){
       await flyEl(mpRemoteCardHtml(cardId), fromHand, enemyHeroPt, 300);
-      spellImpact(enemyHeroPt, 'armor', { legendary:def && def.rarity === 'legendary' });
+      if (def) await weaponEquipVfx(def, enemyHeroPt);
+      else spellImpact(enemyHeroPt, 'armor', {});
       return;
     }
     if (action.startsWith('play:spell:')){
@@ -13718,12 +13899,16 @@ async function mpAnimateRemoteAction(snap){
       if (w && w.ranged){
         await heroRecoil(heroElFrom, enemyHeroPt, to);
         const pj = weaponProjectile(CARD_DB[w.cardId]);
+        rangedWeaponMuzzleVfx(CARD_DB[w.cardId], enemyHeroPt);
         await flyEl(`<div style="font-size:26px;filter:drop-shadow(0 0 6px ${pj.glow}) drop-shadow(0 2px 3px #000)">${pj.emoji}</div>`, enemyHeroPt, to, 220);
       } else {
-        await heroLunge(heroElFrom, enemyHeroPt, to);
+        await heroLunge(heroElFrom, enemyHeroPt, to, targetEl,
+          () => meleeWeaponContactVfx(CARD_DB[w && w.cardId], enemyHeroPt, to));
       }
       if (targetEl) shake(targetEl);
       if (w) splashAt(to, Math.max(1, w.atk || 1));
+      if (w && w.cardId === 'anchor' && target && target.kind === 'minion' && target.minion.taunt)
+        tauntStripVfx(target.minion);
       sfx.hit();
       await sleep(90);
       return;
@@ -13826,6 +14011,35 @@ async function mpPlayRemoteRebornCues(before, after){
       const liveOld = (gameSide.board || []).find(m => m.uid === old.uid);
       const pt = safeCenter(liveOld && minionEl(liveOld), boardElForSide(gameSide));
       await rebornVfx(pt, old.cardId === 'phoenix');
+    }
+  }
+}
+async function mpPlayRemoteSecretCues(before, after, snap){
+  if (!before || !after || !G) return;
+  for (const sideName of ['player','enemy']){
+    const oldSecrets = (before[sideName] && before[sideName].secrets || []).slice();
+    const newSecrets = (after[sideName] && after[sideName].secrets || []).slice();
+    const remaining = newSecrets.slice();
+    const removed = oldSecrets.filter(id => {
+      const i = remaining.indexOf(id);
+      if (i >= 0){ remaining.splice(i, 1); return false; }
+      return true;
+    });
+    if (!removed.length) continue;
+    const owner = sideName === 'player' ? G.player : G.enemy;
+    const src = snap && snap.meta && snap.meta.source;
+    const sourceTarget = mpActualTargetFromRemoteDesc(src);
+    const cardId = mpActionCardId(snap && snap.action, snap && snap.meta || {});
+    const data = {
+      cardId,
+      attacker:sourceTarget && sourceTarget.kind === 'minion' ? sourceTarget.minion : null,
+      target:mpActualTargetFromRemoteDesc(snap && snap.meta && snap.meta.target)
+    };
+    for (const id of removed){
+      const def = CARD_DB[id];
+      if (!def) continue;
+      secretTriggerVfx(owner, def, data);
+      await sleep(perfMs(260));
     }
   }
 }
@@ -13937,6 +14151,11 @@ async function mpApplyRemoteSnapshotNow(snap){
 	      await mpAnimateRemoteAction(snap);
 	    }catch(e){
 	      mpLog('VFX действия: ' + (e.message || e));
+	    }
+	    try{
+	      await mpPlayRemoteSecretCues(beforeVfx, incomingVfx, snap);
+	    }catch(e){
+	      mpLog('VFX секрета: ' + (e.message || e));
 	    }
 	    try{
 	      await mpPlayRemoteRebornCues(beforeVfx, incomingVfx);
@@ -14827,6 +15046,14 @@ const ANIM_PATCH_NOTES = {
   souljar:'Последний патч: стоимость изменена на 4 маны; хрип показывает добор двух карт.',
   frostwight:'Последний патч: Клич и Хрип замораживают по случайному вражескому существу.',
   goldgoose:'Последний патч: хрип даёт 15 золота в одиночной игре или +1 текущую ману в мультиплеере.',
+  explosive:'Последний патч: Взрывная ловушка теперь наносит 2 урона всем существам и герою противника.',
+  shackles:'Последний патч: урон Оков усилен с 2 до 3; выживший атакующий остаётся замороженным.',
+  mirror:'Аудит-сцена: зеркало раскрывает призванное существо и материализует его копию на другой стороне.',
+  counterspell:'Аудит-сцена: магическая печать должна визуально перехватить и развеять заклинание.',
+  saber:'Аудит-сцена: экипировка и быстрый рубящий контакт Абордажной сабли.',
+  axe:'Аудит-сцена: Боевой топор получил тяжёлый диагональный удар и отдельный импакт.',
+  anchor:'Последний патч: 5 → 4 маны; удар 4/2 снимает Провокацию с поражённого существа.',
+  musket:'Аудит-сцена: отдача, вспышка дула, дым и физический снаряд без ответного урона.',
   shadowimp:'Общая сцена: Тень-бес входит в Скрытность через дым.',
   spy:'Общая сцена: Лазутчица входит в Скрытность через дым и раскрывается перед атакой.',
   chronomagus:'Легендарная сцена: повтор заклинаний должен ощущаться как цепочка кастов.',
@@ -14842,6 +15069,7 @@ const ANIM_AUDIT_SCENES = new Set([
   'bloodbat','ogreb','nightblade','phoenix','izaroth','zervan','megatron',
   'shieldbot','stingbot','vampbot','sparkbot','frostbot','warcaller','pyromancer','fieldmedic','scout','cultist','shadowimp','spy',
   'panther','ambusher','ghostblade','ratking','sapper','souljar','frostwight','goldgoose',
+  'explosive','shackles','mirror','counterspell','saber','axe','anchor','musket',
   'codexIntervention','chronomagus','abyssMaw','huntmastersHorn','cryptSovereign'
 ]);
 const RECENT_REBALANCE_CARDS = new Set([
@@ -14849,7 +15077,8 @@ const RECENT_REBALANCE_CARDS = new Set([
   'vampiress','harpy','bloodbat','izaroth','zervan',
   'shieldbot','stingbot','vampbot','sparkbot','frostbot','warcaller',
   'pyromancer','fieldmedic','scout','cultist','shadowimp','spy',
-  'panther','ambusher','ghostblade','ratking','sapper','souljar','frostwight','goldgoose'
+  'panther','ambusher','ghostblade','ratking','sapper','souljar','frostwight','goldgoose',
+  'explosive','shackles','mirror','counterspell','saber','axe','anchor','musket'
 ]);
 const ANIM_AUDIT_HINTS = {
   doll:'Аудит-сцена: хрип выпускает теневой урон в героя врага.',
@@ -14896,6 +15125,14 @@ const ANIM_AUDIT_HINTS = {
   souljar:'Аудит-сцена: две души-карты вылетают из разбитого сосуда в руку владельца.',
   frostwight:'Аудит-сцена: один морозный импульс идёт от Клича, второй — от Хрипа.',
   goldgoose:'Аудит-сцена: хрип отправляет золото или дополнительный кристалл маны владельцу.',
+  explosive:'Аудит-сцена: фитиль у портрета запускает огненные волны по всем врагам, включая героя.',
+  shackles:'Аудит-сцена: четыре цепи сходятся на атакующем и закрепляются морозным импульсом.',
+  mirror:'Аудит-сцена: зеркало ловит образ призванной карты и отправляет копию на союзный стол.',
+  counterspell:'Аудит-сцена: печать перехватывает полёт заклинания и рассыпает его с надписью «Развеяно».',
+  saber:'Аудит-сцена: портрет доходит до цели, после чего Сабля оставляет быстрый рубящий след.',
+  axe:'Аудит-сцена: портрет доходит до цели, Топор падает по диагонали с тяжёлой вспышкой.',
+  anchor:'Аудит-сцена: портрет входит в контакт, Якорь бьёт на цепи и разбивает значок Провокации.',
+  musket:'Аудит-сцена: портрет даёт отдачу, появляется дым, а пуля физически долетает до цели.',
   graveBinder:'Аудит-сцена: хрип передаёт Возрождение союзнику.',
   cryptNurse:'Аудит-сцена: лечение от нежити идёт лучами к герою.',
   boneMarshal:'Аудит-сцена: возрождённый союзник получает видимый +1/+1.',
