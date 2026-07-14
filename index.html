@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-14-siege-captain-audit';
+    var build = '2026-07-14-card-frame-preview';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -1938,6 +1938,47 @@
     transition:transform .15s, box-shadow .15s;
     transform-origin:50% 120%;
   }
+  /* Пробный единый комплект объёмных рамок: содержимое остаётся живым HTML. */
+  .card:has(.c-frame-art){
+    background:transparent;border-color:transparent;border-radius:0;
+    box-shadow:0 8px 14px rgba(0,0,0,.62);
+    padding:0;overflow:visible;
+  }
+  .c-frame-art{
+    position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);
+    object-fit:fill;z-index:0;pointer-events:none;user-select:none;
+    filter:drop-shadow(0 3px 2px rgba(0,0,0,.48));
+  }
+  .card:has(.c-frame-art) .ctype,
+  .card:has(.c-frame-art) .ctype-emblem{display:none;}
+  .card:has(.c-frame-art) .c-icon{
+    position:absolute;top:17px;left:21px;width:84px;height:65px;z-index:1;
+    font-size:46px;line-height:1;overflow:hidden;border-radius:46% 46% 38% 38%;
+  }
+  .card:has(.c-frame-art) .c-icon img{width:100%;height:100%;object-fit:contain;padding:2px;}
+  .card:has(.c-frame-art) .c-name{
+    position:absolute;top:82px;left:14px;width:98px;min-height:25px;max-height:27px;
+    margin:0;padding:2px 5px;background:transparent;border-radius:0;color:#f7e9c5;
+    font-size:12px;line-height:1;text-shadow:0 2px 2px #000;z-index:2;
+  }
+  .card:has(.c-frame-art) .c-text{
+    position:absolute;top:109px;left:18px;width:90px;height:43px;min-height:0;
+    padding:2px 3px 0;color:#3b2c1d;font-size:9.8px;line-height:1.05;z-index:2;
+    -webkit-line-clamp:4;mask-image:none;-webkit-mask-image:none;
+  }
+  .card:has(.c-frame-art) .c-tribe{
+    bottom:18px;z-index:4;font-size:8px;padding:0 5px;background:rgba(31,24,18,.9);
+  }
+  .card:has(.c-frame-art) .stat{
+    bottom:0;width:32px;height:32px;font-size:17px;border-width:2px;z-index:5;
+  }
+  .card:has(.c-frame-art) .stat.atk{left:0;}
+  .card:has(.c-frame-art) .stat.hp,
+  .card:has(.c-frame-art) .stat.dur{right:0;}
+  .card:has(.c-frame-art) .rgem{bottom:-6px;z-index:6;}
+  .card:has(.c-frame-art) .c-cost{top:-7px;left:-7px;z-index:7;}
+  .card:has(.c-frame-spell) .c-icon{top:18px;left:20px;width:86px;height:67px;border-radius:50%;}
+  .card:has(.c-frame-weapon) .c-icon{top:18px;left:20px;width:86px;height:66px;border-radius:42% 42% 35% 35%;}
   /* доступна к розыгрышу — яркая синяя аура + подъём */
   .card.playable{
     box-shadow:0 0 0 3px #bfe4ff, 0 0 20px 5px rgba(77,166,255,.85), 0 8px 16px rgba(0,0,0,.55) !important;
@@ -2664,6 +2705,17 @@
   #cardPreview .cp-card .card .stat.atk{left:-11px;}
   #cardPreview .cp-card .card .stat.hp,#cardPreview .cp-card .card .stat.dur{right:-11px;}
   #cardPreview .cp-card .card .rgem{width:26px;height:26px;bottom:-13px;}
+  #cardPreview .cp-card .card:has(.c-frame-art){padding:0;border-radius:0;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-frame-art{inset:-7px;width:calc(100% + 14px);height:calc(100% + 14px);}
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-icon{top:29px;left:35px;width:142px;height:110px;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-name{top:139px;left:24px;width:164px;min-height:42px;max-height:44px;font-size:17px;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-text{top:184px;left:30px;width:152px;height:73px;font-size:12.2px;line-height:1.12;padding:3px 5px;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe{bottom:30px;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat{width:52px;height:52px;bottom:0;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.atk{left:0;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.hp,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.dur{right:0;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .rgem{bottom:-10px;}
   .cp-side{display:flex;flex-direction:column;gap:6px;min-width:190px;max-width:250px;max-height:calc(100vh - 48px);overflow:auto;flex:1;}
   .cp-meta{font-size:10px;color:#a08c60;letter-spacing:.5px;}
   .cp-kw{
@@ -4454,7 +4506,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-14-siege-captain-audit';
+const CARD_ARENA_BUILD = '2026-07-14-card-frame-preview';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -10098,6 +10150,11 @@ function cardArtHTML(def){
   if (!def) return '';
   return def.art ? `<img src="${def.art}" alt="" draggable="false">` : def.icon;
 }
+function cardFrameHTML(def){
+  if (!def) return '';
+  const kind = def.type === 'weapon' ? 'weapon' : def.type === 'spell' ? 'spell' : 'minion';
+  return `<img class="c-frame-art c-frame-${kind}" src="assets/frames/${kind}-frame.png?v=${CARD_ARENA_BUILD}" alt="" draggable="false">`;
+}
 function cardHTML(cardId, side, cardMod){
   const def = CARD_DB[cardId];
   const tcls = def.secret ? 'ctype-secret' : def.type === 'weapon' ? 'ctype-weapon' : def.type === 'spell' ? 'ctype-spell' : 'ctype-minion';
@@ -10110,6 +10167,7 @@ function cardHTML(cardId, side, cardMod){
   const weaponAtk = def.type === 'weapon' ? def.atk + weaponAtkBuff : 0;
   const weaponDur = def.type === 'weapon' ? def.dur + weaponDurBuff : 0;
   return `
+    ${cardFrameHTML(def)}
     <div class="ctype ${tcls}"></div>
     ${emblem ? `<div class="ctype-emblem">${emblem}</div>` : ''}
     <div class="c-cost">${def.cost}</div>
