@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-14-smooth-heavy-weapons';
+    var build = '2026-07-14-pirate-weapons-audit';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -2733,6 +2733,11 @@
 
   /* цифры и гемы поверх рамки */
   .card .stat{z-index:6;}
+  .card .stat.hand-buffed{
+    color:#ecffd9;
+    border-color:#8ee66f;
+    box-shadow:0 0 0 2px rgba(105,211,79,.38),0 0 13px rgba(105,232,91,.85),inset 0 0 6px rgba(255,255,255,.42);
+  }
   .card .rgem{z-index:7;}
   .minion .rgem{z-index:7;}
   .card .ctype-emblem{z-index:6;}
@@ -4441,7 +4446,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-14-smooth-heavy-weapons';
+const CARD_ARENA_BUILD = '2026-07-14-pirate-weapons-audit';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -5138,25 +5143,25 @@ const CARD_DB = {
   },
   bloodblade: {
     id:'bloodblade', name:'Клинок Кровавой Мэри', icon:'🩸',
-    type:'weapon', cost:6, atk:4, dur:3, lifesteal:true, rarity:'legendary',
-    text:'Оружие 4/3. Вампиризм: удары лечат героя.', starter:0
+    type:'weapon', cost:6, atk:4, dur:2, lifesteal:true, rarity:'legendary',
+    text:'Оружие 4/2. Вампиризм: удары лечат героя.', starter:0
   },
 
   /* ---- ПИРАТЫ×10 ---- */
   parrot: {
     id:'parrot', name:'Попугай боцмана', icon:'🦜',
     type:'minion', cost:1, atk:1, hp:1, rarity:'common', tribe:'pirate',
-    text:'Клич: +1 прочность вашему оружию.', starter:0,
-    battlecry(game, side){
-      if (side.weapon){ side.weapon.dur++; sfx.armor(); log('🗡 +1 прочность'); }
+    text:'Клич: +1 прочность экипированному оружию или карте оружия в руке.', starter:0,
+    battlecry(game, side, self){
+      self.weaponBuffVfx = buffEquippedOrHandWeapon(side, 'dur', 1);
     }
   },
   cabinboy: {
     id:'cabinboy', name:'Юнга', icon:'🚣',
     type:'minion', cost:1, atk:1, hp:2, rarity:'common', tribe:'pirate',
-    text:'Клич: +1 к атаке вашего оружия.', starter:0,
-    battlecry(game, side){
-      if (side.weapon){ side.weapon.atk++; sfx.armor(); log('🗡 +1 атака'); }
+    text:'Клич: +1 к атаке экипированного оружия или карты оружия в руке.', starter:0,
+    battlecry(game, side, self){
+      self.weaponBuffVfx = buffEquippedOrHandWeapon(side, 'atk', 1);
     }
   },
   boarder: {
@@ -6112,8 +6117,8 @@ const BOSS_ORDER = ['dragonboss','mechboss','lichboss','hivequeen','infernolord'
 const MAX_MANA = 10, MAX_BOARD = 7, MAX_HAND = 10, HERO_HP = 30;
 /* карты с условным бонусом — оранжевая подсветка, когда условие выполнено */
 const BOOST_COND = {
-  cabinboy: s => !!s.weapon,
-  parrot:   s => !!s.weapon,
+  cabinboy: s => !!s.weapon || s.hand.some(id => CARD_DB[id] && CARD_DB[id].type === 'weapon'),
+  parrot:   s => !!s.weapon || s.hand.some(id => CARD_DB[id] && CARD_DB[id].type === 'weapon'),
   gunner:   s => !!s.weapon,
   seawolf:  s => !!s.weapon,
   navigator: s => s.board.some(x => CARD_DB[x.cardId].tribe === 'pirate'),
@@ -6359,14 +6364,44 @@ function pushHandCard(side, cardId, source){
   side.hand.push(cardId);
   if (!side.handSources) side.handSources = [];
   side.handSources.push(sourceId(source) || null);
+  if (!side.handMods) side.handMods = [];
+  side.handMods.push(null);
 }
 function removeHandCard(side, idx){
   const id = side.hand.splice(idx, 1)[0];
   const src = side.handSources ? side.handSources.splice(idx, 1)[0] : null;
-  return { id, source: sourceId(src) || id };
+  const mod = side.handMods ? side.handMods.splice(idx, 1)[0] : null;
+  return { id, source: sourceId(src) || id, mod:mod || null };
 }
 function handSource(side, idx, fallback){
   return sourceId(side.handSources && side.handSources[idx]) || fallback;
+}
+function handCardMod(side, idx){
+  return side && side.handMods && side.handMods[idx] ? side.handMods[idx] : null;
+}
+function buffEquippedOrHandWeapon(side, stat, amount){
+  if (!side || (stat !== 'atk' && stat !== 'dur')) return null;
+  if (side.weapon){
+    side.weapon[stat] = Math.max(0, (side.weapon[stat] || 0) + amount);
+    trackCurrent('buff', amount);
+    sfx.armor();
+    log(`🗡 ${title(side)}: ${stat === 'atk' ? '+1 атака' : '+1 прочность'} оружию`);
+    return { location:'equipped', cardId:side.weapon.cardId, stat, amount };
+  }
+  const idx = side.hand.findIndex(id => CARD_DB[id] && CARD_DB[id].type === 'weapon');
+  if (idx < 0){
+    log(`🗡 ${title(side)}: оружия для усиления нет`);
+    return { location:'none', stat, amount:0 };
+  }
+  if (!side.handMods) side.handMods = Array(side.hand.length).fill(null);
+  while (side.handMods.length < side.hand.length) side.handMods.push(null);
+  const mod = Object.assign({ atk:0, dur:0 }, side.handMods[idx] || {});
+  mod[stat] += amount;
+  side.handMods[idx] = mod;
+  trackCurrent('buff', amount);
+  sfx.armor();
+  log(`🃏 ${CARD_DB[side.hand[idx]].name}: ${stat === 'atk' ? '+1 атака' : '+1 прочность'}`);
+  return { location:'hand', cardId:side.hand[idx], handIdx:idx, stat, amount };
 }
 function drainArmorSources(side, amount){
   if (!side.armorSources || amount <= 0) return;
@@ -7691,7 +7726,7 @@ let G = null;
 
 function makeSide(name, deckArr){
   return { name, hp: HERO_HP, maxHp: HERO_HP, armor: 0, mana: 0, maxMana: 0,
-           deck: deckArr, hand: [], handSources: [], board: [], secrets: [], secretSources: [],
+           deck: deckArr, hand: [], handSources: [], handMods: [], board: [], secrets: [], secretSources: [],
            weapon: null, heroAttacked: false, frozen: false, freezeVisual: false,
            fatigue: 0, powerUsed: false, powerUpgraded: false,
            spellsCast: [], graveyard: [], deathrattleGraveyard: [],
@@ -9129,6 +9164,36 @@ async function battlecryCardVfx(cardId, side, minion, targets, drawCard){
   if (!cardId || !side || !G) return;
   const sourcePt = minion ? safeCenter(minionEl(minion), boardElForSide(side)) : battleBoardPoint(side);
   const list = Array.isArray(targets) ? targets.filter(Boolean) : [];
+  if (cardId === 'parrot' || cardId === 'cabinboy'){
+    const info = minion && minion.weaponBuffVfx;
+    if (info && info.location === 'none'){
+      battleVfxLabel(sourcePt, 'НЕТ ОРУЖИЯ', 'armor');
+      if (minion) delete minion.weaponBuffVfx;
+      return;
+    }
+    let targetEl = null;
+    if (info && info.location === 'hand' && side === G.player)
+      targetEl = document.querySelector(`#playerHand .card[data-idx="${info.handIdx}"]`);
+    if (!targetEl && info && info.location === 'hand') targetEl = side === G.player ? $('playerHand') : $('enemyHand');
+    if (!targetEl) targetEl = heroEl(side);
+    const to = safeCenter(targetEl, heroEl(side));
+    const icon = cardId === 'parrot' ? '🔩' : '⚔️';
+    const label = cardId === 'parrot' ? '+1 ПРОЧНОСТЬ' : '+1 АТАКА';
+    battleBeam(sourcePt, to, cardId === 'parrot' ? 'gold' : 'armor', 480);
+    await flyEl(`<div style="font-size:27px;filter:drop-shadow(0 0 10px #ffe07a)">${icon}</div>`, sourcePt, to, 270);
+    spellImpact(to, cardId === 'parrot' ? 'gold' : 'armor', {});
+    battleVfxLabel(to, label, cardId === 'parrot' ? 'gold' : 'armor');
+    if (minion) delete minion.weaponBuffVfx;
+    return;
+  }
+  if (cardId === 'seawolf' && side.weapon){
+    const from = safeCenter(heroEl(side), $('board'));
+    battleBeam(from, sourcePt, 'frost', 520);
+    await flyEl('<div style="font-size:30px;filter:drop-shadow(0 0 11px #78dfff)">🌊</div>', from, sourcePt, 290);
+    spellImpact(sourcePt, 'frost', {});
+    battleVfxLabel(sourcePt, '+2/+2', 'frost');
+    return;
+  }
   if (cardId === 'warcaller'){
     battleVfxLabel(sourcePt, 'ЗОВ К БОЮ', 'gold');
     spellImpact(sourcePt, 'gold', {});
@@ -9321,6 +9386,26 @@ async function liveAuditSpellVfx(cardId, def, side, target, fallbackPt){
     await sleep(perfMs(220));
   }
 }
+async function pirateEntryVfx(pt){
+  if (!pt) return;
+  const n = perfCount(6);
+  for (let i = 0; i < n; i++){
+    const p = document.createElement('div');
+    p.className = 'fx-particle';
+    p.textContent = i === 0 ? '🏴‍☠️' : (i % 2 ? '💧' : '≈');
+    p.style.left = (pt.x + (i === 0 ? -24 : 0)) + 'px';
+    p.style.top = (pt.y + (i === 0 ? -18 : 18)) + 'px';
+    p.style.color = '#8edcff';
+    p.style.fontSize = (i === 0 ? 24 : 14 + i % 3 * 2) + 'px';
+    p.style.animationDuration = perfMs(620) + 'ms';
+    p.style.setProperty('--dx', (i === 0 ? '-4px' : (-35 + i * 14) + 'px'));
+    p.style.setProperty('--dy', (i === 0 ? '-48px' : (-18 - Math.abs(i - 3) * 5) + 'px'));
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), perfMs(660));
+  }
+  spellImpact(pt, 'frost', {});
+  await sleep(perfMs(105));
+}
 async function liveAuditMinionVfx(cardId, side, minion, phase){
   if (!cardId || !side || !minion || !G) return;
   const el = minionEl(minion);
@@ -9343,6 +9428,8 @@ async function liveAuditMinionVfx(cardId, side, minion, phase){
       chargeTrailVfx(pt, 'РЫВОК');
       spellImpact(pt, 'arcaneBuff', {});
       await sleep(perfMs(120));
+    } else if (CARD_DB[cardId] && CARD_DB[cardId].tribe === 'pirate'){
+      await pirateEntryVfx(pt);
     } else if (CARD_DB[cardId] && CARD_DB[cardId].tribe === 'mech'){
       mechSparkVfx(pt, cardId === 'magnetron' ? 'МАГНИТ' : 'МЕХАНИЗМ');
       await sleep(perfMs(120));
@@ -9396,6 +9483,8 @@ async function liveAuditCardPointVfx(cardId, pt){
     chargeTrailVfx(pt, 'РЫВОК');
     spellImpact(pt, 'arcaneBuff', {});
     await sleep(perfMs(100));
+  } else if (CARD_DB[cardId] && CARD_DB[cardId].tribe === 'pirate'){
+    await pirateEntryVfx(pt);
   } else if (CARD_DB[cardId] && CARD_DB[cardId].tribe === 'mech'){
     mechSparkVfx(pt, cardId === 'magnetron' ? 'МАГНИТ' : 'МЕХАНИЗМ');
     await sleep(perfMs(100));
@@ -9443,6 +9532,21 @@ async function liveAuditDeathrattleVfx(side, minion, pt){
     battleVfxLabel(to, 'ВЗРЫВ −3', 'fire');
     const el = target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion);
     if (el) shake(el);
+    return;
+  }
+  if (cardId === 'smuggler'){
+    const to = safeCenter(side === G.player ? $('playerHand') : $('enemyHand'), heroEl(side));
+    const drawId = side.deck && side.deck.length ? side.deck[side.deck.length - 1] : null;
+    const face = side === G.player && drawId && CARD_DB[drawId]
+      ? `<div class="card ${skinClass(SAVE.back)}" style="margin:0;width:104px;height:145px">${cardHTML(drawId, side)}</div>`
+      : `<div class="card-back cardback-${side === G.enemy ? (G.enemyBack || 'default') : (SAVE.back || 'default')}"></div>`;
+    battleVfxLabel(from, 'ТАЙНЫЙ ГРУЗ', 'gold');
+    const reveal = { x:(from.x + to.x) / 2, y:Math.min(from.y, to.y) - 46 };
+    await flyElVia(face, from, reveal, to, 250, 260, 250, () => {
+      spellImpact(reveal, 'gold', {});
+      if (side === G.player && drawId && CARD_DB[drawId]) battleVfxLabel(reveal, CARD_DB[drawId].name, 'gold');
+    });
+    spellImpact(to, 'gold', {});
     return;
   }
   if (cardId === 'souljar'){
@@ -9735,13 +9839,17 @@ function dynCardText(def, side){
   }
   return t;
 }
-function cardHTML(cardId, side){
+function cardHTML(cardId, side, cardMod){
   const def = CARD_DB[cardId];
   const tcls = def.secret ? 'ctype-secret' : def.type === 'weapon' ? 'ctype-weapon' : def.type === 'spell' ? 'ctype-spell' : 'ctype-minion';
   const emblem = def.secret ? '🔮' : def.type === 'weapon' ? '⚔' : def.type === 'spell' ? '✦' : '';
   const txt = side ? dynCardText(def, side) : def.text;
   const sp = side ? spellPower(side) : 0;
   const atkBuffed = def.type === 'weapon' && sp > 0 && false;
+  const weaponAtkBuff = def.type === 'weapon' ? Number(cardMod && cardMod.atk || 0) : 0;
+  const weaponDurBuff = def.type === 'weapon' ? Number(cardMod && cardMod.dur || 0) : 0;
+  const weaponAtk = def.type === 'weapon' ? def.atk + weaponAtkBuff : 0;
+  const weaponDur = def.type === 'weapon' ? def.dur + weaponDurBuff : 0;
   return `
     <div class="ctype ${tcls}"></div>
     ${emblem ? `<div class="ctype-emblem">${emblem}</div>` : ''}
@@ -9752,7 +9860,7 @@ function cardHTML(cardId, side){
     <div class="c-text">${fmtCardText(txt)}</div>
     ${def.tribe ? `<div class="c-tribe">${TRIBE_RU[def.tribe]}</div>` : ''}
     ${def.type === 'minion' ? `<div class="stat atk">${def.atk}</div><div class="stat hp">${def.hp}</div>` : ''}
-    ${def.type === 'weapon' ? `<div class="stat atk">${def.atk}</div><div class="stat dur">${def.dur}</div>` : ''}`;
+    ${def.type === 'weapon' ? `<div class="stat atk${weaponAtkBuff ? ' hand-buffed' : ''}">${weaponAtk}</div><div class="stat dur${weaponDurBuff ? ' hand-buffed' : ''}">${weaponDur}</div>` : ''}`;
 }
 
 function renderHand(){
@@ -9780,7 +9888,7 @@ function renderHand(){
     } else if (combo){
       el.classList.add('combo-hint'); /* комбо готово, но маны нет */
     }
-    el.innerHTML = cardHTML(cardId, G.player);
+    el.innerHTML = cardHTML(cardId, G.player, handCardMod(G.player, idx));
     if (el.classList.contains('playable'))
       el.insertAdjacentHTML('beforeend', `<i class="sparks${el.classList.contains('boosted') ? ' hot' : ''}"></i>`);
     hand.appendChild(el);
@@ -9966,10 +10074,11 @@ function magnetMerge(side, target, def){
 function isFriendlyMech(m){ return CARD_DB[m.cardId].tribe === 'mech'; }
 
 /* ================== ОРУЖИЕ ГЕРОЯ ================== */
-function equipWeapon(side, def){
+function equipWeapon(side, def, cardMod){
   if (side.weapon) log(`🗡 ${title(side)}: старое оружие сломано`);
   const ctx = currentImpact();
-  side.weapon = { cardId: def.id, atk: def.atk, dur: def.dur,
+  const mod = cardMod || {};
+  side.weapon = { cardId: def.id, atk: def.atk + Number(mod.atk || 0), dur: def.dur + Number(mod.dur || 0),
                   ranged: !!def.ranged, lifesteal: !!def.lifesteal,
                   source: ctx && ctx.side === side ? ctx.source : def.id };
   if (def.onEquip) def.onEquip(G, side);
@@ -9981,15 +10090,16 @@ async function playWeapon(handIdx, fromPt){
   const def = CARD_DB[cardId];
   if (def.cost > G.player.mana) return;
   const source = handSource(G.player, handIdx, cardId);
-  const mpMeta = mpActionMeta(mpHandSourceDescriptor(cardId, true), mpTargetDescriptor({ kind:'hero', side:G.player }), { cardId });
+  const weaponMod = handCardMod(G.player, handIdx);
+  const mpMeta = mpActionMeta(mpHandSourceDescriptor(cardId, true), mpTargetDescriptor({ kind:'hero', side:G.player }), { cardId, weaponMod });
   G.busy = true;
   G.player.mana -= def.cost;
   removeHandCard(G.player, handIdx);
   trackImpact(G.player, source, 'plays', 1);
   render();
-  if (fromPt) await flyEl(`<div class="card ${skinClass(SAVE.back)}" style="margin:0">${cardHTML(cardId)}</div>`,
+  if (fromPt) await flyEl(`<div class="card ${skinClass(SAVE.back)}" style="margin:0">${cardHTML(cardId, G.player, weaponMod)}</div>`,
                           fromPt, center($('playerHero')), 260);
-  withImpactSource(G.player, source, () => equipWeapon(G.player, def));
+  withImpactSource(G.player, source, () => equipWeapon(G.player, def, weaponMod));
 	  await weaponEquipVfx(def, safeCenter(heroEl(G.player), $('board')));
 	  log(`Ты вооружаешься: ${def.name}`);
 	  G.busy = false;
@@ -10007,7 +10117,11 @@ function weaponProjectile(wdef){
 }
 async function weaponEquipVfx(wdef, pt){
   if (!wdef || !pt) return;
-  const school = wdef.id === 'anchor' ? 'frost' : (wdef.id === 'musket' ? 'fire' : 'armor');
+  const school = wdef.id === 'anchor' ? 'frost'
+    : wdef.id === 'musket' ? 'fire'
+    : wdef.id === 'longbow' ? 'nature'
+    : wdef.id === 'bloodblade' ? 'shadow'
+    : 'armor';
   spellImpact(pt, school, { legendary:wdef.rarity === 'legendary' });
   battleVfxLabel(pt, `ОРУЖИЕ: ${wdef.name}`, school);
   const icon = `<div style="font-size:${wdef.id === 'anchor' ? 44 : 38}px;filter:drop-shadow(0 0 12px ${wdef.id === 'musket' ? '#ffb45c' : '#ffe3a0'})">${wdef.icon}</div>`;
@@ -10018,6 +10132,9 @@ async function weaponEquipVfx(wdef, pt){
       setTimeout(() => spellImpact({ x:pt.x - 24 + i * 16, y:pt.y + 16 }, 'frost', {}), perfMs(i * 35));
   } else if (wdef.id === 'musket'){
     rangedWeaponMuzzleVfx(wdef, { x:pt.x + 24, y:pt.y - 4 });
+  } else if (wdef.id === 'bloodblade'){
+    lifestealDrainVfx({ x:pt.x - 34, y:pt.y - 16 }, pt, 1);
+    battleVfxLabel(pt, 'КРОВАВАЯ МЭРИ', 'shadow');
   }
   await sleep(perfMs(90));
 }
@@ -10035,6 +10152,13 @@ async function meleeWeaponContactVfx(wdef, from, to){
       { x:to.x - 38, y:to.y - 42 }, { x:to.x + 9, y:to.y + 8 }, 180);
     spellImpact(to, 'fire', {});
     battleVfxLabel(to, 'ТЯЖЁЛЫЙ УДАР', 'fire');
+    return;
+  }
+  if (id === 'bloodblade'){
+    await flyEl('<div style="font-size:38px;color:#ff4966;filter:drop-shadow(0 0 13px #b5002e)">╱</div>',
+      { x:to.x - 34, y:to.y + 32 }, { x:to.x + 24, y:to.y - 28 }, 160);
+    spellImpact(to, 'shadow', {});
+    battleVfxLabel(to, 'КРОВАВЫЙ РАЗРЕЗ', 'shadow');
     return;
   }
   if (id === 'anchor'){
@@ -10057,7 +10181,14 @@ async function meleeWeaponContactVfx(wdef, from, to){
   spellImpact(to, 'armor', {});
 }
 function rangedWeaponMuzzleVfx(wdef, from){
-  if (!wdef || wdef.id !== 'musket') return;
+  if (!wdef) return;
+  if (wdef.id === 'longbow'){
+    spellImpact(from, 'nature', {});
+    battleVfxLabel(from, 'НАТЯЖЕНИЕ', 'nature');
+    tone(235, .09, 'triangle', .07, 80);
+    return;
+  }
+  if (wdef.id !== 'musket') return;
   spellImpact(from, 'fire', {});
   battleVfxLabel(from, 'ВЫСТРЕЛ', 'fire');
   for (let i = 0; i < perfCount(5); i++){
@@ -10606,7 +10737,7 @@ function handleDragMove(x, y){
     if (ghost.style.display !== 'block'){
       const cardId = G.player.hand[drag.handIdx];
       const def = CARD_DB[cardId];
-      ghost.innerHTML = `<div class="card ${skinClass(SAVE.back)}">${cardHTML(cardId)}</div>`;
+      ghost.innerHTML = `<div class="card ${skinClass(SAVE.back)}">${cardHTML(cardId, G.player, handCardMod(G.player, drag.handIdx))}</div>`;
       ghost.style.display = 'block';
       if (drag.srcEl) drag.srcEl.style.opacity = '0.25';
       if (def.type === 'minion' || !def.target){
@@ -11185,12 +11316,13 @@ async function aiTurn(){
     const def = pick.d, i = pick.i;
 	    if (def.type === 'weapon'){
 	      const source = handSource(G.enemy, i, def.id);
+	      const weaponMod = handCardMod(G.enemy, i);
 	      G.enemy.mana -= def.cost;
 	      removeHandCard(G.enemy, i);
 	      trackImpact(G.enemy, source, 'plays', 1);
-	      await flyEl(`<div class="card ${skinClass(G.enemyBack)}" style="margin:0">${cardHTML(def.id)}</div>`,
+	      await flyEl(`<div class="card ${skinClass(G.enemyBack)}" style="margin:0">${cardHTML(def.id, G.enemy, weaponMod)}</div>`,
 	                  center($('enemyHand')), center($('enemyHero')), 340);
-	      withImpactSource(G.enemy, source, () => equipWeapon(G.enemy, def));
+	      withImpactSource(G.enemy, source, () => equipWeapon(G.enemy, def, weaponMod));
       await weaponEquipVfx(def, safeCenter(heroEl(G.enemy), $('board')));
       log(`Враг вооружается: ${def.name}`);
       render();
@@ -11446,7 +11578,7 @@ const RARITY_RU = { common:'Обычная', rare:'Редкая', epic:'Эпич
 const TYPE_RU = { minion:'Существо', spell:'Заклинание', weapon:'Оружие', secret:'Секрет' };
 const SET_RU = { base:'Классика', magic:'Магия', mech:'Механизмы', pirate:'Пираты', codex:'Вмешательство КОДЕКСА' };
 
-function showCardPreview(cardId, rect, side){
+function showCardPreview(cardId, rect, side, cardMod){
   const def = CARD_DB[cardId];
   if (!def) return;
   const kws = cardKeywords(def);
@@ -11454,7 +11586,7 @@ function showCardPreview(cardId, rect, side){
   const previewSide = side || ((G && $('game').classList.contains('active')) ? G.player : null);
   const previewSkin = side ? sideSkinClass(side) : skinClass(SAVE.back);
   pv.innerHTML = `
-    <div class="cp-card"><div class="card ${previewSkin}" style="margin:0">${cardHTML(cardId, previewSide)}</div></div>
+    <div class="cp-card"><div class="card ${previewSkin}" style="margin:0">${cardHTML(cardId, previewSide, cardMod)}</div></div>
 	    <div class="cp-side">
 	      <div class="cp-meta">${def.type === 'minion' ? '🗡 Существо' : def.type === 'weapon' ? '⚔️ Оружие' : (def.secret ? '🔮 Секрет' : '✨ Заклинание')}${def.tribe ? ' · ' + TRIBE_RU[def.tribe] : ''} · ${RARITY_RU[def.rarity]} · ${SET_RU[setOf(cardId)]}</div>
 	      ${def.text ? `<div class="cp-kw"><b>Полный текст</b>${previewSide ? dynCardText(def, previewSide) : def.text}</div>` : ''}
@@ -11547,7 +11679,12 @@ function previewSourceAt(el){
   const hiddenPackCard = el.closest('#packCards .pcard:not(.flipped)');
   if (hiddenPackCard) return null;
   const c = el.closest('[data-card]');
-  if (c) return { type:'card', id: c.dataset.card, rect: c.getBoundingClientRect() };
+  if (c){
+    const inHand = c.closest('#playerHand');
+    const idx = inHand && c.dataset.idx !== undefined ? +c.dataset.idx : -1;
+    return { type:'card', id:c.dataset.card, side:idx >= 0 && G ? G.player : null,
+      cardMod:idx >= 0 && G ? handCardMod(G.player, idx) : null, rect:c.getBoundingClientRect() };
+  }
   const m = el.closest('.minion');
   if (m && m.dataset.uid && G){
     const muid = +m.dataset.uid;
@@ -11564,7 +11701,7 @@ function previewSourceAt(el){
 }
 function openPreview(src){
   if (src.type === 'effect') showEffectPreview(src.key, src.rect);
-  else if (src.type === 'card') showCardPreview(src.id, src.rect, src.side);
+  else if (src.type === 'card') showCardPreview(src.id, src.rect, src.side, src.cardMod);
   else showPowerPreview(src.id, src.rect, src.side);
 }
 
@@ -13272,6 +13409,9 @@ function mpReviveSide(data, name){
   side.deck = Array.isArray(side.deck) ? side.deck : [];
   side.hand = Array.isArray(side.hand) ? side.hand : [];
   side.handSources = Array.isArray(side.handSources) ? side.handSources : [];
+  side.handMods = Array.isArray(side.handMods) ? side.handMods : Array(side.hand.length).fill(null);
+  while (side.handMods.length < side.hand.length) side.handMods.push(null);
+  if (side.handMods.length > side.hand.length) side.handMods.length = side.hand.length;
   side.board = Array.isArray(side.board) ? side.board : [];
   side.secrets = Array.isArray(side.secrets) ? side.secrets : [];
   side.secretSources = Array.isArray(side.secretSources) ? side.secretSources : [];
@@ -13798,8 +13938,8 @@ function mpPointForRemoteDesc(desc, fallbackEl){
   if (target && target.kind === 'hero') return safeCenter(heroEl(target.side), $('board'));
   return safeCenter(fallbackEl || $('board'), $('board'));
 }
-function mpRemoteCardHtml(cardId){
-  if (cardId && CARD_DB[cardId]) return `<div class="card ${skinClass(G.enemyBack || 'default')}" style="margin:0">${cardHTML(cardId)}</div>`;
+function mpRemoteCardHtml(cardId, cardMod){
+  if (cardId && CARD_DB[cardId]) return `<div class="card ${skinClass(G.enemyBack || 'default')}" style="margin:0">${cardHTML(cardId, null, cardMod)}</div>`;
   return `<div class="card-back cardback-${G.enemyBack || 'default'}"></div>`;
 }
 function mpRemoteFxList(){
@@ -13873,7 +14013,7 @@ async function mpAnimateRemoteAction(snap){
       return;
     }
     if (action.startsWith('play:weapon:')){
-      await flyEl(mpRemoteCardHtml(cardId), fromHand, enemyHeroPt, 300);
+      await flyEl(mpRemoteCardHtml(cardId, meta.weaponMod), fromHand, enemyHeroPt, 300);
       if (def) await weaponEquipVfx(def, enemyHeroPt);
       else spellImpact(enemyHeroPt, 'armor', {});
       return;
@@ -15079,6 +15219,14 @@ const ANIM_PATCH_NOTES = {
   axe:'Аудит-сцена: Боевой топор получил тяжёлый диагональный удар и отдельный импакт.',
   anchor:'Последний патч: 5 → 4 маны; удар 4/2 снимает Провокацию с поражённого существа.',
   musket:'Аудит-сцена: отдача, вспышка дула, дым и физический снаряд без ответного урона.',
+  longbow:'Аудит-сцена: 5 маны 3/3; дальний выстрел использует натяжение тетивы и стрелу без ответного урона.',
+  bloodblade:'Последний патч: прочность 3 → 2. Кровавый разрез 4/2 лечит героя через Вампиризм.',
+  parrot:'Последний патч: за 1 ману даёт +1 прочность экипированному оружию или карте оружия в руке.',
+  cabinboy:'Последний патч: за 1 ману даёт +1 атаку экипированному оружию или карте оружия в руке.',
+  boarder:'Аудит-сцена: общий пиратский выход и общий эффект Рывка без лазерной линии.',
+  shipmate:'Аудит-сцена: базовый пиратский выход с водой и флагом.',
+  smuggler:'Аудит-сцена: 2 маны 1/3; хрип показывает груз-карту и только затем отправляет её в руку.',
+  seawolf:'Аудит-сцена: оружие передаёт Морскому волку морской импульс +2/+2.',
   shadowimp:'Общая сцена: Тень-бес входит в Скрытность через дым.',
   spy:'Общая сцена: Лазутчица входит в Скрытность через дым и раскрывается перед атакой.',
   chronomagus:'Легендарная сцена: повтор заклинаний должен ощущаться как цепочка кастов.',
@@ -15095,6 +15243,7 @@ const ANIM_AUDIT_SCENES = new Set([
   'shieldbot','stingbot','vampbot','sparkbot','frostbot','warcaller','pyromancer','fieldmedic','scout','cultist','shadowimp','spy',
   'panther','ambusher','ghostblade','ratking','sapper','souljar','frostwight','goldgoose',
   'explosive','shackles','mirror','counterspell','saber','axe','anchor','musket',
+  'longbow','bloodblade','parrot','cabinboy','boarder','shipmate','smuggler','seawolf',
   'codexIntervention','chronomagus','abyssMaw','huntmastersHorn','cryptSovereign'
 ]);
 const RECENT_REBALANCE_CARDS = new Set([
@@ -15103,7 +15252,8 @@ const RECENT_REBALANCE_CARDS = new Set([
   'shieldbot','stingbot','vampbot','sparkbot','frostbot','warcaller',
   'pyromancer','fieldmedic','scout','cultist','shadowimp','spy',
   'panther','ambusher','ghostblade','ratking','sapper','souljar','frostwight','goldgoose',
-  'explosive','shackles','mirror','counterspell','saber','axe','anchor','musket'
+  'explosive','shackles','mirror','counterspell','saber','axe','anchor','musket',
+  'longbow','bloodblade','parrot','cabinboy','boarder','shipmate','smuggler','seawolf'
 ]);
 const ANIM_AUDIT_HINTS = {
   doll:'Аудит-сцена: хрип выпускает теневой урон в героя врага.',
@@ -15158,6 +15308,14 @@ const ANIM_AUDIT_HINTS = {
   axe:'Аудит-сцена: портрет доходит до цели, Топор падает по диагонали с тяжёлой вспышкой.',
   anchor:'Аудит-сцена: портрет входит в контакт, Якорь бьёт на цепи и разбивает значок Провокации.',
   musket:'Аудит-сцена: портрет даёт отдачу, появляется дым, а пуля физически долетает до цели.',
+  longbow:'Аудит-сцена: тетива натягивается у портрета, после чего стрела долетает до цели без сдачи.',
+  bloodblade:'Аудит-сцена: кровавый разрез завершает вихрь Вампиризма от цели к герою.',
+  parrot:'Аудит-сцена: Попугай несёт деталь к экипированному оружию или подсвеченной карте оружия в руке.',
+  cabinboy:'Аудит-сцена: Юнга затачивает экипированное оружие или усиливает его карту в руке.',
+  boarder:'Аудит-сцена: вода и пиратский флаг сопровождают выход, первая атака использует общий Рывок.',
+  shipmate:'Аудит-сцена: проверяется спокойный общий пиратский выход без лишнего уникального эффекта.',
+  smuggler:'Аудит-сцена: хрип раскрывает реальную добираемую карту владельцу и переносит её в руку.',
+  seawolf:'Аудит-сцена: от оружия к волку проходит волна, после которой показывается +2/+2.',
   graveBinder:'Аудит-сцена: хрип передаёт Возрождение союзнику.',
   cryptNurse:'Аудит-сцена: лечение от нежити идёт лучами к герою.',
   boneMarshal:'Аудит-сцена: возрождённый союзник получает видимый +1/+1.',
@@ -15884,8 +16042,10 @@ function startAnimSandbox(cardId){
   G.animationTest=true; G.animationTestEnemyEvent=0; G.playerHeroId='mage'; G.enemyHeroId='warrior';
   G.player.hp=22;G.player.armor=5;G.player.maxHp=30;G.enemy.hp=19;G.enemy.armor=4;G.enemy.maxHp=30;
   G.player.maxMana=10;G.player.mana=10;G.enemy.maxMana=10;G.enemy.mana=10;
-  G.player.hand=[];G.player.handSources=[];G.enemy.hand=['soldier','fireball','bear'];G.enemy.handSources=[null,null,null];
+  G.player.hand=[];G.player.handSources=[];G.player.handMods=[];G.enemy.hand=['soldier','fireball','bear'];G.enemy.handSources=[null,null,null];G.enemy.handMods=[null,null,null];
   [cardId,cardId,'fireball','armorUp','bolt'].forEach(id=>pushHandCard(G.player,id,id===cardId?cardId:null));
+  if(cardId==='parrot'||cardId==='cabinboy') pushHandCard(G.player,'saber',cardId);
+  if(cardId==='seawolf') equipWeapon(G.player,CARD_DB.saber);
   animSandboxSetupBoard();
   applyTableTheme();applyHeroUI();applyCosmetics();
   $('log').innerHTML='';$('resultOverlay').classList.remove('active');
