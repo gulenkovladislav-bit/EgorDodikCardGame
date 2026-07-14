@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-14-sapper-two-step-target';
+    var build = '2026-07-14-smooth-heavy-weapons';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4441,7 +4441,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-14-sapper-two-step-target';
+const CARD_ARENA_BUILD = '2026-07-14-smooth-heavy-weapons';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -10159,9 +10159,9 @@ async function heroSwing(side, target){
     await flyEl(`<div style="font-size:26px;filter:drop-shadow(0 0 6px ${pj.glow}) drop-shadow(0 2px 3px #000)">${pj.emoji}</div>`, swFrom, swTo, 220);
     applyHit();
   } else {
-    await heroLunge(heroEl(side), swFrom, swTo, tgtEl, async () => {
-      await meleeWeaponContactVfx(wdef, swFrom, swTo);
+    await heroLunge(heroEl(side), swFrom, swTo, tgtEl, () => {
       applyHit();
+      requestAnimationFrame(() => { void meleeWeaponContactVfx(wdef, swFrom, swTo); });
     });
   }
   if (!hitApplied) applyHit();
@@ -13926,8 +13926,9 @@ async function mpAnimateRemoteAction(snap){
         rangedWeaponMuzzleVfx(CARD_DB[w.cardId], enemyHeroPt);
         await flyEl(`<div style="font-size:26px;filter:drop-shadow(0 0 6px ${pj.glow}) drop-shadow(0 2px 3px #000)">${pj.emoji}</div>`, enemyHeroPt, to, 220);
       } else {
-        await heroLunge(heroElFrom, enemyHeroPt, to, targetEl,
-          () => meleeWeaponContactVfx(CARD_DB[w && w.cardId], enemyHeroPt, to));
+        await heroLunge(heroElFrom, enemyHeroPt, to, targetEl, () => {
+          requestAnimationFrame(() => { void meleeWeaponContactVfx(CARD_DB[w && w.cardId], enemyHeroPt, to); });
+        });
       }
       if (targetEl) shake(targetEl);
       if (w) splashAt(to, Math.max(1, w.atk || 1));
