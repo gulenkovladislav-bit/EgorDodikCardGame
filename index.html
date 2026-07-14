@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-14-pirate-weapons-audit';
+    var build = '2026-07-14-pirate-vfx-polish';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4446,7 +4446,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-14-pirate-weapons-audit';
+const CARD_ARENA_BUILD = '2026-07-14-pirate-vfx-polish';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -9388,22 +9388,29 @@ async function liveAuditSpellVfx(cardId, def, side, target, fallbackPt){
 }
 async function pirateEntryVfx(pt){
   if (!pt) return;
-  const n = perfCount(6);
+  const ring = document.createElement('div');
+  ring.className = 'sfx-ring';
+  ring.style.setProperty('--c', '#67cfee');
+  ring.style.left = pt.x + 'px'; ring.style.top = (pt.y + 18) + 'px';
+  ring.style.animationDuration = perfMs(440) + 'ms';
+  document.body.appendChild(ring);
+  setTimeout(() => ring.remove(), perfMs(480));
+  const n = perfCount(5);
   for (let i = 0; i < n; i++){
     const p = document.createElement('div');
     p.className = 'fx-particle';
-    p.textContent = i === 0 ? '🏴‍☠️' : (i % 2 ? '💧' : '≈');
-    p.style.left = (pt.x + (i === 0 ? -24 : 0)) + 'px';
-    p.style.top = (pt.y + (i === 0 ? -18 : 18)) + 'px';
+    p.textContent = i === 0 ? '🏴‍☠️' : '•';
+    p.style.left = (pt.x + (i === 0 ? -22 : -24 + i * 12)) + 'px';
+    p.style.top = (pt.y + (i === 0 ? -10 : 22)) + 'px';
     p.style.color = '#8edcff';
-    p.style.fontSize = (i === 0 ? 24 : 14 + i % 3 * 2) + 'px';
-    p.style.animationDuration = perfMs(620) + 'ms';
-    p.style.setProperty('--dx', (i === 0 ? '-4px' : (-35 + i * 14) + 'px'));
-    p.style.setProperty('--dy', (i === 0 ? '-48px' : (-18 - Math.abs(i - 3) * 5) + 'px'));
+    p.style.fontSize = (i === 0 ? 23 : 16) + 'px';
+    p.style.animationDuration = perfMs(540) + 'ms';
+    p.style.setProperty('--dx', (i === 0 ? '-3px' : (-18 + i * 9) + 'px'));
+    p.style.setProperty('--dy', (i === 0 ? '-42px' : (-24 - Math.abs(i - 2) * 4) + 'px'));
     document.body.appendChild(p);
-    setTimeout(() => p.remove(), perfMs(660));
+    setTimeout(() => p.remove(), perfMs(580));
   }
-  spellImpact(pt, 'frost', {});
+  tone(310, .1, 'sine', .06, 410);
   await sleep(perfMs(105));
 }
 async function liveAuditMinionVfx(cardId, side, minion, phase){
@@ -9804,7 +9811,6 @@ function renderBoard(el, side){
       else if (!frozenVisible) d.classList.add('asleep');
     }
     const statuses = minionStatusList(m, def, side, frozenVisible);
-    if (side === G.player && BOOST_COND[m.cardId] && BOOST_COND[m.cardId](side)) d.classList.add('combo');
     d.innerHTML = `
       ${minionStatusHTML(statuses)}
       <div class="m-icon">${def.icon}</div>
@@ -10115,6 +10121,10 @@ function weaponProjectile(wdef){
   if (/anchor|якор/.test(id)) return { emoji:'⚓', glow:'#bcd0dc' };
   return { emoji:ic, glow:'#ffd98a' };
 }
+function weaponProjectileHtml(projectile, from, to){
+  const angle = Math.atan2(to.y - from.y, to.x - from.x) * 180 / Math.PI;
+  return `<div style="font-size:26px;filter:drop-shadow(0 0 6px ${projectile.glow}) drop-shadow(0 2px 3px #000)"><span style="display:block;transform:rotate(${angle}deg);transform-origin:50% 50%">${projectile.emoji}</span></div>`;
+}
 async function weaponEquipVfx(wdef, pt){
   if (!wdef || !pt) return;
   const school = wdef.id === 'anchor' ? 'frost'
@@ -10218,9 +10228,9 @@ async function heroLunge(el, from, to, targetEl, onContact){
   el.style.transform = `translate(${ux * travel}px, ${uy * travel}px) scale(1.06)`;
   await sleep(190);
   if (onContact) await onContact();
-  el.style.transition = 'transform .22s cubic-bezier(.16,.75,.35,1)';
+  el.style.transition = 'transform .27s cubic-bezier(.16,.72,.28,1)';
   el.style.transform = '';
-  await sleep(110);
+  await sleep(275);
   el.style.zIndex = '';
   el.style.transition = '';
 }
@@ -10287,7 +10297,7 @@ async function heroSwing(side, target){
     await heroRecoil(heroEl(side), swFrom, swTo);
     const pj = weaponProjectile(wdef);
     rangedWeaponMuzzleVfx(wdef, swFrom);
-    await flyEl(`<div style="font-size:26px;filter:drop-shadow(0 0 6px ${pj.glow}) drop-shadow(0 2px 3px #000)">${pj.emoji}</div>`, swFrom, swTo, 220);
+    await flyEl(weaponProjectileHtml(pj, swFrom, swTo), swFrom, swTo, 220);
     applyHit();
   } else {
     await heroLunge(heroEl(side), swFrom, swTo, tgtEl, () => {
@@ -14064,7 +14074,7 @@ async function mpAnimateRemoteAction(snap){
         await heroRecoil(heroElFrom, enemyHeroPt, to);
         const pj = weaponProjectile(CARD_DB[w.cardId]);
         rangedWeaponMuzzleVfx(CARD_DB[w.cardId], enemyHeroPt);
-        await flyEl(`<div style="font-size:26px;filter:drop-shadow(0 0 6px ${pj.glow}) drop-shadow(0 2px 3px #000)">${pj.emoji}</div>`, enemyHeroPt, to, 220);
+        await flyEl(weaponProjectileHtml(pj, enemyHeroPt, to), enemyHeroPt, to, 220);
       } else {
         await heroLunge(heroElFrom, enemyHeroPt, to, targetEl, () => {
           requestAnimationFrame(() => { void meleeWeaponContactVfx(CARD_DB[w && w.cardId], enemyHeroPt, to); });
