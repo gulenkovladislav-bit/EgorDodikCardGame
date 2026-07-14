@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-14-secrets-weapons-audit';
+    var build = '2026-07-14-sapper-two-step-target';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4441,7 +4441,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-14-secrets-weapons-audit';
+const CARD_ARENA_BUILD = '2026-07-14-sapper-two-step-target';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -9831,6 +9831,41 @@ function log(msg){
 }
 
 /* ================== ДЕЙСТВИЯ ИГРОКА ================== */
+let pendingBattlecryAim = null;
+function requestBattlecryTarget(minion, mode, cardId){
+  return new Promise(resolve => {
+    const sourceEl = minionEl(minion);
+    const from = safeCenter(sourceEl, $('playerBoard'));
+    pendingBattlecryAim = { minion, mode, cardId, resolve };
+    if (sourceEl) sourceEl.classList.add('arrow-src');
+    markTargets(mode);
+    arrowStart(from);
+    arrowMove(from.x, from.y - 72);
+    updateAimTarget(null);
+    banner(`🎯 ${CARD_DB[cardId].name}: выберите цель`);
+    log(`🎯 ${CARD_DB[cardId].name}: выберите врага`);
+  });
+}
+function movePendingBattlecryAim(x, y){
+  if (!pendingBattlecryAim) return;
+  arrowMove(x, y);
+  const target = pickTargetAt(x, y, pendingBattlecryAim.mode);
+  updateAimTarget(target);
+}
+function finishPendingBattlecryAim(x, y){
+  if (!pendingBattlecryAim) return false;
+  const target = pickTargetAt(x, y, pendingBattlecryAim.mode);
+  if (!target){
+    movePendingBattlecryAim(x, y);
+    return true;
+  }
+  const pending = pendingBattlecryAim;
+  pendingBattlecryAim = null;
+  arrowStop();
+  clearTargets();
+  pending.resolve(target);
+  return true;
+}
 async function playMinion(handIdx, fromPt, battlecryTarget){
   const cardId = G.player.hand[handIdx];
   const def = CARD_DB[cardId];
@@ -9856,6 +9891,8 @@ async function playMinion(handIdx, fromPt, battlecryTarget){
     await liveAuditMinionVfx(cardId, G.player, m, 'summon');
     checkSecrets(G.enemy, 'minionPlayed', { cardId, side: G.player });
     if (def.battlecry && !G.over){
+      if (def.battlecryTarget && !battlecryTarget)
+        battlecryTarget = await requestBattlecryTarget(m, def.battlecryTarget, cardId);
       log(`📣 Клич: ${def.name}`);
       def.battlecry(G, G.player, m, battlecryTarget || null);
       mpMeta.battlecryTargets = (m.battlecryVfxTargets || []).map(mpTargetDescriptor).filter(Boolean);
@@ -10496,6 +10533,11 @@ document.addEventListener('pointerout', e => {
 
 document.addEventListener('pointerdown', e => {
   ac();
+  if (pendingBattlecryAim){
+    e.preventDefault();
+    finishPendingBattlecryAim(e.clientX, e.clientY);
+    return;
+  }
   if (!myTurn()) return;
   if (!$('game').classList.contains('active')) return;
 
@@ -10567,12 +10609,7 @@ function handleDragMove(x, y){
       ghost.innerHTML = `<div class="card ${skinClass(SAVE.back)}">${cardHTML(cardId)}</div>`;
       ghost.style.display = 'block';
       if (drag.srcEl) drag.srcEl.style.opacity = '0.25';
-      if (def.type === 'minion' && def.battlecryTarget){
-	        drag.mode = def.battlecryTarget;
-	        markTargets(drag.mode);
-        setDragGhostAt(x, y);
-        arrowStart(center(drag.srcEl || ghost));
-      } else if (def.type === 'minion' || !def.target){
+      if (def.type === 'minion' || !def.target){
         drag.mode = null;
         $('playerBoard').classList.add('drop-ok');
         if (def.magnetic){
@@ -10594,13 +10631,7 @@ function handleDragMove(x, y){
     }
     const cardId = G.player.hand[drag.handIdx];
     const def = cardId !== undefined ? CARD_DB[cardId] : null;
-    if (def && def.type === 'minion' && def.battlecryTarget){
-      setDragGhostAt(x, y);
-      arrowMove(x, y);
-      const target = pickTargetAt(x, y, drag.mode);
-      updateAimTarget(target);
-      mpSendIntent('aim', drag.intentSource, mpTargetDescriptor(target), { mode:drag.mode });
-    } else if (def && def.type === 'spell' && def.target){
+    if (def && def.type === 'spell' && def.target){
       arrowMove(x, y);
       const target = pickTargetAt(x, y, drag.mode);
       updateAimTarget(target);
@@ -10636,6 +10667,10 @@ function flushDragMove(x, y){
   handleDragMove(x, y);
 }
 document.addEventListener('pointermove', e => {
+  if (pendingBattlecryAim){
+    movePendingBattlecryAim(e.clientX, e.clientY);
+    return;
+  }
   if (!drag.active) return;
   queueDragMove(e.clientX, e.clientY);
 });
@@ -10673,17 +10708,6 @@ document.addEventListener('pointerup', e => {
       return;
     }
     if (def.type === 'minion'){
-      if (def.battlecryTarget){
-        const target = moved ? pickTargetAt(e.clientX, e.clientY, def.battlecryTarget) : null;
-        if (target && def.cost <= G.player.mana && G.player.board.length < MAX_BOARD){
-          playMinion(handIdx, { x:e.clientX, y:e.clientY }, target);
-          return;
-        }
-        if (!moved) log('🎯 Перетащите Минёра на выбранного врага');
-        cancelIntent();
-        render();
-        return;
-      }
       if (moved && def.magnetic){
         const mt = pickMergeTargetAt(e.clientX, e.clientY);
         if (mt){ playMagnetic(handIdx, mt, { x: e.clientX, y: e.clientY }); return; }
@@ -15042,7 +15066,7 @@ const ANIM_PATCH_NOTES = {
   ambusher:'Последний патч: 4 маны 4/2 с Рывком; после первой атаки один раз уходит в Скрытность.',
   ghostblade:'Последний патч: характеристики изменены на 3/3; Скрытность и Яд используют общие эффекты.',
   ratking:'Последний патч: стоимость изменена на 4 маны; хрип выпускает трёх Крыс 1/1.',
-  sapper:'Последний патч: 4 маны 4/2. При призыве отмечает цель, а после смерти взрывает её на 3.',
+  sapper:'Последний патч: 4 маны 4/2. Сначала выходит на стол, затем отдельной стрелкой отмечает цель; после смерти взрывает её на 3.',
   souljar:'Последний патч: стоимость изменена на 4 маны; хрип показывает добор двух карт.',
   frostwight:'Последний патч: Клич и Хрип замораживают по случайному вражескому существу.',
   goldgoose:'Последний патч: хрип даёт 15 золота в одиночной игре или +1 текущую ману в мультиплеере.',
@@ -15121,7 +15145,7 @@ const ANIM_AUDIT_HINTS = {
   ambusher:'Аудит-сцена: Засадник входит с Рывком, атакует и только затем растворяется в Скрытности.',
   ghostblade:'Аудит-сцена: общий дым Скрытности и зелёный импульс Яда проверяются вместе.',
   ratking:'Аудит-сцена: после смерти из Крысиного короля разбегаются три Крысы 1/1.',
-  sapper:'Аудит-сцена: выбранная цель получает метку; после смерти Минора в неё летит бомба на 3 урона.',
+  sapper:'Аудит-сцена: после призыва стрелка выходит из Минёра; выбранная цель получает метку, после смерти в неё летит бомба на 3 урона.',
   souljar:'Аудит-сцена: две души-карты вылетают из разбитого сосуда в руку владельца.',
   frostwight:'Аудит-сцена: один морозный импульс идёт от Клича, второй — от Хрипа.',
   goldgoose:'Аудит-сцена: хрип отправляет золото или дополнительный кристалл маны владельцу.',
