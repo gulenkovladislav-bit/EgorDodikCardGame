@@ -3729,9 +3729,9 @@
     #game::before{width:158px;height:118px;}
     #board{left:5.5%;right:5.5%;top:8%;bottom:24%;}
     .row{left:12%;right:12%;height:23%;gap:clamp(2px,.58vw,5px);justify-content:center;align-items:center;}
-    #enemyBoard{top:24%;}
-    #playerBoard{bottom:21%;}
-    .minion{width:54px;height:72px;padding:5px;border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;}
+    #enemyBoard{top:calc(24% - 4px);}
+    #playerBoard{bottom:calc(21% + 4px);}
+    .minion{width:48px;height:64px;padding:5px;border-radius:50% 50% 48% 48% / 44% 44% 40% 40%;}
     .minion .m-icon{font-size:24px;}
     .minion .m-name{display:none;}
     .minion .stat{width:20px;height:20px;font-size:11px;bottom:8px;}
@@ -3744,7 +3744,7 @@
     .m-status .ms-val{min-width:9px;height:9px;right:-4px;bottom:-4px;font-size:6px;padding:0 2px;}
     #playerHero{
       left:50%;
-      bottom:76px;
+      bottom:78px;
       transform:translateX(-50%) scale(.70);
       transform-origin:50% 100%;
     }
@@ -3772,7 +3772,7 @@
     #bossRow .hs-hp{font-size:8.5px;}
     #bossRow .hs-power{font-size:7.5px;max-height:68px;}
     #bossRewardNote{display:none;}
-    #enemyHero{transform:translateX(-50%) scale(.92);transform-origin:50% 50%;}
+    #enemyHero{top:-2px;transform:translateX(-50%) scale(.84);transform-origin:50% 50%;}
     .minion.aim{transform:scale(1.08);}
   }
 
@@ -3781,7 +3781,7 @@
     #game{--mobile-hand-scale:.46;}
     #board{left:4.8%;right:4.8%;top:7%;bottom:23%;}
     .row{left:8%;right:8%;height:23%;gap:2px;}
-    #enemyBoard{top:25%;}
+    #enemyBoard{top:calc(25% - 4px);}
     #playerBoard{bottom:22%;}
     .minion{width:48px;height:64px;padding:4px;}
     .minion .m-icon{font-size:22px;}
@@ -3793,7 +3793,7 @@
     .m-status{width:12px;height:12px;font-size:7.5px;}
     .minion .rgem .tico{font-size:8px;}
     #playerHero{
-      bottom:68px;
+      bottom:70px;
       transform:translateX(-50%) scale(.64);
     }
     #playerPowerBtn{
@@ -4216,7 +4216,7 @@
   }
   @media (pointer:coarse) and (orientation:landscape),
          (max-height:560px) and (orientation:landscape){
-    .minion{width:70px;height:92px;border-radius:9px;}
+    .minion{width:60px;height:80px;border-radius:9px;}
     .minion .m-frame-shell{border-radius:9px;}
     .minion .m-icon{font-size:30px;}
     .minion .m-name{font-size:6.6px;}
