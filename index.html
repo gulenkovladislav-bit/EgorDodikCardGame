@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-15-astral-forge-v2';
+    var build = '2026-07-15-astral-graphics-v4';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4263,6 +4263,128 @@
     .power-btn{width:42px;height:42px;}
   }
 
+  /* ================= ASTRAL GRAPHICS V3 =================
+     Растровые production-ассеты поверх прежнего CSS-фолбэка. */
+  .minion .m-frame-shell{
+    inset:-2.5% -3%;border:0!important;border-radius:0!important;clip-path:none!important;
+    background:url('assets/ui/astral/minion-battlefield-frame-ui.png?v=2026-07-15-astral-graphics-v4') center/100% 100% no-repeat!important;
+    box-shadow:none!important;filter:drop-shadow(0 3px 3px rgba(0,0,0,.72));
+  }
+  .minion .m-frame-shell::before,.minion .m-frame-shell::after{display:none!important;}
+  .minion .m-statusbar{
+    left:17%;top:1.4%;width:66%;height:10.5%;padding:1px 3%;gap:2px;
+    border:0;border-radius:2px;background:rgba(8,10,12,.78);box-shadow:inset 0 0 5px #000;
+  }
+  .minion .m-icon{
+    left:14%;top:17%;width:72%;height:48%;border-radius:48% 48% 7px 7px;
+    background:radial-gradient(ellipse at 50% 30%,#293944,#080a0c 78%);
+  }
+  .minion .m-icon img{width:96%;height:96%;margin:2%;object-fit:contain;object-position:center bottom;}
+  .minion .m-name{
+    left:14%;top:64.6%;width:72%;height:9.8%;padding:0 3%;font-size:8.2px;
+    border:0;border-radius:2px;background:linear-gradient(180deg,rgba(55,48,38,.96),rgba(14,13,11,.96));
+  }
+  .minion .m-tribe{
+    left:3.5%;top:18%;bottom:auto;width:15%;height:21%;padding:0;border:0;clip-path:none;
+    background:transparent;filter:drop-shadow(0 1px 2px #000);font-size:11px;
+  }
+  .minion .stat{bottom:.8%;width:25%;border:0;box-shadow:0 2px 4px rgba(0,0,0,.72);}
+  .minion .stat.atk{left:1.6%;}
+  .minion .stat.hp{right:1.6%;}
+  .minion .rgem{bottom:2.1%;width:12.5%;}
+  .minion.taunt .m-frame-shell{filter:drop-shadow(0 0 5px #dce8ef) drop-shadow(0 3px 3px rgba(0,0,0,.72));}
+  .minion.shielded .m-frame-shell{filter:drop-shadow(0 0 7px rgba(255,224,138,.9)) drop-shadow(0 3px 3px rgba(0,0,0,.72));}
+
+  .portrait::after{
+    left:50%;right:auto;top:-1px;bottom:auto;width:142px;height:104px;transform:translateX(-50%);
+    border-radius:0;clip-path:none;background:url('assets/ui/astral/hero-hud-ui.png?v=2026-07-15-astral-graphics-v4') center/100% 100% no-repeat;
+    box-shadow:none;filter:drop-shadow(0 4px 5px rgba(0,0,0,.72));
+  }
+  .p-frame{
+    left:18px;top:13px;width:76px;height:64px;border:0;border-radius:50% 50% 30% 30%;overflow:hidden;
+    background:radial-gradient(circle at 50% 28%,#344654,#090b0d 76%);box-shadow:inset 0 0 12px rgba(0,0,0,.72);
+  }
+  .p-frame img{width:100%;height:100%;object-fit:cover;object-position:center top;filter:drop-shadow(0 2px 2px #000);}
+  .p-name{left:23px;right:23px;bottom:11px;border:0;border-radius:2px;background:rgba(15,14,12,.9);}
+  .hp-gem,.armor-gem{bottom:8px;}
+  .hp-gem{right:1px;}.armor-gem{left:1px;}
+  .hero-status-channel{left:25px;right:25px;top:0;height:17px;border:0;background:rgba(9,11,13,.76);}
+
+  .power-btn{
+    border:0!important;border-radius:0!important;
+    background:url('assets/ui/astral/hero-power-ui.png?v=2026-07-15-astral-graphics-v4') center/100% 100% no-repeat!important;
+    box-shadow:none!important;filter:drop-shadow(0 4px 4px rgba(0,0,0,.7));
+  }
+  .power-btn > span:not(.pw-cost){width:62%;height:62%;display:flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle,#24476d,#08111d 76%);}
+  .power-btn .pw-cost{top:1%;left:1%;width:24%;height:24%;border:0;box-shadow:0 1px 3px #000;}
+  .power-btn.ready{filter:drop-shadow(0 0 8px var(--green-ok)) drop-shadow(0 4px 4px rgba(0,0,0,.7));}
+
+  .weapon-plate{
+    border:0!important;border-radius:0!important;padding:7px 6px 8px!important;
+    background:url('assets/ui/astral/weapon-module-ui.png?v=2026-07-15-astral-graphics-v4') center/100% 100% no-repeat!important;
+    box-shadow:none!important;filter:drop-shadow(0 3px 3px rgba(0,0,0,.72));
+  }
+  .weapon-plate .w-icon{width:100%;height:72%;border-radius:50% 50% 16% 16%;background:rgba(8,10,12,.72);}
+  .weapon-plate .w-stats{left:0;right:0;bottom:-5px;}
+  .weapon-plate .w-atk,.weapon-plate .w-dur{border:0;background:#111418;}
+
+  .card-back,.deck-stack{
+    background-image:url('assets/ui/astral/card-back-default-ui.jpg?v=2026-07-15-astral-graphics-v4')!important;
+    background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;
+  }
+  .menu-btns .btn{
+    display:flex;align-items:center;justify-content:center;padding-left:46px!important;padding-right:42px!important;
+  }
+  .menu-btns .btn::before{display:none!important;}
+  .main-menu-icon{
+    position:absolute;z-index:2;left:10px;top:50%;width:30px;height:30px;transform:translateY(-50%);
+    display:flex;align-items:center;justify-content:center;pointer-events:none;
+  }
+  .main-menu-icon img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.8));}
+  .main-menu-label{position:relative;z-index:2;min-width:0;white-space:nowrap;}
+  #btnPlay{text-align:center!important;}
+  .torch{width:58px;height:136px;font-size:0;}
+  .torch img{width:100%;height:100%;object-fit:contain;display:block;}
+  .torch::after{display:none!important;}
+  .deco{width:54px;height:54px;font-size:0!important;display:flex;align-items:center;justify-content:center;}
+  .deco img{width:100%;height:100%;object-fit:contain;display:block;transition:filter .2s,opacity .2s;}
+  #decoCandle{width:45px;height:58px;}
+  #decoCandle img{animation:astralPropGlow .72s ease-in-out infinite alternate;}
+  #decoCandle.out img{animation:none;filter:grayscale(.85) brightness(.32);opacity:.68;}
+  #decoPotion{width:50px;height:50px;}
+  #decoDragon{width:58px;height:58px;}
+  #decoMug{width:50px;height:50px;}
+  @keyframes astralPropGlow{from{filter:brightness(.92) drop-shadow(0 0 2px rgba(91,213,255,.28));}to{filter:brightness(1.12) drop-shadow(0 0 7px rgba(91,213,255,.58));}}
+  #bossRow .hs-portrait img,.bd-portrait img,.bfx-icon img{
+    width:100%;height:100%;object-fit:cover;object-position:center top;border-radius:inherit;display:block;
+  }
+  .bd-portrait{overflow:hidden;}
+  #bossSpecialFx .bfx-icon{width:132px;height:132px;margin:0 auto;border-radius:50%;overflow:hidden;border:3px solid var(--bfx);background:#080a0d;}
+  .p-frame,.hs-portrait,#mpHeroIcon{isolation:isolate;}
+  .hs-portrait img,#mmMeIcon img,#mmOppIcon img,#mpHeroIcon img{
+    width:100%;height:100%;object-fit:cover;object-position:center top;border-radius:inherit;display:block;
+  }
+
+  @media (pointer:coarse) and (orientation:landscape),
+         (max-height:560px) and (orientation:landscape){
+    .menu-btns .btn,.menu-btns .music-toggle{padding-left:36px!important;padding-right:32px!important;}
+    .main-menu-icon{left:7px;width:24px;height:24px;}
+    .deco{width:38px;height:38px;}
+    #decoCandle{width:32px;height:42px;}
+    #decoPotion,#decoMug{width:36px;height:36px;}
+    #decoDragon{width:42px;height:42px;}
+    .minion .m-name{font-size:5.8px;}
+    .minion .m-tribe{font-size:7px;}
+    .portrait::after{width:116px;height:86px;}
+    .p-frame{left:16px;top:10px;width:60px;height:52px;font-size:0;}
+    .hero-status-channel{left:20px;right:20px;top:0;}
+  }
+  @media (pointer:coarse) and (orientation:landscape) and (max-height:410px),
+         (max-width:760px) and (max-height:410px) and (orientation:landscape){
+    .portrait::after{width:104px;height:78px;}
+    .p-frame{left:14px;top:9px;width:54px;height:47px;}
+  }
+
 
 </style>
 </head>
@@ -4276,8 +4398,8 @@
 
 <!-- МЕНЮ -->
 <div class="screen" id="menu">
-  <div class="torch t-left">🔥</div>
-  <div class="torch t-right">🔥</div>
+  <div class="torch t-left"><img src="assets/ui/astral/board/torch.png" alt=""></div>
+  <div class="torch t-right"><img src="assets/ui/astral/board/torch.png" alt=""></div>
   <div class="menu-banner left"></div>
   <div class="menu-banner right"></div>
   <div class="menu-rank" id="menuRank"></div>
@@ -4288,14 +4410,14 @@
       <span class="tavern">ВМЕШАТЕЛЬСТВО КОДЕКСА</span>
     </div>
     <div class="menu-btns">
-      <button class="btn" id="btnPlay">⚔️ В БОЙ</button>
-      <button class="btn stone" id="btnBoss">👹 БОССЫ</button>
-      <button class="btn stone" id="btnTourn">🏆 ТУРНИР</button>
-      <button class="btn stone" id="btnMultiplayer">🌐 МУЛЬТИПЛЕЕР</button>
-      <button class="btn stone" id="btnBuilder">📚 КОЛОДА</button>
-      <button class="btn stone" id="btnShop">🛒 МАГАЗИН</button>
-      <button class="btn stone" id="btnPacks">🎁 ПАКИ<span class="badge" id="packBadge">0</span></button>
-      <button class="btn stone music-toggle" id="btnSettings">⚙️ НАСТРОЙКИ</button>
+      <button class="btn" id="btnPlay"><span class="main-menu-icon"><img src="assets/ui/astral/menu/battle.png" alt=""></span><span class="main-menu-label">В БОЙ</span></button>
+      <button class="btn stone" id="btnBoss"><span class="main-menu-icon"><img src="assets/ui/astral/menu/bosses.png" alt=""></span><span class="main-menu-label">БОССЫ</span></button>
+      <button class="btn stone" id="btnTourn"><span class="main-menu-icon"><img src="assets/ui/astral/menu/tournament.png" alt=""></span><span class="main-menu-label">ТУРНИР</span></button>
+      <button class="btn stone" id="btnMultiplayer"><span class="main-menu-icon"><img src="assets/ui/astral/menu/multiplayer.png" alt=""></span><span class="main-menu-label">МУЛЬТИПЛЕЕР</span></button>
+      <button class="btn stone" id="btnBuilder"><span class="main-menu-icon"><img src="assets/ui/astral/menu/deck.png" alt=""></span><span class="main-menu-label">КОЛОДА</span></button>
+      <button class="btn stone" id="btnShop"><span class="main-menu-icon"><img src="assets/ui/astral/menu/shop.png" alt=""></span><span class="main-menu-label">МАГАЗИН</span></button>
+      <button class="btn stone" id="btnPacks"><span class="main-menu-icon"><img src="assets/ui/astral/menu/packs.png" alt=""></span><span class="main-menu-label">ПАКИ</span><span class="badge" id="packBadge">0</span></button>
+      <button class="btn stone music-toggle" id="btnSettings"><span class="main-menu-icon"><img src="assets/ui/astral/menu/settings.png" alt=""></span><span class="main-menu-label">НАСТРОЙКИ</span></button>
     </div>
     <div class="menu-stats" id="menuStats">Побед: 0</div>
   </div>
@@ -4861,10 +4983,10 @@
 <div class="screen" id="game">
   <div id="tableBg"></div>
   <div id="board">
-    <div class="deco" id="decoCandle">🕯️<span class="flame">🔥</span></div>
-    <div class="deco" id="decoPotion">⚗️</div>
-    <div class="deco" id="decoDragon">🐉</div>
-    <div class="deco" id="decoMug">🍺</div>
+    <div class="deco" id="decoCandle"><img src="assets/ui/astral/board/candle.png" alt=""></div>
+    <div class="deco" id="decoPotion"><img src="assets/ui/astral/board/cauldron.png" alt=""></div>
+    <div class="deco" id="decoDragon"><img src="assets/ui/astral/board/dragon.png" alt=""></div>
+    <div class="deco" id="decoMug"><img src="assets/ui/astral/board/mug.png" alt=""></div>
     <div class="row" id="enemyBoard"></div>
     <div class="row" id="playerBoard"></div>
   </div>
@@ -4965,7 +5087,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-15-astral-forge-v2';
+const CARD_ARENA_BUILD = '2026-07-15-astral-graphics-v4';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -6408,6 +6530,51 @@ const PACKS_DB = {
 /* типы существ */
 const TRIBE_RU = { beast:'🐾 Зверь', mech:'⚙️ Механизм', undead:'🦴 Нежить', demon:'🔥 Демон', pirate:'🏴‍☠️ Пират' };
 const TRIBE_ICON = { beast:'🐾', mech:'⚙️', undead:'🦴', demon:'🔥', pirate:'🏴‍☠️' };
+
+/* Production-арт подключается отдельно от механик карт. Новые портреты добавляются сюда. */
+const CARD_ART_ASSET = {
+  soldier:'assets/art/astral/soldier.png',
+  fireball:'assets/art/astral/fireball.png',
+  bouncer:'assets/art/astral/ogreb.png',
+  bear:'assets/art/astral/bear.png',
+  shieldbot:'assets/art/astral/shieldbot.png',
+  ogreb:'assets/art/astral/ogreb.png',
+  ghost:'assets/art/astral/ghost.png',
+  snowman:'assets/art/astral/snowman.png',
+  acolyte:'assets/art/astral/acolyte.png',
+  bolt:'assets/art/astral/bolt.png',
+  familiar:'assets/art/astral/familiar.png',
+  bonehound:'assets/art/astral/bonehound.png',
+  wolf:'assets/art/astral/wolf.png',
+  zombie:'assets/art/astral/zombie.png',
+  imp:'assets/art/astral/imp.png',
+  skeleton:'assets/art/astral/skeleton.png',
+  doll:'assets/art/astral/doll.png',
+  brew:'assets/art/astral/brew.png',
+  bomber:'assets/art/astral/bomber.png',
+  spider:'assets/art/astral/spider.png',
+  golem:'assets/art/astral/golem.png',
+  iceArrow:'assets/art/astral/iceArrow.png',
+  armorUp:'assets/art/astral/armorUp.png',
+  raptor:'assets/art/astral/raptor.png',
+  wolfpup:'assets/art/astral/wolfpup.png'
+};
+const HERO_ART_ASSET = {
+  mage:'assets/art/astral/hero-mage.png',
+  warrior:'assets/art/astral/hero-warrior.png',
+  priest:'assets/art/astral/hero-priest.png',
+  rogue:'assets/art/astral/hero-rogue.png',
+  necro:'assets/art/astral/hero-necro.png',
+  warlock:'assets/art/astral/hero-warlock.png',
+  druid:'assets/art/astral/hero-druid.png',
+  weaponsmith:'assets/art/astral/hero-weaponsmith.png',
+  dragonboss:'assets/art/astral/bosses/dragonboss.png',
+  mechboss:'assets/art/astral/bosses/mechboss.png',
+  lichboss:'assets/art/astral/bosses/lichboss.png',
+  hivequeen:'assets/art/astral/bosses/hivequeen.png',
+  infernolord:'assets/art/astral/bosses/infernolord.png',
+  abyssking:'assets/art/astral/bosses/abyssking.png'
+};
 
 /* валюта и рейтинг */
 const GOLD = { win: 50, boss: 100, tournMatch: 30, champion: 200, mpWin: 45, mpLoss: 10, packPrice: 100 };
@@ -10644,7 +10811,8 @@ function dynCardText(def, side){
 }
 function cardArtHTML(def){
   if (!def) return '';
-  return def.art ? `<img src="${def.art}" alt="" draggable="false">` : def.icon;
+  const art = def.art || CARD_ART_ASSET[def.id];
+  return art ? `<img src="${art}?v=${CARD_ARENA_BUILD}" alt="" draggable="false">` : def.icon;
 }
 function cardFrameHTML(def){
   if (!def) return '';
@@ -13194,7 +13362,7 @@ function bossSpecialFxShow(bossId, specName, quote){
   el.innerHTML = `
     <div class="bfx-flash"></div>
     <div class="bfx-body">
-      <div class="bfx-icon">${HEROES[bossId].icon}</div>
+      <div class="bfx-icon">${heroPortraitHTML(HEROES[bossId])}</div>
       <div class="bfx-name">💥 ${specName}</div>
       ${quote ? `<div class="bfx-quote">${quote}</div>` : ''}
     </div>`;
@@ -13239,7 +13407,7 @@ function renderBossMap(){
       + (bossPicked === i ? ' picked' : '');
     card.innerHTML = `
       <div class="boss-node">
-        <div class="hs-portrait">${locked ? '❓' : b.icon}</div>
+        <div class="hs-portrait">${locked ? '❓' : heroPortraitHTML(b)}</div>
         <div class="boss-flag">${beaten ? '✅' : locked ? '🔒' : '⚔'}</div>
       </div>
       <div class="boss-tier">Глава ${b.tier}</div>
@@ -13269,7 +13437,7 @@ function renderBossDetail(){
   const heroic = $('bdHeroic').checked;
   const hp = heroic ? Math.round(baseHp * 1.4) : baseHp;
   const every = Math.max(2, (b.special.every || 3) - (heroic ? 1 : 0));
-  $('bdIcon').textContent = b.icon;
+  $('bdIcon').innerHTML = heroPortraitHTML(b);
   $('bdName').textContent = `Глава ${b.tier} · ${b.name}`;
   $('bdStats').innerHTML = `❤️ ${hp}${bossCfg.armor ? ' · 🛡 ' + bossCfg.armor : ''}${heroic ? ' <span style="color:#ffb066">⚡усилен</span>' : ''}`;
   const loreTxt = BOSS_LORE[id] ? `<div style="font-style:italic;color:#a08c60;margin-bottom:5px;">${BOSS_LORE[id].lore}</div>` : '';
@@ -13500,7 +13668,7 @@ function openMatchmaking(heroId, opts){
   opts = opts || {};
   showScreen('matchmaking');
   const rk = rankOf(SAVE.rating);
-  $('mmMeIcon').textContent = HEROES[heroId] && !HEROES[heroId].boss ? HEROES[heroId].icon : HEROES.mage.icon;
+  $('mmMeIcon').innerHTML = heroPortraitHTML(HEROES[heroId] && !HEROES[heroId].boss ? HEROES[heroId] : HEROES.mage);
   $('mmMeRank').textContent = `${rk.icon} ${rk.name} · ${SAVE.rating}`;
   $('mmOppIcon').textContent = '❓';
   $('mmOppIcon').classList.add('mm-spin');
@@ -13516,7 +13684,7 @@ function openMatchmaking(heroId, opts){
     /* найден */
     const ork = rankOf(opp.rating);
     $('mmOppIcon').classList.remove('mm-spin');
-    $('mmOppIcon').textContent = HEROES[opp.heroId].icon;
+    $('mmOppIcon').innerHTML = heroPortraitHTML(HEROES[opp.heroId]);
     $('mmOppName').textContent = opp.name;
     $('mmOppRank').textContent = `${ork.icon} ${ork.name} · ${opp.rating}`;
     $('mmOppCard').classList.add('found');
@@ -15523,7 +15691,7 @@ function renderMpLoadout(){
   const hero = HEROES[SAVE.hero] && !HEROES[SAVE.hero].boss ? HEROES[SAVE.hero] : HEROES.priest;
   const rk = rankOf(SAVE.rating);
   const deck = deckValid(SAVE.deck) ? SAVE.deck : normalizeDeck(SAVE.deck, SAVE.collection);
-  if ($('mpHeroIcon')) $('mpHeroIcon').textContent = hero.icon;
+  if ($('mpHeroIcon')) $('mpHeroIcon').innerHTML = heroPortraitHTML(hero);
   if ($('mpHeroTitle')) $('mpHeroTitle').textContent = `${hero.name} · Рейтинговый сетевой матч`;
   if ($('mpHeroSub')) $('mpHeroSub').textContent = `${rk.icon} ${rk.name} · рейтинг ${SAVE.rating} · колода ${deckTotal(deck)}/${DECK_SIZE}`;
   if ($('mpRewardInfo')) $('mpRewardInfo').innerHTML =
@@ -17463,7 +17631,7 @@ function renderHeroDrawer(){
     const card = document.createElement('div');
     card.className = 'hs-card' + (locked ? ' locked' : '') + (sel ? ' selected' : '');
     card.innerHTML = `
-      <div class="hs-portrait">${locked ? '🔒' : hh.icon}</div>
+      <div class="hs-portrait">${locked ? '🔒' : heroPortraitHTML(hh)}</div>
       <div class="hs-name">${hh.name}${locked ? ' 🔒' : sel ? ' ✓' : ''}</div>
       <div class="hs-power">${locked ? 'Купи в 🛒 Магазине' : `${hh.power.icon} <b>${hh.power.cost}</b> «${hh.power.name}»<br>${hh.power.desc}`}</div>`;
     card.addEventListener('click', () => {
@@ -17496,15 +17664,20 @@ $('hsFind').addEventListener('click', () => {
 });
 $('heroBack').addEventListener('click', () => { showScreen('menu'); renderMenu(); });
 
+function heroPortraitHTML(hero){
+  if (!hero) return '';
+  const art = HERO_ART_ASSET[hero.id];
+  return art ? `<img src="${art}?v=${CARD_ARENA_BUILD}" alt="" draggable="false">` : hero.icon;
+}
 function applyHeroUI(){
   const ph = HEROES[G.playerHeroId], eh = HEROES[G.enemyHeroId];
   const pp = heroPowerOf(G.player), ep = heroPowerOf(G.enemy);
-  $('playerHeroIcon').textContent = ph.icon;
+  $('playerHeroIcon').innerHTML = heroPortraitHTML(ph);
   $('playerHeroName').textContent = ph.name;
   $('playerPowerIcon').textContent = pp.icon;
   $('playerPowerCost').textContent = pp.cost;
   $('playerPowerBtn').title = `${pp.name}: ${pp.desc}`;
-  $('enemyHeroIcon').textContent = eh.icon;
+  $('enemyHeroIcon').innerHTML = heroPortraitHTML(eh);
   $('enemyHeroName').textContent = G.opp ? G.opp.name : eh.name;
   $('enemyPowerIcon').textContent = ep.icon;
   $('enemyPowerCost').textContent = ep.cost;
