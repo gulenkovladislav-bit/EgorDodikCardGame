@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-15-astral-graphics-v4';
+    var build = '2026-07-15-status-preview-v7';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -648,7 +648,8 @@
 	    background:radial-gradient(circle at 50% 20%,rgba(160,220,255,.3),rgba(120,200,255,.12) 58%,transparent 72%);
 	    box-shadow:0 0 20px rgba(120,196,255,.85);animation:animIcePulse 1.2s ease-in-out infinite;
 	  }
-	  .anim-mini .ami-icon{font-size:30px;line-height:1;}
+	  .anim-mini .ami-icon{width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:30px;line-height:1;}
+	  .anim-mini .ami-icon img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.75));}
 	  .anim-mini .ami-name{font-size:9px;line-height:1.05;max-width:66px;}
 	  .anim-mini .ami-stat{position:absolute;bottom:-9px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;text-shadow:0 1px 2px #000;font-size:11px;}
 	  .anim-mini .ami-atk{left:-7px;background:#c79a3a;border:2px solid #5a3a0f;}
@@ -690,7 +691,8 @@
 	  @keyframes animIcePulse{0%,100%{opacity:.65;filter:brightness(.95);}50%{opacity:1;filter:brightness(1.35);}}
 	  @keyframes animPortalSpin{to{transform:translate(-50%,-50%) rotate(360deg);}}
 	  @keyframes animRiseFade{0%{opacity:0;transform:translate(-50%,-20%) scale(.78);}18%{opacity:1;}100%{opacity:0;transform:translate(-50%,-115%) scale(1.08);}}
-	  .anim-minion .am-icon{font-size:38px;}
+	  .anim-minion .am-icon{width:78px;height:78px;display:flex;align-items:center;justify-content:center;font-size:38px;}
+	  .anim-minion .am-icon img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 4px rgba(0,0,0,.75));}
 	  .anim-minion .am-name{font-size:12px;line-height:1.05;padding:0 4px;}
 	  .anim-minion .am-stat{position:absolute;bottom:-11px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;text-shadow:0 1px 2px #000;font-weight:bold;}
 	  .anim-minion .am-atk{left:-8px;background:#c79a3a;border:2px solid #5a3a0f;}
@@ -4385,6 +4387,229 @@
     .p-frame{left:14px;top:9px;width:54px;height:47px;}
   }
 
+  /* ============== ASTRAL READABILITY PASS V5 ==============
+     Контент привязан к реальным гнёздам растровых рамок. */
+  .card:has(.c-frame-art),
+  .minion{
+    container-type:inline-size;
+  }
+  .card:has(.c-frame-art){
+    border:0!important;border-radius:0!important;background:transparent!important;
+    padding:0!important;overflow:visible!important;
+  }
+  .card:has(.c-frame-art)::before{inset:5.4% 6.2%;opacity:.42;}
+
+  /* Полная карта: 504 x 688, координаты совпадают с production-рамкой. */
+  .card:has(.c-frame-art) .c-cost,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-cost{
+    left:5.45%!important;top:3.15%!important;width:18.7%!important;height:auto!important;
+    padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;
+    font-size:11.8cqw!important;line-height:1!important;
+  }
+  .card:has(.c-frame-minion) .c-icon,
+  #cardPreview .cp-card .card:has(.c-frame-minion) .c-icon{
+    left:16.25%!important;top:11.15%!important;width:69.65%!important;height:46.65%!important;
+    border-radius:42% 42% 5% 5%!important;
+  }
+  .card:has(.c-frame-spell) .c-icon,
+  #cardPreview .cp-card .card:has(.c-frame-spell) .c-icon{
+    left:17%!important;top:10.25%!important;width:66%!important;height:47.1%!important;
+    border-radius:50%!important;
+  }
+  .card:has(.c-frame-weapon) .c-icon,
+  #cardPreview .cp-card .card:has(.c-frame-weapon) .c-icon{
+    left:16.4%!important;top:10.1%!important;width:67.2%!important;height:47.4%!important;
+    border-radius:44% 44% 9% 9%!important;
+  }
+  .card:has(.c-frame-secret) .c-icon,
+  #cardPreview .cp-card .card:has(.c-frame-secret) .c-icon{
+    left:17.5%!important;top:10.8%!important;width:65%!important;height:46.3%!important;
+    border-radius:50% 50% 42% 42%!important;
+  }
+  .card:has(.c-frame-art) .c-icon img{
+    width:100%!important;height:100%!important;margin:0!important;padding:0!important;
+    object-fit:cover!important;object-position:center 34%!important;
+  }
+  .card:has(.c-frame-art) .c-name,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-name{
+    left:17%!important;top:58.55%!important;width:66%!important;height:9.8%!important;
+    min-height:0!important;max-height:none!important;padding:0 2.5%!important;
+    font-size:7.35cqw!important;line-height:.96!important;
+  }
+  .card:has(.c-frame-art) .c-name.is-long,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-name.is-long{
+    font-size:6.25cqw!important;line-height:.92!important;
+  }
+  .card:has(.c-frame-art) .c-text,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-text{
+    left:17.1%!important;top:70.65%!important;width:66.8%!important;height:17.15%!important;
+    min-height:0!important;padding:.5% 1.5%!important;
+    font-size:5.65cqw!important;line-height:1.08!important;-webkit-line-clamp:6!important;
+  }
+  .card:has(.c-frame-art) .c-text.is-long,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-text.is-long{
+    font-size:5.05cqw!important;line-height:1.04!important;
+  }
+  .card:has(.c-frame-art) .c-tribe,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe{
+    left:11.9%!important;top:16.05%!important;bottom:auto!important;width:9.2%!important;height:7.6%!important;
+    margin:0!important;padding:0!important;border:0!important;border-radius:0!important;clip-path:none!important;
+    background:transparent!important;box-shadow:none!important;filter:drop-shadow(0 1px 2px #000)!important;
+    align-items:center!important;justify-content:center!important;
+  }
+  .card:has(.c-frame-art) .c-tribe i,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe i{
+    font-size:5.9cqw!important;line-height:1!important;
+  }
+  .card:has(.c-frame-art) .stat,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat{
+    bottom:1.55%!important;width:20.2%!important;height:auto!important;
+    padding:0!important;border:0!important;border-radius:50%!important;
+    background:transparent!important;box-shadow:none!important;
+    font-size:11.7cqw!important;line-height:1!important;
+  }
+  .card:has(.c-frame-art) .stat.atk,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.atk{left:8%!important;}
+  .card:has(.c-frame-art) .stat.hp,
+  .card:has(.c-frame-art) .stat.dur,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.hp,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.dur{right:6.55%!important;}
+  .card:has(.c-frame-art) .rgem,
+  #cardPreview .cp-card .card:has(.c-frame-art) .rgem{
+    bottom:3.25%!important;width:8.5%!important;height:auto!important;
+  }
+
+  /* Увеличенный просмотр: карта и описание помещаются целиком. */
+  #cardPreview{
+    width:min(650px,calc(100vw - 20px));max-width:none!important;
+    overflow:visible!important;box-sizing:border-box;
+  }
+  #cardPreview .cp-card,
+  #cardPreview .cp-card .card{width:260px!important;height:355px!important;flex:0 0 auto;}
+  #cardPreview .cp-side{
+    min-width:0!important;max-width:none!important;flex:1 1 auto;
+    max-height:calc(100vh - 44px);overflow:auto;padding-right:3px;
+  }
+  #cardPreview .cp-meta{font-size:12px;line-height:1.35;}
+  #cardPreview .cp-kw{font-size:13px;line-height:1.38;padding:9px 11px;}
+  #cardPreview .cp-kw b{font-size:13px;}
+
+  /* Полевая карта: крупнее, плотнее и без старых цветных кругов поверх сокетов. */
+  .minion .m-statusbar{
+    left:17%!important;top:1.7%!important;width:66%!important;height:9.6%!important;
+    border:1px solid #665b45!important;border-radius:2px!important;
+    background:linear-gradient(180deg,#20252a,#080a0c)!important;
+    box-shadow:inset 0 0 6px #000,0 1px 2px rgba(0,0,0,.8)!important;
+  }
+  .minion .m-icon{
+    left:12.5%!important;top:14.4%!important;width:75%!important;height:52.6%!important;
+    border-radius:46% 46% 6% 6%!important;
+  }
+  .minion .m-icon img{
+    width:100%!important;height:100%!important;margin:0!important;
+    object-fit:cover!important;object-position:center 32%!important;
+  }
+  .minion .m-name{
+    left:13%!important;top:65.2%!important;width:74%!important;height:10.2%!important;
+    padding:0 4%!important;font-size:7.7cqw!important;line-height:.94!important;
+    background:linear-gradient(180deg,#3b3429,#11100d)!important;
+  }
+  .minion .m-tribe{
+    left:5.2%!important;top:55.5%!important;bottom:auto!important;width:15%!important;height:16%!important;
+    padding:0!important;border:1px solid #716343!important;border-radius:45% 45% 8% 8%!important;
+    clip-path:none!important;background:linear-gradient(180deg,#2c3134,#090b0c)!important;
+    font-size:8.5cqw!important;filter:drop-shadow(0 2px 2px #000)!important;
+  }
+  .minion .stat{
+    bottom:3.2%!important;width:20.5%!important;height:auto!important;
+    border:0!important;border-radius:50%!important;background:transparent!important;box-shadow:none!important;
+    font-size:12.5cqw!important;line-height:1!important;
+    text-shadow:0 2px 2px #000,0 0 4px #000!important;
+  }
+  .minion .stat.atk{left:6.2%!important;color:#ffe39a!important;}
+  .minion .stat.hp{right:6.2%!important;color:#ffd3ca!important;}
+  .minion .rgem{bottom:3.15%!important;width:9.7%!important;}
+
+  /* На больших экранах стол использует доступное пространство, а не теряется в нём. */
+  @media (min-width:901px) and (min-height:601px){
+    .row{left:4.5%;right:4.5%;gap:clamp(10px,1vw,18px);}
+    .minion{
+      width:clamp(122px,7.15vw,146px)!important;height:auto!important;aspect-ratio:100/132;
+    }
+    #game #playerHand{height:194px;bottom:-48px;}
+    #game #playerHand .card{width:152px;height:208px;margin-inline:-9px;}
+    #game #playerHand .card:hover{transform:translateY(-44px) scale(1.045) rotate(0deg)!important;}
+
+    .portrait{width:152px;height:143px;}
+    .portrait::after{width:192px;height:140px;}
+    .p-frame{left:24px;top:17px;width:103px;height:87px;font-size:0;}
+    .p-name{left:31px;right:31px;bottom:15px;font-size:13px;}
+    .hp-gem,.armor-gem{bottom:11px;width:48px;height:52px;font-size:21px;}
+    .hp-gem{right:1px;}.armor-gem{left:1px;}
+    .hero-status-channel{left:34px;right:34px;top:0;height:22px;}
+    .hero-status{font-size:15px;}
+    #enemyHero{top:0;}
+    #playerHero{bottom:188px;}
+
+    .power-btn{width:78px;height:78px;font-size:24px;}
+    #playerPowerBtn{left:calc(50% + 91px);bottom:200px;}
+    #enemyPowerBtn{left:calc(50% + 86px);top:22px;width:66px;height:66px;font-size:21px;}
+    .power-btn .pw-cost{width:22%;height:22%;font-size:12px;}
+  }
+
+  @media (max-width:900px){
+    #cardPreview{
+      width:min(520px,calc(100vw - 12px));max-width:none!important;
+      padding:8px;gap:9px;overflow:auto!important;
+    }
+    #cardPreview .cp-card,
+    #cardPreview .cp-card .card{width:190px!important;height:260px!important;}
+    #cardPreview .cp-side{min-width:0!important;max-width:none!important;}
+  }
+  @media (max-width:520px) and (orientation:portrait){
+    #cardPreview{flex-direction:column;align-items:center;width:min(360px,calc(100vw - 10px));max-height:calc(100dvh - 10px);}
+    #cardPreview .cp-side{width:100%;max-height:none;overflow:visible;}
+  }
+
+  /* Статусы читаются как отдельные зачарованные сокеты, а не сливаются с каналом рамки. */
+  .minion .m-status{
+    width:14cqw!important;max-width:19px!important;height:auto!important;aspect-ratio:1;
+    min-width:0!important;flex:0 1 19px!important;padding:0!important;
+    border:1px solid var(--ec,#d7c790)!important;border-radius:4px!important;
+    background:radial-gradient(circle at 42% 30%,#454b51 0,#1a1d20 43%,#050607 100%)!important;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.13),inset 0 -2px 3px #000,
+      0 1px 2px #000,0 0 4px var(--ec,#d7c790)!important;
+    color:#fff!important;font-size:clamp(7px,7.8cqw,11px)!important;line-height:1!important;
+    text-shadow:0 1px 2px #000,0 0 3px #000!important;
+    filter:none!important;overflow:visible!important;
+  }
+  .minion .m-status:hover,.minion .m-status:focus-visible{
+    transform:translateY(-2px) scale(1.18)!important;
+    filter:brightness(1.18)!important;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),0 2px 4px #000,
+      0 0 8px var(--ec,#f0d080)!important;
+  }
+  .minion .m-statusbar.status-count-5 .m-status,
+  .minion .m-statusbar.status-count-6 .m-status{
+    width:11cqw!important;max-width:15px!important;flex-basis:15px!important;
+    font-size:clamp(6px,6.7cqw,9px)!important;border-radius:3px!important;
+  }
+  .minion .m-statusbar.status-count-7 .m-status,
+  .minion .m-statusbar.status-count-8 .m-status{
+    width:8cqw!important;max-width:11px!important;flex-basis:11px!important;
+    font-size:clamp(5px,5.2cqw,7px)!important;border-radius:2px!important;
+  }
+
+  /* Один и тот же портретный фокус в коллекции и в увеличенном просмотре. */
+  .card:has(.c-frame-art) .c-icon img{
+    transform-origin:50% 39%!important;transition:none!important;
+    will-change:auto!important;
+  }
+  .card:has(.c-frame-minion) .c-icon img{transform:scale(1.2)!important;}
+  .card:has(.c-frame-spell) .c-icon img,
+  .card:has(.c-frame-weapon) .c-icon img,
+  .card:has(.c-frame-secret) .c-icon img{transform:scale(1.08)!important;}
+
 
 </style>
 </head>
@@ -5087,7 +5312,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-15-astral-graphics-v4';
+const CARD_ARENA_BUILD = '2026-07-15-status-preview-v7';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -6531,34 +6756,25 @@ const PACKS_DB = {
 const TRIBE_RU = { beast:'🐾 Зверь', mech:'⚙️ Механизм', undead:'🦴 Нежить', demon:'🔥 Демон', pirate:'🏴‍☠️ Пират' };
 const TRIBE_ICON = { beast:'🐾', mech:'⚙️', undead:'🦴', demon:'🔥', pirate:'🏴‍☠️' };
 
-/* Production-арт подключается отдельно от механик карт. Новые портреты добавляются сюда. */
-const CARD_ART_ASSET = {
-  soldier:'assets/art/astral/soldier.png',
-  fireball:'assets/art/astral/fireball.png',
-  bouncer:'assets/art/astral/ogreb.png',
-  bear:'assets/art/astral/bear.png',
-  shieldbot:'assets/art/astral/shieldbot.png',
-  ogreb:'assets/art/astral/ogreb.png',
-  ghost:'assets/art/astral/ghost.png',
-  snowman:'assets/art/astral/snowman.png',
-  acolyte:'assets/art/astral/acolyte.png',
-  bolt:'assets/art/astral/bolt.png',
-  familiar:'assets/art/astral/familiar.png',
-  bonehound:'assets/art/astral/bonehound.png',
-  wolf:'assets/art/astral/wolf.png',
-  zombie:'assets/art/astral/zombie.png',
-  imp:'assets/art/astral/imp.png',
-  skeleton:'assets/art/astral/skeleton.png',
-  doll:'assets/art/astral/doll.png',
-  brew:'assets/art/astral/brew.png',
-  bomber:'assets/art/astral/bomber.png',
-  spider:'assets/art/astral/spider.png',
-  golem:'assets/art/astral/golem.png',
-  iceArrow:'assets/art/astral/iceArrow.png',
-  armorUp:'assets/art/astral/armorUp.png',
-  raptor:'assets/art/astral/raptor.png',
-  wolfpup:'assets/art/astral/wolfpup.png'
-};
+/* Production-арт отделён от механик: имя файла совпадает с ID карты. */
+const CARD_ART_IDS = `
+  abyssMaw acolyte ambushBoar ambushGuard ambusher anchor apocalypse arcaneShard armada armorUp awakening axe
+  ballista bear beastcall bloodLeech bloodbat bloodblade boarder bolt bomber bombot boneMarshal bonehound bouncer brew
+  cabinboy captain catapult chaosArcher chronomagus codexHound codexIntervention colossus counterspell cryptNurse
+  cryptSovereign cultist denTrap devourer doll doomlash dragonqueen duskWraith echoMimic ent explosive familiar
+  fangCollector fieldmedic fireball frostNova frostbot frostwight gearling ghost ghostblade goldgoose golem graveBinder
+  gunner harpy hellPortal huntmastersHorn iceArrow imp ironVeil izaroth lastStand leviathan lich lifeHowl longbow
+  magnetron mammoth manaGolem manaWave megatron meteor mirror moonHowler musket navigator necroticGiant nightblade
+  octopus ogreb packAlpha packTotem painFeeder panther parrot phoenix pyromancer rabbit raccoon ragefiend ram raptor
+  rat ratking rebirthRite riftKeeper runeApprentice runeKeeper runeSpark rustyBlade saber saberback sapper sawbot scout
+  scrollScribe seawolf secretEater secretReclaimer secretlynx shackles shadowimp shieldbot shipmate shroom skeleton
+  smuggler snowman soldier soulButcher souljar sparkbot spellCandle spider spiderling spiritHawk spy steelBlade stingbot
+  stormSaber tankbot totemAtk totemHeal totemSpell totemTaunt tsunami vampbot vampiress viper voidOffering voidlord
+  warcaller warchief whelp wildGlyph wolf wolfpup zervan zombie
+`.trim().split(/\s+/);
+const CARD_ART_ASSET = Object.fromEntries(
+  CARD_ART_IDS.map(id => [id, `assets/art/astral/gouache/${id}.webp`])
+);
 const HERO_ART_ASSET = {
   mage:'assets/art/astral/hero-mage.png',
   warrior:'assets/art/astral/hero-warrior.png',
@@ -10811,7 +11027,7 @@ function dynCardText(def, side){
 }
 function cardArtHTML(def){
   if (!def) return '';
-  const art = def.art || CARD_ART_ASSET[def.id];
+  const art = CARD_ART_ASSET[def.id] || def.art;
   return art ? `<img src="${art}?v=${CARD_ARENA_BUILD}" alt="" draggable="false">` : def.icon;
 }
 function cardFrameHTML(def){
@@ -16565,7 +16781,7 @@ function animResetStage(cardId){
 }
 function animMinionHtml(def){
   return `<div class="anim-minion">
-    <div class="am-icon">${def.icon}</div>
+    <div class="am-icon">${cardArtHTML(def)}</div>
     <div class="am-name">${safeTxt(def.name)}</div>
     <div class="am-stat am-atk">${def.atk || 0}</div>
     <div class="am-stat am-hp">${def.hp || 0}</div>
@@ -16603,7 +16819,7 @@ function animAddSpecial(cls, html, xPct, yPct, extra){
 function animMini(cardLike, xPct, yPct, role){
   const def = typeof cardLike === 'string' ? CARD_DB[cardLike] : cardLike;
   const el = animAddSpecial('anim-mini ' + (role || ''), `
-    <div class="ami-icon">${def.icon || '❔'}</div>
+    <div class="ami-icon">${cardArtHTML(def) || def.icon || '❔'}</div>
     <div class="ami-name">${safeTxt(def.name || 'Существо')}</div>
     <div class="ami-stat ami-atk">${def.atk || 0}</div>
     <div class="ami-stat ami-hp">${def.hp || 0}</div>`, xPct, yPct);
