@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-14-card-frame-preview';
+    var build = '2026-07-15-astral-forge-v2';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -3806,6 +3806,463 @@
     #playerHand{height:104px;}
   }
 
+  /* ============================================================
+     ASTRAL FORGE V2 — единая живая система рамок и сокетов
+     Картинка рисует металл, HTML хранит данные, текст и состояния.
+     ============================================================ */
+  .card:has(.c-frame-art){
+    --rarity-live:#cfd3d6;
+    --rarity-glow:rgba(210,218,224,.24);
+    container-type:inline-size;
+    padding:0!important;border:0!important;border-radius:0!important;
+    background:transparent!important;overflow:visible;
+    box-shadow:0 7px 14px rgba(0,0,0,.68)!important;
+    filter:none!important;
+  }
+  .card:has(.rgem.rare){--rarity-live:#45a8ff;--rarity-glow:rgba(69,168,255,.48);}
+  .card:has(.rgem.epic){--rarity-live:#b36cff;--rarity-glow:rgba(179,108,255,.48);}
+  .card:has(.rgem.legendary){--rarity-live:#ffb72d;--rarity-glow:rgba(255,183,45,.56);}
+  .card:has(.c-frame-art)::before{
+    content:"";position:absolute;inset:4.8% 5.4%;z-index:0;pointer-events:none;
+    border-radius:9% 9% 7% 7%;
+    box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rarity-live) 52%,transparent),
+      0 0 10px var(--rarity-glow);
+    opacity:.72;
+  }
+  .card:has(.c-frame-art)::after{
+    content:"";position:absolute;inset:3%;z-index:9;pointer-events:none;opacity:.12;
+    border-radius:9%;mix-blend-mode:screen;
+    background:linear-gradient(112deg,transparent 35%,rgba(255,255,255,.7) 48%,transparent 61%);
+    background-size:260% 100%;background-position:150% 0;
+  }
+  .card:has(.c-frame-art):hover::after,
+  .card:has(.c-frame-art).playable::after{animation:astralFrameGlint 2.8s ease-in-out infinite;}
+  @keyframes astralFrameGlint{
+    0%,36%{background-position:160% 0;opacity:.05;}
+    58%{background-position:-60% 0;opacity:.3;}
+    100%{background-position:-60% 0;opacity:.05;}
+  }
+  .card:has(.c-frame-art).playable{
+    box-shadow:0 0 0 1px #bfe7ff,0 0 18px 4px rgba(69,168,255,.68),0 8px 15px rgba(0,0,0,.68)!important;
+  }
+  .card:has(.c-frame-art).boosted{
+    box-shadow:0 0 0 1px #ffe6a2,0 0 22px 5px rgba(255,178,48,.74),0 8px 15px rgba(0,0,0,.68)!important;
+  }
+  .card:has(.c-frame-secret).playable{
+    box-shadow:0 0 0 1px #d7b3ff,0 0 21px 5px rgba(139,82,224,.76),0 8px 15px rgba(0,0,0,.68)!important;
+  }
+  .c-frame-art{
+    inset:0!important;width:100%!important;height:100%!important;object-fit:fill;
+    z-index:3!important;filter:drop-shadow(0 3px 2px rgba(0,0,0,.55));
+  }
+  .card:has(.c-frame-art) .ctype,
+  .card:has(.c-frame-art) .ctype-emblem{display:none!important;}
+  .card:has(.c-frame-art) .legendary-wings{
+    position:absolute;z-index:4;left:22%;right:5%;top:-3.8%;height:23%;pointer-events:none;
+    filter:drop-shadow(0 3px 2px rgba(0,0,0,.72)) drop-shadow(0 0 5px rgba(255,183,45,.28));
+  }
+  .card:has(.c-frame-art) .legendary-wings::before,
+  .card:has(.c-frame-art) .legendary-wings::after{
+    content:"";position:absolute;top:0;width:47%;height:100%;
+    background:
+      linear-gradient(150deg,transparent 0 18%,#777168 19% 22%,#292b2d 23% 39%,#9a8e78 40% 43%,#1a1c1e 44% 57%,transparent 58%),
+      linear-gradient(25deg,transparent 0 39%,#3e4142 40% 61%,transparent 62%);
+    clip-path:polygon(100% 56%,74% 4%,58% 35%,30% 14%,39% 55%,0 48%,47% 88%,82% 77%);
+  }
+  .card:has(.c-frame-art) .legendary-wings::before{right:49%;}
+  .card:has(.c-frame-art) .legendary-wings::after{left:49%;transform:scaleX(-1);}
+  .card:has(.c-frame-art) .legendary-wings i{
+    position:absolute;z-index:2;left:50%;top:27%;width:12%;height:auto;aspect-ratio:1;
+    transform:translateX(-50%) rotate(45deg);background:linear-gradient(135deg,#fff0b0,#ffb72d 55%,#7f4807);
+    border:1px solid #20170a;box-shadow:0 0 7px rgba(255,183,45,.72);
+  }
+  .card:has(.c-frame-art) .c-icon{
+    position:absolute;z-index:1;display:flex;align-items:center;justify-content:center;
+    padding:0;margin:0;background:radial-gradient(ellipse at 50% 35%,#28313a,#07090b 76%);
+    border:0;box-shadow:inset 0 0 18px rgba(0,0,0,.7);overflow:hidden;
+    color:#f3e8ca;text-shadow:0 3px 4px #000;font-size:32cqw;line-height:1;
+  }
+  .card:has(.c-frame-art) .c-icon img{
+    width:100%;height:100%;padding:0;object-fit:contain;object-position:center;
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,.48));
+  }
+  .card:has(.c-frame-minion) .c-icon{left:14.7%;top:9.5%;width:72.8%;height:49.7%;border-radius:45% 45% 9% 9%;}
+  .card:has(.c-frame-spell) .c-icon{left:16.7%;top:8.8%;width:67.4%;height:49.8%;border-radius:50%;}
+  .card:has(.c-frame-weapon) .c-icon{left:16%;top:8.3%;width:69%;height:51%;border-radius:45% 45% 12% 12%;}
+  .card:has(.c-frame-secret) .c-icon{left:17.8%;top:10.4%;width:66.2%;height:48%;border-radius:50% 50% 43% 43%;}
+  .card:has(.c-frame-art) .c-cost{
+    position:absolute;z-index:7;left:2.2%;top:1%;width:24%;height:auto;aspect-ratio:1;
+    padding:0;margin:0;border:0;background:transparent;box-shadow:none;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    color:#f4f8ff;font-size:16.5cqw;line-height:1;font-weight:900;
+    text-shadow:0 2px 2px #06131f,0 0 5px #3c9eea;
+  }
+  .card:has(.c-frame-art) .c-name{
+    position:absolute;z-index:5;left:10%;top:58.7%;width:80%;height:11.4%;min-height:0;max-height:none;
+    margin:0;padding:0 4%;box-sizing:border-box;border:0;border-radius:0;background:transparent!important;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    color:#f4e6c3!important;font-size:8.9cqw;line-height:.98;font-weight:800;text-align:center;
+    text-shadow:0 2px 2px #000,0 0 4px #000;letter-spacing:0;
+  }
+  .card:has(.c-frame-art) .c-text{
+    position:absolute;z-index:5;left:14.5%;top:70.5%;width:71%;height:18.1%;min-height:0;
+    margin:0;padding:1% 2%;box-sizing:border-box;background:transparent!important;
+    display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:5;
+    color:#32251a!important;font-size:6.85cqw;line-height:1.08;text-align:center;
+    overflow-wrap:anywhere;word-break:normal;hyphens:auto;
+    -webkit-mask-image:none!important;mask-image:none!important;
+  }
+  .card:has(.c-frame-art) .c-text.is-long{font-size:6.2cqw;line-height:1.04;}
+  .card:has(.c-frame-art) .c-name.is-long{font-size:7.25cqw;line-height:.92;}
+  .card:has(.c-frame-spell) .c-name,
+  .card:has(.c-frame-weapon) .c-name,
+  .card:has(.c-frame-secret) .c-name{top:58.7%;}
+  .card:has(.c-frame-art) .stat{
+    position:absolute;z-index:7;bottom:1.1%;width:25.5%;height:auto;aspect-ratio:1;
+    padding:0;margin:0;border:0!important;border-radius:50%;background:transparent!important;box-shadow:none!important;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff6da;font-size:15.2cqw;line-height:1;font-weight:900;text-shadow:0 2px 2px #000,0 0 4px #000;
+  }
+  .card:has(.c-frame-art) .stat.atk{left:1.2%;}
+  .card:has(.c-frame-art) .stat.hp,
+  .card:has(.c-frame-art) .stat.dur{right:.8%;}
+  .card:has(.c-frame-art) .stat.hp.hurt{color:#ffd0c5;}
+  .card:has(.c-frame-art) .rgem{
+    position:absolute;z-index:7;left:50%;bottom:1.6%;width:10.6%;height:auto;aspect-ratio:1;
+    transform:translateX(-50%) rotate(45deg);border-radius:2px;margin:0;
+    box-shadow:0 0 0 1px rgba(0,0,0,.85),0 0 8px var(--rarity-glow),inset 0 0 2px rgba(255,255,255,.68);
+  }
+  .card:has(.c-frame-art) .rgem .tico{display:none;}
+  .card:has(.c-frame-art) .c-tribe{
+    --tribe-main:#35302a;--tribe-edge:#aaa08e;
+    position:absolute;z-index:6;left:4%;top:17.2%;bottom:auto;width:15.5%;height:22%;
+    transform:none;margin:0;padding:9% 0 12%;box-sizing:border-box;border:1px solid var(--tribe-edge);border-radius:2px;
+    clip-path:polygon(8% 0,92% 0,100% 78%,50% 100%,0 78%);
+    background:linear-gradient(90deg,rgba(0,0,0,.32),transparent 34% 66%,rgba(0,0,0,.35)),
+      repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 2px,transparent 2px 5px),
+      linear-gradient(180deg,color-mix(in srgb,var(--tribe-main) 120%,#fff 8%),var(--tribe-main));
+    color:#f5e7c2;display:flex;align-items:flex-start;justify-content:center;
+    box-shadow:0 2px 4px rgba(0,0,0,.65),inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  .card:has(.c-frame-art) .c-tribe i{font-style:normal;font-size:9.2cqw;line-height:1;filter:drop-shadow(0 1px 2px #000);}
+  .card:has(.c-frame-art) .c-tribe span{display:none;}
+  .c-tribe[data-tribe="beast"]{--tribe-main:#294a38;--tribe-edge:#769b72;}
+  .c-tribe[data-tribe="pirate"]{--tribe-main:#252932;--tribe-edge:#9d8455;}
+  .c-tribe[data-tribe="undead"]{--tribe-main:#3e3347;--tribe-edge:#9e84b3;}
+  .c-tribe[data-tribe="demon"]{--tribe-main:#582523;--tribe-edge:#b46a52;}
+  .c-tribe[data-tribe="mech"]{--tribe-main:#343a3f;--tribe-edge:#8ca3ae;}
+  .c-tribe[data-tribe="dragon"]{--tribe-main:#5a2c20;--tribe-edge:#bd8658;}
+  .c-tribe[data-tribe="nature"]{--tribe-main:#314925;--tribe-edge:#87a96b;}
+  .card:has(.c-frame-secret) .c-tribe{display:none;}
+  .card:has(.c-frame-secret)::before{
+    border-radius:50% 50% 8% 8%;box-shadow:inset 0 0 0 1px color-mix(in srgb,#a86aff 58%,transparent),0 0 12px rgba(132,75,210,.38);
+  }
+  .card:has(.c-frame-secret).playable .c-frame-art{animation:secretSocketBreath 1.65s ease-in-out infinite;}
+  @keyframes secretSocketBreath{
+    0%,100%{filter:drop-shadow(0 3px 2px rgba(0,0,0,.55)) drop-shadow(0 0 1px rgba(169,111,255,.2));}
+    50%{filter:drop-shadow(0 3px 2px rgba(0,0,0,.55)) drop-shadow(0 0 8px rgba(169,111,255,.72));}
+  }
+  .b-card .card:has(.c-frame-art) .c-text{display:none;}
+  .b-card .card:has(.c-frame-art) .c-name{top:64%;height:14%;font-size:8.1cqw;}
+  .b-card .card:has(.c-frame-art) .c-name.is-long{font-size:7.1cqw;line-height:.9;}
+  .b-card .card:has(.c-frame-art) .c-tribe{display:flex;}
+
+  /* Увеличенная карта — тот же компонент, только другой размер. */
+  #cardPreview{
+    gap:14px;padding:12px;background:linear-gradient(145deg,rgba(23,29,34,.98),rgba(7,9,11,.98));
+    border:2px solid #8f7a4a;border-radius:8px;box-shadow:0 18px 50px rgba(0,0,0,.78),inset 0 0 0 1px rgba(230,205,142,.16);
+  }
+  #cardPreview .cp-card{width:224px;height:306px;}
+  #cardPreview .cp-card .card{width:224px;height:306px;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-frame-art{inset:0!important;width:100%!important;height:100%!important;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-cost{left:2.2%;top:1%;width:24%;height:auto;font-size:16.5cqw;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-icon{font-size:32cqw;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-name{left:10%;top:58.7%;width:80%;height:11.4%;min-height:0;max-height:none;font-size:8.9cqw;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-name.is-long{font-size:7.25cqw;line-height:.92;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-text{left:14.5%;top:70.5%;width:71%;height:18.1%;font-size:6.85cqw;line-height:1.08;padding:1% 2%;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe{left:4%;top:17.2%;bottom:auto;width:15.5%;height:22%;font-size:inherit;padding:9% 0 12%;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe i{font-size:9.2cqw;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat{bottom:1.1%;width:25.5%;height:auto;font-size:15.2cqw;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.atk{left:1.2%;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.hp,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.dur{right:.8%;}
+  #cardPreview .cp-card .card:has(.c-frame-art) .rgem{width:10.6%;height:auto;bottom:1.6%;}
+  #cardPreview .cp-side{min-width:220px;max-width:310px;gap:8px;padding:4px 2px 4px 0;}
+  #cardPreview .cp-meta{font-size:11px;line-height:1.35;color:#c9b57c;text-transform:uppercase;letter-spacing:.8px;}
+  #cardPreview .cp-kw{
+    border:1px solid #55482d;border-radius:5px;padding:8px 10px;
+    background:linear-gradient(145deg,rgba(35,28,18,.78),rgba(9,8,6,.76));
+    color:#ded3b8;font-size:12px;line-height:1.35;
+  }
+  #cardPreview .cp-kw b{font-size:12px;color:#f0cf77;margin-bottom:3px;}
+  #effectPreview{
+    min-width:235px;max-width:310px;padding:12px 14px 13px;
+    background:linear-gradient(145deg,rgba(25,31,37,.985),rgba(7,9,11,.985));
+    border:1px solid color-mix(in srgb,var(--ec) 74%,#302817);border-radius:7px;
+    box-shadow:0 14px 34px rgba(0,0,0,.76),inset 0 0 0 1px rgba(255,255,255,.05),0 0 14px color-mix(in srgb,var(--ec) 26%,transparent);
+  }
+  #effectPreview .ep-head{font-size:14px;letter-spacing:.5px;color:#f2dfaa;}
+  #effectPreview .ep-kicker{font-size:8px;line-height:1;color:var(--ec);letter-spacing:1.5px;margin-bottom:7px;opacity:.82;}
+  #effectPreview .ep-icon{width:32px;height:32px;border-radius:50%;font-size:18px;background:#0b0e12;border:1px solid var(--ec);}
+  #effectPreview .ep-body{margin-top:8px;padding-top:8px;border-top:1px solid rgba(210,187,126,.18);font-size:12px;line-height:1.42;color:#ddd3ba;}
+
+  /* Поле боя: портрет внутри цельной кузнечной рамки, статусы — в общей верхней полосе. */
+  .minion{
+    --unit-rarity:#cbd0d4;--unit-rarity-glow:rgba(203,208,212,.22);
+    width:100px;height:132px;padding:0;border:0;border-radius:13px;
+    background:transparent!important;isolation:isolate;overflow:visible;
+    box-shadow:0 7px 12px rgba(0,0,0,.58)!important;
+    transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+  }
+  .minion.rarity-rare{--unit-rarity:#45a8ff;--unit-rarity-glow:rgba(69,168,255,.42);}
+  .minion.rarity-epic{--unit-rarity:#b36cff;--unit-rarity-glow:rgba(179,108,255,.42);}
+  .minion.rarity-legendary{--unit-rarity:#ffb72d;--unit-rarity-glow:rgba(255,183,45,.48);}
+  .minion .m-frame-shell{
+    position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:13px;border:2px solid #8a7b5a;
+    background:transparent;
+    clip-path:polygon(7% 0,93% 0,100% 7%,100% 91%,92% 100%,8% 100%,0 91%,0 7%);
+    box-shadow:inset 0 0 0 3px #252525,inset 0 0 0 4px color-mix(in srgb,var(--unit-rarity) 52%,#45413a),0 0 10px var(--unit-rarity-glow);
+  }
+  .minion .m-frame-shell::before{
+    content:"";position:absolute;left:7%;right:7%;top:13%;bottom:18%;border-radius:12px 12px 5px 5px;
+    border:2px solid var(--unit-rarity);box-shadow:inset 0 0 12px rgba(0,0,0,.72);
+  }
+  .minion.rarity-legendary .m-frame-shell::after{
+    content:"";position:absolute;left:9%;right:9%;top:-7%;height:24%;z-index:-1;
+    background:linear-gradient(145deg,transparent 0 18%,#4e4940 20% 31%,transparent 33%),
+      linear-gradient(215deg,transparent 0 18%,#4e4940 20% 31%,transparent 33%);
+    filter:drop-shadow(0 0 4px rgba(255,183,45,.45));
+  }
+  .minion .m-icon{
+    position:absolute;z-index:1;left:8%;top:14%;width:84%;height:60%;
+    border:0;border-radius:11px 11px 4px 4px;background:radial-gradient(ellipse at 50% 30%,#26323a,#080a0c 78%);
+    box-shadow:inset 0 0 14px rgba(0,0,0,.7);font-size:43px;overflow:hidden;
+  }
+  .minion .m-icon img{width:100%;height:100%;object-fit:contain;object-position:center;filter:drop-shadow(0 2px 3px #000);}
+  .minion .m-name{
+    position:absolute;display:flex;z-index:4;left:9%;top:66%;width:82%;height:16%;padding:0 4%;box-sizing:border-box;
+    align-items:center;justify-content:center;text-align:center;overflow:hidden;
+    color:#f1dfb4;font-size:9px;line-height:.94;font-weight:800;text-shadow:0 1px 2px #000;
+    background:linear-gradient(180deg,#3e3528,#16130f);border:1px solid #7c6945;border-radius:3px;
+  }
+  .minion .m-statusbar{
+    position:absolute;z-index:7;left:10%;top:1.5%;transform:none;width:80%;height:14%;min-height:0;padding:1px 5%;box-sizing:border-box;
+    display:flex;flex-wrap:nowrap;align-items:center;justify-content:center;gap:2px;overflow:visible;
+    border:1px solid #756747;border-radius:3px 3px 6px 6px;
+    background:linear-gradient(180deg,#36322c,#0f1112);box-shadow:inset 0 0 5px rgba(0,0,0,.7),0 2px 3px rgba(0,0,0,.5);
+  }
+  .minion .m-status{
+    width:auto;height:auto;min-width:0;flex:0 1 auto;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;
+    font-size:11px;filter:drop-shadow(0 1px 1px #000);overflow:visible;
+  }
+  .minion .m-status:hover,.minion .m-status:focus-visible{transform:translateY(-2px) scale(1.22);filter:drop-shadow(0 0 5px var(--ec));box-shadow:none;}
+  .minion .m-statusbar.status-count-5,
+  .minion .m-statusbar.status-count-6{gap:1px;padding-inline:3%;}
+  .minion .m-statusbar.status-count-5 .m-status,
+  .minion .m-statusbar.status-count-6 .m-status{font-size:9px;}
+  .minion .m-statusbar.status-count-7,
+  .minion .m-statusbar.status-count-8{gap:0;padding-inline:1%;}
+  .minion .m-statusbar.status-count-7 .m-status,
+  .minion .m-statusbar.status-count-8 .m-status{font-size:7.5px;}
+  .minion .m-status .ms-val{right:-6px;bottom:-5px;z-index:3;}
+  .minion .stat{
+    z-index:6;bottom:-1%;width:29%;height:auto;aspect-ratio:1;border:2px solid #171717;
+    font-size:18px;background:#171717;box-shadow:0 2px 5px rgba(0,0,0,.68);
+  }
+  .minion .stat.atk{left:-2.5%;background:radial-gradient(circle at 35% 28%,#e2bd6a,#6c4d16);}
+  .minion .stat.hp{right:-2.5%;background:radial-gradient(circle at 35% 28%,#df6857,#711c15);}
+  .minion .rgem{
+    z-index:7;left:50%;bottom:1%;width:15%;height:auto;aspect-ratio:1;transform:translateX(-50%) rotate(45deg);
+  }
+  .minion .rgem .tico{display:none;}
+  .minion .m-tribe{
+    position:absolute;z-index:6;left:12%;bottom:1%;width:20%;height:17%;
+    display:flex;align-items:center;justify-content:center;color:#f2dfb0;font-size:12px;
+    background:linear-gradient(180deg,#504532,#1c1812);border:1px solid #7b6743;
+    clip-path:polygon(7% 0,93% 0,100% 72%,50% 100%,0 72%);filter:drop-shadow(0 2px 2px #000);
+  }
+  .minion.can-attack{box-shadow:0 0 14px 4px var(--green-ok),0 6px 12px rgba(0,0,0,.58)!important;}
+  .minion.targetable{box-shadow:0 0 16px 5px var(--hp),0 6px 12px rgba(0,0,0,.58)!important;}
+  .minion.magnet-ready{box-shadow:0 0 15px 5px rgba(255,213,88,.72),0 6px 12px rgba(0,0,0,.58)!important;}
+  .minion.taunt .m-frame-shell{box-shadow:inset 0 0 0 3px #c2cbd0,inset 0 0 0 6px #34383a,0 0 12px rgba(190,210,220,.4);}
+  .minion.frozen{filter:saturate(.72) drop-shadow(0 0 8px #6fc8ff);}
+  .minion.frozen::before{inset:-2px;border-radius:14px;z-index:8;}
+  .minion.shielded .m-frame-shell{filter:drop-shadow(0 0 8px rgba(255,224,138,.8));}
+  .minion.stealthy{opacity:.72;filter:grayscale(.25) drop-shadow(0 0 5px rgba(180,200,220,.5));}
+  .minion.spawn{animation:astralUnitForgeIn .46s cubic-bezier(.2,.82,.22,1.12);}
+  @keyframes astralUnitForgeIn{
+    0%{opacity:0;transform:translateY(-18px) scale(.72);filter:brightness(2.1) blur(2px);}
+    65%{opacity:1;transform:translateY(2px) scale(1.05);filter:brightness(1.4) blur(0);}
+    100%{transform:translateY(0) scale(1);filter:none;}
+  }
+
+  /* Герой, сила и оружие: один компактный HUD-комплект. */
+  .portrait{
+    width:112px;height:106px;isolation:isolate;overflow:visible;
+  }
+  .portrait::after{
+    content:"";position:absolute;z-index:-1;left:7px;right:7px;top:2px;bottom:12px;
+    border-radius:52% 52% 18% 18%;background:linear-gradient(145deg,#514e47,#121416 68%);
+    clip-path:polygon(18% 0,82% 0,100% 18%,94% 87%,72% 100%,28% 100%,6% 87%,0 18%);
+    box-shadow:inset 0 0 0 2px #8a774f,inset 0 0 0 5px #252422,0 6px 11px rgba(0,0,0,.66);
+  }
+  .p-frame{
+    position:absolute;z-index:1;left:18px;top:10px;width:76px;height:72px;border-radius:50% 50% 38% 38%;
+    border:2px solid #d1b266;background:radial-gradient(circle at 40% 26%,#655235,#15110b 72%);
+    box-shadow:0 0 0 3px #28241d,0 0 0 5px #7d6a43,0 5px 10px rgba(0,0,0,.7),inset 0 0 15px rgba(0,0,0,.65);
+    font-size:42px;
+  }
+  .p-name{
+    position:absolute;z-index:6;left:21px;right:21px;bottom:12px;margin:0;padding:2px 5px;
+    font-size:11px;line-height:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    border-radius:3px;border:1px solid #8b7449;background:linear-gradient(180deg,#493d2b,#17130e);
+  }
+  .hp-gem,.armor-gem{
+    bottom:10px;width:36px;height:39px;z-index:7;border-width:2px;font-size:17px;
+    clip-path:polygon(50% 0,92% 23%,100% 66%,50% 100%,0 66%,8% 23%);border-radius:0;
+  }
+  .hp-gem{right:-1px;}
+  .armor-gem{left:-1px;}
+  .hero-status-channel{
+    position:absolute;z-index:9;left:21px;right:21px;top:-6px;height:20px;padding:1px 6px;box-sizing:border-box;
+    display:none;align-items:center;justify-content:center;gap:4px;
+    background:linear-gradient(180deg,#3b3730,#101214);border:1px solid #786b4c;border-radius:4px 4px 7px 7px;
+    box-shadow:0 2px 4px rgba(0,0,0,.65);pointer-events:auto;
+  }
+  .hero-status-channel.has-statuses{display:flex;}
+  .hero-status{position:relative;font-size:12px;line-height:1;filter:drop-shadow(0 1px 1px #000);cursor:help;transition:transform .12s ease,filter .12s ease;}
+  .hero-status:hover,.hero-status:focus-visible{transform:translateY(-2px) scale(1.18);filter:drop-shadow(0 0 5px var(--ec,#d6bd79));outline:none;}
+  .hero-status em{position:absolute;right:-6px;bottom:-6px;font-style:normal;font-size:7px;background:#372357;border-radius:50%;padding:1px 3px;}
+  .power-btn{
+    width:62px;height:62px;border-radius:18% 18% 50% 50%;border:2px solid #9a8254;
+    background:radial-gradient(circle at 38% 28%,#567ca4,#111a28 74%);
+    box-shadow:inset 0 0 0 3px #24282d,0 0 0 2px #151515,0 5px 9px rgba(0,0,0,.68);
+  }
+  .power-btn .pw-cost{top:-6px;left:-6px;width:22px;height:22px;border-width:1px;}
+  .power-btn.ready{box-shadow:inset 0 0 0 3px #24282d,0 0 0 2px #9b8656,0 0 15px 4px var(--green-ok);}
+  .weapon-plate{
+    right:calc(100% + 9px);top:14px;width:48px;height:58px;padding:4px 3px;box-sizing:border-box;
+    border:1px solid #90794d;border-radius:5px 12px 12px 5px;
+    background:linear-gradient(145deg,#4a463e,#111315 72%);
+    box-shadow:inset 0 0 0 2px #242424,0 4px 8px rgba(0,0,0,.68);
+  }
+  .weapon-plate .w-icon{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:23px;overflow:hidden;}
+  .weapon-plate .w-icon img{width:100%;height:100%;object-fit:contain;}
+  .weapon-plate .w-stats{position:absolute;left:2px;right:2px;bottom:-8px;justify-content:space-between;gap:1px;}
+  .weapon-plate .w-atk,.weapon-plate .w-dur{
+    width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:#17191b;border:1px solid #8c774e;font-size:10px;text-shadow:0 1px 1px #000;
+  }
+  .socket-gain{animation:socketGainV2 .5s cubic-bezier(.18,.78,.22,1) both!important;}
+  .socket-loss{animation:socketLossV2 .5s cubic-bezier(.18,.78,.22,1) both!important;}
+  @keyframes socketGainV2{
+    0%{transform:scale(1);filter:brightness(1);}
+    36%{transform:scale(1.28);filter:brightness(1.75) drop-shadow(0 0 7px #79e56f);color:#eaffd7;}
+    100%{transform:scale(1);filter:brightness(1);}
+  }
+  @keyframes socketLossV2{
+    0%{transform:translateX(0) scale(1);filter:brightness(1);}
+    25%{transform:translateX(-3px) scale(1.23);filter:brightness(1.65) drop-shadow(0 0 7px #ff624d);color:#ffd0c9;}
+    48%{transform:translateX(3px) scale(1.15);}
+    70%{transform:translateX(-1px) scale(1.06);}
+    100%{transform:translateX(0) scale(1);filter:brightness(1);}
+  }
+  .secret-ind{bottom:-23px;gap:3px;}
+  #playerSecrets{top:-26px;bottom:auto;}
+  .sec-tok{
+    width:25px;height:25px;border-radius:7px;clip-path:polygon(50% 0,90% 18%,100% 62%,72% 100%,28% 100%,0 62%,10% 18%);
+    background:radial-gradient(circle at 50% 45%,#8f5bd4,#241137 72%);border:0;
+    box-shadow:inset 0 0 0 2px #b08ae1,0 0 8px rgba(154,92,255,.62),0 2px 4px #000;
+    animation:secretTokenV2 2.2s ease-in-out infinite;
+  }
+  @keyframes secretTokenV2{0%,100%{transform:translateY(0);filter:brightness(.9);}50%{transform:translateY(-2px);filter:brightness(1.3);}}
+  .secret-reveal-seal{
+    position:fixed;z-index:255;width:176px;height:176px;transform:translate(-50%,-50%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;pointer-events:none;
+    color:#f6e7bd;text-align:center;text-shadow:0 2px 3px #000;
+    border:2px solid #9d78c6;border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%,rgba(101,57,151,.92) 0 9%,rgba(17,10,28,.94) 10% 54%,transparent 55%),
+      conic-gradient(from 22deg,transparent 0 8%,rgba(175,123,236,.52) 9% 10%,transparent 11% 20%,rgba(175,123,236,.42) 21% 22%,transparent 23% 100%);
+    box-shadow:inset 0 0 0 7px rgba(22,14,31,.88),inset 0 0 0 9px rgba(176,126,228,.34),0 0 28px 10px rgba(122,74,187,.62);
+    animation:secretRevealSeal 1.16s cubic-bezier(.16,.8,.25,1) both;
+  }
+  .secret-reveal-seal::before,.secret-reveal-seal::after{
+    content:"";position:absolute;inset:12px;border:1px solid rgba(218,182,255,.48);border-radius:50%;
+    animation:secretRuneTurn 2.4s linear infinite;
+  }
+  .secret-reveal-seal::after{inset:27px;border-style:dashed;animation-direction:reverse;animation-duration:1.8s;}
+  .secret-reveal-seal.legendary{border-color:#ffc95e;box-shadow:inset 0 0 0 7px rgba(22,14,31,.88),inset 0 0 0 9px rgba(255,201,94,.4),0 0 34px 13px rgba(255,174,48,.62);}
+  .secret-reveal-seal .srs-eye{font-size:43px;line-height:.8;color:#d6afff;filter:drop-shadow(0 0 8px #9a5cff);}
+  .secret-reveal-seal b{max-width:130px;font-size:14px;line-height:1.05;color:#ffe6a6;}
+  .secret-reveal-seal small{font-size:7px;letter-spacing:1.4px;color:#c9addf;}
+  @keyframes secretRevealSeal{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.28) rotate(-24deg);filter:blur(3px);}
+    32%{opacity:1;transform:translate(-50%,-50%) scale(1.08) rotate(3deg);filter:blur(0);}
+    72%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(1.24);filter:blur(1px);}
+  }
+  @keyframes secretRuneTurn{to{transform:rotate(360deg);}}
+  body.dragging-card .card:has(.c-frame-art)::after,
+  body.dragging-card .card:has(.c-frame-art) .c-frame-art{animation:none!important;filter:none!important;}
+
+  @media (max-width:900px){
+    #cardPreview{padding:8px;gap:9px;max-width:calc(100vw - 12px);max-height:calc(100vh - 12px);}
+    #cardPreview .cp-card{width:190px;height:260px;}
+    #cardPreview .cp-card .card{width:190px;height:260px;}
+    #cardPreview .cp-side{min-width:170px;max-width:245px;}
+    #cardPreview .cp-kw{padding:6px 8px;font-size:10.5px;}
+    #cardPreview .cp-kw b{font-size:11px;}
+  }
+  @media (pointer:coarse) and (orientation:landscape),
+         (max-height:560px) and (orientation:landscape){
+    .minion{width:70px;height:92px;border-radius:9px;}
+    .minion .m-frame-shell{border-radius:9px;}
+    .minion .m-icon{font-size:30px;}
+    .minion .m-name{font-size:6.6px;}
+    .minion .m-statusbar{gap:1px;padding-inline:3%;}
+    .minion .m-status{font-size:8px;}
+    .minion .m-statusbar.status-count-5 .m-status,
+    .minion .m-statusbar.status-count-6 .m-status{font-size:6.5px;}
+    .minion .m-statusbar.status-count-7 .m-status,
+    .minion .m-statusbar.status-count-8 .m-status{font-size:5.2px;}
+    .minion .m-status .ms-val{min-width:8px;height:8px;font-size:5px;right:-4px;bottom:-4px;}
+    .minion .stat{width:27%;font-size:12px;bottom:-1%;}
+    .minion .rgem{width:14%;bottom:1%;}
+    .minion .m-tribe{font-size:8px;}
+    .portrait{width:92px;height:87px;}
+    .portrait::after{left:6px;right:6px;bottom:10px;}
+    .p-frame{left:16px;top:8px;width:60px;height:57px;font-size:33px;}
+    .p-name{left:17px;right:17px;bottom:9px;font-size:8px;}
+    .hp-gem,.armor-gem{width:29px;height:31px;bottom:7px;font-size:13px;}
+    .hero-status-channel{left:17px;right:17px;top:-5px;height:16px;gap:2px;padding-inline:3px;}
+    .hero-status{font-size:9px;}
+    .weapon-plate{width:40px;height:49px;right:calc(100% + 5px);top:10px;}
+    .weapon-plate .w-icon{width:29px;height:29px;font-size:19px;}
+    .power-btn{width:48px;height:48px;font-size:16px;}
+    #enemyPowerBtn{width:43px;height:43px;}
+    #cardPreview .cp-card{width:154px;height:210px;}
+    #cardPreview .cp-card .card{width:154px;height:210px;}
+    #cardPreview .cp-side{min-width:170px;max-width:225px;max-height:calc(100vh - 24px);}
+    #cardPreview .cp-meta{font-size:9px;}
+    #cardPreview .cp-kw{font-size:9px;line-height:1.25;padding:4px 6px;}
+    #effectPreview{min-width:190px;max-width:250px;padding:8px 10px;}
+  }
+  @media (pointer:coarse) and (orientation:landscape) and (max-height:410px),
+         (max-width:760px) and (max-height:410px) and (orientation:landscape){
+    .minion{width:58px;height:77px;}
+    .minion .m-icon{font-size:24px;}
+    .minion .m-name{font-size:5.5px;}
+    .minion .m-status{font-size:7px;}
+    .minion .stat{font-size:10px;}
+    .portrait{width:82px;height:77px;}
+    .p-frame{left:14px;top:7px;width:54px;height:51px;font-size:29px;}
+    .p-name{bottom:7px;font-size:7px;}
+    .hp-gem,.armor-gem{width:26px;height:28px;bottom:5px;font-size:11px;}
+    .hero-status-channel{left:14px;right:14px;height:14px;}
+    .power-btn{width:42px;height:42px;}
+  }
+
 
 </style>
 </head>
@@ -4414,6 +4871,7 @@
 
   <div id="enemyHand"></div>
   <div class="portrait" id="enemyHero">
+    <div class="hero-status-channel" id="enemyHeroStatuses"></div>
     <div class="p-frame" id="enemyHeroIcon">😈</div>
     <div class="p-name" id="enemyHeroName">?</div>
     <div class="armor-gem" id="enemyArmor">0</div>
@@ -4428,6 +4886,7 @@
   <div class="deck-stack" id="enemyDeck"><span id="enemyDeckN">0</span></div>
 
   <div class="portrait" id="playerHero">
+    <div class="hero-status-channel" id="playerHeroStatuses"></div>
     <div class="p-frame" id="playerHeroIcon">🧙‍♂️</div>
     <div class="p-name" id="playerHeroName">Маг</div>
     <div class="armor-gem" id="playerArmor">0</div>
@@ -4506,7 +4965,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-14-card-frame-preview';
+const CARD_ARENA_BUILD = '2026-07-15-astral-forge-v2';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -9015,6 +9474,13 @@ function secretTriggerVfx(owner, def, data){
   if (!owner || !def || !G) return;
   const ownerPt = safeCenter(heroEl(owner), $('board'));
   const foe = foeOf(owner);
+  const seal = document.createElement('div');
+  seal.className = 'secret-reveal-seal' + (def.rarity === 'legendary' ? ' legendary' : '');
+  seal.innerHTML = `<span class="srs-eye">⌾</span><b>${safeTxt(def.name)}</b><small>СЕКРЕТ РАСКРЫТ</small>`;
+  seal.style.left = ownerPt.x + 'px';
+  seal.style.top = ownerPt.y + 'px';
+  document.body.appendChild(seal);
+  setTimeout(() => seal.remove(), perfMs(1180));
   spellImpact(ownerPt, 'arcane', { legendary:def.rarity === 'legendary' });
   battleVfxLabel(ownerPt, `СЕКРЕТ: ${def.name}`, 'gold');
   if (def.id === 'explosive'){
@@ -9983,16 +10449,29 @@ function banner(text){
 }
 
 /* ================== РЕНДЕР БОЯ ================== */
+function setHudSocketValue(el, value){
+  if (!el) return;
+  const old = el.dataset.socketValue;
+  const changed = old !== undefined && old !== '' && Number(old) !== Number(value);
+  const gained = changed && Number(value) > Number(old);
+  el.textContent = value;
+  el.dataset.socketValue = value;
+  if (!changed) return;
+  el.classList.remove('socket-gain', 'socket-loss');
+  void el.offsetWidth;
+  el.classList.add(gained ? 'socket-gain' : 'socket-loss');
+  setTimeout(() => el.classList.remove('socket-gain', 'socket-loss'), 520);
+}
 function render(){
   if (!G) return;
-  $('playerHP').textContent = G.player.hp;
-  $('enemyHP').textContent = G.enemy.hp;
-  $('playerArmor').textContent = G.player.armor;
+  setHudSocketValue($('playerHP'), G.player.hp);
+  setHudSocketValue($('enemyHP'), G.enemy.hp);
+  setHudSocketValue($('playerArmor'), G.player.armor);
   $('playerArmor').style.display = G.player.armor > 0 ? 'flex' : 'none';
-  $('enemyArmor').textContent = G.enemy.armor;
+  setHudSocketValue($('enemyArmor'), G.enemy.armor);
   $('enemyArmor').style.display = G.enemy.armor > 0 ? 'flex' : 'none';
-  $('playerDeckN').textContent = G.player.deck.length;
-  $('enemyDeckN').textContent = G.enemy.deck.length;
+  setHudSocketValue($('playerDeckN'), G.player.deck.length);
+  setHudSocketValue($('enemyDeckN'), G.enemy.deck.length);
 
   renderMana($('playerMana'), G.player);
   renderMana($('enemyMana'), G.enemy);
@@ -10010,6 +10489,8 @@ function render(){
     `<div class="sec-tok" title="Скрытый секрет">🔮</div>`).join('');
   renderWeapon($('playerWeapon'), G.player);
   renderWeapon($('enemyWeapon'), G.enemy);
+  renderHeroStatuses($('playerHeroStatuses'), G.player);
+  renderHeroStatuses($('enemyHeroStatuses'), G.enemy);
   $('playerHero').classList.toggle('weapon-ready',
     G.turn === 'player' && !G.over && !!G.player.weapon && !G.player.heroAttacked && !G.player.frozen);
   $('playerHero').classList.toggle('frozen', !!(G.player.frozen || G.player.freezeVisual));
@@ -10059,7 +10540,9 @@ const MINION_STATUS_INFO = {
   charge:{ icon:'⚡', name:'Рывок', desc:'Может атаковать сразу в ход призыва.' },
   siege:{ icon:'🏰', name:'Автономная осада', desc:'Не управляется вручную. После зарядки сама атакует в конце хода по собственным правилам и не получает ответный урон.' },
   enrage:{ icon:'🔥', name:'Берсерк', desc:'Пока существо ранено, его атака усилена.' },
-  sleep:{ icon:'💤', name:'Не готово', desc:'Существо пока не может атаковать: обычно из-за болезни призыва или уже потраченной атаки.' }
+  sleep:{ icon:'💤', name:'Не готово', desc:'Существо пока не может атаковать: обычно из-за болезни призыва или уже потраченной атаки.' },
+  weapon:{ icon:'⚔️', name:'Оружие героя', desc:'Герой может атаковать с указанной силой. Каждая атака расходует 1 прочность оружия.' },
+  secret:{ icon:'🔮', name:'Секреты', desc:'Скрытые эффекты сработают автоматически, когда противник выполнит их условие.' }
 };
 function minionStatusList(m, def, side, frozenVisible){
   const out = [];
@@ -10089,13 +10572,17 @@ function minionStatusList(m, def, side, frozenVisible){
 }
 function minionStatusHTML(list){
   if (!list.length) return '';
-  return `<div class="m-statusbar">${list.map(s => `
+  return `<div class="m-statusbar status-count-${Math.min(8, list.length)}">${list.map(s => `
     <span class="m-status ${s.key}" data-effect="${s.key}" tabindex="0" aria-label="${s.name}">
       ${s.icon}${s.value ? `<em class="ms-val">${s.value}</em>` : ''}
     </span>`).join('')}</div>`;
 }
 
 function renderBoard(el, side){
+  const previousStats = new Map(Array.from(el.querySelectorAll('.minion[data-uid]')).map(node => [
+    node.dataset.uid,
+    { atk:Number(node.dataset.atk), hp:Number(node.dataset.hp) }
+  ]));
   el.innerHTML = '';
   side.board.forEach(m => {
     const def = CARD_DB[m.cardId];
@@ -10104,21 +10591,30 @@ function renderBoard(el, side){
     d.className = 'minion' + (m.taunt ? ' taunt' : '') + (frozenVisible ? ' frozen' : '')
                 + (m.shield ? ' shielded' : '') + (m.stealth ? ' stealthy' : '')
                 + (m.enraged ? ' enraged' : '');
+    d.classList.add('rarity-' + (def.rarity || 'common'));
+    if (def.tribe) d.classList.add('tribe-' + def.tribe);
     d.classList.add(sideSkinClass(side));
     d.dataset.uid = m.uid;
+    d.dataset.atk = m.atk;
+    d.dataset.hp = m.hp;
     if (m.justSpawned){ d.classList.add('spawn'); m.justSpawned = false; }
     if (side === G.player && G.turn === 'player'){
       if (m.canAttack) d.classList.add('can-attack');
       else if (!frozenVisible) d.classList.add('asleep');
     }
     const statuses = minionStatusList(m, def, side, frozenVisible);
+    const oldStats = previousStats.get(String(m.uid));
+    const atkPulse = oldStats && oldStats.atk !== m.atk ? (m.atk > oldStats.atk ? ' socket-gain' : ' socket-loss') : '';
+    const hpPulse = oldStats && oldStats.hp !== m.hp ? (m.hp > oldStats.hp ? ' socket-gain' : ' socket-loss') : '';
     d.innerHTML = `
+      <div class="m-frame-shell" aria-hidden="true"></div>
       ${minionStatusHTML(statuses)}
       <div class="m-icon">${cardArtHTML(def)}</div>
       <div class="m-name">${def.name}</div>
       <div class="rgem ${def.rarity}">${def.tribe ? `<i class="tico">${TRIBE_ICON[def.tribe]}</i>` : ''}</div>
-      <div class="stat atk">${m.atk}</div>
-      <div class="stat hp ${m.hp < m.maxHp ? 'hurt' : ''}">${m.hp}</div>`;
+      ${def.tribe ? `<div class="m-tribe" data-tribe="${def.tribe}" aria-label="${TRIBE_RU[def.tribe] || def.tribe}">${TRIBE_ICON[def.tribe] || '◇'}</div>` : ''}
+      <div class="stat atk${atkPulse}">${m.atk}</div>
+      <div class="stat hp ${m.hp < m.maxHp ? 'hurt' : ''}${hpPulse}">${m.hp}</div>`;
     el.appendChild(d);
   });
 }
@@ -10152,14 +10648,17 @@ function cardArtHTML(def){
 }
 function cardFrameHTML(def){
   if (!def) return '';
-  const kind = def.type === 'weapon' ? 'weapon' : def.type === 'spell' ? 'spell' : 'minion';
-  return `<img class="c-frame-art c-frame-${kind}" src="assets/frames/${kind}-frame.png?v=${CARD_ARENA_BUILD}" alt="" draggable="false">`;
+  const kind = def.secret ? 'secret' : def.type === 'weapon' ? 'weapon' : def.type === 'spell' ? 'spell' : 'minion';
+  return `<img class="c-frame-art c-frame-${kind} c-frame-${def.rarity || 'common'}" src="assets/frames/v2/${kind}-frame.png?v=${CARD_ARENA_BUILD}" alt="" draggable="false">`;
 }
 function cardHTML(cardId, side, cardMod){
   const def = CARD_DB[cardId];
   const tcls = def.secret ? 'ctype-secret' : def.type === 'weapon' ? 'ctype-weapon' : def.type === 'spell' ? 'ctype-spell' : 'ctype-minion';
   const emblem = def.secret ? '🔮' : def.type === 'weapon' ? '⚔' : def.type === 'spell' ? '✦' : '';
   const txt = side ? dynCardText(def, side) : def.text;
+  const plainTextLength = String(txt || '').replace(/<[^>]*>/g, '').length;
+  const longTextClass = plainTextLength > 118 ? ' is-long' : '';
+  const longNameClass = String(def.name || '').length > 12 ? ' is-long' : '';
   const sp = side ? spellPower(side) : 0;
   const atkBuffed = def.type === 'weapon' && sp > 0 && false;
   const weaponAtkBuff = def.type === 'weapon' ? Number(cardMod && cardMod.atk || 0) : 0;
@@ -10168,14 +10667,15 @@ function cardHTML(cardId, side, cardMod){
   const weaponDur = def.type === 'weapon' ? def.dur + weaponDurBuff : 0;
   return `
     ${cardFrameHTML(def)}
+    ${def.rarity === 'legendary' ? '<div class="legendary-wings" aria-hidden="true"><i></i></div>' : ''}
     <div class="ctype ${tcls}"></div>
     ${emblem ? `<div class="ctype-emblem">${emblem}</div>` : ''}
     <div class="c-cost">${def.cost}</div>
     <div class="c-icon">${cardArtHTML(def)}</div>
     <div class="rgem ${def.rarity}">${def.tribe ? `<i class="tico">${TRIBE_ICON[def.tribe]}</i>` : ''}</div>
-    <div class="c-name">${def.name}</div>
-    <div class="c-text">${fmtCardText(txt)}</div>
-    ${def.tribe ? `<div class="c-tribe">${TRIBE_RU[def.tribe]}</div>` : ''}
+    <div class="c-name${longNameClass}">${def.name}</div>
+    <div class="c-text${longTextClass}">${fmtCardText(txt)}</div>
+    ${def.tribe ? `<div class="c-tribe" data-tribe="${def.tribe}"><i>${TRIBE_ICON[def.tribe] || '◇'}</i><span>${TRIBE_RU[def.tribe] || def.tribe}</span></div>` : ''}
     ${def.type === 'minion' ? `<div class="stat atk">${def.atk}</div><div class="stat hp">${def.hp}</div>` : ''}
     ${def.type === 'weapon' ? `<div class="stat atk${weaponAtkBuff ? ' hand-buffed' : ''}">${weaponAtk}</div><div class="stat dur${weaponDurBuff ? ' hand-buffed' : ''}">${weaponDur}</div>` : ''}`;
 }
@@ -10639,12 +11139,34 @@ async function heroAttack(target){
   mpAfterLocalAction('attack:hero', mpMeta);
 }
 function renderWeapon(el, side){
-  if (!side.weapon){ el.style.display = 'none'; return; }
+  if (!side.weapon){
+    el.style.display = 'none';
+    el.removeAttribute('data-card');
+    delete el.dataset.weaponAtk;
+    delete el.dataset.weaponDur;
+    return;
+  }
   const w = side.weapon;
+  const oldAtk = el.dataset.weaponAtk === undefined ? null : Number(el.dataset.weaponAtk);
+  const oldDur = el.dataset.weaponDur === undefined ? null : Number(el.dataset.weaponDur);
+  const atkPulse = oldAtk !== null && oldAtk !== w.atk ? (w.atk > oldAtk ? ' socket-gain' : ' socket-loss') : '';
+  const durPulse = oldDur !== null && oldDur !== w.dur ? (w.dur > oldDur ? ' socket-gain' : ' socket-loss') : '';
   el.style.display = 'flex';
+  el.dataset.card = w.cardId;
+  el.dataset.weaponAtk = w.atk;
+  el.dataset.weaponDur = w.dur;
   el.innerHTML = `
     <div class="w-icon">${cardArtHTML(CARD_DB[w.cardId])}</div>
-    <div class="w-stats"><span class="w-atk">${w.atk}</span><span class="w-dur">${w.ranged ? '🏹' : '🛠'}${w.dur}</span></div>`;
+    <div class="w-stats"><span class="w-atk${atkPulse}">${w.atk}</span><span class="w-dur${durPulse}">${w.dur}</span></div>`;
+}
+function renderHeroStatuses(el, side){
+  if (!el) return;
+  const statuses = [];
+  if (side.frozen || side.freezeVisual) statuses.push({ key:'frozen', icon:'❄️', label:'Заморозка' });
+  if (side.weapon) statuses.push({ key:'weapon', icon:side.weapon.ranged ? '🏹' : '⚔️', label:'Оружие экипировано' });
+  if (side.secrets && side.secrets.length) statuses.push({ key:'secret', icon:'🔮', label:`Секреты: ${side.secrets.length}`, value:side.secrets.length });
+  el.innerHTML = statuses.map(s => `<span class="hero-status ${s.key}" data-effect="${s.key}" tabindex="0" title="${s.label}">${s.icon}${s.value ? `<em>${s.value}</em>` : ''}</span>`).join('');
+  el.classList.toggle('has-statuses', statuses.length > 0);
 }
 function isFriendlyMechOf(side, m){ return CARD_DB[m.cardId].tribe === 'mech'; }
 function pickMergeTargetAt(x, y){
@@ -11943,14 +12465,16 @@ const MINION_STATUS_COLORS = {
   frozen:'#8fd0ff', taunt:'#d7e2ec', shield:'#ffe08a', lifesteal:'#d64b4b',
   reborn:'#ffe9a6', poison:'#9fda54', windfury:'#73d1ff', freezeTouch:'#8fd0ff',
   spellDamage:'#c79bff', stealth:'#b8c8d4', deathrattle:'#b06bff', charge:'#ffd98a',
-  siege:'#d0b070', enrage:'#ff7040', sleep:'#9aa4b8'
+  siege:'#d0b070', enrage:'#ff7040', sleep:'#9aa4b8', weapon:'#d6bd79', secret:'#b889ef'
 };
-function showEffectPreview(key, rect){
+function showEffectPreview(key, rect, context){
   const info = MINION_STATUS_INFO[key];
   if (!info) return;
   const pv = $('effectPreview');
+  const kicker = context === 'hero' ? 'СТАТУС ГЕРОЯ' : 'ЭФФЕКТ СУЩЕСТВА';
   pv.style.setProperty('--ec', MINION_STATUS_COLORS[key] || '#f0d080');
   pv.innerHTML = `
+    <div class="ep-kicker">${kicker}</div>
     <div class="ep-head"><span class="ep-icon">${info.icon}</span><span>${safeTxt(info.name)}</span></div>
     <div class="ep-body">${safeTxt(info.desc)}</div>`;
   placeEffectPreview(pv, rect);
@@ -12004,8 +12528,12 @@ function hidePreview(){
 
 function previewSourceAt(el){
   if (!el || !el.closest) return null;
-  const st = el.closest('.m-status[data-effect]');
-  if (st) return { type:'effect', key: st.dataset.effect, rect: st.getBoundingClientRect() };
+  const st = el.closest('.m-status[data-effect], .hero-status[data-effect]');
+  if (st) return {
+    type:'effect', key:st.dataset.effect,
+    context:st.classList.contains('hero-status') ? 'hero' : 'minion',
+    rect:st.getBoundingClientRect()
+  };
   const hiddenPackCard = el.closest('#packCards .pcard:not(.flipped)');
   if (hiddenPackCard) return null;
   const c = el.closest('[data-card]');
@@ -12030,7 +12558,7 @@ function previewSourceAt(el){
   return null;
 }
 function openPreview(src){
-  if (src.type === 'effect') showEffectPreview(src.key, src.rect);
+  if (src.type === 'effect') showEffectPreview(src.key, src.rect, src.context);
   else if (src.type === 'card') showCardPreview(src.id, src.rect, src.side, src.cardMod);
   else showPowerPreview(src.id, src.rect, src.side);
 }
@@ -12094,6 +12622,26 @@ if (window.matchMedia && matchMedia('(hover: hover)').matches){
     hidePreview();
 	  });
 	}
+
+document.addEventListener('focusin', e => {
+  const src = previewSourceAt(e.target);
+  if (src) openPreview(src);
+});
+document.addEventListener('focusout', e => {
+  if (e.relatedTarget && previewSourceAt(e.relatedTarget)) return;
+  hidePreview();
+});
+let statusTapPreviewTimer = null;
+document.addEventListener('click', e => {
+  const status = e.target && e.target.closest ? e.target.closest('.m-status[data-effect], .hero-status[data-effect]') : null;
+  if (!status) return;
+  const src = previewSourceAt(status);
+  if (!src) return;
+  e.stopPropagation();
+  clearTimeout(statusTapPreviewTimer);
+  openPreview(src);
+  statusTapPreviewTimer = setTimeout(hidePreview, 2200);
+});
 
 let builderPreviewTimer = null;
 let builderPreviewAnchor = null;
@@ -16413,6 +16961,7 @@ function startAnimSandbox(cardId){
   const bar=$('animSandboxBar');if(bar&&bar.parentElement!==document.body)document.body.appendChild(bar);
   if(bar)bar.classList.add('active');
   if($('animSandboxTitle'))$('animSandboxTitle').textContent=`${def.icon} ${def.name} · тестовый бой`;
+  if($('animSandboxEnemy'))$('animSandboxEnemy').textContent=def.secret?'СРАБОТАТЬ СЕКРЕТ':'СОБЫТИЕ ВРАГА';
   G.turn='player';G.busy=false;render();banner('Тестовый бой: разыграй карту');
 }
 async function advanceAnimSandboxTurn(){
@@ -16423,12 +16972,30 @@ async function advanceAnimSandboxTurn(){
 }
 async function animSandboxEnemyEvent(){
   if(!G||!G.animationTest||G.busy)return;
-  G.busy=true;const step=G.animationTestEnemyEvent++%3;
+  G.busy=true;
+  const tested=CARD_DB[animCurrentCard];
+  const testedSecret=tested&&tested.secret?tested:null;
+  if(testedSecret&&!G.player.secrets.includes(testedSecret.id)){
+    G.player.secrets.push(testedSecret.id);
+    G.player.secretSources.push(testedSecret.id);
+    render();
+    await castVfx(testedSecret,center($('playerHero')),center($('playerHero')),{legendary:testedSecret.rarity==='legendary'});
+    banner(`Секрет установлен: ${testedSecret.name}`);
+    await sleep(260);
+  }
+  const forcedStep=testedSecret
+    ?({attack:0,spellCast:1,minionPlayed:2,lethalDamage:3}[testedSecret.secretOn]??0)
+    :null;
+  const step=forcedStep===null?G.animationTestEnemyEvent++%3:forcedStep;
   if(step===0){
-    const attacker=G.enemy.board.find(m=>m.hp>0);const taunt=G.player.board.find(m=>m.taunt&&!m.stealth);const target=taunt?{kind:'minion',side:G.player,minion:taunt}:{kind:'hero',side:G.player};
+    const attacker=G.enemy.board.find(m=>m.hp>0);const taunt=G.player.board.find(m=>m.taunt&&!m.stealth);const target=testedSecret?{kind:'hero',side:G.player}:taunt?{kind:'minion',side:G.player,minion:taunt}:{kind:'hero',side:G.player};
     if(attacker){const el=minionEl(attacker);await lungeAnim(el,combatPoint(target,G.enemy));resolveCombat(G.enemy,attacker,target);await resolveDeaths();banner('Событие врага: атака');}
   }else if(step===1){checkSecrets(G.player,'spellCast',{});spellImpact(safeCenter(heroEl(G.player),$('board')),'fire',{});banner('Событие врага: заклинание');}
-  else{const m=G.spawnMinion(G.enemy,'soldier');checkSecrets(G.player,'minionPlayed',{cardId:'soldier',side:G.enemy,minion:m});banner('Событие врага: существо');}
+  else if(step===2){const m=G.spawnMinion(G.enemy,'soldier');checkSecrets(G.player,'minionPlayed',{cardId:'soldier',side:G.enemy,minion:m});banner('Событие врага: существо');}
+  else{
+    G.player.armor=0;G.player.hp=Math.min(G.player.hp,3);render();await sleep(180);
+    G.hurtHero(G.player,8);banner('Событие врага: летальный урон');
+  }
   G.busy=false;render();
 }
 function closeAnimSandbox(){
