@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-15-status-preview-v7';
+    var build = '2026-07-16-alpha-fit-v9';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4610,6 +4610,211 @@
   .card:has(.c-frame-weapon) .c-icon img,
   .card:has(.c-frame-secret) .c-icon img{transform:scale(1.08)!important;}
 
+  /* ============== SOCKET & AURA FIT V8 ==============
+     Растровая рамка остаётся единственным жёстким контуром. */
+  .card:has(.c-frame-art){
+    --frame-aura:var(--rarity-glow);
+    box-shadow:none!important;filter:none!important;
+  }
+  .card:has(.c-frame-art)::before{
+    inset:7% 8.5%!important;z-index:-1!important;border:0!important;border-radius:34%!important;
+    background:radial-gradient(ellipse at 50% 48%,var(--frame-aura) 0 18%,transparent 72%)!important;
+    box-shadow:none!important;filter:blur(11px);opacity:.82!important;
+  }
+  .card:has(.c-frame-art).playable{
+    --frame-aura:rgba(90,190,255,.94);box-shadow:none!important;animation:none!important;
+  }
+  .card:has(.c-frame-art).boosted{
+    --frame-aura:rgba(255,193,70,.92);box-shadow:none!important;animation:none!important;
+  }
+  .card:has(.c-frame-secret).playable{
+    --frame-aura:rgba(173,106,255,.94);box-shadow:none!important;animation:none!important;
+  }
+  .card:has(.c-frame-art).playable::before,
+  .card:has(.c-frame-art).boosted::before{
+    animation:socketAuraBreath 1.65s ease-in-out infinite;
+  }
+  @keyframes socketAuraBreath{
+    0%,100%{opacity:.68;filter:blur(10px) brightness(.94);}
+    50%{opacity:1;filter:blur(13px) brightness(1.18);}
+  }
+
+  /* Цвет находится только внутри металлических сокетов и не перекрывает рамку. */
+  .card:has(.c-frame-art) .c-cost,
+  .card:has(.c-frame-art) .stat,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-cost,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat{
+    isolation:isolate;overflow:visible!important;
+  }
+  .card:has(.c-frame-art) .c-cost::before,
+  .card:has(.c-frame-art) .stat::before,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-cost::before,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat::before{
+    content:"";position:absolute;z-index:-1;pointer-events:none;box-sizing:border-box;
+  }
+  .card:has(.c-frame-art) .c-cost::before,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-cost::before{
+    inset:16.5%;border-radius:50%;
+    background:radial-gradient(circle at 34% 27%,#67c7ff 0,#247db9 35%,#092b4b 74%,#031321 100%);
+    box-shadow:inset 0 0 0 1px rgba(202,238,255,.56),inset 0 -3px 5px rgba(0,0,0,.72),0 0 7px rgba(61,164,231,.38);
+  }
+  .card:has(.c-frame-art) .stat.atk::before,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.atk::before{
+    inset:18%;border-radius:50%;
+    background:radial-gradient(circle at 34% 27%,#f3cf72 0,#b77a20 38%,#56340d 76%,#1c1004 100%);
+    box-shadow:inset 0 0 0 1px rgba(255,231,157,.5),inset 0 -3px 5px rgba(0,0,0,.7),0 0 5px rgba(211,153,50,.3);
+  }
+  .card:has(.c-frame-art) .stat.hp::before,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.hp::before{
+    inset:15% 18% 17%;border-radius:52% 52% 44% 44% / 43% 43% 57% 57%;
+    background:radial-gradient(circle at 34% 25%,#ff8a75 0,#c53f31 38%,#681810 76%,#260704 100%);
+    box-shadow:inset 0 0 0 1px rgba(255,193,179,.48),inset 0 -3px 5px rgba(0,0,0,.72),0 0 5px rgba(211,66,48,.3);
+  }
+  .card:has(.c-frame-art) .stat.dur::before,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.dur::before{
+    inset:17%;border-radius:46%;
+    background:radial-gradient(circle at 34% 27%,#cdd9e0 0,#71828d 38%,#2b3942 76%,#0b1115 100%);
+    box-shadow:inset 0 0 0 1px rgba(238,248,255,.45),inset 0 -3px 5px rgba(0,0,0,.72);
+  }
+  .card:has(.c-frame-art) .rgem,
+  #cardPreview .cp-card .card:has(.c-frame-art) .rgem{
+    width:6.2%!important;bottom:4.05%!important;border-radius:1px!important;
+    box-shadow:0 0 0 1px rgba(0,0,0,.78),0 0 4px var(--rarity-glow),inset 0 0 1px rgba(255,255,255,.62)!important;
+  }
+
+  /* Полевая рамка подогнана к самому юниту, а подсветка стала мягкой и бесшовной. */
+  .minion{
+    --unit-aura:var(--unit-rarity-glow);
+    box-shadow:none!important;
+  }
+  .minion::before{
+    content:""!important;position:absolute;z-index:-2;pointer-events:none;
+    inset:7% 3% 5%;border-radius:42% 42% 30% 30%;
+    background:radial-gradient(ellipse at 50% 50%,var(--unit-aura) 0 18%,transparent 73%);
+    filter:blur(10px);opacity:.72;
+  }
+  .minion .m-frame-shell{inset:-.5%!important;}
+  .minion.can-attack,.minion.taunt.can-attack{
+    --unit-aura:rgba(101,255,83,.9);box-shadow:none!important;
+  }
+  .minion.targetable,.minion.taunt.targetable{
+    --unit-aura:rgba(255,92,74,.92);box-shadow:none!important;
+  }
+  .minion.magnet-ready{
+    --unit-aura:rgba(255,218,79,.92);box-shadow:none!important;
+  }
+  .minion.magnet-hover{
+    --unit-aura:rgba(255,236,131,1);box-shadow:none!important;
+  }
+  .minion .stat{isolation:isolate;overflow:visible!important;}
+  .minion .stat::before{
+    content:"";position:absolute;z-index:-1;pointer-events:none;inset:16%;border-radius:50%;
+    box-sizing:border-box;
+  }
+  .minion .stat.atk::before{
+    background:radial-gradient(circle at 34% 27%,#efca6d 0,#aa711d 40%,#4a2b09 78%,#160c03 100%);
+    box-shadow:inset 0 0 0 1px rgba(255,232,165,.48),inset 0 -2px 4px rgba(0,0,0,.72);
+  }
+  .minion .stat.hp::before{
+    inset:14% 16% 16%;border-radius:52% 52% 44% 44% / 43% 43% 57% 57%;
+    background:radial-gradient(circle at 34% 25%,#fb826f 0,#bd3b2e 40%,#5d150e 78%,#210604 100%);
+    box-shadow:inset 0 0 0 1px rgba(255,195,180,.45),inset 0 -2px 4px rgba(0,0,0,.72);
+  }
+  .minion .rgem{
+    width:7.2%!important;bottom:4.15%!important;border-radius:1px!important;
+    box-shadow:0 0 0 1px rgba(0,0,0,.75),0 0 3px var(--unit-rarity-glow),inset 0 0 1px rgba(255,255,255,.58)!important;
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .card:has(.c-frame-art).playable::before,
+    .card:has(.c-frame-art).boosted::before{animation:none!important;}
+  }
+
+  /* ============== ALPHA-SILHOUETTE FIT V9 ==============
+     Ни один прямоугольный CSS-слой не выходит за прозрачную рамку. */
+  .card:has(.c-frame-art),
+  .card:has(.c-frame-art).playable,
+  .card:has(.c-frame-art).boosted{
+    box-shadow:none!important;
+    filter:none!important;
+    animation:none!important;
+  }
+  .card:has(.c-frame-art)::before,
+  .card:has(.c-frame-art)::after{
+    content:none!important;
+    display:none!important;
+  }
+  .card:has(.c-frame-art) .c-frame-art{
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    filter:drop-shadow(0 3px 2px rgba(0,0,0,.72))
+      drop-shadow(0 0 3px var(--rarity-glow))!important;
+  }
+  .card:has(.c-frame-art).playable .c-frame-art{
+    filter:drop-shadow(0 3px 2px rgba(0,0,0,.72))
+      drop-shadow(0 0 5px rgba(83,184,255,.86))
+      drop-shadow(0 0 9px rgba(83,184,255,.52))!important;
+    animation:alphaFramePlayable 1.75s ease-in-out infinite!important;
+  }
+  .card:has(.c-frame-art).boosted .c-frame-art{
+    filter:drop-shadow(0 3px 2px rgba(0,0,0,.72))
+      drop-shadow(0 0 5px rgba(255,193,70,.9))
+      drop-shadow(0 0 9px rgba(255,193,70,.52))!important;
+    animation:alphaFrameBoosted 1.75s ease-in-out infinite!important;
+  }
+  .card:has(.c-frame-secret).playable .c-frame-art{
+    filter:drop-shadow(0 3px 2px rgba(0,0,0,.72))
+      drop-shadow(0 0 5px rgba(173,106,255,.92))
+      drop-shadow(0 0 9px rgba(173,106,255,.56))!important;
+  }
+  @keyframes alphaFramePlayable{
+    0%,100%{filter:drop-shadow(0 3px 2px rgba(0,0,0,.72)) drop-shadow(0 0 4px rgba(83,184,255,.76)) drop-shadow(0 0 7px rgba(83,184,255,.42));}
+    50%{filter:drop-shadow(0 3px 2px rgba(0,0,0,.72)) drop-shadow(0 0 6px rgba(83,184,255,.96)) drop-shadow(0 0 11px rgba(83,184,255,.62));}
+  }
+  @keyframes alphaFrameBoosted{
+    0%,100%{filter:drop-shadow(0 3px 2px rgba(0,0,0,.72)) drop-shadow(0 0 4px rgba(255,193,70,.78)) drop-shadow(0 0 7px rgba(255,193,70,.42));}
+    50%{filter:drop-shadow(0 3px 2px rgba(0,0,0,.72)) drop-shadow(0 0 6px rgba(255,193,70,.98)) drop-shadow(0 0 11px rgba(255,193,70,.62));}
+  }
+
+  .minion,
+  .minion.can-attack,
+  .minion.taunt.can-attack,
+  .minion.targetable,
+  .minion.taunt.targetable,
+  .minion.magnet-ready,
+  .minion.magnet-hover{
+    --frame-state-glow:var(--unit-rarity-glow);
+    box-shadow:none!important;
+    background:transparent!important;
+  }
+  .minion.can-attack,
+  .minion.taunt.can-attack{--frame-state-glow:rgba(101,255,83,.92);}
+  .minion.targetable,
+  .minion.taunt.targetable{--frame-state-glow:rgba(255,92,74,.94);}
+  .minion.magnet-ready{--frame-state-glow:rgba(255,218,79,.94);}
+  .minion.magnet-hover{--frame-state-glow:rgba(255,236,131,1);}
+  .minion::before,
+  .minion::after{
+    content:none!important;
+    display:none!important;
+  }
+  .minion .m-frame-shell,
+  .minion.taunt .m-frame-shell,
+  .minion.shielded .m-frame-shell,
+  .minion.taunt.shielded .m-frame-shell{
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    filter:drop-shadow(0 3px 2px rgba(0,0,0,.76))
+      drop-shadow(0 0 4px var(--frame-state-glow))!important;
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .card:has(.c-frame-art).playable .c-frame-art,
+    .card:has(.c-frame-art).boosted .c-frame-art{animation:none!important;}
+  }
+
 
 </style>
 </head>
@@ -5312,7 +5517,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-15-status-preview-v7';
+const CARD_ARENA_BUILD = '2026-07-16-alpha-fit-v9';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
