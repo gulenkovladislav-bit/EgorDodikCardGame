@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-16-alpha-fit-v9';
+    var build = '2026-07-16-siege-status-v17';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -4450,6 +4450,17 @@
   #cardPreview .cp-card .card:has(.c-frame-art) .c-text.is-long{
     font-size:5.05cqw!important;line-height:1.04!important;
   }
+  /* У существ и оружия нижняя часть занята статами: текст обрывается до сокетов. */
+  .card:has(.c-frame-minion) .c-text,
+  #cardPreview .cp-card .card:has(.c-frame-minion) .c-text{
+    height:13.2%!important;
+    -webkit-line-clamp:4!important;
+  }
+  .card:has(.c-frame-weapon) .c-text,
+  #cardPreview .cp-card .card:has(.c-frame-weapon) .c-text{
+    height:10.6%!important;
+    -webkit-line-clamp:3!important;
+  }
   .card:has(.c-frame-art) .c-tribe,
   #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe{
     left:11.9%!important;top:16.05%!important;bottom:auto!important;width:9.2%!important;height:7.6%!important;
@@ -4815,6 +4826,404 @@
     .card:has(.c-frame-art).boosted .c-frame-art{animation:none!important;}
   }
 
+  /* ============== SOCKET CALIBRATION V10 ==============
+     Координаты сняты с прозрачных отверстий production PNG. */
+  .card:has(.c-frame-art) .c-cost,
+  .card:has(.c-frame-art) .stat,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-cost,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat{
+    right:auto!important;bottom:auto!important;aspect-ratio:auto!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+  }
+  .card:has(.c-frame-art) .c-cost::before,
+  .card:has(.c-frame-art) .stat::before,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-cost::before,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat::before{
+    inset:2.5%!important;
+  }
+
+  /* Мана: у каждого вида рамки своё отдельное гнездо. */
+  .card:has(.c-frame-minion) .c-cost,
+  #cardPreview .cp-card .card:has(.c-frame-minion) .c-cost{
+    left:10.12%!important;top:7.27%!important;width:12.30%!important;height:9.45%!important;
+    font-size:9.9cqw!important;
+  }
+  .card:has(.c-frame-spell) .c-cost,
+  #cardPreview .cp-card .card:has(.c-frame-spell) .c-cost{
+    left:10.91%!important;top:6.83%!important;width:14.68%!important;height:10.90%!important;
+    font-size:10.7cqw!important;
+  }
+  .card:has(.c-frame-weapon) .c-cost,
+  #cardPreview .cp-card .card:has(.c-frame-weapon) .c-cost{
+    left:10.91%!important;top:6.25%!important;width:12.50%!important;height:9.45%!important;
+    font-size:9.9cqw!important;
+  }
+  .card:has(.c-frame-secret) .c-cost,
+  #cardPreview .cp-card .card:has(.c-frame-secret) .c-cost{
+    left:12.70%!important;top:7.85%!important;width:13.89%!important;height:10.17%!important;
+    font-size:10.4cqw!important;
+  }
+  .card:has(.c-frame-art) .c-cost.two-digit,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-cost.two-digit{font-size:7.55cqw!important;}
+  .card:has(.c-frame-art) .c-cost.three-digit,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-cost.three-digit{font-size:6.2cqw!important;}
+
+  /* Существо в руке: золото и здоровье заполняют реальные отверстия. */
+  .card:has(.c-frame-minion) .stat.atk,
+  #cardPreview .cp-card .card:has(.c-frame-minion) .stat.atk{
+    left:11.11%!important;top:84.88%!important;width:12.70%!important;height:9.59%!important;
+    font-size:9.75cqw!important;
+  }
+  .card:has(.c-frame-minion) .stat.hp,
+  #cardPreview .cp-card .card:has(.c-frame-minion) .stat.hp{
+    left:77.18%!important;top:81.25%!important;width:11.71%!important;height:12.65%!important;
+    font-size:9.7cqw!important;
+  }
+  .card:has(.c-frame-minion) .stat.atk::before,
+  #cardPreview .cp-card .card:has(.c-frame-minion) .stat.atk::before{
+    inset:1.8%!important;border-radius:50%!important;
+  }
+  .card:has(.c-frame-minion) .stat.hp::before,
+  #cardPreview .cp-card .card:has(.c-frame-minion) .stat.hp::before{
+    inset:1.5%!important;border-radius:0!important;
+    clip-path:polygon(50% 0,73% 14%,89% 34%,98% 57%,95% 78%,80% 94%,50% 100%,20% 94%,5% 78%,2% 57%,11% 34%,27% 14%);
+  }
+
+  /* Оружие использует собственные нижние гнёзда. */
+  .card:has(.c-frame-weapon) .stat.atk,
+  #cardPreview .cp-card .card:has(.c-frame-weapon) .stat.atk{
+    left:10.91%!important;top:82.70%!important;width:14.29%!important;height:10.03%!important;
+    font-size:9.5cqw!important;
+  }
+  .card:has(.c-frame-weapon) .stat.dur,
+  #cardPreview .cp-card .card:has(.c-frame-weapon) .stat.dur{
+    left:75.60%!important;top:80.38%!important;width:12.30%!important;height:13.23%!important;
+    font-size:9.55cqw!important;
+  }
+  .card:has(.c-frame-weapon) .stat.atk::before,
+  #cardPreview .cp-card .card:has(.c-frame-weapon) .stat.atk::before{
+    inset:2%!important;border-radius:50%!important;
+  }
+  .card:has(.c-frame-weapon) .stat.dur::before,
+  #cardPreview .cp-card .card:has(.c-frame-weapon) .stat.dur::before{
+    inset:1.5%!important;border-radius:0!important;
+    clip-path:polygon(50% 0,73% 14%,89% 34%,98% 57%,95% 78%,80% 94%,50% 100%,20% 94%,5% 78%,2% 57%,11% 34%,27% 14%);
+  }
+  .card:has(.c-frame-art) .stat.two-digit,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.two-digit{font-size:7.25cqw!important;}
+  .card:has(.c-frame-art) .stat.three-digit,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat.three-digit{font-size:5.9cqw!important;}
+
+  /* Кристалл помещён внутрь нижнего ромбовидного сокета. */
+  .card:has(.c-frame-art) .rgem,
+  #cardPreview .cp-card .card:has(.c-frame-art) .rgem{
+    left:50%!important;top:92.15%!important;bottom:auto!important;width:5.55%!important;height:auto!important;
+    transform:translate(-50%,-50%) rotate(45deg)!important;
+  }
+
+  /* Полевая карта: портрет, флаг, имя и верхний канал сидят в отверстиях PNG. */
+  .minion .m-statusbar{
+    left:20.17%!important;top:5.13%!important;width:62.33%!important;height:7.13%!important;
+    padding:1px 2.2%!important;gap:2px!important;border:0!important;border-radius:2px!important;
+  }
+  .minion .m-icon{
+    left:18.83%!important;top:17.25%!important;width:64%!important;height:48.13%!important;
+    border-radius:48% 48% 5% 5%!important;
+  }
+  .minion .m-icon img{
+    object-fit:cover!important;object-position:center 34%!important;transform:scale(1.12)!important;
+    transform-origin:50% 42%!important;
+  }
+  .minion .m-name{
+    left:18.83%!important;top:67.45%!important;width:63.83%!important;height:6.05%!important;
+    padding:0 2.5%!important;border:0!important;border-radius:1px!important;
+    font-size:5.65cqw!important;line-height:.92!important;white-space:nowrap!important;text-overflow:ellipsis!important;
+    display:none!important;
+  }
+  .minion .m-name.is-long{font-size:4.85cqw!important;letter-spacing:0!important;}
+  .minion .m-name.is-very-long{font-size:4.15cqw!important;letter-spacing:0!important;}
+  .minion .m-tribe{
+    left:11.9%!important;top:17.25%!important;bottom:auto!important;width:8.3%!important;height:17.3%!important;
+    padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;
+    font-size:6.3cqw!important;filter:drop-shadow(0 1px 2px #000)!important;
+  }
+  .minion .stat{
+    right:auto!important;bottom:auto!important;aspect-ratio:auto!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+  }
+  .minion .stat.atk{
+    left:12%!important;top:81%!important;width:15.50%!important;height:11.88%!important;
+    font-size:10.8cqw!important;
+  }
+  .minion .stat.hp{
+    left:76.67%!important;top:78.38%!important;width:14.83%!important;height:15.50%!important;
+    font-size:10.8cqw!important;
+  }
+  .minion .stat.atk::before{inset:1.5%!important;border-radius:50%!important;}
+  .minion .stat.hp::before{
+    inset:1.2%!important;border-radius:0!important;
+    clip-path:polygon(50% 0,73% 14%,89% 34%,98% 57%,95% 78%,80% 94%,50% 100%,20% 94%,5% 78%,2% 57%,11% 34%,27% 14%);
+  }
+  .minion .stat.two-digit{font-size:8.25cqw!important;}
+  .minion .stat.three-digit{font-size:6.6cqw!important;}
+  .minion .rgem{
+    left:51.18%!important;top:92.03%!important;bottom:auto!important;width:6.45%!important;height:auto!important;
+    transform:translate(-50%,-50%) rotate(45deg)!important;
+  }
+
+  /* Цифры героя лежат на нарисованных щите и капле, без второй формы поверх. */
+  .portrait{
+    container-type:inline-size;
+  }
+  .portrait .hp-gem,
+  .portrait .armor-gem{
+    top:80%!important;bottom:auto!important;right:auto!important;width:24%!important;height:28%!important;
+    transform:translate(-50%,-50%)!important;padding:0!important;border:0!important;border-radius:0!important;
+    clip-path:none!important;background:transparent!important;box-shadow:none!important;
+    align-items:center;justify-content:center;font-size:14cqw!important;line-height:1!important;
+    text-shadow:0 2px 2px #000,0 0 5px #000!important;
+  }
+  .portrait .armor-gem{left:23%!important;}
+  .portrait .hp-gem{left:84.7%!important;}
+  .portrait .p-frame{
+    left:22.8%!important;top:19.7%!important;width:54%!important;height:55.8%!important;
+    border:0!important;border-radius:48% 48% 24% 24%!important;box-shadow:inset 0 0 13px rgba(0,0,0,.7)!important;
+  }
+  .portrait .p-frame img{transform:scale(1.12);transform-origin:50% 38%;}
+  .portrait .p-name{
+    left:26.5%!important;right:26.5%!important;top:77.3%!important;bottom:auto!important;height:10.8%!important;
+    padding:0 2%!important;display:flex;align-items:center;justify-content:center;
+    font-size:8.3cqw!important;line-height:1!important;
+  }
+
+  /* Большая коллекция не должна считать дорогие эффекты для карт вне экрана. */
+  #builder .b-card{
+    content-visibility:auto;
+    contain-intrinsic-size:154px 215px;
+  }
+  #builder .b-card .c-frame-art{
+    animation:none!important;
+    filter:drop-shadow(0 2px 1px rgba(0,0,0,.62))!important;
+  }
+  #builder .b-card .c-cost::before,
+  #builder .b-card .stat::before{
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.24),inset 0 -2px 3px rgba(0,0,0,.68)!important;
+  }
+
+  /* ============== COLLECTION / CRAFT / FLAGS V12 ============== */
+  #builderCraftBtn{
+    padding:7px 12px;font-size:11px;white-space:nowrap;
+    border-color:#6f5a2c;color:#ead79f;
+  }
+  #builder.craft-mode #builderCraftBtn{
+    color:#fff0b5;border-color:#d0a948;
+    box-shadow:0 0 0 1px rgba(255,218,112,.24),0 0 13px rgba(232,179,65,.34);
+  }
+  #craftToolbar{
+    display:none;min-height:58px;flex:0 0 auto;align-items:center;gap:12px;
+    padding:8px 14px;box-sizing:border-box;
+    border-top:1px solid #715828;border-bottom:2px solid #715828;
+    background:linear-gradient(180deg,#342613,#1d1409);
+    color:#d8c79c;box-shadow:inset 0 1px rgba(255,235,178,.06);
+  }
+  #builder.craft-mode #craftToolbar{display:flex;}
+  .craft-copy{min-width:0;display:flex;flex-direction:column;gap:2px;flex:1;}
+  .craft-copy b{font-size:13px;color:#f0d88f;letter-spacing:1px;}
+  .craft-copy span{font-size:10px;color:#9f8d66;white-space:normal;}
+  .craft-dust{font-size:15px;font-weight:bold;color:#cbbcff;white-space:nowrap;text-shadow:0 0 8px rgba(161,125,255,.4);}
+  #dustDuplicatesBtn{font-size:11px;padding:8px 13px;white-space:nowrap;}
+  #dustDuplicatesBtn:disabled{filter:grayscale(.7);opacity:.48;cursor:default;}
+  #craftToolbar .craft-close{
+    width:34px;height:34px;padding:0;display:flex;align-items:center;justify-content:center;
+    font-size:20px;line-height:1;
+  }
+  #builder .b-actions{display:none!important;}
+  #builder.craft-mode .b-actions{display:flex!important;}
+  #builder.craft-mode .b-card{cursor:default;}
+  #builder.craft-mode .b-card:active{transform:none;}
+
+  /* Один согласованный атлас флагов для руки, предпросмотра, коллекции и стола. */
+  .card:has(.c-frame-art) .c-tribe,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe,
+  .minion .m-tribe{
+    --flag-x:64%;--flag-y:84%;
+    display:block!important;padding:0!important;border:0!important;border-radius:0!important;
+    clip-path:none!important;color:transparent!important;
+    background-color:transparent!important;
+    background-image:url("assets/ui/astral/tribe-flags-sheet.png?v=2026-07-16-tribe-flags-fit-v13")!important;
+    background-repeat:no-repeat!important;
+    background-size:808.5% 238.2%!important;
+    background-position:var(--flag-x) var(--flag-y)!important;
+    box-shadow:none!important;
+    clip-path:polygon(14% 0,86% 0,86% 8%,96% 8%,96% 20%,84% 20%,84% 74%,96% 79%,73% 79%,50% 100%,27% 79%,4% 79%,16% 74%,16% 20%,4% 20%,4% 8%,14% 8%)!important;
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.9)) drop-shadow(0 0 1px rgba(229,203,139,.42))!important;
+    overflow:visible!important;pointer-events:auto;
+  }
+  [data-tribe="beast"]{--flag-x:7.1%!important;--flag-y:5.9%!important;}
+  [data-tribe="pirate"]{--flag-x:26%!important;--flag-y:5.9%!important;}
+  [data-tribe="undead"]{--flag-x:45.1%!important;--flag-y:5.9%!important;}
+  [data-tribe="demon"]{--flag-x:64.1%!important;--flag-y:5.9%!important;}
+  [data-tribe="mech"]{--flag-x:7.1%!important;--flag-y:84.2%!important;}
+  [data-tribe="dragon"]{--flag-x:26%!important;--flag-y:84.2%!important;}
+  [data-tribe="nature"]{--flag-x:45.1%!important;--flag-y:84.2%!important;}
+  [data-tribe="none"]{--flag-x:64.1%!important;--flag-y:84.2%!important;}
+  .card:has(.c-frame-art) .c-tribe,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe{
+    left:5.7%!important;top:13.2%!important;width:17.1%!important;height:26.2%!important;
+  }
+  .card:has(.c-frame-art) .c-tribe i,
+  .card:has(.c-frame-art) .c-tribe span,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe i,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe span{display:none!important;}
+  .minion .m-tribe{
+    left:10.8%!important;top:14.9%!important;width:12.2%!important;height:25.2%!important;
+  }
+
+  /* Имя и описание используют нарисованные области рамки без второй CSS-плашки. */
+  .card:has(.c-frame-art) .c-name,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-name{
+    left:8.4%!important;top:58.15%!important;width:83.2%!important;height:11.9%!important;
+    padding:0 5.2%!important;background:transparent!important;border:0!important;border-radius:0!important;
+    box-shadow:none!important;outline:0!important;
+    font-size:8.65cqw!important;line-height:.96!important;
+    overflow:hidden!important;text-overflow:clip!important;
+  }
+  .card:has(.c-frame-art) .c-name.is-long,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-name.is-long{font-size:7.35cqw!important;line-height:.94!important;}
+  .card:has(.c-frame-art) .c-name.is-very-long,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-name.is-very-long{font-size:6.25cqw!important;line-height:.9!important;}
+  .card:has(.c-frame-art) .c-name.is-ultra-long,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-name.is-ultra-long{font-size:5.25cqw!important;line-height:.88!important;}
+  .card:has(.c-frame-art) .c-text,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-text,
+  .card:has(.c-frame-minion) .c-text,
+  #cardPreview .cp-card .card:has(.c-frame-minion) .c-text,
+  .card:has(.c-frame-weapon) .c-text,
+  #cardPreview .cp-card .card:has(.c-frame-weapon) .c-text{
+    left:11.8%!important;top:69.4%!important;width:76.4%!important;height:17.3%!important;
+    padding:.8% 5.2% 2.1%!important;margin:0!important;
+    background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline:0!important;
+    font-size:5.95cqw!important;line-height:1.06!important;
+    -webkit-line-clamp:6!important;
+  }
+  .card:has(.c-frame-art) .c-text.is-long,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-text.is-long{font-size:5.3cqw!important;line-height:1.03!important;}
+  .card:has(.c-frame-art) .c-text.is-very-long,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-text.is-very-long{font-size:4.75cqw!important;line-height:1.01!important;}
+  .card:has(.c-frame-art) .c-text.is-ultra-long,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-text.is-ultra-long{font-size:4.15cqw!important;line-height:.98!important;}
+  .b-card .card:has(.c-frame-art) .c-name{
+    top:63.15%!important;height:13.4%!important;font-size:7.9cqw!important;padding-inline:4%!important;
+  }
+  .b-card .card:has(.c-frame-art) .c-name.is-long{font-size:6.8cqw!important;}
+  .b-card .card:has(.c-frame-art) .c-name.is-very-long{font-size:5.75cqw!important;}
+  .b-card .card:has(.c-frame-art) .c-name.is-ultra-long{font-size:4.85cqw!important;}
+
+  /* Пак: карта крупнее, а редкость светит по альфа-силуэту рамки, не прямоугольником. */
+  #packCards{gap:clamp(17px,2vw,28px);max-width:min(1100px,96vw);align-items:center;}
+  .pcard{
+    width:clamp(126px,12.2vw,158px)!important;height:auto!important;aspect-ratio:504/688;
+  }
+  .pface.front{background:transparent!important;border-radius:0!important;box-shadow:none!important;}
+  .pface.front .card{width:100%!important;height:100%!important;}
+  .pcard.flipped.rare-glow .pface.front,
+  .pcard.flipped.epic-glow .pface.front,
+  .pcard.flipped.legend-glow .pface.front{box-shadow:none!important;border-radius:0!important;}
+  .pcard.flipped.rare-glow .c-frame-art{
+    filter:drop-shadow(0 3px 2px rgba(0,0,0,.72)) drop-shadow(0 0 7px rgba(77,166,255,.92))!important;
+  }
+  .pcard.flipped.epic-glow .c-frame-art{
+    filter:drop-shadow(0 3px 2px rgba(0,0,0,.72)) drop-shadow(0 0 9px rgba(176,107,255,.95))!important;
+  }
+  .pcard.flipped.legend-glow .c-frame-art{
+    filter:drop-shadow(0 3px 2px rgba(0,0,0,.72)) drop-shadow(0 0 11px rgba(255,176,32,.98))!important;
+  }
+
+  /* Панель героя: боковые модули ближе, имя остаётся внутри центрального баннера. */
+  .portrait .p-name{
+    left:30%!important;right:28%!important;top:76.7%!important;height:11.7%!important;
+    padding:0 1.5%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;
+    font-size:7.7cqw!important;
+  }
+  .portrait .p-name.is-long{font-size:6.25cqw!important;}
+  .portrait .p-name.is-very-long{font-size:5.25cqw!important;}
+  .portrait .p-name.is-ultra-long{font-size:4.5cqw!important;}
+  #playerWeapon,#enemyWeapon{
+    left:auto!important;right:calc(100% - 9px)!important;top:23%!important;
+  }
+  @media (min-width:901px) and (min-height:601px){
+    #playerPowerBtn{left:calc(50% + 72px)!important;}
+    #enemyPowerBtn{left:calc(50% + 68px)!important;}
+  }
+
+  @media (max-width:760px), (max-height:520px){
+    #builderCraftBtn{font-size:9px;padding:6px 8px;}
+    #craftToolbar{min-height:46px;padding:5px 8px;gap:7px;}
+    .craft-copy span{display:none;}
+    .craft-copy b{font-size:10px;}
+    .craft-dust{font-size:11px;}
+    #dustDuplicatesBtn{font-size:8.5px;padding:6px 8px;}
+    #craftToolbar .craft-close{width:28px;height:28px;font-size:17px;}
+    .pcard{width:clamp(108px,21vw,132px)!important;}
+  }
+
+  /* ============== FIELD PORTRAIT / HERO HUD V15 ============== */
+  /* Имя на столе больше не используется: портрет занимает и его бывшую прорезь. */
+  .minion .m-icon{
+    left:18.83%!important;top:17.25%!important;width:64%!important;height:56.55%!important;
+    border-radius:48% 48% 3% 3%!important;
+  }
+  .minion .m-icon img{
+    object-position:center 37%!important;
+    transform:scale(1.1)!important;
+    transform-origin:50% 43%!important;
+  }
+  .minion .m-name{
+    display:none!important;
+    width:0!important;height:0!important;padding:0!important;
+  }
+
+  /* Секрет уже показывается в верхнем канале статусов: нижний жетон не дублируем. */
+  #playerSecrets,#enemySecrets{display:none!important;}
+  .hero-status-channel.secret-only{
+    background:transparent!important;border:0!important;box-shadow:none!important;
+    pointer-events:none;
+  }
+  .hero-status-channel.secret-only .hero-status.secret{
+    pointer-events:auto;
+    filter:drop-shadow(0 1px 2px #000) drop-shadow(0 0 5px rgba(176,107,255,.72));
+  }
+
+  /* Центры отверстий нарисованной рамки способности смещены вправо и вниз. */
+  .power-btn > span:not(.pw-cost){
+    position:absolute!important;
+    left:25%!important;top:25%!important;width:62%!important;height:62%!important;
+    box-sizing:border-box!important;
+    padding:0 0 1.2% .8%!important;
+  }
+  .power-btn .pw-cost{
+    left:8.25%!important;top:8.25%!important;width:25.35%!important;height:25.35%!important;
+    box-sizing:border-box!important;
+    background:radial-gradient(circle at 38% 30%,#82d0ff 0,#2f91d8 42%,#0f4f86 76%,#092d4b 100%)!important;
+    box-shadow:inset 0 0 0 1px rgba(210,241,255,.48),inset 0 -2px 4px rgba(0,0,0,.46),0 1px 2px #000!important;
+    line-height:1!important;
+  }
+
+  /* У осадных орудий состояние читается подписью под иконкой, а не поверх неё. */
+  .minion .m-status.siege .ms-val{
+    left:50%!important;right:auto!important;top:calc(100% + 2px)!important;bottom:auto!important;
+    min-width:max-content!important;width:max-content!important;height:12px!important;
+    transform:translateX(-50%)!important;
+    padding:0 5px!important;white-space:nowrap!important;
+    border-radius:999px!important;font-size:7px!important;line-height:1!important;
+    z-index:6!important;
+  }
+  @media (pointer:coarse) and (orientation:landscape),
+         (max-height:560px) and (orientation:landscape){
+    .minion .m-status.siege .ms-val{
+      top:calc(100% + 1px)!important;height:9px!important;padding:0 3px!important;font-size:5px!important;
+    }
+  }
 
 </style>
 </head>
@@ -5143,10 +5552,20 @@
 	    <button class="btn stone" id="builderBack">← НАЗАД</button>
 	    <div class="b-title">📚 СБОРКА КОЛОДЫ</div>
 	    <div id="dustLbl">✨ 0</div>
+	    <button class="btn stone" id="builderCraftBtn" title="Создание и распыление карт">⚒ КРАФТ</button>
 	    <div id="deckCount">0/35</div>
 	    <label class="admin-toggle" title="Админ режим теперь в настройках" style="display:none"><input type="checkbox" id="adminChk"><span>АДМИН</span></label>
 	    <button class="btn stone" id="btnAiDecks" style="display:none">🤖 КОЛОДЫ ИИ</button>
 	    <button class="btn" id="builderSave">СОХРАНИТЬ</button>
+	  </div>
+	  <div id="craftToolbar">
+	    <div class="craft-copy">
+	      <b>⚒ МАСТЕРСКАЯ КАРТ</b>
+	      <span>Выбери карту ниже, чтобы создать её или распылить. Колода в этом режиме не изменяется.</span>
+	    </div>
+	    <div class="craft-dust" id="craftDustLbl">✨ 0</div>
+	    <button class="btn" id="dustDuplicatesBtn">♻ РАСПЫЛИТЬ ЛИШНИЕ</button>
+	    <button class="btn stone craft-close" id="craftCloseBtn" title="Закрыть мастерскую">×</button>
 	  </div>
 	  <div class="b-filters">
 	    <input id="filterSearch" type="search" placeholder="Поиск карты">
@@ -5180,6 +5599,8 @@
 	      <option value="undead">Нежить</option>
 	      <option value="mech">Механизмы</option>
 	      <option value="pirate">Пираты</option>
+	      <option value="dragon">Драконы</option>
+	      <option value="nature">Природа</option>
 	    </select>
 	    <label class="b-owned-only"><input id="filterOwned" type="checkbox">Есть</label>
 	    <button class="btn stone" id="filterReset">СБРОС</button>
@@ -5517,7 +5938,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-16-alpha-fit-v9';
+const CARD_ARENA_BUILD = '2026-07-16-siege-status-v17';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -6958,8 +7379,19 @@ const PACKS_DB = {
 };
 
 /* типы существ */
-const TRIBE_RU = { beast:'🐾 Зверь', mech:'⚙️ Механизм', undead:'🦴 Нежить', demon:'🔥 Демон', pirate:'🏴‍☠️ Пират' };
-const TRIBE_ICON = { beast:'🐾', mech:'⚙️', undead:'🦴', demon:'🔥', pirate:'🏴‍☠️' };
+const TRIBE_RU = {
+  beast:'Зверь', mech:'Механизм', undead:'Нежить', demon:'Демон',
+  pirate:'Пират', dragon:'Дракон', nature:'Природа'
+};
+const TRIBE_ICON = {
+  beast:'🐾', mech:'⚙️', undead:'🦴', demon:'🔥',
+  pirate:'🏴‍☠️', dragon:'🐉', nature:'🌿'
+};
+function tribeFlagHTML(tribe, className){
+  if (!tribe) return '';
+  const label = TRIBE_RU[tribe] || tribe;
+  return `<div class="${className}" data-tribe="${tribe}" role="img" aria-label="${label}" title="${label}"></div>`;
+}
 
 /* Production-арт отделён от механик: имя файла совпадает с ID карты. */
 const CARD_ART_IDS = `
@@ -11166,6 +11598,11 @@ function minionStatusHTML(list){
     </span>`).join('')}</div>`;
 }
 
+function socketNumberClass(value){
+  const n = Math.abs(Number(value) || 0);
+  return n >= 100 ? ' three-digit' : n >= 10 ? ' two-digit' : '';
+}
+
 function renderBoard(el, side){
   const previousStats = new Map(Array.from(el.querySelectorAll('.minion[data-uid]')).map(node => [
     node.dataset.uid,
@@ -11198,11 +11635,11 @@ function renderBoard(el, side){
       <div class="m-frame-shell" aria-hidden="true"></div>
       ${minionStatusHTML(statuses)}
       <div class="m-icon">${cardArtHTML(def)}</div>
-      <div class="m-name">${def.name}</div>
-      <div class="rgem ${def.rarity}">${def.tribe ? `<i class="tico">${TRIBE_ICON[def.tribe]}</i>` : ''}</div>
-      ${def.tribe ? `<div class="m-tribe" data-tribe="${def.tribe}" aria-label="${TRIBE_RU[def.tribe] || def.tribe}">${TRIBE_ICON[def.tribe] || '◇'}</div>` : ''}
-      <div class="stat atk${atkPulse}">${m.atk}</div>
-      <div class="stat hp ${m.hp < m.maxHp ? 'hurt' : ''}${hpPulse}">${m.hp}</div>`;
+      <div class="m-name${def.name.length > 20 ? ' is-very-long' : def.name.length > 12 ? ' is-long' : ''}">${def.name}</div>
+      <div class="rgem ${def.rarity}"></div>
+      ${tribeFlagHTML(def.tribe, 'm-tribe')}
+      <div class="stat atk${socketNumberClass(m.atk)}${atkPulse}">${m.atk}</div>
+      <div class="stat hp${socketNumberClass(m.hp)} ${m.hp < m.maxHp ? 'hurt' : ''}${hpPulse}">${m.hp}</div>`;
     el.appendChild(d);
   });
 }
@@ -11246,8 +11683,13 @@ function cardHTML(cardId, side, cardMod){
   const emblem = def.secret ? '🔮' : def.type === 'weapon' ? '⚔' : def.type === 'spell' ? '✦' : '';
   const txt = side ? dynCardText(def, side) : def.text;
   const plainTextLength = String(txt || '').replace(/<[^>]*>/g, '').length;
-  const longTextClass = plainTextLength > 118 ? ' is-long' : '';
-  const longNameClass = String(def.name || '').length > 12 ? ' is-long' : '';
+  const longTextClass = plainTextLength > 205 ? ' is-ultra-long'
+    : plainTextLength > 155 ? ' is-very-long'
+    : plainTextLength > 102 ? ' is-long' : '';
+  const nameLength = String(def.name || '').length;
+  const longNameClass = nameLength > 27 ? ' is-ultra-long'
+    : nameLength > 20 ? ' is-very-long'
+    : nameLength > 12 ? ' is-long' : '';
   const sp = side ? spellPower(side) : 0;
   const atkBuffed = def.type === 'weapon' && sp > 0 && false;
   const weaponAtkBuff = def.type === 'weapon' ? Number(cardMod && cardMod.atk || 0) : 0;
@@ -11259,14 +11701,14 @@ function cardHTML(cardId, side, cardMod){
     ${def.rarity === 'legendary' ? '<div class="legendary-wings" aria-hidden="true"><i></i></div>' : ''}
     <div class="ctype ${tcls}"></div>
     ${emblem ? `<div class="ctype-emblem">${emblem}</div>` : ''}
-    <div class="c-cost">${def.cost}</div>
+    <div class="c-cost${socketNumberClass(def.cost)}">${def.cost}</div>
     <div class="c-icon">${cardArtHTML(def)}</div>
-    <div class="rgem ${def.rarity}">${def.tribe ? `<i class="tico">${TRIBE_ICON[def.tribe]}</i>` : ''}</div>
+    <div class="rgem ${def.rarity}"></div>
     <div class="c-name${longNameClass}">${def.name}</div>
     <div class="c-text${longTextClass}">${fmtCardText(txt)}</div>
-    ${def.tribe ? `<div class="c-tribe" data-tribe="${def.tribe}"><i>${TRIBE_ICON[def.tribe] || '◇'}</i><span>${TRIBE_RU[def.tribe] || def.tribe}</span></div>` : ''}
-    ${def.type === 'minion' ? `<div class="stat atk">${def.atk}</div><div class="stat hp">${def.hp}</div>` : ''}
-    ${def.type === 'weapon' ? `<div class="stat atk${weaponAtkBuff ? ' hand-buffed' : ''}">${weaponAtk}</div><div class="stat dur${weaponDurBuff ? ' hand-buffed' : ''}">${weaponDur}</div>` : ''}`;
+    ${tribeFlagHTML(def.tribe, 'c-tribe')}
+    ${def.type === 'minion' ? `<div class="stat atk${socketNumberClass(def.atk)}">${def.atk}</div><div class="stat hp${socketNumberClass(def.hp)}">${def.hp}</div>` : ''}
+    ${def.type === 'weapon' ? `<div class="stat atk${socketNumberClass(weaponAtk)}${weaponAtkBuff ? ' hand-buffed' : ''}">${weaponAtk}</div><div class="stat dur${socketNumberClass(weaponDur)}${weaponDurBuff ? ' hand-buffed' : ''}">${weaponDur}</div>` : ''}`;
 }
 
 function renderHand(){
@@ -11756,6 +12198,7 @@ function renderHeroStatuses(el, side){
   if (side.secrets && side.secrets.length) statuses.push({ key:'secret', icon:'🔮', label:`Секреты: ${side.secrets.length}`, value:side.secrets.length });
   el.innerHTML = statuses.map(s => `<span class="hero-status ${s.key}" data-effect="${s.key}" tabindex="0" title="${s.label}">${s.icon}${s.value ? `<em>${s.value}</em>` : ''}</span>`).join('');
   el.classList.toggle('has-statuses', statuses.length > 0);
+  el.classList.toggle('secret-only', statuses.length === 1 && statuses[0].key === 'secret');
 }
 function isFriendlyMechOf(side, m){ return CARD_DB[m.cardId].tribe === 'mech'; }
 function pickMergeTargetAt(x, y){
@@ -13259,10 +13702,53 @@ $('builder').addEventListener('pointerout', e => {
 let draft = {};
 let builderCardEls = new Map();
 let builderFilterReady = false;
+let builderCraftMode = false;
 const builderFilter = { search:'', set:'all', type:'all', rarity:'all', tribe:'all', owned:false };
+
+function duplicateDustSummary(){
+  let copies = 0, dust = 0;
+  for (const id in CARD_DB){
+    const def = CARD_DB[id];
+    if (!def || def.token) continue;
+    const extra = Math.max(0, (SAVE.collection[id] || 0) - copyLimitFor(id));
+    if (!extra) continue;
+    copies += extra;
+    dust += extra * DUST.gain[def.rarity];
+  }
+  return { copies, dust };
+}
+function setBuilderCraftMode(active){
+  builderCraftMode = !!active;
+  $('builder').classList.toggle('craft-mode', builderCraftMode);
+  $('builderCraftBtn').setAttribute('aria-pressed', String(builderCraftMode));
+  $('builderCraftBtn').textContent = builderCraftMode ? '⚒ КРАФТ: ВКЛ' : '⚒ КРАФТ';
+  hidePreview();
+  renderBuilder();
+}
+function dustDuplicateCards(){
+  const summary = duplicateDustSummary();
+  if (!summary.copies){
+    banner('Лишних копий нет');
+    return;
+  }
+  for (const id in CARD_DB){
+    const def = CARD_DB[id];
+    if (!def || def.token) continue;
+    const extra = Math.max(0, (SAVE.collection[id] || 0) - copyLimitFor(id));
+    if (!extra) continue;
+    SAVE.collection[id] -= extra;
+    SAVE.dust += extra * DUST.gain[def.rarity];
+  }
+  storeSave();
+  sfx.rattle();
+  banner(`Распылено карт: ${summary.copies} · получено пыли: ${summary.dust}`);
+  renderBuilder();
+}
 
 function openBuilder(){
   draft = SAVE.admin ? Object.assign({}, SAVE.deck) : normalizeDeck(SAVE.deck, SAVE.collection);
+  builderCraftMode = false;
+  $('builder').classList.remove('craft-mode');
   if ($('adminChk')) $('adminChk').checked = !!SAVE.admin;
   if ($('btnAiDecks')) $('btnAiDecks').style.display = 'none';
   showScreen('builder');
@@ -13303,6 +13789,7 @@ function createBuilderCard(id){
 	  const wrap = document.createElement('div');
 	  wrap.className = 'b-card';
 	  wrap.dataset.card = id;
+	  wrap.tabIndex = 0;
 	  wrap.title = `${def.name}\n${def.text || ''}`;
   wrap.innerHTML = `
 	    <div class="card ${skinClass(SAVE.back)}" style="margin:0;width:126px;height:172px;">${cardHTML(id)}</div>
@@ -13313,6 +13800,7 @@ function createBuilderCard(id){
       <button class="ba craft" data-act="craft">✨ −${DUST.cost[def.rarity]}</button>
     </div>`;
   wrap.addEventListener('click', () => {
+    if (builderCraftMode) return;
     sfx.click();
     const owned = SAVE.collection[id] || 0;
     const total = deckTotal(draft);
@@ -13502,6 +13990,14 @@ function renderDeckStats(){
 }
 function renderBuilder(){
   $('dustLbl').textContent = '✨ ' + SAVE.dust;
+  if ($('craftDustLbl')) $('craftDustLbl').textContent = '✨ ' + SAVE.dust;
+  const duplicates = duplicateDustSummary();
+  if ($('dustDuplicatesBtn')){
+    $('dustDuplicatesBtn').disabled = duplicates.copies === 0;
+    $('dustDuplicatesBtn').textContent = duplicates.copies
+      ? `♻ РАСПЫЛИТЬ ЛИШНИЕ · ${duplicates.copies} → ✨ ${duplicates.dust}`
+      : '♻ ЛИШНИХ КОПИЙ НЕТ';
+  }
   renderDeckStats();
   renderCollectionGrid();
   const list = $('deckList');
@@ -13541,6 +14037,15 @@ $('adminChk').addEventListener('change', () => {
   if ($('shop').classList.contains('active')) renderShop();
 });
 $('builderBack').addEventListener('click', () => { showScreen('menu'); renderMenu(); });
+$('builderCraftBtn').addEventListener('click', () => {
+  sfx.click();
+  setBuilderCraftMode(!builderCraftMode);
+});
+$('craftCloseBtn').addEventListener('click', () => {
+  sfx.click();
+  setBuilderCraftMode(false);
+});
+$('dustDuplicatesBtn').addEventListener('click', dustDuplicateCards);
 $('builderSave').addEventListener('click', () => {
   if (!deckValidFor(draft, SAVE.collection)) return;
   SAVE.deck = Object.assign({}, draft);
@@ -18090,16 +18595,26 @@ function heroPortraitHTML(hero){
   const art = HERO_ART_ASSET[hero.id];
   return art ? `<img src="${art}?v=${CARD_ARENA_BUILD}" alt="" draggable="false">` : hero.icon;
 }
+function setHeroHudName(el, name){
+  if (!el) return;
+  const value = String(name || '');
+  el.textContent = value;
+  el.title = value;
+  el.classList.remove('is-long', 'is-very-long', 'is-ultra-long');
+  if (value.length > 18) el.classList.add('is-ultra-long');
+  else if (value.length > 13) el.classList.add('is-very-long');
+  else if (value.length > 8) el.classList.add('is-long');
+}
 function applyHeroUI(){
   const ph = HEROES[G.playerHeroId], eh = HEROES[G.enemyHeroId];
   const pp = heroPowerOf(G.player), ep = heroPowerOf(G.enemy);
   $('playerHeroIcon').innerHTML = heroPortraitHTML(ph);
-  $('playerHeroName').textContent = ph.name;
+  setHeroHudName($('playerHeroName'), ph.name);
   $('playerPowerIcon').textContent = pp.icon;
   $('playerPowerCost').textContent = pp.cost;
   $('playerPowerBtn').title = `${pp.name}: ${pp.desc}`;
   $('enemyHeroIcon').innerHTML = heroPortraitHTML(eh);
-  $('enemyHeroName').textContent = G.opp ? G.opp.name : eh.name;
+  setHeroHudName($('enemyHeroName'), G.opp ? G.opp.name : eh.name);
   $('enemyPowerIcon').textContent = ep.icon;
   $('enemyPowerCost').textContent = ep.cost;
   $('enemyPowerBtn').title = `${ep.name}: ${ep.desc}`;
