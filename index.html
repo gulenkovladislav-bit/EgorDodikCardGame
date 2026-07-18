@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-18-tribe-calibration-v33';
+    var build = '2026-07-18-themed-pack-break-v40';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -1158,6 +1158,15 @@
   .pack-pile.open-codex .pack-open-layer::before{width:5px;height:156px;background:#f1b3ff;box-shadow:0 0 18px 7px rgba(205,90,255,.72);animation:packCodexBeam .72s ease-out forwards;}
   @keyframes packCodexOpen{0%{transform:perspective(400px) rotateY(0)}42%{transform:perspective(400px) rotateY(-28deg) scale(1.12);filter:brightness(1.45)}100%{transform:perspective(400px) rotateY(-92deg) scale(.35);opacity:0;filter:brightness(2.5)}}
   @keyframes packCodexBeam{0%{opacity:0;transform:translate(-50%,-50%) scaleY(.1)}28%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scaleX(18) scaleY(1.35)}}
+  /* Покадровое разрушение нарисовано отдельно для каждой тематики пака. */
+  .pack-pile.opening .pk-art{animation:none!important;opacity:0!important;}
+  .pack-open-frame{
+    position:absolute;inset:-7px;z-index:7;width:calc(100% + 14px);height:calc(100% + 14px);
+    object-fit:contain;pointer-events:none;opacity:1;
+    filter:drop-shadow(0 10px 13px rgba(0,0,0,.72));
+    transform:scale(1);transition:opacity .12s linear,transform .18s ease-out;
+  }
+  .pack-open-frame.final{transform:scale(1.12);opacity:0;}
   #packHint{font-size:12px;color:#a08c60;letter-spacing:2px;}
   #packCards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
   .pcard{width:126px;height:172px;perspective:700px;cursor:pointer;}
@@ -6705,7 +6714,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-18-tavern-menu-release-v39';
+const CARD_ARENA_BUILD = '2026-07-18-themed-pack-break-v40';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -14969,6 +14978,7 @@ function rollCard(setId, rarity){
 const RARITY_ORDER = { common:0, rare:1, epic:2, legendary:3 };
 
 function openPacksScreen(){
+  preloadPackOpeningFrames();
   showScreen('packs');
   $('packCards').innerHTML = '';
   $('packDone').style.display = 'none';
@@ -15045,9 +15055,29 @@ function packRevealFx(pc, rarity){
   }
 }
 
+const PACK_OPENING_FRAMES = Object.fromEntries(
+  ['classic','magic','mech','pirate','codex'].map(type => [type,
+    [1,2,3].map(stage => `assets/ui/astral/packs/opening/pack-${type}-stage-${stage}.png?v=${CARD_ARENA_BUILD}`)
+  ])
+);
+
+function preloadPackOpeningFrames(){
+  Object.values(PACK_OPENING_FRAMES).flat().forEach(src => { const image = new Image(); image.src = src; });
+}
+
 function packOpeningFx(type, pileEl){
   pileEl.classList.remove('burst');
   pileEl.classList.add('opening', `open-${type}`);
+  const frames = PACK_OPENING_FRAMES[type] || PACK_OPENING_FRAMES.classic;
+  const frame = document.createElement('img');
+  frame.className = 'pack-open-frame';
+  frame.alt = '';
+  frame.draggable = false;
+  frame.src = frames[0];
+  pileEl.appendChild(frame);
+  setTimeout(() => { frame.src = frames[1]; }, 220);
+  setTimeout(() => { frame.src = frames[2]; }, 440);
+  setTimeout(() => { frame.classList.add('final'); }, 675);
   const layer = document.createElement('div');
   layer.className = `pack-open-layer pack-open-layer-${type}`;
   const count = type === 'mech' ? 14 : type === 'codex' ? 18 : 12;
