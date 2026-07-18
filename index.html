@@ -12,7 +12,7 @@
 <title>Карточная Арена</title>
 <script>
   (function(){
-    var build = '2026-07-16-siege-status-v17';
+    var build = '2026-07-18-tribe-calibration-v33';
     try{
       if (!/^https?:$/.test(location.protocol)) return;
       var url = new URL(location.href);
@@ -118,37 +118,17 @@
   /* ================= МЕНЮ (таверна) ================= */
 	  #menu{
 	    z-index:300;
-	    background:
-	      linear-gradient(180deg, rgba(44,84,108,.26), transparent 23%),
-	      radial-gradient(ellipse at 50% 128%, rgba(232,160,58,.42) 0%, rgba(172,92,28,.15) 22%, transparent 46%),
-	      radial-gradient(ellipse at 10% 16%, rgba(255,164,58,.22), transparent 27%),
-	      radial-gradient(ellipse at 90% 16%, rgba(115,172,205,.22), transparent 28%),
-	      radial-gradient(ellipse at 50% 44%, rgba(255,220,136,.08), transparent 58%),
-	      linear-gradient(180deg, rgba(5,14,20,.72), transparent 34%),
-	      linear-gradient(0deg, #0f0904 0 14%, transparent 34%),
-	      repeating-linear-gradient(90deg, rgba(0,0,0,.28) 0 2px, transparent 2px 5px, rgba(255,220,150,.035) 5px 7px, transparent 7px 116px),
-	      repeating-linear-gradient(90deg, #251b0d 0 116px, #151009 116px 120px),
-	      #110b05;
-	    box-shadow:inset 0 0 190px rgba(0,0,0,.72);
+	    background:#0b0906 url('assets/ui/astral/menu/menu-background-tavern.png') center center / cover no-repeat;
+	    box-shadow:inset 0 0 100px rgba(0,0,0,.38);
 	    display:none;align-items:center;justify-content:center;
 	  }
 	  #menu::before{
 	    content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
-	    background:
-	      linear-gradient(90deg, transparent 0 calc(50% - 210px), rgba(210,170,84,.34) calc(50% - 208px) calc(50% - 205px), transparent calc(50% - 202px) calc(50% + 202px), rgba(210,170,84,.34) calc(50% + 205px) calc(50% + 208px), transparent calc(50% + 210px)),
-	      repeating-linear-gradient(90deg, transparent 0 104px, rgba(0,0,0,.18) 104px 108px);
-	    opacity:.72;
+	    background:rgba(3,7,10,.2);
 	  }
   /* пол таверны */
-  #menu::after{
-    content:"";position:absolute;left:0;right:0;bottom:0;height:15%;z-index:0;pointer-events:none;
-	    background:
-	      linear-gradient(180deg, rgba(214,166,78,.16), transparent 16%),
-	      repeating-linear-gradient(90deg, rgba(0,0,0,.46) 0 3px, transparent 3px 46px),
-	      repeating-linear-gradient(0deg, rgba(255,220,145,.04) 0 2px, transparent 2px 18px),
-	      linear-gradient(180deg, #3b2813, #171006);
-	    box-shadow:inset 0 8px 20px rgba(0,0,0,.6);
-	  }
+  #menu::after{display:none;}
+	#menu>.torch,#menu>.menu-banner{display:none;}
   .torch{
     position:absolute;top:14%;font-size:34px;z-index:1;
     filter:drop-shadow(0 0 18px rgba(255,140,30,.8));
@@ -1128,17 +1108,14 @@
   #packCountLbl{font-size:15px;color:var(--gold-bright);letter-spacing:1px;}
   #packShelf{display:flex;gap:44px;}
   .pack-pile{
-    width:112px;height:150px;border-radius:14px;cursor:pointer;position:relative;
-    border:3px solid var(--gold);
-    box-shadow:0 0 22px rgba(240,190,90,.3), 0 12px 26px rgba(0,0,0,.7);
+    width:126px;height:168px;border-radius:14px;cursor:pointer;position:relative;
+    border:0;background:transparent!important;
+    box-shadow:none;
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-    font-size:46px;
     animation:packIdle 2s ease-in-out infinite;
   }
-  .pack-pile.classic{background:radial-gradient(circle at 50% 34%, #7a5a25 0 24%, transparent 25%), linear-gradient(160deg,#4a3418,#241708);}
-  .pack-pile.magic{background:radial-gradient(circle at 50% 34%, #3d2a72 0 24%, transparent 25%), linear-gradient(160deg,#2c2050,#140b2a);border-color:#8f7ae0;box-shadow:0 0 22px rgba(150,120,255,.35), 0 12px 26px rgba(0,0,0,.7);}
-  .pack-pile.codex{background:radial-gradient(circle at 50% 34%, #7f2436 0 24%, transparent 25%), linear-gradient(160deg,#35214a,#0c1825);border-color:#d3a34e;box-shadow:0 0 22px rgba(255,180,70,.35), 0 0 18px rgba(90,160,220,.22), 0 12px 26px rgba(0,0,0,.7);}
-  .pack-pile .pk-name{font-size:11px;color:var(--parchment);letter-spacing:.5px;}
+  .pack-pile .pk-art{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 12px rgba(0,0,0,.72));pointer-events:none;}
+  .pack-pile .pk-name{position:absolute;left:8px;right:8px;bottom:9px;z-index:2;font-size:10.5px;color:#f5dfaa;letter-spacing:.5px;text-align:center;text-shadow:0 2px 4px #000;background:linear-gradient(90deg,transparent,rgba(4,6,9,.9) 18% 82%,transparent);padding:3px 2px;}
   .pack-pile .pk-count{
     position:absolute;top:-10px;right:-10px;min-width:26px;height:26px;border-radius:50%;
     background:radial-gradient(circle at 35% 30%, #ff8866, #b3341f);
@@ -1146,14 +1123,41 @@
     display:flex;align-items:center;justify-content:center;padding:0 4px;
     font-family:Georgia,serif;
   }
-  .pack-pile.empty{filter:grayscale(1) brightness(.5);animation:none;cursor:default;box-shadow:none;}
-  .pack-pile.burst{animation:packBurst .45s forwards;}
+  .pack-pile.empty{filter:grayscale(.9) brightness(.48);animation:none;cursor:default;box-shadow:none;}
+  .pack-pile.burst{animation:none;}
   @keyframes packIdle{0%,100%{transform:rotate(-2deg) scale(1);}50%{transform:rotate(2deg) scale(1.04);}}
-  @keyframes packBurst{
-    0%{transform:scale(1);}
-    50%{transform:scale(1.35) rotate(6deg);filter:brightness(2);}
-    100%{transform:scale(0);opacity:0;}
-  }
+  .pack-pile.opening{animation:none;z-index:6;isolation:isolate;}
+  .pack-pile.opening .pk-name,.pack-pile.opening .pk-count,.pack-pile.opening .pk-buy{opacity:0;transition:opacity .16s;}
+  .pack-open-layer{position:absolute;inset:-44px;z-index:8;pointer-events:none;overflow:visible;}
+  .pack-open-layer::before,.pack-open-layer::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;}
+  .pack-open-particle{position:absolute;left:50%;top:50%;width:7px;height:7px;border-radius:2px;background:var(--pack-fx,#f0c45e);box-shadow:0 0 10px var(--pack-fx,#f0c45e);opacity:0;animation:packParticle .72s cubic-bezier(.16,.75,.35,1) forwards;animation-delay:calc(var(--i) * 12ms);}
+  @keyframes packParticle{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(0)}18%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.05) rotate(240deg)}}
+  .pack-pile.open-classic{--pack-fx:#ffd36b;}
+  .pack-pile.open-classic .pk-art{animation:packClassicOpen .82s ease-in forwards;}
+  .pack-pile.open-classic .pack-open-layer::before{width:112px;height:112px;border:3px solid rgba(255,211,107,.9);transform:translate(-50%,-50%) rotate(45deg);animation:packSealBreak .7s ease-out forwards;}
+  @keyframes packClassicOpen{0%{transform:scale(1)}30%{transform:scale(1.08) rotate(-3deg)}54%{transform:scale(1.16) rotate(3deg);filter:brightness(1.4)}100%{transform:scale(.18);opacity:0;filter:brightness(2.2)}}
+  @keyframes packSealBreak{0%{opacity:0;scale:.35}30%{opacity:1;scale:.75}100%{opacity:0;scale:1.7;rotate:90deg}}
+  .pack-pile.open-magic{--pack-fx:#a984ff;}
+  .pack-pile.open-magic .pk-art{animation:packMagicOpen .82s cubic-bezier(.2,.8,.2,1) forwards;}
+  .pack-pile.open-magic .pack-open-layer::before,.pack-pile.open-magic .pack-open-layer::after{width:126px;height:126px;border:2px solid rgba(169,132,255,.95);border-radius:50%;box-shadow:0 0 18px #7d50ff,inset 0 0 18px #7d50ff;animation:packRuneRing .72s ease-out forwards;}
+  .pack-pile.open-magic .pack-open-layer::after{width:86px;height:86px;animation-direction:reverse;}
+  @keyframes packMagicOpen{0%{transform:scale(1)}45%{transform:scale(1.16) rotate(-8deg);filter:hue-rotate(12deg) brightness(1.5)}75%{transform:scale(1.05) rotate(10deg)}100%{transform:scale(0) rotate(26deg);opacity:0;filter:brightness(2.5)}}
+  @keyframes packRuneRing{0%{opacity:0;transform:translate(-50%,-50%) scale(.35) rotate(0)}32%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.65) rotate(150deg)}}
+  .pack-pile.open-mech{--pack-fx:#55d7ff;}
+  .pack-pile.open-mech .pk-art{animation:packMechOpen .82s steps(10,end) forwards;}
+  .pack-pile.open-mech .pack-open-layer::before{width:116px;height:116px;border:7px dotted #72dfff;border-radius:50%;box-shadow:0 0 14px #38bde8;animation:packGearSpin .7s ease-out forwards;}
+  @keyframes packMechOpen{0%,12%,24%{transform:translateX(-3px)}6%,18%,30%{transform:translateX(3px)}42%{transform:scale(1.12);filter:brightness(1.55)}100%{transform:scale(.1) rotate(45deg);opacity:0;filter:brightness(2.4)}}
+  @keyframes packGearSpin{0%{opacity:0;transform:translate(-50%,-50%) scale(.45) rotate(0)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.7) rotate(220deg)}}
+  .pack-pile.open-pirate{--pack-fx:#5cccf2;}
+  .pack-pile.open-pirate .pk-art{transform-origin:50% 100%;animation:packPirateOpen .82s ease-in forwards;}
+  .pack-pile.open-pirate .pack-open-layer::before{width:154px;height:44px;border-top:4px solid rgba(92,204,242,.85);border-radius:50%;animation:packWave .72s ease-out forwards;}
+  @keyframes packPirateOpen{0%{transform:rotate(-2deg)}24%{transform:rotate(7deg) translateY(-5px)}48%{transform:rotate(-8deg) translateY(2px);filter:brightness(1.45)}100%{transform:translateY(-48px) rotate(18deg) scale(.22);opacity:0}}
+  @keyframes packWave{0%{opacity:0;transform:translate(-50%,15px) scaleX(.35)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,-58px) scaleX(1.5) scaleY(2.2)}}
+  .pack-pile.open-codex{--pack-fx:#df7cff;}
+  .pack-pile.open-codex .pk-art{transform-origin:0 50%;animation:packCodexOpen .84s cubic-bezier(.25,.75,.2,1) forwards;}
+  .pack-pile.open-codex .pack-open-layer::before{width:5px;height:156px;background:#f1b3ff;box-shadow:0 0 18px 7px rgba(205,90,255,.72);animation:packCodexBeam .72s ease-out forwards;}
+  @keyframes packCodexOpen{0%{transform:perspective(400px) rotateY(0)}42%{transform:perspective(400px) rotateY(-28deg) scale(1.12);filter:brightness(1.45)}100%{transform:perspective(400px) rotateY(-92deg) scale(.35);opacity:0;filter:brightness(2.5)}}
+  @keyframes packCodexBeam{0%{opacity:0;transform:translate(-50%,-50%) scaleY(.1)}28%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scaleX(18) scaleY(1.35)}}
   #packHint{font-size:12px;color:#a08c60;letter-spacing:2px;}
   #packCards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
   .pcard{width:126px;height:172px;perspective:700px;cursor:pointer;}
@@ -2262,8 +2266,7 @@
   .weapon-plate .w-dur{color:#b8c8d4;}
   .portrait.weapon-ready .p-frame{box-shadow:0 0 13px 4px var(--green-ok), 0 0 0 2px #1a1206;}
   .stat.dur{right:-7px;background:radial-gradient(circle at 35% 30%, #b8c8d4, #5a6a78);}
-  .pack-pile.mech{background:radial-gradient(circle at 50% 34%, #55606e 0 24%, transparent 25%), linear-gradient(160deg,#3a4450,#181d24);border-color:#8fa2b8;box-shadow:0 0 22px rgba(150,180,220,.3), 0 12px 26px rgba(0,0,0,.7);}
-  .pack-pile.pirate{background:radial-gradient(circle at 50% 34%, #2e4a5c 0 24%, transparent 25%), linear-gradient(160deg,#16303e,#0a161e);border-color:#4a8aa8;box-shadow:0 0 22px rgba(80,160,200,.3), 0 12px 26px rgba(0,0,0,.7);}
+  .pack-pile.mech,.pack-pile.pirate{background:transparent!important;border-color:transparent;box-shadow:none;}
   .secret-ind{
     position:absolute;left:50%;transform:translateX(-50%);bottom:-16px;
     display:flex;gap:4px;z-index:5;
@@ -3297,9 +3300,11 @@
   .shop-item{background:linear-gradient(180deg,#3a2c17,#241a0d);border:2px solid #5a4423;border-radius:14px;
     padding:14px 12px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;}
   .shop-item .si-icon{font-size:40px;line-height:1;}
+  .shop-item .si-pack-art{width:92px;height:124px;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.72));}
+  .shop-item .si-hero-art{width:112px;height:112px;object-fit:contain;border-radius:50%;background:#07131b;border:2px solid #8b6b32;box-shadow:0 0 0 3px #1c1409,0 7px 14px rgba(0,0,0,.68),inset 0 0 18px rgba(54,117,150,.28);}
   .shop-item .si-name{font-size:14px;color:var(--gold-bright);font-weight:bold;}
   .shop-item .si-desc{font-size:11px;color:#a08c60;min-height:28px;}
-  .shop-item .si-preview{width:60px;height:82px;border-radius:9px;border:2px solid #5a4423;margin:0 auto;box-shadow:0 4px 10px rgba(0,0,0,.5), inset 0 0 12px rgba(0,0,0,.3);background-color:#2c1e0e;}
+  .shop-item .si-preview{width:86px;height:122px;border-radius:9px;border:2px solid #5a4423;margin:0 auto;box-shadow:0 4px 10px rgba(0,0,0,.5), inset 0 0 12px rgba(0,0,0,.3);background-color:#2c1e0e;}
   .shop-item .btn{font-size:13px;padding:7px 14px;width:100%;}
   .shop-item.owned{border-color:var(--green-ok);}
   .shop-item .si-owned{font-size:12px;color:var(--green-ok);font-weight:bold;}
@@ -3859,25 +3864,7 @@
   }
   .card:has(.c-frame-art) .ctype,
   .card:has(.c-frame-art) .ctype-emblem{display:none!important;}
-  .card:has(.c-frame-art) .legendary-wings{
-    position:absolute;z-index:4;left:22%;right:5%;top:-3.8%;height:23%;pointer-events:none;
-    filter:drop-shadow(0 3px 2px rgba(0,0,0,.72)) drop-shadow(0 0 5px rgba(255,183,45,.28));
-  }
-  .card:has(.c-frame-art) .legendary-wings::before,
-  .card:has(.c-frame-art) .legendary-wings::after{
-    content:"";position:absolute;top:0;width:47%;height:100%;
-    background:
-      linear-gradient(150deg,transparent 0 18%,#777168 19% 22%,#292b2d 23% 39%,#9a8e78 40% 43%,#1a1c1e 44% 57%,transparent 58%),
-      linear-gradient(25deg,transparent 0 39%,#3e4142 40% 61%,transparent 62%);
-    clip-path:polygon(100% 56%,74% 4%,58% 35%,30% 14%,39% 55%,0 48%,47% 88%,82% 77%);
-  }
-  .card:has(.c-frame-art) .legendary-wings::before{right:49%;}
-  .card:has(.c-frame-art) .legendary-wings::after{left:49%;transform:scaleX(-1);}
-  .card:has(.c-frame-art) .legendary-wings i{
-    position:absolute;z-index:2;left:50%;top:27%;width:12%;height:auto;aspect-ratio:1;
-    transform:translateX(-50%) rotate(45deg);background:linear-gradient(135deg,#fff0b0,#ffb72d 55%,#7f4807);
-    border:1px solid #20170a;box-shadow:0 0 7px rgba(255,183,45,.72);
-  }
+  .card:has(.c-frame-art) .legendary-wings{display:none!important;}
   .card:has(.c-frame-art) .c-icon{
     position:absolute;z-index:1;display:flex;align-items:center;justify-content:center;
     padding:0;margin:0;background:radial-gradient(ellipse at 50% 35%,#28313a,#07090b 76%);
@@ -4269,7 +4256,7 @@
      Растровые production-ассеты поверх прежнего CSS-фолбэка. */
   .minion .m-frame-shell{
     inset:-2.5% -3%;border:0!important;border-radius:0!important;clip-path:none!important;
-    background:url('assets/ui/astral/minion-battlefield-frame-ui.png?v=2026-07-15-astral-graphics-v4') center/100% 100% no-repeat!important;
+    background:url('assets/ui/astral/prefilled/minion-battlefield-frame-ui.png?v=2026-07-17-prefilled-sockets-v19') center/100% 100% no-repeat!important;
     box-shadow:none!important;filter:drop-shadow(0 3px 3px rgba(0,0,0,.72));
   }
   .minion .m-frame-shell::before,.minion .m-frame-shell::after{display:none!important;}
@@ -4299,7 +4286,7 @@
 
   .portrait::after{
     left:50%;right:auto;top:-1px;bottom:auto;width:142px;height:104px;transform:translateX(-50%);
-    border-radius:0;clip-path:none;background:url('assets/ui/astral/hero-hud-ui.png?v=2026-07-15-astral-graphics-v4') center/100% 100% no-repeat;
+    border-radius:0;clip-path:none;background:url('assets/ui/astral/prefilled/hero-hud-ui.png?v=2026-07-17-prefilled-sockets-v19') center/100% 100% no-repeat;
     box-shadow:none;filter:drop-shadow(0 4px 5px rgba(0,0,0,.72));
   }
   .p-frame{
@@ -4314,7 +4301,7 @@
 
   .power-btn{
     border:0!important;border-radius:0!important;
-    background:url('assets/ui/astral/hero-power-ui.png?v=2026-07-15-astral-graphics-v4') center/100% 100% no-repeat!important;
+    background:url('assets/ui/astral/prefilled/hero-power-ui.png?v=2026-07-17-prefilled-sockets-v19') center/100% 100% no-repeat!important;
     box-shadow:none!important;filter:drop-shadow(0 4px 4px rgba(0,0,0,.7));
   }
   .power-btn > span:not(.pw-cost){width:62%;height:62%;display:flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle,#24476d,#08111d 76%);}
@@ -4323,7 +4310,7 @@
 
   .weapon-plate{
     border:0!important;border-radius:0!important;padding:7px 6px 8px!important;
-    background:url('assets/ui/astral/weapon-module-ui.png?v=2026-07-15-astral-graphics-v4') center/100% 100% no-repeat!important;
+    background:url('assets/ui/astral/prefilled/weapon-module-ui.png?v=2026-07-17-prefilled-sockets-v19') center/100% 100% no-repeat!important;
     box-shadow:none!important;filter:drop-shadow(0 3px 3px rgba(0,0,0,.72));
   }
   .weapon-plate .w-icon{width:100%;height:72%;border-radius:50% 50% 16% 16%;background:rgba(8,10,12,.72);}
@@ -4334,6 +4321,13 @@
     background-image:url('assets/ui/astral/card-back-default-ui.jpg?v=2026-07-15-astral-graphics-v4')!important;
     background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;
   }
+  .cardback-default,.card-back.cardback-default,.deck-stack.cardback-default,.pface.back.cardback-default,.si-preview.cardback-default{background-image:url('assets/ui/astral/backs/card-back-default.jpg?v=2026-07-18-cosmetics-v34')!important;}
+  .cardback-royal,.card-back.cardback-royal,.deck-stack.cardback-royal,.pface.back.cardback-royal,.si-preview.cardback-royal{background-image:url('assets/ui/astral/backs/card-back-royal.jpg?v=2026-07-18-cosmetics-v34')!important;}
+  .cardback-frost,.card-back.cardback-frost,.deck-stack.cardback-frost,.pface.back.cardback-frost,.si-preview.cardback-frost{background-image:url('assets/ui/astral/backs/card-back-frost.jpg?v=2026-07-18-cosmetics-v34')!important;}
+  .cardback-ember,.card-back.cardback-ember,.deck-stack.cardback-ember,.pface.back.cardback-ember,.si-preview.cardback-ember{background-image:url('assets/ui/astral/backs/card-back-ember.jpg?v=2026-07-18-cosmetics-v34')!important;}
+  .cardback-arcane,.card-back.cardback-arcane,.deck-stack.cardback-arcane,.pface.back.cardback-arcane,.si-preview.cardback-arcane{background-image:url('assets/ui/astral/backs/card-back-arcane.jpg?v=2026-07-18-cosmetics-v34')!important;}
+  .cardback-runic,.card-back.cardback-runic,.deck-stack.cardback-runic,.pface.back.cardback-runic,.si-preview.cardback-runic{background-image:url('assets/ui/astral/backs/card-back-runic.jpg?v=2026-07-18-cosmetics-v34')!important;}
+  .cardback-default,.cardback-royal,.cardback-frost,.cardback-ember,.cardback-arcane,.cardback-runic{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;}
   .menu-btns .btn{
     display:flex;align-items:center;justify-content:center;padding-left:46px!important;padding-right:42px!important;
   }
@@ -5122,10 +5116,16 @@
   /* Пак: карта крупнее, а редкость светит по альфа-силуэту рамки, не прямоугольником. */
   #packCards{gap:clamp(17px,2vw,28px);max-width:min(1100px,96vw);align-items:center;}
   .pcard{
-    width:clamp(126px,12.2vw,158px)!important;height:auto!important;aspect-ratio:504/688;
+    --pack-card-size:clamp(126px,12.2vw,158px);
+    width:var(--pack-card-size)!important;height:auto!important;aspect-ratio:504/688;
   }
-  .pface.front{background:transparent!important;border-radius:0!important;box-shadow:none!important;}
-  .pface.front .card{width:100%!important;height:100%!important;}
+  .pface.front{background:transparent!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important;}
+  .pcard .pface.front>.card{
+    width:var(--pack-card-size)!important;height:auto!important;min-width:var(--pack-card-size)!important;min-height:0!important;
+    max-width:none!important;max-height:none!important;margin:0!important;
+    transform:scaleX(1.133) scaleY(1.044)!important;transform-origin:50% 50%!important;
+    aspect-ratio:504/688!important;
+  }
   .pcard.flipped.rare-glow .pface.front,
   .pcard.flipped.epic-glow .pface.front,
   .pcard.flipped.legend-glow .pface.front{box-shadow:none!important;border-radius:0!important;}
@@ -5149,7 +5149,7 @@
   .portrait .p-name.is-very-long{font-size:5.25cqw!important;}
   .portrait .p-name.is-ultra-long{font-size:4.5cqw!important;}
   #playerWeapon,#enemyWeapon{
-    left:auto!important;right:calc(100% - 9px)!important;top:23%!important;
+    left:auto!important;right:calc(100% - 9px)!important;top:20%!important;
   }
   @media (min-width:901px) and (min-height:601px){
     #playerPowerBtn{left:calc(50% + 72px)!important;}
@@ -5164,7 +5164,7 @@
     .craft-dust{font-size:11px;}
     #dustDuplicatesBtn{font-size:8.5px;padding:6px 8px;}
     #craftToolbar .craft-close{width:28px;height:28px;font-size:17px;}
-    .pcard{width:clamp(108px,21vw,132px)!important;}
+    .pcard{--pack-card-size:clamp(108px,21vw,132px);}
   }
 
   /* ============== FIELD PORTRAIT / HERO HUD V15 ============== */
@@ -5223,6 +5223,722 @@
     .minion .m-status.siege .ms-val{
       top:calc(100% + 1px)!important;height:9px!important;padding:0 3px!important;font-size:5px!important;
     }
+  }
+
+  /* ============== ROUNDED FIELD FRAME V18 ==============
+     Второй согласованный вариант: без прорезей имени и статусов. */
+  .minion .m-frame-shell,
+  .minion.taunt .m-frame-shell,
+  .minion.shielded .m-frame-shell,
+  .minion.taunt.shielded .m-frame-shell{
+    background-image:url('assets/ui/astral/prefilled/minion-battlefield-frame-ui.png?v=2026-07-17-prefilled-sockets-v19')!important;
+    background-position:center!important;
+    background-size:100% 100%!important;
+    background-repeat:no-repeat!important;
+  }
+  .minion .m-icon{
+    left:14.15%!important;top:8.15%!important;width:72.2%!important;height:78.6%!important;
+    border-radius:48% 48% 5% 5% / 13% 13% 4% 4%!important;
+    background:radial-gradient(ellipse at 50% 31%,#314653 0,#111820 48%,#050709 100%)!important;
+    box-shadow:inset 0 0 14px rgba(0,0,0,.8)!important;
+  }
+  .minion .m-icon img{
+    width:100%!important;height:100%!important;margin:0!important;
+    object-fit:cover!important;object-position:center 36%!important;
+    transform:scale(1.08)!important;transform-origin:50% 43%!important;
+  }
+  .minion .m-name{display:none!important;}
+
+  /* Статусы живут отдельными значками поверх портрета, без нарисованной панели. */
+  .minion .m-statusbar{
+    left:29%!important;top:5.3%!important;width:57%!important;height:11.5%!important;
+    padding:0!important;gap:2px!important;border:0!important;border-radius:0!important;
+    background:transparent!important;box-shadow:none!important;
+  }
+
+  /* Атласный флаг точно накрывает встроенный пустой флажок рамки. */
+  .minion .m-tribe{
+    left:13.25%!important;top:18.55%!important;width:15.2%!important;height:21.8%!important;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,.92))!important;
+  }
+
+  /* Заполнение новых сокетов. */
+  .minion .stat.atk{
+    left:16.65%!important;top:76.05%!important;width:15.2%!important;height:11.55%!important;
+    font-size:10.9cqw!important;
+  }
+  .minion .stat.hp{
+    left:72.45%!important;top:75.45%!important;width:14.6%!important;height:12.35%!important;
+    font-size:10.9cqw!important;
+  }
+  .minion .stat.atk::before{inset:1.2%!important;}
+  .minion .stat.hp::before{inset:1.1%!important;}
+  .minion .rgem{
+    left:50.55%!important;top:87.55%!important;width:5.85%!important;
+  }
+
+  @media (pointer:coarse) and (orientation:landscape),
+         (max-height:560px) and (orientation:landscape){
+    .minion .m-statusbar{top:5%!important;}
+    .minion .stat.atk,.minion .stat.hp{font-size:10.2cqw!important;}
+  }
+
+  /* ============== PREFILLED SOCKETS V19 ==============
+     Цвет уже нарисован в PNG. HTML отвечает только за цифры и изменения статов. */
+  .card:has(.c-frame-art) .c-cost,
+  .card:has(.c-frame-art) .stat,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-cost,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat,
+  .minion .stat,
+  .power-btn .pw-cost,
+  .weapon-plate .w-atk,
+  .weapon-plate .w-dur{
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+  .card:has(.c-frame-art) .c-cost::before,
+  .card:has(.c-frame-art) .stat::before,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-cost::before,
+  #cardPreview .cp-card .card:has(.c-frame-art) .stat::before,
+  .minion .stat::before{
+    content:none!important;
+    display:none!important;
+  }
+
+  /* Цветные вкладыши легендарной рамки теперь запечены прямо в PNG. */
+  .power-btn .pw-cost{
+    left:8.2%!important;
+    top:8.2%!important;
+    width:21%!important;
+    height:21%!important;
+    border:0!important;
+    text-shadow:0 1px 2px #06131f,0 0 4px #3c9eea!important;
+  }
+  .weapon-plate{
+    container-type:inline-size;
+  }
+  .weapon-plate .w-stats{
+    position:absolute!important;
+    inset:0!important;
+    display:block!important;
+    pointer-events:none!important;
+  }
+  .weapon-plate .w-atk,
+  .weapon-plate .w-dur{
+    position:absolute!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    margin:0!important;
+    padding:0!important;
+    font-size:clamp(5px,14cqw,9px)!important;
+    line-height:1!important;
+    border:0!important;
+    text-shadow:0 1px 2px #000,0 0 3px #000!important;
+  }
+  .weapon-plate .w-atk{
+    left:4.7%!important;
+    top:72%!important;
+    width:19.3%!important;
+    height:15.2%!important;
+  }
+  .weapon-plate .w-dur{
+    left:58.5%!important;
+    top:72%!important;
+    width:13.5%!important;
+    height:12%!important;
+  }
+
+  /* ============== WORKSHOP CARD NAMES V20 ==============
+     В мастерской имя должно лежать в нарисованном шильдике, а не в поле текста. */
+  #builder .b-card .card:has(.c-frame-art) .c-name{
+    left:8.4%!important;
+    top:58.15%!important;
+    width:83.2%!important;
+    height:11.9%!important;
+    padding:0 4.6%!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    white-space:normal!important;
+    overflow:hidden!important;
+    overflow-wrap:normal!important;
+    word-break:normal!important;
+    hyphens:manual!important;
+    text-wrap:balance;
+    text-align:center!important;
+    text-overflow:clip!important;
+    font-size:8.35cqw!important;
+    line-height:.9!important;
+  }
+  #builder .b-card .card:has(.c-frame-art) .c-name.is-long{
+    font-size:7.25cqw!important;
+    line-height:.88!important;
+  }
+  #builder .b-card .card:has(.c-frame-art) .c-name.is-very-long{
+    font-size:6.15cqw!important;
+    line-height:.86!important;
+    overflow-wrap:anywhere!important;
+  }
+  #builder .b-card .card:has(.c-frame-art) .c-name.is-ultra-long{
+    font-size:5.05cqw!important;
+    line-height:.84!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  /* ============== CRAFT WORKSHOP V21 ==============
+     Контролы входят в размер элемента сетки и больше не обрезаются content-visibility. */
+  #builder .b-owned{display:none;}
+  #builder.craft-mode #collectionGrid{
+    row-gap:18px!important;
+    padding-bottom:34px!important;
+  }
+  #builder.craft-mode .b-card{
+    height:235px;
+    content-visibility:visible;
+    contain:none;
+    overflow:visible;
+  }
+  #builder.craft-mode .b-card.none{filter:none;}
+  #builder.craft-mode .b-card.none > .card{filter:grayscale(1) brightness(.45);}
+  #builder.craft-mode .b-owned{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:4px;
+    left:0;
+    top:176px;
+    bottom:auto;
+    width:126px;
+    height:20px;
+    transform:none;
+    box-sizing:border-box;
+    padding:0 7px;
+    border:1px solid #735a2c;
+    border-radius:7px;
+    background:linear-gradient(180deg,rgba(43,31,16,.98),rgba(19,13,7,.98));
+    color:#ead8a2;
+    font-size:8.5px;
+    line-height:1;
+    box-shadow:0 2px 5px rgba(0,0,0,.55),inset 0 1px rgba(255,236,176,.08);
+    white-space:nowrap;
+  }
+  #builder.craft-mode .b-owned .in-deck{color:#9fb9d2;}
+  #builder.craft-mode .b-actions{
+    display:flex!important;
+    left:0;
+    top:199px;
+    bottom:auto;
+    width:126px;
+    height:32px;
+    transform:none;
+    gap:4px;
+    z-index:8;
+  }
+  #builder.craft-mode .b-actions .ba{
+    min-width:0;
+    height:32px;
+    flex:1 1 0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:1px;
+    padding:2px 3px;
+    border-radius:7px;
+    font-size:7px;
+    line-height:1;
+    white-space:normal;
+    box-shadow:0 2px 5px rgba(0,0,0,.58),inset 0 1px rgba(255,255,255,.1);
+  }
+  #builder.craft-mode .b-actions .ba span{
+    display:block;
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:clip;
+    white-space:nowrap;
+    font-size:6.6px;
+    letter-spacing:0;
+  }
+  #builder.craft-mode .b-actions .ba b{
+    display:block;
+    font-size:10px;
+    line-height:1;
+    color:#f6e4aa;
+  }
+  #builder.craft-mode .b-actions .ba.craft b{color:#ddd0ff;}
+  #builder.craft-mode .b-actions .ba:disabled{
+    opacity:.62;
+    filter:grayscale(.62) brightness(.72);
+  }
+  @media (max-width:760px), (max-height:520px){
+    #builder.craft-mode #collectionGrid{row-gap:10px!important;padding-bottom:24px!important;}
+    #builder.craft-mode .b-card{height:166px;}
+    #builder.craft-mode .b-owned{
+      top:123px;width:88px;height:15px;padding:0 4px;font-size:6.5px;border-radius:5px;
+    }
+    #builder.craft-mode .b-actions{
+      top:140px;width:88px;height:23px;gap:2px;
+    }
+    #builder.craft-mode .b-actions .ba{
+      height:23px;padding:1px;border-radius:5px;
+    }
+    #builder.craft-mode .b-actions .ba span{font-size:4.8px;}
+    #builder.craft-mode .b-actions .ba b{font-size:7.5px;}
+  }
+  @media (pointer:coarse) and (orientation:landscape) and (max-height:430px),
+         (max-width:980px) and (max-height:430px) and (orientation:landscape){
+    #builder.craft-mode .b-card{height:150px;}
+    #builder.craft-mode .b-owned{top:109px;width:78px;height:14px;font-size:5.8px;}
+    #builder.craft-mode .b-actions{top:125px;width:78px;height:22px;}
+    #builder.craft-mode .b-actions .ba{height:22px;}
+    #builder.craft-mode .b-actions .ba span{font-size:4.2px;}
+    #builder.craft-mode .b-actions .ba b{font-size:7px;}
+  }
+
+  /* ============== UNIFIED HERO HUD V22 ==============
+     Сила и оружие теперь принадлежат портрету, поэтому обе стороны используют одну геометрию. */
+  .portrait > .power-btn{
+    left:calc(100% - 13px)!important;
+    right:auto!important;
+    top:22%!important;
+    bottom:auto!important;
+    width:68px!important;
+    height:68px!important;
+    z-index:4!important;
+    transform:none!important;
+    transform-origin:center!important;
+  }
+  .portrait > .power-btn > span:not(.pw-cost){
+    left:24%!important;
+    top:24%!important;
+    width:62%!important;
+    height:62%!important;
+    padding:0!important;
+    background:transparent!important;
+  }
+  .portrait > .power-btn .pw-cost{
+    left:5%!important;
+    top:6.8%!important;
+    width:21%!important;
+    height:21%!important;
+    padding:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    border:0!important;
+    font-size:11px!important;
+    line-height:1!important;
+  }
+  /* Индивидуальная эмблема силы героя лежит внутри общего металлического сокета. */
+  .power-art{
+    display:inline-block;
+    background-color:transparent!important;
+    background-repeat:no-repeat!important;
+    background-image:url('assets/ui/astral/power-icons/hero-powers-base.png?v=2026-07-18-tribe-calibration-v33')!important;
+    background-size:400% 400%!important;
+    background-position:var(--power-art-x,0%) var(--power-art-y,0%)!important;
+    border:0!important;
+    border-radius:0!important;
+    color:transparent!important;
+    font-size:0!important;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.95)) drop-shadow(0 0 3px rgba(115,190,255,.28));
+  }
+  .power-art.upgraded{
+    background-image:url('assets/ui/astral/power-icons/hero-powers-upgraded.png?v=2026-07-18-tribe-calibration-v33')!important;
+    background-size:400% 200%!important;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.95)) drop-shadow(0 0 4px rgba(255,213,100,.46));
+  }
+  .portrait > .power-btn > span.power-art:not(.pw-cost){
+    left:24.5%!important;
+    top:24.5%!important;
+    width:63%!important;
+    height:63%!important;
+    padding:0!important;
+    overflow:visible!important;
+    background-image:url('assets/ui/astral/power-icons/hero-powers-base.png?v=2026-07-18-tribe-calibration-v33')!important;
+    background-size:400% 400%!important;
+    background-position:var(--power-art-x,0%) var(--power-art-y,0%)!important;
+  }
+  .portrait > .power-btn > span.power-art.upgraded:not(.pw-cost){
+    background-image:url('assets/ui/astral/power-icons/hero-powers-upgraded.png?v=2026-07-18-tribe-calibration-v33')!important;
+    background-size:400% 200%!important;
+  }
+  .hs-power .power-art,
+  .cp-meta .power-art{
+    position:relative!important;
+    left:auto!important;
+    top:auto!important;
+    width:30px!important;
+    height:30px!important;
+    margin:-7px 5px -8px 0;
+    vertical-align:middle;
+  }
+  .power-cast-art{
+    position:relative!important;
+    left:auto!important;
+    top:auto!important;
+    width:48px!important;
+    height:48px!important;
+    filter:drop-shadow(0 2px 2px #000) drop-shadow(0 0 8px rgba(102,204,255,.72));
+  }
+  #bdSkills .power-art{
+    position:relative!important;
+    left:auto!important;
+    top:auto!important;
+    width:32px!important;
+    height:32px!important;
+    margin:-9px 6px -10px 0;
+    vertical-align:middle;
+  }
+  .portrait > .weapon-plate{
+    left:auto!important;
+    right:calc(100% - 13px)!important;
+    top:8%!important;
+    bottom:auto!important;
+    width:66px!important;
+    height:80px!important;
+    padding:0!important;
+    z-index:3!important;
+    overflow:visible!important;
+  }
+  .portrait > .weapon-plate .w-icon{
+    position:absolute!important;
+    left:9%!important;
+    top:11%!important;
+    width:63%!important;
+    height:61%!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:48% 48% 18% 18%!important;
+    background:transparent!important;
+    overflow:hidden!important;
+  }
+  .portrait > .weapon-plate .w-icon img{
+    width:100%!important;
+    height:100%!important;
+    margin:0!important;
+    object-fit:contain!important;
+    object-position:center!important;
+  }
+  .portrait > .weapon-plate .w-stats{
+    position:absolute!important;
+    inset:0!important;
+    display:block!important;
+  }
+  .portrait > .weapon-plate .w-atk,
+  .portrait > .weapon-plate .w-dur{
+    position:absolute!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    font-size:10px!important;
+    line-height:1!important;
+  }
+  .portrait > .weapon-plate .w-atk{
+    left:5%!important;
+    top:73%!important;
+    width:23%!important;
+    height:18%!important;
+  }
+  .portrait > .weapon-plate .w-dur{
+    left:57.5%!important;
+    top:72.5%!important;
+    width:17%!important;
+    height:15%!important;
+  }
+
+  /* Статусы остаются над героем, но без тяжёлой чёрной плашки. */
+  .portrait .hero-status-channel,
+  .portrait .hero-status-channel.has-statuses,
+  .portrait .hero-status-channel.secret-only{
+    background:transparent!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    overflow:visible!important;
+  }
+  .portrait .hero-status{
+    padding:1px!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    filter:drop-shadow(0 1px 2px #000) drop-shadow(0 0 2px rgba(255,225,150,.42))!important;
+  }
+
+  /* Имя карты всегда остаётся одной строкой внутри нарисованного шильдика.
+     JS подбирает точный размер по реальной ширине текста; многоточие является запасным вариантом. */
+  .card:has(.c-frame-art) .c-name,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-name,
+  #builder .b-card .card:has(.c-frame-art) .c-name{
+    font-size:var(--fit-name-size, 8.65cqw)!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:clip!important;
+  }
+  .card:has(.c-frame-art) .c-name .c-name-text{
+    display:block;
+    width:100%;
+    max-width:100%;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:clip;
+    line-height:1;
+  }
+  .card:has(.c-frame-art) .c-name.name-ellipsized .c-name-text{
+    text-overflow:ellipsis;
+  }
+
+  @media (min-width:901px) and (min-height:601px){
+    .portrait > .power-btn{
+      left:calc(100% - 20px)!important;
+      top:21%!important;
+      width:82px!important;
+      height:82px!important;
+      font-size:25px!important;
+    }
+    .portrait > .power-btn .pw-cost{font-size:13px!important;}
+    .portrait > .weapon-plate{
+      right:calc(100% - 17px)!important;
+      top:6%!important;
+      width:80px!important;
+      height:96px!important;
+    }
+    .portrait > .weapon-plate .w-atk,
+    .portrait > .weapon-plate .w-dur{font-size:12px!important;}
+  }
+  @media (pointer:coarse) and (orientation:landscape),
+         (max-height:560px) and (orientation:landscape){
+    .portrait > .power-btn{
+      left:calc(100% - 11px)!important;
+      top:21%!important;
+      width:54px!important;
+      height:54px!important;
+      font-size:18px!important;
+    }
+    .portrait > .power-btn .pw-cost{font-size:9px!important;}
+    .portrait > .weapon-plate{
+      right:calc(100% - 10px)!important;
+      top:6%!important;
+      width:54px!important;
+      height:65px!important;
+    }
+    .portrait > .weapon-plate .w-atk,
+    .portrait > .weapon-plate .w-dur{font-size:8px!important;}
+  }
+  @media (pointer:coarse) and (orientation:landscape) and (max-height:410px),
+         (max-width:760px) and (max-height:410px) and (orientation:landscape){
+    .portrait > .power-btn{width:49px!important;height:49px!important;}
+    .portrait > .weapon-plate{width:49px!important;height:59px!important;}
+  }
+
+  /* ============== COMPACT TRIBE CRESTS V25 ==============
+     Исходный атлас не имеет alpha-канала. Флаг рисуется поверх собственной
+     металлической плашки через screen. Показывается крупный центральный герб,
+     а не весь длинный флаг: так племя читается и в руке, и на маленьком столе. */
+  .card:has(.c-frame-art) .c-tribe,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe,
+  .minion .m-tribe{
+    --tribe-plate:#2f3432;
+    --tribe-glow:#b7a77b;
+    display:block!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    color:transparent!important;
+    background-image:none!important;
+    background:
+      linear-gradient(90deg,rgba(255,255,255,.16),transparent 13%,transparent 87%,rgba(255,255,255,.11)),
+      linear-gradient(180deg,#171a1a 0,var(--tribe-plate) 22%,#161817 78%,#090b0b 100%)!important;
+    clip-path:polygon(15% 0,85% 0,100% 14%,100% 72%,83% 72%,50% 100%,17% 72%,0 72%,0 14%)!important;
+    overflow:hidden!important;
+    isolation:isolate;
+    mix-blend-mode:normal!important;
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.94)) drop-shadow(0 0 3px color-mix(in srgb,var(--tribe-glow) 82%,transparent))!important;
+    box-shadow:none!important;
+  }
+  .card:has(.c-frame-art) .c-tribe::before,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe::before,
+  .minion .m-tribe::before{
+    content:"";
+    position:absolute;
+    inset:-2%;
+    z-index:1;
+    background-image:url("assets/ui/astral/tribe-flags-sheet.png?v=2026-07-17-tribe-crests-v25")!important;
+    background-repeat:no-repeat!important;
+    background-size:1536% 787.7%!important;
+    background-position:var(--crest-x) var(--crest-y)!important;
+    mix-blend-mode:screen;
+    opacity:.98;
+    filter:contrast(1.32) brightness(1.16) saturate(.88);
+    pointer-events:none;
+  }
+  .card:has(.c-frame-art) .c-tribe::after,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe::after,
+  .minion .m-tribe::after{
+    content:"";
+    position:absolute;
+    inset:5% 8% 14%;
+    z-index:2;
+    border:1px solid rgba(235,215,159,.18);
+    box-shadow:inset 0 0 5px rgba(0,0,0,.42);
+    pointer-events:none;
+  }
+  [data-tribe="beast"]{--crest-x:10%;--crest-y:21%;--tribe-plate:#25372b;--tribe-glow:#8aaa72;}
+  [data-tribe="pirate"]{--crest-x:28.4%;--crest-y:21%;--tribe-plate:#292a2d;--tribe-glow:#b49a68;}
+  [data-tribe="undead"]{--crest-x:48.4%;--crest-y:21%;--tribe-plate:#39303f;--tribe-glow:#aa87bd;}
+  [data-tribe="demon"]{--crest-x:66.3%;--crest-y:21%;--tribe-plate:#452321;--tribe-glow:#d16d55;}
+  [data-tribe="mech"]{--crest-x:10%;--crest-y:73%;--tribe-plate:#27363a;--tribe-glow:#79aab5;}
+  [data-tribe="dragon"]{--crest-x:28.4%;--crest-y:73%;--tribe-plate:#42261f;--tribe-glow:#c28661;}
+  [data-tribe="nature"]{--crest-x:48.4%;--crest-y:73%;--tribe-plate:#293923;--tribe-glow:#87ae69;}
+
+  .card:has(.c-frame-art) .c-tribe,
+  #cardPreview .cp-card .card:has(.c-frame-art) .c-tribe{
+    left:9.8%!important;
+    top:17.1%!important;
+    width:13.6%!important;
+    height:14.8%!important;
+  }
+  .minion .m-tribe{
+    left:15.2%!important;
+    top:18.3%!important;
+    width:13.8%!important;
+    height:14.7%!important;
+  }
+  .card:has(.c-frame-secret) .c-tribe,
+  .card:has(.c-frame-spell) .c-tribe,
+  .card:has(.c-frame-weapon) .c-tribe,
+  .minion .m-tribe[data-tribe="none"]{
+    display:none!important;
+  }
+
+  /* ============== VISUAL CALIBRATOR V30 ==============
+     Единые поправки геометрии. Значения задаёт мастерская в настройках. */
+  :root{
+    --vt-power-art-x:-4;--vt-power-art-y:-4;--vt-power-art-scale:1.1;--vt-power-art-glow:.36;
+    --vt-power-bg-x:0;--vt-power-bg-y:0;--vt-power-bg-scale:1;--vt-power-bg-bg:.94;--vt-power-bg-glow:.36;
+    --vt-power-frame-x:0;--vt-power-frame-y:0;--vt-power-frame-scale:1;
+    --vt-power-cost-x:0;--vt-power-cost-y:0;--vt-power-cost-scale:1;
+    --vt-hero-art-x:0;--vt-hero-art-y:0;--vt-hero-art-scale:1.12;--vt-hero-art-bg:1;
+    --vt-minion-art-x:0;--vt-minion-art-y:0;--vt-minion-art-scale:1.08;--vt-minion-art-bg:1;
+    --vt-card-art-x:0;--vt-card-art-y:0;--vt-card-art-scale:1;--vt-card-art-bg:1;
+    --vt-tribe-flag-x:0;--vt-tribe-flag-y:0;--vt-tribe-flag-scale:1;
+    --vt-weapon-frame-x:0;--vt-weapon-frame-y:0;--vt-weapon-frame-scale:1;
+    --vt-weapon-bg-x:0;--vt-weapon-bg-y:0;--vt-weapon-bg-scale:1;--vt-weapon-bg-bg:.92;
+    --vt-weapon-art-x:0;--vt-weapon-art-y:0;--vt-weapon-art-scale:1;
+  }
+  .portrait > .power-btn{
+    transform:translate(calc(var(--vt-power-frame-x) * 1%),calc(var(--vt-power-frame-y) * 1%)) scale(var(--vt-power-frame-scale))!important;
+  }
+  .portrait > .power-btn::before{
+    content:"";position:absolute;z-index:0;left:24.5%;top:24.5%;width:63%;height:63%;border-radius:50%;pointer-events:none;
+    transform:translate(calc(var(--vt-power-bg-x) * 1%),calc(var(--vt-power-bg-y) * 1%)) scale(var(--vt-power-bg-scale));
+    transform-origin:center;
+    background:radial-gradient(circle at 45% 38%,rgba(42,84,112,var(--vt-power-bg-bg)),rgba(5,12,20,var(--vt-power-bg-bg)) 74%,rgba(2,5,9,var(--vt-power-bg-bg)) 100%);
+    box-shadow:inset 0 0 10px rgba(0,0,0,.76),0 0 7px rgba(82,174,225,calc(var(--vt-power-bg-glow) * .72));
+  }
+  .portrait > .power-btn > span.power-art:not(.pw-cost),
+  .hs-power .power-art,.cp-meta .power-art,#bdSkills .power-art,.power-cast-art{
+    z-index:1!important;
+    transform:translate(calc(var(--vt-power-art-x) * 1%),calc(var(--vt-power-art-y) * 1%)) scale(var(--vt-power-art-scale))!important;
+    transform-origin:center!important;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.95)) drop-shadow(0 0 4px rgba(115,190,255,var(--vt-power-art-glow)))!important;
+  }
+  .portrait > .power-btn > span.power-art.upgraded:not(.pw-cost),
+  .hs-power .power-art.upgraded,.cp-meta .power-art.upgraded,#bdSkills .power-art.upgraded,.power-cast-art.upgraded{
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.95)) drop-shadow(0 0 5px rgba(255,213,100,var(--vt-power-art-glow)))!important;
+  }
+  .portrait > .power-btn .pw-cost{
+    z-index:2!important;
+    transform:translate(calc(var(--vt-power-cost-x) * 1%),calc(var(--vt-power-cost-y) * 1%)) scale(var(--vt-power-cost-scale))!important;
+    transform-origin:center!important;
+  }
+  .portrait .p-frame{background:rgba(5,10,14,var(--vt-hero-art-bg))!important;}
+  .portrait .p-frame img{
+    transform:translate(calc(var(--vt-hero-art-x) * 1%),calc(var(--vt-hero-art-y) * 1%)) scale(var(--vt-hero-art-scale))!important;
+    transform-origin:50% 38%!important;
+  }
+  .minion .m-icon{background:radial-gradient(ellipse at 50% 31%,rgba(49,70,83,var(--vt-minion-art-bg)),rgba(5,7,9,var(--vt-minion-art-bg)) 100%)!important;}
+  .minion .m-icon img{
+    transform:translate(calc(var(--vt-minion-art-x) * 1%),calc(var(--vt-minion-art-y) * 1%)) scale(var(--vt-minion-art-scale))!important;
+    transform-origin:50% 43%!important;
+  }
+  .card:has(.c-frame-art) .c-icon{background-color:rgba(6,10,14,var(--vt-card-art-bg))!important;}
+  .card:has(.c-frame-art) .c-icon img{
+    transform:translate(calc(var(--vt-card-art-x) * 1% + var(--vt-card-local-x,0) * 1%),calc(var(--vt-card-art-y) * 1% + var(--vt-card-local-y,0) * 1%)) scale(calc(var(--vt-card-art-scale) + var(--vt-card-local-scale-offset,0)))!important;
+    transform-origin:center!important;
+  }
+  .minion .m-icon img{
+    transform:translate(calc(var(--vt-minion-art-x) * 1% + var(--vt-battlefield-local-x,0) * 1%),calc(var(--vt-minion-art-y) * 1% + var(--vt-battlefield-local-y,0) * 1%)) scale(calc(var(--vt-minion-art-scale) + var(--vt-battlefield-local-scale-offset,0)))!important;
+  }
+  .card:has(.c-frame-art) .c-tribe{
+    transform:translate(calc(var(--vt-card-tribe-local-x,0) * 1%),calc(var(--vt-card-tribe-local-y,0) * 1%)) scale(var(--vt-card-tribe-local-scale,1))!important;
+    transform-origin:center!important;
+    filter:brightness(calc(.55 + var(--vt-card-tribe-local-bg,.5) * .9)) drop-shadow(0 2px 2px rgba(0,0,0,.94)) drop-shadow(0 0 calc(2px + var(--vt-card-tribe-local-glow,.35) * 7px) color-mix(in srgb,var(--tribe-glow) calc(28% + var(--vt-card-tribe-local-glow,.35) * 72%),transparent))!important;
+  }
+  .minion .m-tribe{
+    transform:translate(calc(var(--vt-battlefield-tribe-local-x,0) * 1%),calc(var(--vt-battlefield-tribe-local-y,0) * 1%)) scale(var(--vt-battlefield-tribe-local-scale,1))!important;
+    transform-origin:center!important;
+    filter:brightness(calc(.55 + var(--vt-battlefield-tribe-local-bg,.5) * .9)) drop-shadow(0 2px 2px rgba(0,0,0,.94)) drop-shadow(0 0 calc(2px + var(--vt-battlefield-tribe-local-glow,.35) * 7px) color-mix(in srgb,var(--tribe-glow) calc(28% + var(--vt-battlefield-tribe-local-glow,.35) * 72%),transparent))!important;
+  }
+  .portrait > .weapon-plate{
+    transform:translate(calc(var(--vt-weapon-frame-x) * 1%),calc(var(--vt-weapon-frame-y) * 1%)) scale(var(--vt-weapon-frame-scale))!important;
+    transform-origin:center!important;
+  }
+  .portrait > .weapon-plate .w-icon{
+    isolation:isolate;
+  }
+  .portrait > .weapon-plate .w-icon::before{
+    content:"";position:absolute;z-index:0;inset:0;border-radius:inherit;pointer-events:none;
+    transform:translate(calc(var(--vt-weapon-bg-x) * 1%),calc(var(--vt-weapon-bg-y) * 1%)) scale(var(--vt-weapon-bg-scale));
+    transform-origin:center;
+    background:radial-gradient(circle at 46% 34%,rgba(54,78,91,var(--vt-weapon-bg-bg)),rgba(8,12,15,var(--vt-weapon-bg-bg)) 72%,rgba(2,4,6,var(--vt-weapon-bg-bg)) 100%);
+    box-shadow:inset 0 0 8px rgba(0,0,0,.74);
+  }
+  .portrait > .weapon-plate .w-icon img{
+    position:relative!important;z-index:1!important;
+    transform:translate(calc(var(--vt-weapon-art-x) * 1%),calc(var(--vt-weapon-art-y) * 1%)) scale(var(--vt-weapon-art-scale))!important;
+    transform-origin:center!important;
+  }
+
+  #visualTuneOverlay{position:fixed;inset:0;z-index:760;display:none;align-items:center;justify-content:center;padding:12px;background:rgba(4,5,7,.88);backdrop-filter:blur(5px);}
+  #visualTuneOverlay.active{display:flex;}
+  .vt-box{width:min(1080px,calc(100vw - 20px));max-height:calc(100dvh - 20px);overflow:auto;border:3px solid #73582b;border-radius:14px;background:linear-gradient(180deg,#30230f,#100a04);box-shadow:0 22px 70px #000,inset 0 0 28px rgba(0,0,0,.5);padding:14px;}
+  .vt-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;}
+  .vt-title{color:#f2d278;font-size:18px;font-weight:bold;letter-spacing:1.5px;}.vt-note{color:#aa9871;font-size:10px;line-height:1.35;margin-top:3px;max-width:690px;}
+  .vt-layout{display:grid;grid-template-columns:minmax(250px,320px) minmax(420px,1fr);gap:12px;}
+  .vt-controls{display:flex;flex-direction:column;gap:9px;border:1px solid #60481f;background:rgba(0,0,0,.24);padding:10px;border-radius:8px;}
+  .vt-field{display:grid;grid-template-columns:92px minmax(0,1fr) 54px;align-items:center;gap:8px;color:#ddcca4;font-size:10px;font-weight:bold;}
+  .vt-field select,.vt-field input[type="number"]{width:100%;min-width:0;background:#100b06;color:#f4e2b5;border:1px solid #715526;border-radius:6px;padding:6px;font:700 10px Georgia,serif;}
+  .vt-field select{grid-column:2/4;}
+  .vt-card-field{display:none;}
+  .vt-field input[type="range"]{width:100%;height:5px;margin:0;accent-color:#d8aa42;}
+  .vt-value{display:flex;align-items:center;justify-content:center;min-height:25px;background:#120c05;border:1px solid #56401d;border-radius:5px;color:#f0ca65;font-variant-numeric:tabular-nums;}
+  .vt-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:3px;}.vt-actions .btn{font-size:9px;padding:7px 6px;}
+  .vt-stage{position:relative;min-height:480px;display:flex;align-items:center;justify-content:center;gap:34px;flex-wrap:wrap;overflow:hidden;border:2px solid #526879;border-radius:10px;background:radial-gradient(ellipse at 50% 45%,#435c3b,#213126 62%,#10150f);box-shadow:inset 0 0 35px rgba(0,0,0,.65);padding:38px 28px;}
+  .vt-stage::after{content:"ПРЕДПРОСМОТР · ИЗМЕНЕНИЯ ПРИМЕНЯЮТСЯ КО ВСЕЙ ИГРЕ";position:absolute;left:12px;bottom:9px;color:rgba(238,216,159,.58);font-size:8px;letter-spacing:1px;}
+  .vt-preview-hero.portrait{position:relative!important;left:auto!important;top:auto!important;bottom:auto!important;transform:none!important;flex:0 0 auto;}
+  .vt-preview-hero.portrait > .power-btn{cursor:default;}
+  .vt-preview-minion.minion{position:relative!important;left:auto!important;top:auto!important;bottom:auto!important;transform:none!important;width:140px!important;height:auto!important;aspect-ratio:100/132;flex:0 0 auto;}
+  .vt-preview-card.card{position:relative!important;left:auto!important;top:auto!important;bottom:auto!important;transform:none!important;width:170px!important;height:232px!important;margin:0!important;flex:0 0 auto;}
+  .vt-focus{filter:drop-shadow(0 0 7px #70d8ff) drop-shadow(0 0 13px #70d8ff)!important;outline:2px dashed rgba(160,230,255,.86);outline-offset:3px;}
+  .vt-export{width:100%;min-height:76px;resize:vertical;background:#090704;color:#cfe7ff;border:1px solid #526879;border-radius:6px;padding:7px;font:9px ui-monospace,SFMono-Regular,monospace;box-sizing:border-box;}
+  @media (max-width:760px),(max-height:560px){
+    #visualTuneOverlay{padding:5px;}.vt-box{width:calc(100vw - 8px);max-height:calc(100dvh - 8px);padding:8px;}
+    .vt-title{font-size:13px}.vt-note{font-size:8px}.vt-layout{grid-template-columns:250px minmax(330px,1fr);gap:7px;min-width:600px;}
+    .vt-stage{min-height:310px;padding:24px 18px;gap:20px}.vt-preview-card.card{width:128px!important;height:175px!important}.vt-preview-minion.minion{width:105px!important}.vt-preview-hero.portrait{width:110px;height:104px;}
+    .vt-field{grid-template-columns:72px minmax(0,1fr) 42px;font-size:8px}.vt-actions .btn{font-size:7px;padding:5px 3px;}
+  }
+  @media (max-width:700px) and (orientation:portrait){
+    .vt-box{overflow-x:hidden;}
+    .vt-layout{grid-template-columns:minmax(0,1fr);min-width:0;}
+    .vt-controls{width:auto;min-width:0;}
+    .vt-stage{width:auto;min-width:0;min-height:340px;overflow:hidden;}
   }
 
 </style>
@@ -5310,6 +6026,10 @@
 	    <div class="set-row">
 	      <span>Вклад карт</span>
 	      <button class="btn stone music-toggle" id="setImpactBtn">📊 ОТКРЫТЬ</button>
+	    </div>
+	    <div class="set-row">
+	      <span>Калибровка интерфейса</span>
+	      <button class="btn stone music-toggle" id="visualTuneOpenBtn">🎯 ОТКРЫТЬ</button>
 	    </div>
 	    <div class="set-row">
 	      <span>Версия</span>
@@ -5543,6 +6263,53 @@
       <button class="btn stone" id="setReset" style="color:#ff9b8a;border-color:#7a3a2a;">🗑 СБРОСИТЬ ВСЁ</button>
     </div>
     <button class="btn" id="setClose" style="margin-top:6px;">ГОТОВО</button>
+  </div>
+</div>
+
+<!-- ГЛОБАЛЬНАЯ КАЛИБРОВКА ГРАФИКИ -->
+<div id="visualTuneOverlay" aria-hidden="true">
+  <div class="vt-box" role="dialog" aria-modal="true" aria-labelledby="visualTuneTitle">
+    <div class="vt-head">
+      <div>
+        <div class="vt-title" id="visualTuneTitle">🎯 КАЛИБРОВКА ИНТЕРФЕЙСА</div>
+        <div class="vt-note">Подгони изображение один раз: координаты считаются относительно самого элемента и подходят для компьютера и телефона. «Скопировать весь JSON» включает общие настройки и все индивидуальные портреты.</div>
+      </div>
+      <button class="btn stone" id="visualTuneCloseBtn">ЗАКРЫТЬ</button>
+    </div>
+    <div class="vt-layout">
+      <div class="vt-controls">
+        <label class="vt-field"><span>Элемент</span><select id="visualTuneTarget"></select></label>
+        <label class="vt-field vt-card-field" id="visualTuneCardRow"><span>Карта</span><select id="visualTuneCard"></select></label>
+        <label class="vt-field vt-card-field" id="visualTuneTribeRow"><span>Тип существа</span><select id="visualTuneTribe"></select></label>
+        <label class="vt-field"><span>По горизонтали</span><input id="visualTuneX" type="range" min="-35" max="35" step="0.5"><b class="vt-value" id="visualTuneXValue">0</b></label>
+        <label class="vt-field"><span>По вертикали</span><input id="visualTuneY" type="range" min="-35" max="35" step="0.5"><b class="vt-value" id="visualTuneYValue">0</b></label>
+        <label class="vt-field"><span>Размер</span><input id="visualTuneScale" type="range" min="0.5" max="1.8" step="0.01"><b class="vt-value" id="visualTuneScaleValue">1.00</b></label>
+        <label class="vt-field" id="visualTuneBgRow"><span id="visualTuneBgLabel">Фон</span><input id="visualTuneBg" type="range" min="0" max="1" step="0.01"><b class="vt-value" id="visualTuneBgValue">1.00</b></label>
+        <label class="vt-field" id="visualTuneGlowRow"><span>Свечение</span><input id="visualTuneGlow" type="range" min="0" max="1" step="0.01"><b class="vt-value" id="visualTuneGlowValue">0.00</b></label>
+        <div class="vt-actions">
+          <button class="btn stone" id="visualTuneResetOneBtn">СБРОСИТЬ ЭЛЕМЕНТ</button>
+          <button class="btn stone" id="visualTuneResetAllBtn">СБРОСИТЬ ВСЁ</button>
+          <button class="btn" id="visualTuneDownloadBtn">СКАЧАТЬ JSON</button>
+          <button class="btn stone" id="visualTuneCopyBtn">СКОПИРОВАТЬ ВЕСЬ JSON</button>
+          <button class="btn stone" id="visualTuneImportBtn">ЗАГРУЗИТЬ JSON</button>
+          <input id="visualTuneFileInput" type="file" accept="application/json,.json" hidden>
+        </div>
+        <textarea class="vt-export" id="visualTuneJson" readonly spellcheck="false"></textarea>
+      </div>
+      <div class="vt-stage" id="visualTuneStage">
+        <div class="vt-preview-hero portrait" id="vtPreviewHero">
+          <div class="hero-status-channel"><span class="hero-status frozen">❄️</span></div>
+          <div class="p-frame"><img src="assets/art/astral/hero-mage.png" alt=""></div>
+          <div class="p-name">Маг</div>
+          <div class="armor-gem" style="display:flex">4</div>
+          <div class="hp-gem">22</div>
+          <div class="weapon-plate" id="vtPreviewWeapon"></div>
+          <div class="power-btn" id="vtPreviewPower"><span id="vtPreviewPowerIcon"></span><div class="pw-cost">2</div></div>
+        </div>
+        <div class="vt-preview-minion minion rarity-rare tribe-beast" id="vtPreviewMinion"></div>
+        <div class="vt-preview-card card" id="vtPreviewCard"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -5853,8 +6620,8 @@
     <div id="enemyThinking"><i>.</i><i>.</i><i>.</i></div>
     <div class="secret-ind" id="enemySecrets"></div>
     <div class="weapon-plate" id="enemyWeapon"></div>
+    <div class="power-btn" id="enemyPowerBtn"><span id="enemyPowerIcon">⚡</span><div class="pw-cost" id="enemyPowerCost">2</div></div>
   </div>
-  <div class="power-btn" id="enemyPowerBtn"><span id="enemyPowerIcon">⚡</span><div class="pw-cost" id="enemyPowerCost">2</div></div>
   <div class="mana-bar" id="enemyMana"></div>
   <div class="deck-stack" id="enemyDeck"><span id="enemyDeckN">0</span></div>
 
@@ -5866,8 +6633,8 @@
     <div class="hp-gem" id="playerHP">30</div>
     <div class="secret-ind" id="playerSecrets"></div>
     <div class="weapon-plate" id="playerWeapon"></div>
+    <div class="power-btn" id="playerPowerBtn"><span id="playerPowerIcon">⚡</span><div class="pw-cost" id="playerPowerCost">2</div></div>
   </div>
-  <div class="power-btn" id="playerPowerBtn"><span id="playerPowerIcon">⚡</span><div class="pw-cost" id="playerPowerCost">2</div></div>
   <div class="mana-bar" id="playerMana"></div>
 	  <div class="deck-stack" id="playerDeck"><span id="playerDeckN">0</span></div>
 	
@@ -5938,7 +6705,7 @@
 
 <script>
 'use strict';
-const CARD_ARENA_BUILD = '2026-07-16-siege-status-v17';
+const CARD_ARENA_BUILD = '2026-07-18-tavern-menu-release-v39';
 /* =========================================================
    КАРТОЧНАЯ АРЕНА v4 — ВМЕШАТЕЛЬСТВО КОДЕКСА
    Новое: заставка, меню-таверна, генеративная музыка,
@@ -7371,11 +8138,11 @@ const CARD_SET = {
 function setOf(id){ return CARD_SET[id] || 'base'; }
 
 const PACKS_DB = {
-  classic: { name:'Классический', icon:'🎁', set:'base' },
-  magic:   { name:'Магический',   icon:'🔮', set:'magic' },
-  mech:    { name:'Механический', icon:'🔩', set:'mech' },
-  pirate:  { name:'Пиратский',    icon:'🏴‍☠️', set:'pirate' },
-  codex:   { name:'КОДЕКС',        icon:'📖', set:'codex' }
+  classic: { name:'Классический', set:'base', art:'assets/ui/astral/packs/pack-classic.png' },
+  magic:   { name:'Магический', set:'magic', art:'assets/ui/astral/packs/pack-magic.png' },
+  mech:    { name:'Механический', set:'mech', art:'assets/ui/astral/packs/pack-mech.png' },
+  pirate:  { name:'Пиратский', set:'pirate', art:'assets/ui/astral/packs/pack-pirate.png' },
+  codex:   { name:'КОДЕКС', set:'codex', art:'assets/ui/astral/packs/pack-codex.png' }
 };
 
 /* типы существ */
@@ -7390,7 +8157,14 @@ const TRIBE_ICON = {
 function tribeFlagHTML(tribe, className){
   if (!tribe) return '';
   const label = TRIBE_RU[tribe] || tribe;
-  return `<div class="${className}" data-tribe="${tribe}" role="img" aria-label="${label}" title="${label}"></div>`;
+  const isBattlefield = className.split(/\s+/).includes('m-tribe');
+  const store = isBattlefield ? globalThis.CARD_ARENA_BATTLEFIELD_TRIBE_TUNE : globalThis.CARD_ARENA_CARD_TRIBE_TUNE;
+  const value = store && store[tribe];
+  const prefix = isBattlefield ? '--vt-battlefield-tribe-local-' : '--vt-card-tribe-local-';
+  const style = value
+    ? ` style="${prefix}x:${value.x};${prefix}y:${value.y};${prefix}scale:${value.scale};${prefix}bg:${value.bg};${prefix}glow:${value.glow}"`
+    : '';
+  return `<div class="${className}" data-tribe="${tribe}" role="img" aria-label="${label}" title="${label}"${style}></div>`;
 }
 
 /* Production-арт отделён от механик: имя файла совпадает с ID карты. */
@@ -7428,6 +8202,48 @@ const HERO_ART_ASSET = {
   infernolord:'assets/art/astral/bosses/infernolord.png',
   abyssking:'assets/art/astral/bosses/abyssking.png'
 };
+
+/* Атласы сил героя: базовые герои, боссы и улучшенные способности используют один стиль. */
+const HERO_POWER_ART_INDEX = {
+  mage:0, warrior:1, priest:2, rogue:3,
+  necro:4, warlock:5, druid:6, weaponsmith:7,
+  dragonboss:8, mechboss:9, lichboss:10, hivequeen:11,
+  infernolord:12, abyssking:13
+};
+const HERO_POWER_UPGRADED_ART_INDEX = {
+  mage:0, warrior:1, priest:2, rogue:3,
+  necro:4, warlock:5, druid:6, weaponsmith:7
+};
+function heroPowerArtData(heroId, upgraded){
+  const index = upgraded ? HERO_POWER_UPGRADED_ART_INDEX[heroId] : HERO_POWER_ART_INDEX[heroId];
+  if (!Number.isInteger(index)) return null;
+  const cols = 4;
+  const rows = upgraded ? 2 : 4;
+  const col = index % cols;
+  const row = Math.floor(index / cols);
+  return {
+    upgraded:!!upgraded,
+    x:cols > 1 ? (col / (cols - 1)) * 100 : 0,
+    y:rows > 1 ? (row / (rows - 1)) * 100 : 0
+  };
+}
+function heroPowerArtHTML(heroId, upgraded, fallback, extraClass){
+  const art = heroPowerArtData(heroId, upgraded);
+  if (!art) return `<span class="power-art-fallback">${fallback || ''}</span>`;
+  return `<span class="power-art${art.upgraded ? ' upgraded' : ''}${extraClass ? ' ' + extraClass : ''}" style="--power-art-x:${art.x}%;--power-art-y:${art.y}%" aria-hidden="true"></span>`;
+}
+function setHeroPowerArt(el, heroId, upgraded, fallback){
+  if (!el) return;
+  const art = heroPowerArtData(heroId, upgraded);
+  el.textContent = art ? '' : (fallback || '');
+  el.className = art ? `power-art${art.upgraded ? ' upgraded' : ''}` : 'power-art-fallback';
+  el.style.removeProperty('--power-art-x');
+  el.style.removeProperty('--power-art-y');
+  if (art){
+    el.style.setProperty('--power-art-x', `${art.x}%`);
+    el.style.setProperty('--power-art-y', `${art.y}%`);
+  }
+}
 
 /* валюта и рейтинг */
 const GOLD = { win: 50, boss: 100, tournMatch: 30, champion: 200, mpWin: 45, mpLoss: 10, packPrice: 100 };
@@ -11637,7 +12453,7 @@ function renderBoard(el, side){
       <div class="m-icon">${cardArtHTML(def)}</div>
       <div class="m-name${def.name.length > 20 ? ' is-very-long' : def.name.length > 12 ? ' is-long' : ''}">${def.name}</div>
       <div class="rgem ${def.rarity}"></div>
-      ${tribeFlagHTML(def.tribe, 'm-tribe')}
+      ${tribeFlagHTML(def.tribe || 'none', 'm-tribe')}
       <div class="stat atk${socketNumberClass(m.atk)}${atkPulse}">${m.atk}</div>
       <div class="stat hp${socketNumberClass(m.hp)} ${m.hp < m.maxHp ? 'hurt' : ''}${hpPulse}">${m.hp}</div>`;
     el.appendChild(d);
@@ -11670,12 +12486,18 @@ function dynCardText(def, side){
 function cardArtHTML(def){
   if (!def) return '';
   const art = CARD_ART_ASSET[def.id] || def.art;
-  return art ? `<img src="${art}?v=${CARD_ARENA_BUILD}" alt="" draggable="false">` : def.icon;
+  const cardTune = (globalThis.CARD_ARENA_CARD_PORTRAIT_TUNE || {})[def.id];
+  const battlefieldTune = (globalThis.CARD_ARENA_BATTLEFIELD_PORTRAIT_TUNE || {})[def.id];
+  const tuneStyle = cardTune || battlefieldTune
+    ? ` style="--vt-card-local-x:${cardTune?.x || 0};--vt-card-local-y:${cardTune?.y || 0};--vt-card-local-scale-offset:${(cardTune?.scale || 1) - 1};--vt-battlefield-local-x:${battlefieldTune?.x || 0};--vt-battlefield-local-y:${battlefieldTune?.y || 0};--vt-battlefield-local-scale-offset:${(battlefieldTune?.scale || 1) - 1}"`
+    : '';
+  return art ? `<img data-card-art="${def.id}"${tuneStyle} src="${art}?v=${CARD_ARENA_BUILD}" alt="" draggable="false">` : def.icon;
 }
 function cardFrameHTML(def){
   if (!def) return '';
   const kind = def.secret ? 'secret' : def.type === 'weapon' ? 'weapon' : def.type === 'spell' ? 'spell' : 'minion';
-  return `<img class="c-frame-art c-frame-${kind} c-frame-${def.rarity || 'common'}" src="assets/frames/v2/${kind}-frame.png?v=${CARD_ARENA_BUILD}" alt="" draggable="false">`;
+  const frameFile = kind === 'minion' && def.rarity === 'legendary' ? 'minion-frame-legendary.png' : `${kind}-frame.png`;
+  return `<img class="c-frame-art c-frame-${kind} c-frame-${def.rarity || 'common'}" src="assets/frames/v3/${frameFile}?v=${CARD_ARENA_BUILD}" alt="" draggable="false">`;
 }
 function cardHTML(cardId, side, cardMod){
   const def = CARD_DB[cardId];
@@ -11698,18 +12520,57 @@ function cardHTML(cardId, side, cardMod){
   const weaponDur = def.type === 'weapon' ? def.dur + weaponDurBuff : 0;
   return `
     ${cardFrameHTML(def)}
-    ${def.rarity === 'legendary' ? '<div class="legendary-wings" aria-hidden="true"><i></i></div>' : ''}
     <div class="ctype ${tcls}"></div>
     ${emblem ? `<div class="ctype-emblem">${emblem}</div>` : ''}
     <div class="c-cost${socketNumberClass(def.cost)}">${def.cost}</div>
     <div class="c-icon">${cardArtHTML(def)}</div>
     <div class="rgem ${def.rarity}"></div>
-    <div class="c-name${longNameClass}">${def.name}</div>
+    <div class="c-name${longNameClass}"><span class="c-name-text">${def.name}</span></div>
     <div class="c-text${longTextClass}">${fmtCardText(txt)}</div>
     ${tribeFlagHTML(def.tribe, 'c-tribe')}
     ${def.type === 'minion' ? `<div class="stat atk${socketNumberClass(def.atk)}">${def.atk}</div><div class="stat hp${socketNumberClass(def.hp)}">${def.hp}</div>` : ''}
     ${def.type === 'weapon' ? `<div class="stat atk${socketNumberClass(weaponAtk)}${weaponAtkBuff ? ' hand-buffed' : ''}">${weaponAtk}</div><div class="stat dur${socketNumberClass(weaponDur)}${weaponDurBuff ? ' hand-buffed' : ''}">${weaponDur}</div>` : ''}`;
 }
+
+let cardNameFitFrame = 0;
+function fitCardNameElement(nameEl){
+  if (!nameEl || !nameEl.isConnected) return;
+  const card = nameEl.closest('.card');
+  const textEl = nameEl.querySelector('.c-name-text');
+  if (!card || !textEl || card.clientWidth < 20 || nameEl.clientWidth < 10) return;
+
+  const inBuilder = !!nameEl.closest('.b-card');
+  const maxSize = Math.max(8, card.clientWidth * (inBuilder ? 0.079 : 0.0865));
+  const minSize = Math.max(5.5, card.clientWidth * (inBuilder ? 0.044 : 0.046));
+  let low = minSize;
+  let high = maxSize;
+  let best = minSize;
+
+  nameEl.classList.remove('name-ellipsized');
+  for (let i = 0; i < 8; i++){
+    const size = (low + high) / 2;
+    nameEl.style.setProperty('font-size', `${size.toFixed(2)}px`, 'important');
+    if (textEl.scrollWidth <= textEl.clientWidth + 0.5){
+      best = size;
+      low = size;
+    } else {
+      high = size;
+    }
+  }
+  nameEl.style.setProperty('font-size', `${best.toFixed(2)}px`, 'important');
+  nameEl.classList.toggle('name-ellipsized', textEl.scrollWidth > textEl.clientWidth + 0.75);
+}
+function scheduleCardNameFit(){
+  if (cardNameFitFrame) return;
+  cardNameFitFrame = requestAnimationFrame(() => {
+    cardNameFitFrame = 0;
+    document.querySelectorAll('.card:has(.c-frame-art) .c-name').forEach(fitCardNameElement);
+  });
+}
+const cardNameFitObserver = new MutationObserver(scheduleCardNameFit);
+cardNameFitObserver.observe(document.body, { childList:true, subtree:true });
+window.addEventListener('resize', scheduleCardNameFit, { passive:true });
+scheduleCardNameFit();
 
 function renderHand(){
   const hand = $('playerHand');
@@ -12390,7 +13251,7 @@ async function usePlayerPower(target){
   const tgtEl = target
     ? (target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion))
     : $('playerHero');
-  await flyEl(`<div style="font-size:32px;filter:drop-shadow(0 0 8px #66ccff)">${pw.icon}</div>`,
+  await flyEl(heroPowerArtHTML(G.playerHeroId, !!G.player.powerUpgraded, pw.icon, 'power-cast-art'),
               safeCenter($('playerPowerBtn'), heroEl(G.player)), target ? targetPoint(target) : safeCenter(tgtEl, heroEl(G.player)), 260);
 	  log(`${pw.name}!`);
 		  withImpactSource(G.player, G.player.powerSource, () => {
@@ -12583,20 +13444,9 @@ document.addEventListener('pointerdown', e => {
     }
     return;
   }
-  const heroDragEl = e.target.closest('#playerHero');
-  if (heroDragEl && G.player.weapon && !G.player.heroAttacked && !G.player.frozen){
-    drag.active = true; drag.type = 'hero';
-    drag.startX = e.clientX; drag.startY = e.clientY; drag.lastX = e.clientX; drag.lastY = e.clientY; drag.moved = false;
-    setDragPerf(true);
-    drag.intentSource = mpDragSourceDescriptor('hero');
-    arrowStart(center($('playerHero')));
-    markTargets('attack');
-    mpSendIntent('begin', drag.intentSource, null, { mode:'attack' });
-    return;
-  }
-	  if (e.target.closest('#playerPowerBtn')){
-	    const pw = heroPowerOf(G.player);
-	    if (G.player.powerUsed || G.player.mana < pw.cost) return;
+  if (e.target.closest('#playerPowerBtn')){
+    const pw = heroPowerOf(G.player);
+    if (G.player.powerUsed || G.player.mana < pw.cost) return;
     if (!pw.targeted){ usePlayerPower(null); return; }
     drag.active = true; drag.type = 'power';
     drag.startX = e.clientX; drag.startY = e.clientY; drag.lastX = e.clientX; drag.lastY = e.clientY; drag.moved = false;
@@ -12606,6 +13456,17 @@ document.addEventListener('pointerdown', e => {
     arrowStart(center($('playerPowerBtn')));
     markTargets(pw.mode || 'any');
     mpSendIntent('begin', drag.intentSource, null, { mode:pw.mode || 'any' });
+    return;
+  }
+  const heroDragEl = e.target.closest('#playerHero');
+  if (heroDragEl && G.player.weapon && !G.player.heroAttacked && !G.player.frozen){
+    drag.active = true; drag.type = 'hero';
+    drag.startX = e.clientX; drag.startY = e.clientY; drag.lastX = e.clientX; drag.lastY = e.clientY; drag.moved = false;
+    setDragPerf(true);
+    drag.intentSource = mpDragSourceDescriptor('hero');
+    arrowStart(center($('playerHero')));
+    markTargets('attack');
+    mpSendIntent('begin', drag.intentSource, null, { mode:'attack' });
     return;
   }
 });
@@ -13286,7 +14147,7 @@ async function aiTurn(){
       const tgtEl = target
         ? (target.kind === 'hero' ? heroEl(target.side) : minionEl(target.minion))
         : $('enemyHero');
-      await flyEl(`<div style="font-size:30px;filter:drop-shadow(0 0 8px #aa66ff)">${epw.icon}</div>`,
+      await flyEl(heroPowerArtHTML(G.enemyHeroId, !!G.enemy.powerUpgraded, epw.icon, 'power-cast-art'),
                   safeCenter($('enemyPowerBtn'), $('enemyHero')), target ? targetPoint(target) : safeCenter(tgtEl, $('enemyHero')), 300);
       log(`Враг: ${epw.name}!`);
 	      withImpactSource(G.enemy, G.enemy.powerSource, () => {
@@ -13485,10 +14346,11 @@ function showPowerPreview(heroId, rect, side){
   const h = HEROES[heroId];
   if (!h) return;
   const pw = side ? heroPowerOf(side) : h.power;
+  const upgraded = !!(side && side.powerUpgraded && UPGRADED_HERO_POWERS[heroId]);
   const pv = $('cardPreview');
   pv.innerHTML = `
     <div class="cp-side" style="max-width:230px">
-      <div class="cp-meta">${pw.icon} Сила героя · ${h.name}</div>
+      <div class="cp-meta">${heroPowerArtHTML(heroId, upgraded, pw.icon)} Сила героя · ${h.name}</div>
       <div class="cp-kw"><b>«${pw.name}» — ${pw.cost} маны</b>${pw.desc}. Один раз за ход.</div>
     </div>`;
   placePreview(pv, rect);
@@ -13793,11 +14655,15 @@ function createBuilderCard(id){
 	  wrap.title = `${def.name}\n${def.text || ''}`;
   wrap.innerHTML = `
 	    <div class="card ${skinClass(SAVE.back)}" style="margin:0;width:126px;height:172px;">${cardHTML(id)}</div>
-    <div class="b-owned"></div>
+    <div class="b-owned" aria-live="polite"></div>
     <div class="b-indeck" style="display:none"></div>
     <div class="b-actions">
-      <button class="ba" data-act="dust">♻️ +${DUST.gain[def.rarity]}</button>
-      <button class="ba craft" data-act="craft">✨ −${DUST.cost[def.rarity]}</button>
+      <button class="ba" data-act="dust" title="Распылить одну копию">
+        <span>♻ РАСПЫЛИТЬ</span><b>+${DUST.gain[def.rarity]}</b>
+      </button>
+      <button class="ba craft" data-act="craft" title="Создать одну копию">
+        <span>✨ СОЗДАТЬ</span><b>−${DUST.cost[def.rarity]}</b>
+      </button>
     </div>`;
   wrap.addEventListener('click', () => {
     if (builderCraftMode) return;
@@ -13816,13 +14682,17 @@ function createBuilderCard(id){
       if (btn.disabled) return;
       const owned = SAVE.collection[id] || 0;
       if (btn.dataset.act === 'dust'){
+        if (owned <= (draft[id] || 0)) return;
         SAVE.collection[id] = owned - 1;
         SAVE.dust += DUST.gain[def.rarity];
         sfx.rattle();
+        banner(`${def.name}: копия распылена · +${DUST.gain[def.rarity]} пыли`);
       } else {
+        if (owned >= copyLimitFor(id) || SAVE.dust < DUST.cost[def.rarity]) return;
         SAVE.collection[id] = owned + 1;
         SAVE.dust -= DUST.cost[def.rarity];
         sfx.rare();
+        banner(`${def.name}: карта создана · −${DUST.cost[def.rarity]} пыли`);
       }
       storeSave();
       renderBuilder();
@@ -13864,20 +14734,40 @@ function builderCardPasses(id){
 
 function updateBuilderCard(id, el){
   const def = CARD_DB[id];
-  const owned = SAVE.admin ? 999 : (SAVE.collection[id] || 0);
+  const actualOwned = Math.max(0, SAVE.collection[id] || 0);
+  const owned = SAVE.admin ? 999 : actualOwned;
   const inner = el.querySelector('.card');
   if (inner){ inner.classList.remove('skin-default','skin-royal','skin-frost','skin-ember','skin-arcane','skin-runic'); inner.classList.add(skinClass(SAVE.back)); }
   const inDeck = draft[id] || 0;
   el.classList.toggle('none', owned === 0);
   el.style.display = builderCardPasses(id) ? '' : 'none';
-  el.querySelector('.b-owned').textContent = SAVE.admin ? 'есть: ∞' : `есть: ${owned}`;
+  el.querySelector('.b-owned').innerHTML = SAVE.admin
+    ? '<span>Есть: ∞</span><span class="in-deck">Админ</span>'
+    : `<span>Есть: ${actualOwned}</span>${inDeck ? `<span class="in-deck">В колоде: ${inDeck}</span>` : '<span class="in-deck">В колоде: 0</span>'}`;
   const badge = el.querySelector('.b-indeck');
   badge.textContent = inDeck;
   badge.style.display = inDeck > 0 ? 'flex' : 'none';
-  const canDust = owned - inDeck > 0;
-  const canCraft = SAVE.dust >= DUST.cost[def.rarity];
-  el.querySelector('[data-act="dust"]').disabled = !canDust;
-  el.querySelector('[data-act="craft"]').disabled = !canCraft;
+  const limit = copyLimitFor(id);
+  const canDust = !SAVE.admin && actualOwned - inDeck > 0;
+  const atLimit = actualOwned >= limit;
+  const hasDust = SAVE.dust >= DUST.cost[def.rarity];
+  const canCraft = !SAVE.admin && !atLimit && hasDust;
+  const dustBtn = el.querySelector('[data-act="dust"]');
+  const craftBtn = el.querySelector('[data-act="craft"]');
+  dustBtn.disabled = !canDust;
+  craftBtn.disabled = !canCraft;
+  dustBtn.innerHTML = canDust
+    ? `<span>♻ РАСПЫЛИТЬ</span><b>+${DUST.gain[def.rarity]}</b>`
+    : `<span>${actualOwned ? '🔒 В КОЛОДЕ' : 'НЕТ КОПИЙ'}</span><b>+${DUST.gain[def.rarity]}</b>`;
+  craftBtn.innerHTML = canCraft
+    ? `<span>✨ СОЗДАТЬ</span><b>−${DUST.cost[def.rarity]}</b>`
+    : `<span>${SAVE.admin ? 'АДМИН' : atLimit ? `ЛИМИТ ${limit}` : 'МАЛО ПЫЛИ'}</span><b>−${DUST.cost[def.rarity]}</b>`;
+  dustBtn.title = canDust
+    ? `Распылить «${def.name}» и получить ${DUST.gain[def.rarity]} пыли`
+    : actualOwned ? 'Все имеющиеся копии используются в колоде' : 'У вас нет этой карты';
+  craftBtn.title = canCraft
+    ? `Создать «${def.name}» за ${DUST.cost[def.rarity]} пыли`
+    : atLimit ? `Уже достигнут лимит: ${limit}` : `Нужно ${DUST.cost[def.rarity]} пыли`;
 }
 
 function renderCollectionGrid(){
@@ -14095,7 +14985,7 @@ function openPacksScreen(){
     const n = SAVE.packs[type] || 0;
     const pile = document.createElement('div');
     pile.className = `pack-pile ${type}` + (n === 0 ? ' empty' : '');
-    pile.innerHTML = `${p.icon}<div class="pk-name">${p.name}</div>` +
+    pile.innerHTML = `<img class="pk-art" src="${p.art}?v=${CARD_ARENA_BUILD}" alt=""><div class="pk-name">${p.name}</div>` +
       (n > 0 ? `<div class="pk-count">${n}</div>` : '') +
       `<button class="pk-buy" ${affordGold(GOLD.packPrice) ? '' : 'disabled'}>Купить ${isRich() ? '∞' : GOLD.packPrice} 🪙</button>`;
     pile.addEventListener('click', () => openPack(type, pile));
@@ -14155,12 +15045,31 @@ function packRevealFx(pc, rarity){
   }
 }
 
+function packOpeningFx(type, pileEl){
+  pileEl.classList.remove('burst');
+  pileEl.classList.add('opening', `open-${type}`);
+  const layer = document.createElement('div');
+  layer.className = `pack-open-layer pack-open-layer-${type}`;
+  const count = type === 'mech' ? 14 : type === 'codex' ? 18 : 12;
+  for (let i = 0; i < count; i++){
+    const particle = document.createElement('i');
+    particle.className = 'pack-open-particle';
+    const angle = (Math.PI * 2 * i / count) + (i % 2 ? .16 : -.1);
+    const distance = 68 + (i % 4) * 12;
+    particle.style.setProperty('--i', i);
+    particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+    particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+    layer.appendChild(particle);
+  }
+  pileEl.appendChild(layer);
+}
+
 function openPack(type, pileEl){
   if ((SAVE.packs[type] || 0) <= 0) return;
   SAVE.packs[type]--;
   storeSave();
   sfx.packOpen();
-  pileEl.classList.add('burst');
+  packOpeningFx(type, pileEl);
   const set = PACKS_DB[type].set;
   packRoll = [];
   for (let i = 0; i < PACK_CARDS; i++) packRoll.push(rollCard(set));
@@ -14202,7 +15111,7 @@ function openPack(type, pileEl){
       pc.innerHTML = `
         <div class="pcard-inner">
           <div class="pface back cardback-${SAVE.back||'default'}"></div>
-	          <div class="pface front"><div class="card ${skinClass(SAVE.back)}" style="margin:0;width:126px;height:172px;">${cardHTML(id)}</div></div>
+	          <div class="pface front"><div class="card ${skinClass(SAVE.back)}" style="margin:0;width:100%;height:100%;">${cardHTML(id)}</div></div>
         </div>`;
       pc.addEventListener('click', () => flip(pc, def));
       pcards.push({ pc, def });
@@ -14212,7 +15121,7 @@ function openPack(type, pileEl){
     $('packFlipAll').onclick = () => {
       pcards.forEach((c, i) => setTimeout(() => flip(c.pc, c.def), i * 150));
     };
-  }, 430);
+  }, 840);
 }
 
 $('btnPacks').addEventListener('click', openPacksScreen);
@@ -14368,7 +15277,7 @@ function renderBossDetail(){
   $('bdStats').innerHTML = `❤️ ${hp}${bossCfg.armor ? ' · 🛡 ' + bossCfg.armor : ''}${heroic ? ' <span style="color:#ffb066">⚡усилен</span>' : ''}`;
   const loreTxt = BOSS_LORE[id] ? `<div style="font-style:italic;color:#a08c60;margin-bottom:5px;">${BOSS_LORE[id].lore}</div>` : '';
   $('bdSkills').innerHTML = loreTxt +
-    `<b>${b.power.icon} «${b.power.name}»</b> (${b.power.cost} маны): ${b.power.desc}<br>` +
+    `<b>${heroPowerArtHTML(id, false, b.power.icon)} «${b.power.name}»</b> (${b.power.cost} маны): ${b.power.desc}<br>` +
     `<b>💥 ${b.special.name}</b> — каждый ${every}-й ход: ${b.special.desc.replace(/каждый \d-й ход:\s*/,'')}`;
   /* задание */
   let qhtml = `<b>📜 Задание на открытие:</b><br>`;
@@ -14560,7 +15469,7 @@ function applyMultiplayerRewards(winner, oldRating, oldRank){
     if (Math.random() < 0.35){
       const rt = randomPackType();
       SAVE.packs[rt] = (SAVE.packs[rt] || 0) + 1;
-      rewards.push(`+1 пак ${PACKS_DB[rt].icon}`);
+      rewards.push(`+1 пак «${PACKS_DB[rt].name}»`);
     } else {
       rewards.push('шанс пака не сработал');
     }
@@ -16055,7 +16964,7 @@ async function mpAnimateRemoteAction(snap){
       const pw = src && src.icon ? src : heroPowerOf(G.enemy);
       const to = mpPointForRemoteDesc(tgt, $('playerHero'));
       sfx.power();
-      await flyEl(`<div style="font-size:32px;filter:drop-shadow(0 0 8px #66ccff)">${pw.icon || '✨'}</div>`,
+      await flyEl(heroPowerArtHTML((src && src.heroId) || G.enemyHeroId, !!G.enemy.powerUpgraded, pw.icon || '✨', 'power-cast-art'),
         safeCenter($('enemyPowerBtn'), heroEl(G.enemy)), to, 260);
       spellImpact(to, 'arcane');
       return;
@@ -16763,6 +17672,386 @@ $('btnMusic').addEventListener('click', () => MUSIC.toggle());
 $('btnTrack').addEventListener('click', () => { sfx.click(); MUSIC.nextTrack(); });
 
 /* ===== НАСТРОЙКИ ===== */
+const VISUAL_TUNE_STORAGE = 'cardArena_visualTune_v1';
+const VISUAL_TUNE_SCHEMA = {
+  powerArt: {
+    label:'Иконка способности героя', css:'power-art', hasGlow:true,
+    defaults:{ x:-4, y:-4, scale:1.10, glow:.36 }
+  },
+  powerBg: {
+    label:'Фон способности героя', css:'power-bg', hasBg:true, hasGlow:true,
+    defaults:{ x:0, y:0, scale:1, bg:.94, glow:.36 }
+  },
+  powerFrame: {
+    label:'Рамка способности героя', css:'power-frame',
+    defaults:{ x:0, y:0, scale:1 }
+  },
+  powerCost: {
+    label:'Мана способности героя', css:'power-cost',
+    defaults:{ x:0, y:0, scale:1 }
+  },
+  heroArt: {
+    label:'Портрет героя', css:'hero-art', hasBg:true,
+    defaults:{ x:0, y:0, scale:1.12, bg:1 }
+  },
+  minionArt: {
+    label:'Существо на поле', css:'minion-art', hasBg:true,
+    defaults:{ x:0, y:0, scale:1.08, bg:1 }
+  },
+  cardArt: {
+    label:'Изображение карты', css:'card-art', hasBg:true,
+    defaults:{ x:0, y:0, scale:1, bg:1 }
+  },
+  cardPortrait: {
+    label:'Портрет карты в руке / коллекции', perCard:true, storeKey:'cards', preview:'card',
+    defaults:{ x:0, y:0, scale:1 }
+  },
+  battlefieldCardPortrait: {
+    label:'Портрет существа на поле', perCard:true, storeKey:'battlefieldCards', preview:'battlefield',
+    defaults:{ x:0, y:0, scale:1 }
+  },
+  cardTribeFlag: {
+    label:'Флаг типа на карте', perTribe:true, storeKey:'cardTribeFlags', preview:'cardTribe', hasBg:true, hasGlow:true, bgLabel:'Яркость',
+    defaults:{ x:0, y:0, scale:1, bg:.50, glow:.35 }
+  },
+  battlefieldTribeFlag: {
+    label:'Флаг типа на поле', perTribe:true, storeKey:'battlefieldTribeFlags', preview:'battlefieldTribe', hasBg:true, hasGlow:true, bgLabel:'Яркость',
+    defaults:{ x:0, y:0, scale:1, bg:.58, glow:.46 }
+  },
+  weaponFrame: {
+    label:'Рамка оружия', css:'weapon-frame',
+    defaults:{ x:0, y:0, scale:1 }
+  },
+  weaponBg: {
+    label:'Фон оружия', css:'weapon-bg', hasBg:true,
+    defaults:{ x:0, y:0, scale:1, bg:.92 }
+  },
+  weaponArt: {
+    label:'Изображение оружия', css:'weapon-art',
+    defaults:{ x:0, y:0, scale:1 }
+  }
+};
+function visualTuneNumber(value, fallback, min, max){
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : fallback;
+}
+function visualTuneDefaults(){
+  const result = { cards:{}, battlefieldCards:{}, cardTribeFlags:{}, battlefieldTribeFlags:{} };
+  Object.entries(VISUAL_TUNE_SCHEMA).forEach(([key, meta]) => {
+    if (!meta.perCard && !meta.perTribe) result[key] = Object.assign({}, meta.defaults);
+  });
+  return result;
+}
+function normalizeVisualTune(raw){
+  const base = visualTuneDefaults();
+  const legacyPower = raw && raw.powerArt && typeof raw.powerArt === 'object' ? raw.powerArt : {};
+  Object.entries(VISUAL_TUNE_SCHEMA).forEach(([key, meta]) => {
+    if (meta.perCard || meta.perTribe) return;
+    const source = raw && raw[key] && typeof raw[key] === 'object' ? raw[key] : {};
+    base[key].x = visualTuneNumber(source.x, base[key].x, -35, 35);
+    base[key].y = visualTuneNumber(source.y, base[key].y, -35, 35);
+    base[key].scale = visualTuneNumber(source.scale, base[key].scale, .5, 1.8);
+    const migratedSource = key === 'powerBg' && !raw?.powerBg ? legacyPower : source;
+    if (meta.hasBg) base[key].bg = visualTuneNumber(migratedSource.bg, base[key].bg, 0, 1);
+    if (meta.hasGlow) base[key].glow = visualTuneNumber(migratedSource.glow, base[key].glow, 0, 1);
+  });
+  ['cards', 'battlefieldCards'].forEach(storeKey => {
+    const cardSources = raw && raw[storeKey] && typeof raw[storeKey] === 'object' ? raw[storeKey] : {};
+    Object.entries(cardSources).forEach(([cardId, value]) => {
+      if (!CARD_DB[cardId] || !value || typeof value !== 'object') return;
+      base[storeKey][cardId] = {
+        x:visualTuneNumber(value.x, 0, -35, 35),
+        y:visualTuneNumber(value.y, 0, -35, 35),
+        scale:visualTuneNumber(value.scale, 1, .5, 1.8)
+      };
+    });
+  });
+  const tribeKeys = Object.keys(TRIBE_RU);
+  ['cardTribeFlags', 'battlefieldTribeFlags'].forEach(storeKey => {
+    const source = raw && raw[storeKey] && typeof raw[storeKey] === 'object' ? raw[storeKey] : {};
+    const meta = Object.values(VISUAL_TUNE_SCHEMA).find(item => item.storeKey === storeKey);
+    tribeKeys.forEach(tribe => {
+      const value = source[tribe];
+      if (!value || typeof value !== 'object') return;
+      base[storeKey][tribe] = {
+        x:visualTuneNumber(value.x, meta.defaults.x, -35, 35),
+        y:visualTuneNumber(value.y, meta.defaults.y, -35, 35),
+        scale:visualTuneNumber(value.scale, meta.defaults.scale, .5, 1.8),
+        bg:visualTuneNumber(value.bg, meta.defaults.bg, 0, 1),
+        glow:visualTuneNumber(value.glow, meta.defaults.glow, 0, 1)
+      };
+    });
+  });
+  if (raw && raw.tribeFlag && typeof raw.tribeFlag === 'object'){
+    ['cardTribeFlags', 'battlefieldTribeFlags'].forEach(storeKey => {
+      const meta = Object.values(VISUAL_TUNE_SCHEMA).find(item => item.storeKey === storeKey);
+      tribeKeys.forEach(tribe => {
+        if (base[storeKey][tribe]) return;
+        base[storeKey][tribe] = {
+          x:visualTuneNumber(raw.tribeFlag.x, 0, -35, 35), y:visualTuneNumber(raw.tribeFlag.y, 0, -35, 35),
+          scale:visualTuneNumber(raw.tribeFlag.scale, 1, .5, 1.8), bg:meta.defaults.bg, glow:meta.defaults.glow
+        };
+      });
+    });
+  }
+  return base;
+}
+function loadVisualTune(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(VISUAL_TUNE_STORAGE) || 'null');
+    return normalizeVisualTune(parsed && (parsed.values || parsed));
+  }catch(e){ return visualTuneDefaults(); }
+}
+let VISUAL_TUNE = loadVisualTune();
+function applyVisualTune(){
+  const root = document.documentElement.style;
+  Object.entries(VISUAL_TUNE_SCHEMA).forEach(([key, meta]) => {
+    if (meta.perCard || meta.perTribe) return;
+    const value = VISUAL_TUNE[key] || meta.defaults;
+    const prefix = `--vt-${meta.css}`;
+    root.setProperty(`${prefix}-x`, value.x);
+    root.setProperty(`${prefix}-y`, value.y);
+    root.setProperty(`${prefix}-scale`, value.scale);
+    if (meta.hasBg) root.setProperty(`${prefix}-bg`, value.bg);
+    if (meta.hasGlow) root.setProperty(`${prefix}-glow`, value.glow);
+  });
+  globalThis.CARD_ARENA_CARD_PORTRAIT_TUNE = VISUAL_TUNE.cards || {};
+  globalThis.CARD_ARENA_BATTLEFIELD_PORTRAIT_TUNE = VISUAL_TUNE.battlefieldCards || {};
+  globalThis.CARD_ARENA_CARD_TRIBE_TUNE = VISUAL_TUNE.cardTribeFlags || {};
+  globalThis.CARD_ARENA_BATTLEFIELD_TRIBE_TUNE = VISUAL_TUNE.battlefieldTribeFlags || {};
+  document.querySelectorAll('img[data-card-art]').forEach(img => {
+    const cardValue = (VISUAL_TUNE.cards || {})[img.dataset.cardArt];
+    const battlefieldValue = (VISUAL_TUNE.battlefieldCards || {})[img.dataset.cardArt];
+    img.style.setProperty('--vt-card-local-x', cardValue ? cardValue.x : 0);
+    img.style.setProperty('--vt-card-local-y', cardValue ? cardValue.y : 0);
+    img.style.setProperty('--vt-card-local-scale-offset', cardValue ? cardValue.scale - 1 : 0);
+    img.style.setProperty('--vt-battlefield-local-x', battlefieldValue ? battlefieldValue.x : 0);
+    img.style.setProperty('--vt-battlefield-local-y', battlefieldValue ? battlefieldValue.y : 0);
+    img.style.setProperty('--vt-battlefield-local-scale-offset', battlefieldValue ? battlefieldValue.scale - 1 : 0);
+  });
+  document.querySelectorAll('.c-tribe[data-tribe],.m-tribe[data-tribe]').forEach(flag => {
+    const battlefield = flag.classList.contains('m-tribe');
+    const value = (battlefield ? VISUAL_TUNE.battlefieldTribeFlags : VISUAL_TUNE.cardTribeFlags)?.[flag.dataset.tribe];
+    const defaults = VISUAL_TUNE_SCHEMA[battlefield ? 'battlefieldTribeFlag' : 'cardTribeFlag'].defaults;
+    const resolved = value || defaults;
+    const prefix = battlefield ? '--vt-battlefield-tribe-local-' : '--vt-card-tribe-local-';
+    ['x','y','scale','bg','glow'].forEach(field => flag.style.setProperty(`${prefix}${field}`, resolved[field]));
+  });
+}
+function saveVisualTune(){
+  try{ localStorage.setItem(VISUAL_TUNE_STORAGE, JSON.stringify(VISUAL_TUNE)); }catch(e){}
+}
+function visualTunePayload(){
+  return {
+    version:'card-arena-visual-calibration-4',
+    build:CARD_ARENA_BUILD,
+    exportedAt:new Date().toISOString(),
+    responsive:{ mode:'element-relative-percent', sharedAcrossViewports:true },
+    values:VISUAL_TUNE
+  };
+}
+function visualTuneJson(){ return JSON.stringify(visualTunePayload(), null, 2); }
+applyVisualTune();
+
+let VISUAL_TUNE_TARGET = 'powerArt';
+let VISUAL_TUNE_CARD_ID = 'bear';
+let VISUAL_TUNE_TRIBE = 'undead';
+function visualTuneCardIds(target = VISUAL_TUNE_TARGET){
+  const battlefieldOnly = VISUAL_TUNE_SCHEMA[target]?.preview === 'battlefield';
+  return Object.keys(CARD_DB)
+    .filter(id => !CARD_DB[id].token && (CARD_ART_ASSET[id] || CARD_DB[id].art) && (!battlefieldOnly || CARD_DB[id].type === 'minion'))
+    .sort((a, b) => (CARD_DB[a].cost - CARD_DB[b].cost) || CARD_DB[a].name.localeCompare(CARD_DB[b].name, 'ru'));
+}
+function currentVisualTuneValue(create = false){
+  const meta = VISUAL_TUNE_SCHEMA[VISUAL_TUNE_TARGET];
+  if (!meta) return null;
+  if (meta.perTribe){
+    const storeKey = meta.storeKey;
+    if (!VISUAL_TUNE[storeKey]) VISUAL_TUNE[storeKey] = {};
+    if (!VISUAL_TUNE[storeKey][VISUAL_TUNE_TRIBE] && create) VISUAL_TUNE[storeKey][VISUAL_TUNE_TRIBE] = Object.assign({}, meta.defaults);
+    return VISUAL_TUNE[storeKey][VISUAL_TUNE_TRIBE] || meta.defaults;
+  }
+  if (!meta.perCard) return VISUAL_TUNE[VISUAL_TUNE_TARGET];
+  const cardId = VISUAL_TUNE_CARD_ID || visualTuneCardIds()[0];
+  const storeKey = meta.storeKey || 'cards';
+  if (!VISUAL_TUNE[storeKey]) VISUAL_TUNE[storeKey] = {};
+  if (!VISUAL_TUNE[storeKey][cardId] && create) VISUAL_TUNE[storeKey][cardId] = Object.assign({}, meta.defaults);
+  return VISUAL_TUNE[storeKey][cardId] || meta.defaults;
+}
+function renderVisualTunePreview(){
+  const hero = $('vtPreviewHero');
+  const minion = $('vtPreviewMinion');
+  const card = $('vtPreviewCard');
+  if (!hero || !minion || !card) return;
+  const heroImg = hero.querySelector('.p-frame');
+  if (heroImg) heroImg.innerHTML = `<img src="${HERO_ART_ASSET.mage}?v=${CARD_ARENA_BUILD}" alt="">`;
+  setHeroPowerArt($('vtPreviewPowerIcon'), 'mage', false, '⚡');
+  const weapon = $('vtPreviewWeapon');
+  if (weapon){
+    weapon.style.display = 'flex';
+    weapon.innerHTML = `<div class="w-icon">${cardArtHTML(CARD_DB.axe)}</div><div class="w-stats"><span class="w-atk">3</span><span class="w-dur">2</span></div>`;
+  }
+  const selectedDef = CARD_DB[VISUAL_TUNE_CARD_ID];
+  const tribePreview = VISUAL_TUNE_SCHEMA[VISUAL_TUNE_TARGET]?.perTribe
+    ? Object.values(CARD_DB).find(def => !def.token && def.type === 'minion' && def.tribe === VISUAL_TUNE_TRIBE && (CARD_ART_ASSET[def.id] || def.art))
+    : null;
+  const isPerCardTarget = !!VISUAL_TUNE_SCHEMA[VISUAL_TUNE_TARGET]?.perCard;
+  const minionDef = tribePreview || (isPerCardTarget && selectedDef?.type === 'minion'
+    ? selectedDef
+    : CARD_DB.bear || CARD_DB.wolf || Object.values(CARD_DB).find(def => def.type === 'minion' && !def.token));
+  minion.innerHTML = `
+    <div class="m-frame-shell" aria-hidden="true"></div>
+    <div class="m-statusbar"><span class="m-status taunt" title="Провокация">🛡️</span></div>
+    <div class="m-icon">${cardArtHTML(minionDef)}</div>
+    <div class="rgem ${minionDef.rarity || 'common'}"></div>
+    ${tribeFlagHTML(minionDef.tribe || 'beast', 'm-tribe')}
+    <div class="stat atk">${minionDef.atk || 3}</div><div class="stat hp">${minionDef.hp || 5}</div>`;
+  const cardId = isPerCardTarget && selectedDef ? selectedDef.id : minionDef.id || 'bear';
+  card.dataset.card = cardId;
+  card.innerHTML = cardHTML(cardId);
+  applyVisualTune();
+  scheduleCardNameFit();
+  updateVisualTuneFocus();
+}
+function visualTuneFocusElements(){
+  const targetMeta = VISUAL_TUNE_SCHEMA[VISUAL_TUNE_TARGET];
+  if (targetMeta?.perTribe){
+    return [document.querySelector(targetMeta.preview === 'battlefieldTribe' ? '#vtPreviewMinion .m-tribe' : '#vtPreviewCard .c-tribe')].filter(Boolean);
+  }
+  if (targetMeta?.perCard){
+    const selector = targetMeta.preview === 'battlefield'
+      ? '#vtPreviewMinion .m-icon img'
+      : '#vtPreviewCard .c-icon img';
+    return [document.querySelector(selector)].filter(Boolean);
+  }
+  const map = {
+    powerArt:['#vtPreviewPowerIcon'],
+    powerBg:['#vtPreviewPower'],
+    powerFrame:['#vtPreviewPower'],
+    powerCost:['#vtPreviewPower .pw-cost'],
+    heroArt:['#vtPreviewHero .p-frame img'],
+    minionArt:['#vtPreviewMinion .m-icon img'],
+    cardArt:['#vtPreviewCard .c-icon img'],
+    weaponFrame:['#vtPreviewWeapon'],
+    weaponBg:['#vtPreviewWeapon .w-icon'],
+    weaponArt:['#vtPreviewWeapon .w-icon img']
+  };
+  return (map[VISUAL_TUNE_TARGET] || []).map(selector => document.querySelector(selector)).filter(Boolean);
+}
+function updateVisualTuneFocus(){
+  document.querySelectorAll('#visualTuneStage .vt-focus').forEach(el => el.classList.remove('vt-focus'));
+  visualTuneFocusElements().forEach(el => el.classList.add('vt-focus'));
+}
+function updateVisualTuneJson(){
+  if ($('visualTuneJson')) $('visualTuneJson').value = visualTuneJson();
+}
+function refreshVisualTuneControls(){
+  const meta = VISUAL_TUNE_SCHEMA[VISUAL_TUNE_TARGET];
+  const value = currentVisualTuneValue();
+  if (!meta || !value) return;
+  $('visualTuneCardRow').style.display = meta.perCard ? 'grid' : 'none';
+  $('visualTuneTribeRow').style.display = meta.perTribe ? 'grid' : 'none';
+  $('visualTuneX').value = value.x;
+  $('visualTuneY').value = value.y;
+  $('visualTuneScale').value = value.scale;
+  $('visualTuneXValue').textContent = `${value.x > 0 ? '+' : ''}${value.x}%`;
+  $('visualTuneYValue').textContent = `${value.y > 0 ? '+' : ''}${value.y}%`;
+  $('visualTuneScaleValue').textContent = `×${value.scale.toFixed(2)}`;
+  $('visualTuneBgRow').style.display = meta.hasBg ? '' : 'none';
+  $('visualTuneBgLabel').textContent = meta.bgLabel || 'Фон';
+  $('visualTuneGlowRow').style.display = meta.hasGlow ? '' : 'none';
+  if (meta.hasBg){
+    $('visualTuneBg').value = value.bg;
+    $('visualTuneBgValue').textContent = `${Math.round(value.bg * 100)}%`;
+  }
+  if (meta.hasGlow){
+    $('visualTuneGlow').value = value.glow;
+    $('visualTuneGlowValue').textContent = `${Math.round(value.glow * 100)}%`;
+  }
+  updateVisualTuneFocus();
+  updateVisualTuneJson();
+}
+function setVisualTuneValue(field, value){
+  const meta = VISUAL_TUNE_SCHEMA[VISUAL_TUNE_TARGET];
+  const targetValue = currentVisualTuneValue(true);
+  if (!meta || !targetValue) return;
+  if ((field === 'bg' && !meta.hasBg) || (field === 'glow' && !meta.hasGlow)) return;
+  const limits = field === 'scale' ? [.5, 1.8] : (field === 'bg' || field === 'glow') ? [0, 1] : [-35, 35];
+  targetValue[field] = visualTuneNumber(value, meta.defaults[field], limits[0], limits[1]);
+  applyVisualTune();
+  saveVisualTune();
+  refreshVisualTuneControls();
+}
+function openVisualTune(){
+  const target = $('visualTuneTarget');
+  if (!target.options.length){
+    target.innerHTML = Object.entries(VISUAL_TUNE_SCHEMA).map(([key, meta]) => `<option value="${key}">${meta.label}</option>`).join('');
+  }
+  const tribeSelect = $('visualTuneTribe');
+  if (!tribeSelect.options.length){
+    tribeSelect.innerHTML = Object.keys(TRIBE_RU).map(tribe => `<option value="${tribe}">${TRIBE_RU[tribe]}</option>`).join('');
+  }
+  tribeSelect.value = VISUAL_TUNE_TRIBE;
+  refreshVisualTuneCardOptions();
+  target.value = VISUAL_TUNE_TARGET;
+  renderVisualTunePreview();
+  refreshVisualTuneControls();
+  $('settingsOverlay').classList.remove('active');
+  $('visualTuneOverlay').classList.add('active');
+  $('visualTuneOverlay').setAttribute('aria-hidden', 'false');
+}
+function refreshVisualTuneCardOptions(){
+  const cardSelect = $('visualTuneCard');
+  const ids = visualTuneCardIds();
+  cardSelect.innerHTML = ids.map(id => {
+    const def = CARD_DB[id];
+    return `<option value="${id}">${def.cost} · ${def.name}</option>`;
+  }).join('');
+  if (!ids.includes(VISUAL_TUNE_CARD_ID)) VISUAL_TUNE_CARD_ID = ids[0] || 'bear';
+  cardSelect.value = VISUAL_TUNE_CARD_ID;
+}
+function closeVisualTune(){
+  $('visualTuneOverlay').classList.remove('active');
+  $('visualTuneOverlay').setAttribute('aria-hidden', 'true');
+  $('settingsOverlay').classList.add('active');
+}
+function downloadVisualTune(){
+  const blob = new Blob([visualTuneJson()], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `card-arena-visual-calibration-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+}
+async function copyVisualTune(){
+  const btn = $('visualTuneCopyBtn');
+  const text = visualTuneJson();
+  try{
+    await navigator.clipboard.writeText(text);
+  }catch(e){
+    $('visualTuneJson').focus();
+    $('visualTuneJson').select();
+    document.execCommand('copy');
+  }
+  const old = btn.textContent;
+  btn.textContent = 'СКОПИРОВАНО';
+  setTimeout(() => { btn.textContent = old; }, 1200);
+}
+async function importVisualTune(file){
+  if (!file) return;
+  try{
+    const payload = JSON.parse(await file.text());
+    VISUAL_TUNE = normalizeVisualTune(payload && (payload.values || payload));
+    applyVisualTune();
+    saveVisualTune();
+    refreshVisualTuneControls();
+    renderVisualTunePreview();
+  }catch(e){ alert('Этот JSON не удалось прочитать. Нужен экспорт из калибратора Карточной Арены.'); }
+}
+
 let TABLE_PREF = 'random';
 try{ TABLE_PREF = localStorage.getItem('tablePref') || 'random'; }catch(e){}
 function safeTxt(v){
@@ -18398,6 +19687,57 @@ $('btnSettings').addEventListener('click', () => {
   $('settingsOverlay').classList.add('active');
 });
 $('setClose').addEventListener('click', () => { sfx.click(); $('settingsOverlay').classList.remove('active'); });
+$('visualTuneOpenBtn').addEventListener('click', () => { sfx.click(); openVisualTune(); });
+$('visualTuneCloseBtn').addEventListener('click', () => { sfx.click(); closeVisualTune(); });
+$('visualTuneTarget').addEventListener('change', ev => {
+  VISUAL_TUNE_TARGET = ev.currentTarget.value;
+  refreshVisualTuneCardOptions();
+  renderVisualTunePreview();
+  refreshVisualTuneControls();
+});
+$('visualTuneCard').addEventListener('change', ev => {
+  VISUAL_TUNE_CARD_ID = ev.currentTarget.value;
+  renderVisualTunePreview();
+  refreshVisualTuneControls();
+});
+$('visualTuneTribe').addEventListener('change', ev => {
+  VISUAL_TUNE_TRIBE = ev.currentTarget.value;
+  renderVisualTunePreview();
+  refreshVisualTuneControls();
+});
+$('visualTuneX').addEventListener('input', ev => setVisualTuneValue('x', ev.currentTarget.value));
+$('visualTuneY').addEventListener('input', ev => setVisualTuneValue('y', ev.currentTarget.value));
+$('visualTuneScale').addEventListener('input', ev => setVisualTuneValue('scale', ev.currentTarget.value));
+$('visualTuneBg').addEventListener('input', ev => setVisualTuneValue('bg', ev.currentTarget.value));
+$('visualTuneGlow').addEventListener('input', ev => setVisualTuneValue('glow', ev.currentTarget.value));
+$('visualTuneResetOneBtn').addEventListener('click', () => {
+  sfx.click();
+  const meta = VISUAL_TUNE_SCHEMA[VISUAL_TUNE_TARGET];
+  if (meta.perCard) delete VISUAL_TUNE[meta.storeKey || 'cards'][VISUAL_TUNE_CARD_ID];
+  else if (meta.perTribe) delete VISUAL_TUNE[meta.storeKey][VISUAL_TUNE_TRIBE];
+  else VISUAL_TUNE[VISUAL_TUNE_TARGET] = Object.assign({}, meta.defaults);
+  applyVisualTune(); saveVisualTune(); renderVisualTunePreview(); refreshVisualTuneControls();
+});
+$('visualTuneResetAllBtn').addEventListener('click', () => {
+  if (!confirm('Сбросить все визуальные поправки к исходным значениям?')) return;
+  sfx.click();
+  VISUAL_TUNE = visualTuneDefaults();
+  applyVisualTune(); saveVisualTune(); refreshVisualTuneControls();
+});
+$('visualTuneDownloadBtn').addEventListener('click', () => { sfx.click(); downloadVisualTune(); });
+$('visualTuneCopyBtn').addEventListener('click', () => { sfx.click(); void copyVisualTune(); });
+$('visualTuneImportBtn').addEventListener('click', () => { sfx.click(); $('visualTuneFileInput').click(); });
+$('visualTuneFileInput').addEventListener('change', ev => {
+  const file = ev.currentTarget.files && ev.currentTarget.files[0];
+  void importVisualTune(file);
+  ev.currentTarget.value = '';
+});
+$('visualTuneOverlay').addEventListener('pointerdown', ev => {
+  if (ev.target === ev.currentTarget) closeVisualTune();
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape' && $('visualTuneOverlay').classList.contains('active')) closeVisualTune();
+});
 $('setImpactBtn').addEventListener('click', () => {
   $('settingsOverlay').classList.remove('active');
   openImpactStats();
@@ -18559,7 +19899,7 @@ function renderHeroDrawer(){
     card.innerHTML = `
       <div class="hs-portrait">${locked ? '🔒' : heroPortraitHTML(hh)}</div>
       <div class="hs-name">${hh.name}${locked ? ' 🔒' : sel ? ' ✓' : ''}</div>
-      <div class="hs-power">${locked ? 'Купи в 🛒 Магазине' : `${hh.power.icon} <b>${hh.power.cost}</b> «${hh.power.name}»<br>${hh.power.desc}`}</div>`;
+      <div class="hs-power">${locked ? 'Купи в 🛒 Магазине' : `${heroPowerArtHTML(id, false, hh.power.icon)} <b>${hh.power.cost}</b> «${hh.power.name}»<br>${hh.power.desc}`}</div>`;
     card.addEventListener('click', () => {
       if (locked){ sfx.click(); showScreen('shop'); shopTab='heroes'; renderShop(); return; }
       sfx.click();
@@ -18610,12 +19950,12 @@ function applyHeroUI(){
   const pp = heroPowerOf(G.player), ep = heroPowerOf(G.enemy);
   $('playerHeroIcon').innerHTML = heroPortraitHTML(ph);
   setHeroHudName($('playerHeroName'), ph.name);
-  $('playerPowerIcon').textContent = pp.icon;
+  setHeroPowerArt($('playerPowerIcon'), G.playerHeroId, !!G.player.powerUpgraded, pp.icon);
   $('playerPowerCost').textContent = pp.cost;
   $('playerPowerBtn').title = `${pp.name}: ${pp.desc}`;
   $('enemyHeroIcon').innerHTML = heroPortraitHTML(eh);
   setHeroHudName($('enemyHeroName'), G.opp ? G.opp.name : eh.name);
-  $('enemyPowerIcon').textContent = ep.icon;
+  setHeroPowerArt($('enemyPowerIcon'), G.enemyHeroId, !!G.enemy.powerUpgraded, ep.icon);
   $('enemyPowerCost').textContent = ep.cost;
   $('enemyPowerBtn').title = `${ep.name}: ${ep.desc}`;
 }
@@ -18832,7 +20172,7 @@ function endGame(winner){
       for (let pi = 0; pi < nPacks; pi++){
         const rt = types[Math.floor(Math.random() * types.length)];
         SAVE.packs[rt] = (SAVE.packs[rt] || 0) + 1;
-        rewards.push(`+1 пак ${PACKS_DB[rt].icon}`);
+        rewards.push(`+1 пак «${PACKS_DB[rt].name}»`);
       }
       rewards.unshift(`+${bgold} 🪙${heroicWin ? ' ⚡' : ''}`);
       if (heroicWin){
@@ -18864,7 +20204,7 @@ function endGame(winner){
       const rt = types[Math.floor(Math.random() * types.length)];
       SAVE.packs[rt] = (SAVE.packs[rt] || 0) + 1;
       SAVE.dust += 10;
-      rewards.push(`+${GOLD.win} 🪙`, `+1 пак ${PACKS_DB[rt].icon}`, '+10 ✨');
+      rewards.push(`+${GOLD.win} 🪙`, `+1 пак «${PACKS_DB[rt].name}»`, '+10 ✨');
     }
     if (G.opp) showEmote(randomEmote('lose'));
     $('resultTitle').textContent = wasBoss ? '🏆 БОСС ПОВЕРЖЕН!' : '🏆 ПОБЕДА!';
@@ -18951,11 +20291,11 @@ document.addEventListener('keydown', e => {
 /* ================== МАГАЗИН ================== */
 const SHOP = {
   heroes: [
-    { id:'rogue', icon:'🥷', name:'Разбойник', desc:'Агрессивный герой. Кинжал: 2 урона в лицо.', price:400 },
-    { id:'necro', icon:'🧟‍♀️', name:'Некромант', desc:'Мидрейндж. Поднять: призыв Скелета 1/1.', price:400 },
-    { id:'warlock', icon:'🧛‍♂️', name:'Чернокнижник', desc:'Кровавый пакт: 2 урона себе — возьми карту.', price:500 },
-    { id:'druid', icon:'🧝‍♂️', name:'Друид', desc:'Тотем: случайный из 4 (хил/провок/атака/магия).', price:500 },
-    { id:'weaponsmith', icon:'🧑‍🏭', name:'Оружейник', desc:'Ковка: берёт оружие Ржавый клинок 1/2.', price:500 }
+    { id:'rogue', kind:'hero', art:HERO_ART_ASSET.rogue, name:'Разбойник', desc:'Агрессивный герой. Кинжал: 2 урона в лицо.', price:400 },
+    { id:'necro', kind:'hero', art:HERO_ART_ASSET.necro, name:'Некромант', desc:'Мидрейндж. Поднять: призыв Скелета 1/1.', price:400 },
+    { id:'warlock', kind:'hero', art:HERO_ART_ASSET.warlock, name:'Чернокнижник', desc:'Кровавый пакт: 2 урона себе — возьми карту.', price:500 },
+    { id:'druid', kind:'hero', art:HERO_ART_ASSET.druid, name:'Друид', desc:'Тотем: случайный из 4 (хил/провок/атака/магия).', price:500 },
+    { id:'weaponsmith', kind:'hero', art:HERO_ART_ASSET.weaponsmith, name:'Оружейник', desc:'Ковка: берёт оружие Ржавый клинок 1/2.', price:500 }
   ],
   tracks: [
     { id:'mystic', icon:'🔮', name:'Мистика', desc:'Тягучие пады подземелья.', price:150 },
@@ -18980,11 +20320,11 @@ const SHOP = {
   ]
 };
 const SHOP_PACKS = [
-  { id:'classic', icon:'🎁', name:'Классический пак', desc:'5 карт базового набора.', price:100 },
-  { id:'magic', icon:'✨', name:'Магический пак', desc:'5 карт школы магии.', price:100 },
-  { id:'mech', icon:'⚙️', name:'Механический пак', desc:'5 карт-механизмов.', price:100 },
-  { id:'pirate', icon:'🏴‍☠️', name:'Пиратский пак', desc:'5 карт «Пираты и Порох».', price:100 },
-  { id:'codex', icon:'📖', name:'Пак КОДЕКСА', desc:'5 карт набора «Вмешательство».', price:120 }
+  { id:'classic', art:'assets/ui/astral/packs/pack-classic.png', name:'Классический пак', desc:'5 карт базового набора.', price:100 },
+  { id:'magic', art:'assets/ui/astral/packs/pack-magic.png', name:'Магический пак', desc:'5 карт школы магии.', price:100 },
+  { id:'mech', art:'assets/ui/astral/packs/pack-mech.png', name:'Механический пак', desc:'5 карт-механизмов.', price:100 },
+  { id:'pirate', art:'assets/ui/astral/packs/pack-pirate.png', name:'Пиратский пак', desc:'5 карт «Пираты и Порох».', price:100 },
+  { id:'codex', art:'assets/ui/astral/packs/pack-codex.png', name:'Пак КОДЕКСА', desc:'5 карт набора «Вмешательство».', price:120 }
 ];
 let shopTab = 'packs';
 const SHOP_TABS = [['packs','🎁 Паки'],['heroes','🦸 Герои'],['backs','🂠 Рубашки'],['tracks','🎵 Музыка'],['fx','✨ Анимации']];
@@ -19054,7 +20394,7 @@ function shopCard(it, o){
     action = '<div class="si-owned">✓ Куплено</div>';
   }
   el.innerHTML = `
-    <div class="si-icon">${it.icon}</div>
+    ${it.art ? `<img class="${it.kind === 'hero' ? 'si-hero-art' : 'si-pack-art'}" src="${it.art}?v=${CARD_ARENA_BUILD}" alt="">` : (o.previewCls ? '' : `<div class="si-icon">${it.icon}</div>`)}
     ${o.previewCls ? `<div class="si-preview ${o.previewCls}"></div>` : ''}
     <div class="si-name">${it.name}</div>
     <div class="si-desc">${it.desc}</div>
